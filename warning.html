@@ -18,6 +18,7 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
         /* Dropdown styles */
         .dropdown-content {
             display: none;
@@ -33,17 +34,155 @@
         .dropdown-content.show {
             display: block;
         }
+        
         /* Group toggle styles */
         .group-toggle {
             cursor: pointer;
         }
-        .group-toggle.expanded .toggle-icon {
-            transform: rotate(90deg);
+        .group-toggle .toggle-icon {
+            transition: transform 0.2s ease;
         }
+        
+        /* Table styles */
+        #lettersTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        #lettersTable th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        #lettersTable th:hover {
+            background-color: #e5e7eb;
+        }
+        
+        #lettersTable th .sort-icon {
+            display: inline-block;
+            width: 16px;
+            margin-left: 4px;
+            color: #6b7280;
+        }
+        
+        #lettersTable td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        #lettersTable tr:last-child td {
+            border-bottom: none;
+        }
+        
+        #lettersTable tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Zebra striping for better readability */
+        #lettersTable tbody tr:nth-child(odd):not(.group-toggle) {
+            background-color: #f9fafb;
+        }
+        
+        #lettersTable tbody tr:nth-child(odd):not(.group-toggle):hover {
+            background-color: #f3f4f6;
+        }
+        
+        /* Group header styling */
+        .group-toggle td {
+            background-color: #e5e7eb;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .group-toggle:hover td {
+            background-color: #d1d5db;
+        }
+        
+        /* Company name link styling */
+        .company-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .company-link:hover {
+            text-decoration: underline;
+            color: #1d4ed8;
+        }
+        
+        /* Tag styling for response/closeout */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .tag-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tag-green {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
         /* Pagination button styles */
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            background-color: white;
+            color: #374151;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-btn:hover {
+            background-color: #f3f4f6;
+        }
+        
         .pagination-btn.active {
             background-color: #3b82f6;
             color: white;
+            border-color: #3b82f6;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Responsive table */
+        @media (max-width: 768px) {
+            #tableContainer {
+                overflow-x: auto;
+            }
+            
+            #lettersTable {
+                min-width: 800px;
+            }
         }
     </style>
 </head>
@@ -56,34 +195,34 @@
         <!-- Search Form with Auto-suggest -->
         <div class="mb-6 relative">
             <form id="searchForm" class="mb-2">
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <div class="flex-grow relative">
                         <input
                             type="text"
                             id="searchQuery"
                             placeholder="Search by company, subject, or office..."
-                            class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                             autocomplete="off"
                         >
                         <div id="suggestions" class="dropdown-content w-full mt-1 border border-gray-200"></div>
                     </div>
                     <button
                         type="submit"
-                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex-shrink-0"
+                        class="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 transition flex-shrink-0 shadow-sm"
                     >
                         Search
                     </button>
                     <button
                         type="button"
                         id="clearBtn"
-                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-shrink-0"
+                        class="bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transition flex-shrink-0 shadow-sm"
                     >
                         Clear
                     </button>
                     <button
                         type="button"
                         id="toggleFiltersBtn"
-                        class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition flex-shrink-0"
+                        class="bg-indigo-500 text-white px-4 py-3 rounded-lg hover:bg-indigo-600 transition flex-shrink-0 shadow-sm"
                     >
                         Filters
                     </button>
@@ -91,12 +230,12 @@
             </form>
 
             <!-- Advanced Filters (Hidden by default) -->
-            <div id="filtersPanel" class="p-4 bg-white rounded-lg shadow mb-4 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div id="filtersPanel" class="p-6 bg-white rounded-lg shadow-md mb-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Date Range Filter -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                        <select id="dateFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <select id="dateFilter" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Any time</option>
                             <option value="7">Last 7 days</option>
                             <option value="30">Last 30 days</option>
@@ -107,8 +246,8 @@
 
                     <!-- Issuing Office Filter -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Issuing Office</label>
-                        <select id="officeFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Issuing Office</label>
+                        <select id="officeFilter" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">All offices</option>
                             <option value="Center for Drug Evaluation and Research">Center for Drug Evaluation and Research</option>
                             <option value="Center for Food Safety and Applied Nutrition">Center for Food Safety and Applied Nutrition</option>
@@ -121,29 +260,29 @@
 
                     <!-- Subject Filter -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject Contains</label>
-                        <input type="text" id="subjectFilter" placeholder="Enter keywords..." class="w-full p-2 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subject Contains</label>
+                        <input type="text" id="subjectFilter" placeholder="Enter keywords..." class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
 
                 <!-- Toggle for showing letters with response/closeout -->
-                <div class="mt-4 flex flex-wrap gap-4">
+                <div class="mt-6 flex flex-wrap gap-6">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="responseFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <input type="checkbox" id="responseFilter" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                         <span class="ml-2 text-gray-700">Show letters with response</span>
                     </label>
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="closeoutFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <input type="checkbox" id="closeoutFilter" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                         <span class="ml-2 text-gray-700">Show letters with closeout</span>
                     </label>
                     <label class="inline-flex items-center">
-                        <input type="checkbox" id="groupCompaniesFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <input type="checkbox" id="groupCompaniesFilter" class="form-checkbox h-5 w-5 text-blue-600 rounded">
                         <span class="ml-2 text-gray-700">Group by company name</span>
                     </label>
                 </div>
 
-                <div class="mt-4 flex justify-end">
-                    <button type="button" id="applyFiltersBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                <div class="mt-6 flex justify-end">
+                    <button type="button" id="applyFiltersBtn" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition shadow-sm font-medium">
                         Apply Filters
                     </button>
                 </div>
@@ -151,19 +290,19 @@
         </div>
 
         <!-- Loading Spinner -->
-        <div id="loading" class="text-center my-8">
+        <div id="loading" class="text-center my-12">
             <div class="spinner mx-auto"></div>
-            <p class="mt-2">Loading...</p>
+            <p class="mt-3 text-gray-600">Loading warning letters...</p>
         </div>
 
         <!-- Results count and view options -->
         <div id="resultsInfo" class="flex justify-between items-center mb-4 hidden">
             <div>
-                <p id="totalResults" class="text-gray-600"></p>
+                <p id="totalResults" class="text-gray-600 font-medium"></p>
             </div>
             <div>
                 <label class="text-sm text-gray-600 mr-2">Items per page:</label>
-                <select id="itemsPerPage" class="p-1 border border-gray-300 rounded">
+                <select id="itemsPerPage" class="p-2 border border-gray-300 rounded shadow-sm">
                     <option value="10">10</option>
                     <option value="25" selected>25</option>
                     <option value="50">50</option>
@@ -173,58 +312,60 @@
         </div>
 
         <!-- Table -->
-        <div id="tableContainer" class="overflow-x-auto bg-white rounded-lg shadow hidden">
-            <table id="lettersTable" class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="postedDate">
-                            Posted Date <span class="sort-icon">↓</span>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="letterIssueDate">
-                            Letter Date <span class="sort-icon"></span>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="companyName">
-                            Company <span class="sort-icon"></span>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="issuingOffice">
-                            Issuing Office <span class="sort-icon"></span>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="subject">
-                            Subject <span class="sort-icon"></span>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Response/Closeout
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
-            </table>
+        <div id="tableContainer" class="overflow-hidden bg-white rounded-lg shadow-md hidden">
+            <div class="overflow-x-auto">
+                <table id="lettersTable" class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="cursor-pointer" data-sort="postedDate">
+                                Posted Date <span class="sort-icon">↓</span>
+                            </th>
+                            <th class="cursor-pointer" data-sort="letterIssueDate">
+                                Letter Date <span class="sort-icon"></span>
+                            </th>
+                            <th class="cursor-pointer" data-sort="companyName">
+                                Company <span class="sort-icon"></span>
+                            </th>
+                            <th class="cursor-pointer" data-sort="issuingOffice">
+                                Issuing Office <span class="sort-icon"></span>
+                            </th>
+                            <th class="cursor-pointer" data-sort="subject">
+                                Subject <span class="sort-icon"></span>
+                            </th>
+                            <th>
+                                Response/Closeout
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Pagination -->
-        <div id="pagination" class="mt-4 flex justify-center hidden">
-            <div class="flex space-x-1">
-                <button id="firstPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">«</button>
-                <button id="prevPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">‹</button>
-                <div id="pageNumbers" class="flex space-x-1"></div>
-                <button id="nextPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">›</button>
-                <button id="lastPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">»</button>
+        <div id="pagination" class="mt-6 flex justify-center hidden">
+            <div class="flex space-x-2">
+                <button id="firstPage" class="pagination-btn">«</button>
+                <button id="prevPage" class="pagination-btn">‹</button>
+                <div id="pageNumbers" class="flex space-x-2"></div>
+                <button id="nextPage" class="pagination-btn">›</button>
+                <button id="lastPage" class="pagination-btn">»</button>
             </div>
         </div>
 
         <!-- No Results Message -->
-        <div id="noResults" class="text-center p-8 bg-white rounded-lg shadow hidden">
-            <p class="text-gray-600">No warning letters found matching your criteria.</p>
+        <div id="noResults" class="text-center p-12 bg-white rounded-lg shadow-md hidden">
+            <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-gray-600 text-lg mt-4">No warning letters found matching your criteria.</p>
+            <p class="text-gray-500 mt-2">Try adjusting your search or filters.</p>
         </div>
     </main>
 
     <script>
         // API base URL - update this to match your backend server
-        
         const apiBaseUrl = 'https://awm-92tz.onrender.com';
-        // 'http://localhost:3000';
-        
-        
         // Render letters to table
         function renderLetters(letters) {
           const tableBody = document.getElementById('tableBody');
@@ -234,12 +375,14 @@
             document.getElementById('tableContainer').classList.add('hidden');
             document.getElementById('noResults').classList.remove('hidden');
             document.getElementById('pagination').classList.add('hidden');
+            document.getElementById('resultsInfo').classList.add('hidden');
             return;
           }
           
           document.getElementById('tableContainer').classList.remove('hidden');
           document.getElementById('noResults').classList.add('hidden');
           document.getElementById('pagination').classList.remove('hidden');
+          document.getElementById('resultsInfo').classList.remove('hidden');
           
           const groupByCompany = document.getElementById('groupCompaniesFilter').checked;
           
@@ -270,13 +413,13 @@
             
             // Create group header row
             const groupHeaderRow = document.createElement('tr');
-            groupHeaderRow.className = 'group-toggle bg-gray-100 hover:bg-gray-200';
+            groupHeaderRow.className = 'group-toggle';
             
             groupHeaderRow.innerHTML = `
-              <td colspan="6" class="px-6 py-3">
+              <td colspan="6">
                 <div class="flex items-center">
-                  <span class="toggle-icon inline-block transform mr-2">▶</span>
-                  <span class="font-medium">${company}</span>
+                  <span class="toggle-icon inline-block mr-2">▶</span>
+                  <span>${company}</span>
                   <span class="ml-2 text-gray-500">(${letters.length} letter${letters.length > 1 ? 's' : ''})</span>
                 </div>
               </td>
@@ -300,19 +443,19 @@
             // Create rows for each letter in the group (initially hidden)
             letters.forEach(letter => {
               const letterRow = document.createElement('tr');
-              letterRow.className = 'hidden hover:bg-gray-50';
+              letterRow.className = 'hidden';
               
               letterRow.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.postedDate || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.letterIssueDate || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                <td>${formatDate(letter.postedDate) || ''}</td>
+                <td>${formatDate(letter.letterIssueDate) || ''}</td>
+                <td>
+                  <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="company-link">
                     ${letter.companyName || ''}
                   </a>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.issuingOffice || ''}</td>
-                <td class="px-6 py-4 text-sm text-gray-900">${letter.subject || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <td>${letter.issuingOffice || ''}</td>
+                <td>${letter.subject || ''}</td>
+                <td>
                   ${renderResponseCloseout(letter)}
                 </td>
               `;
@@ -328,19 +471,18 @@
           
           letters.forEach(letter => {
             const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-50';
             
             row.innerHTML = `
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.postedDate || ''}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.letterIssueDate || ''}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+              <td>${formatDate(letter.postedDate) || ''}</td>
+              <td>${formatDate(letter.letterIssueDate) || ''}</td>
+              <td>
+                <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="company-link">
                   ${letter.companyName || ''}
                 </a>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.issuingOffice || ''}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">${letter.subject || ''}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <td>${letter.issuingOffice || ''}</td>
+              <td>${letter.subject || ''}</td>
+              <td>
                 ${renderResponseCloseout(letter)}
               </td>
             `;
@@ -349,19 +491,37 @@
           });
         }
         
+        // Format date for display
+        function formatDate(dateString) {
+          if (!dateString) return '';
+          
+          try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });
+          } catch (e) {
+            return dateString;
+          }
+        }
+        
         // Render response/closeout information
         function renderResponseCloseout(letter) {
           let html = '';
           
           if (letter.responseLetter) {
-            html += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1">
-              Response: ${letter.responseLetter}
+            html += `<span class="tag tag-blue">
+              Response: ${formatDate(letter.responseLetter)}
             </span>`;
           }
           
           if (letter.closeoutLetter) {
-            html += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-              Closeout: ${letter.closeoutLetter}
+            html += `<span class="tag tag-green">
+              Closeout: ${formatDate(letter.closeoutLetter)}
             </span>`;
           }
           
@@ -395,8 +555,14 @@
           } catch (error) {
             console.error('Error fetching letters:', error);
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">
-              Error loading data: ${error.message}
+            tableBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500">
+              <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-lg">Error loading data: ${error.message}</p>
+                <p class="text-sm mt-2">Check your connection and try again.</p>
+              </div>
             </td></tr>`;
             document.getElementById('noResults').classList.add('hidden');
             document.getElementById('tableContainer').classList.remove('hidden');
@@ -508,6 +674,6 @@
         
         // Call initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', initPage);
-        </script>
+    </script>
 </body>
 </html>
