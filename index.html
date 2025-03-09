@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulatory Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="text-gray-200 font-sans">
+    <div class="container mx-auto p-6">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white">Regulatory Intelligence Dashboard</h1>
+            <p class="text-gray-400">Search FDA and Regulatory Data | Example: Try "Treatment-Resistant Depression"</p>
+        </header>
+
+        <div class="glass p-6 rounded-lg shadow-lg mb-8">
+            <input id="searchInput" type="text" placeholder="Search regulatory data (e.g., drug, company, violation)" 
+                   class="w-full p-3 rounded-lg bg-gray-800 text-white border-none focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="searchBtn" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Search</button>
+        </div>
+
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Search results -->
+        </div>
+
+        <div class="glass p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-semibold text-white mb-4">Latest Regulatory Updates</h2>
+            <div id="latestUpdates" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Latest cards -->
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-white mb-4">Live Feed - Recent Submissions</h2>
+            <div id="liveFeed" class="space-y-4 max-h-96 overflow-y-auto">
+                <!-- Live feed -->
+            </div>
+        </div>
+
+        <footer class="text-center mt-8 text-gray-500">
+            <p>Data sourced from FDA, DailyMed, Orange Book, ICH, IMDRF | Updated March 6, 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        const resultsDiv = document.getElementById('results');
+        const latestUpdatesDiv = document.getElementById('latestUpdates');
+        const liveFeedDiv = document.getElementById('liveFeed');
+
+        // Search functionality
+        searchBtn.addEventListener('click', async () => {
+            const query = searchInput.value.trim() || '';
+            resultsDiv.innerHTML = '<p class="text-gray-400">Loading...</p>';
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                resultsDiv.innerHTML = '<p class="text-red-400">Error fetching data. Please try again.</p>';
+                console.error(error);
+            }
+        });
+
+        function displayResults(data) {
+            resultsDiv.innerHTML = '';
+            if (!data || Object.keys(data).length === 0) {
+                resultsDiv.innerHTML = '<p class="text-gray-400">No results found.</p>';
+                return;
+            }
+
+            const sources = ['warningLetters', 'drugsAtFDA', 'dailyMed', 'orangeBook', 'ichGuidance', 'imdrfPublications', 'fiveTenK', 'pma', 'submissions'];
+            sources.forEach(source => {
+                if (data[source] && data[source].length) {
+                    data[source].forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'glass p-4 rounded-lg shadow-lg';
+                        card.innerHTML = `
+                            <h3 class="text-lg font-semibold text-white">${item.title || item.drugName || 'Untitled'}</h3>
+                            <p class="text-gray-300">${item.description || 'No description available'}</p>
+                            <p class="text-gray-400 text-sm mt-2">Source: ${source.replace(/([A-Z])/g, ' $1').trim()} | Date: ${item.date || 'N/A'}</p>
+                            ${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-400 hover:underline">View PDF/Link</a>` : ''}
+                        `;
+                        resultsDiv.appendChild(card);
+                    });
+                }
+            });
+        }
+
+        // Latest updates
+        async function updateLatest() {
+            try {
+                const response = await fetch('http://localhost:3000/api/latest');
+                const data = await response.json();
+                displayLatest(data);
+            } catch (error) {
+                latestUpdatesDiv.innerHTML = '<p class="text-red-400">Error fetching latest updates.</p>';
+                console.error(error);
+            }
+        }
+
+        function displayLatest(data) {
+            latestUpdatesDiv.innerHTML = '';
+            Object.entries(data).forEach(([key, item]) => {
+                const card = document.createElement('div');
+                card.className = 'glass p-4 rounded-lg';
+                card.innerHTML = `
+                    <h3 class="text-md font-semibold text-white">${item.title}</h3>
+                    <p class="text-gray-300">${item.description}</p>
+                    <p class="text-gray-400 text-sm">Date: ${item.date}</p>
+                    <a href="${item.link}" target="_blank" class="text-blue-400 hover:underline">View</a>
+                `;
+                latestUpdatesDiv.appendChild(card);
+            });
+        }
+
+        // Live feed
+        async function updateLiveFeed() {
+            try {
+                const response = await fetch('http://localhost:3000/api/live-feed');
+                const data = await response.json();
+                displayLiveFeed(data);
+            } catch (error) {
+                liveFeedDiv.innerHTML = '<p class="text-red-400">Error fetching live feed.</p>';
+                console.error(error);
+            }
+        }
+
+        function displayLiveFeed(data) {
+            liveFeedDiv.innerHTML = '';
+            if (!data || Object.keys(data).length === 0) {
+                liveFeedDiv.innerHTML = '<p class="text-gray-400">No recent submissions found.</p>';
+                return;
+            }
+
+            Object.values(data).flat().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10).forEach(item => {
+                const entry = document.createElement('div');
+                entry.className = 'glass p-3 rounded-lg';
+                entry.innerHTML = `
+                    <h3 class="text-md font-semibold text-white">${item.title || item.drugName || 'Untitled'}</h3>
+                    <p class="text-gray-300">${item.description || 'No description'}</p>
+                    <p class="text-gray-400 text-sm">Date: ${item.date || 'N/A'} | Source: ${item.source}</p>
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="text-blue-400 hover:underline">View</a>` : ''}
+                `;
+                liveFeedDiv.appendChild(entry);
+            });
+        }
+
+        // Initial load and updates
+        searchBtn.click();
+        updateLatest();
+        updateLiveFeed();
+        setInterval(updateLiveFeed, 60000); // Update live feed every 60 seconds
+    </script>
+</body>
+</html>

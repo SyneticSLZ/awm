@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Drug Search Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #recentSubmissions {
+    margin-bottom: 20px;
+  }
+  
+  /* Improved styling for cards in grid views */
+  .grid-card {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .grid-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Add truncation for long text */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Improved button styling */
+  .toggle-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .toggle-btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  /* Fade animation for tab content */
+  .tab-content {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+  }
+  
+  .tab-content.active {
+    opacity: 1;
+  }
+  
+    .modal { display: none; }
+    .modal.show { display: flex; }
+    .modal-content {
+      max-height: 85vh;
+      overflow-y: auto;
+      width: 90%;
+      max-width: 1000px; /* Increased width for more content */
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    .tab.active {
+      border-bottom: 2px solid #3b82f6;
+      color: #3b82f6;
+      font-weight: 600;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .navbar-menu {
+      transition: all 0.3s ease-in-out;
+    }
+    @media (max-width: 768px) {
+      .navbar-menu {
+        display: none;
+      }
+      .navbar-menu.open {
+        display: block;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- Enhanced Navbar -->
+  <nav class="bg-blue-600 text-white p-4 shadow-md">
+    <div class="container mx-auto flex justify-between items-center flex-wrap">
+      <div class="flex items-center space-x-4">
+        <h1 class="text-2xl font-bold">Advanced Drug Search Tool</h1>
+      </div>
+      <button id="navbarToggle" class="md:hidden text-white focus:outline-none">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+      <div id="navbarMenu" class="navbar-menu w-full md:w-auto md:flex md:space-x-4 mt-2 md:mt-0">
+        <button id="trdButton" class="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100 w-full md:w-auto text-left">TRD Depression Data</button>
+        <a href="/" class="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100 w-full md:w-auto text-left">Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto p-4 mt-6">
+    <div id="recentSubmissions" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Submissions</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="recentSubmissionsContainer">
+        <!-- Content will be loaded dynamically -->
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <!-- Search Form -->
+      <form id="searchForm" class="flex flex-col md:flex-row mb-6 gap-2">
+        <input 
+          type="text" 
+          id="drugName" 
+          placeholder="Enter drug name (e.g., Adderall)" 
+          class="flex-grow p-3 border rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <select id="searchType" class="p-3 border rounded-lg md:rounded-none focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="brand">Brand Name</option>
+          <option value="generic">Generic Name</option>
+          <option value="indication">Indication</option>
+        </select>
+        <button 
+          type="submit" 
+          id="searchButton"
+          class="bg-blue-600 text-white p-3 rounded-lg md:rounded-l-none hover:bg-blue-700 flex items-center justify-center"
+        >
+          <span id="searchButtonText">Search</span>
+          <span id="searchSpinner" class="loading ml-2 hidden"></span>
+        </button>
+      </form>
+
+      <!-- Results -->
+      <div id="searchStatus" class="mb-4 hidden">
+        <div class="bg-blue-50 text-blue-700 p-4 rounded flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="statusText">Searching...</span>
+        </div>
+      </div>
+
+      <div id="results" class="space-y-6"></div>
+    </div>
+  </main>
+
+  <!-- Detailed Modal -->
+  <div id="modal" class="modal fixed inset-0 z-50 overflow-auto flex items-center justify-center hidden">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="bg-white rounded-lg shadow-xl modal-content relative">
+      <!-- Modal Header -->
+      <div class="bg-gray-100 px-6 py-4 rounded-t-lg flex justify-between items-center">
+        <h2 id="modalTitle" class="text-xl font-semibold text-gray-800">Drug Details</h2>
+        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Modal Tabs -->
+      <div class="tabs px-6 pt-4">
+        <div class="tab active" data-tab="overview">Overview</div>
+        <div class="tab" data-tab="fda">FDA Documents</div>
+        <div class="tab" data-tab="dailymed">DailyMed</div>
+        <div class="tab" data-tab="orangebook">Orange Book</div>
+        <div class="tab" data-tab="guidances">Guidances</div>
+        <div class="tab" data-tab="application">Application Data</div> <!-- New tab for detailed app data -->
+      </div>
+      
+      <!-- Modal Content -->
+      <div class="px-6 py-4">
+        <div id="overview" class="tab-content active"></div>
+        <div id="fda" class="tab-content"></div>
+        <div id="dailymed" class="tab-content"></div>
+        <div id="orangebook" class="tab-content"></div>
+        <div id="guidances" class="tab-content"></div>
+        <div id="application" class="tab-content"></div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="bg-gray-100 px-6 py-4 rounded-b-lg flex justify-end">
+        <button onclick="closeModal()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Constants
+    const API_BASE_URL = 'http://localhost:3000/api';
+    
+    // DOM Elements
+    const searchForm = document.getElementById('searchForm');
+    const drugNameInput = document.getElementById('drugName');
+    const searchTypeSelect = document.getElementById('searchType');
+    const resultsContainer = document.getElementById('results');
+    const modal = document.getElementById('modal');
+    const searchButton = document.getElementById('searchButton');
+    const searchSpinner = document.getElementById('searchSpinner');
+    const searchButtonText = document.getElementById('searchButtonText');
+    const searchStatus = document.getElementById('searchStatus');
+    const statusText = document.getElementById('statusText');
+    const trdButton = document.getElementById('trdButton');
+    const navbarToggle = document.getElementById('navbarToggle');
+    const navbarMenu = document.getElementById('navbarMenu');
+    const recentSubmissions = document.getElementById('recentSubmissions');
+  const recentSubmissionsContainer = document.getElementById('recentSubmissionsContainer');
+  
+    
+    // Event Listeners
+    searchForm.addEventListener('submit', handleSearch);
+    trdButton.addEventListener('click', fetchTRDData);
+    document.addEventListener('DOMContentLoaded', () => {
+    fetchRecentSubmissions();
+  });
+    navbarToggle.addEventListener('click', () => {
+      navbarMenu.classList.toggle('open');
+    });
+    
+    // Tab functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Functions
+    async function handleSearch(event) {
+      event.preventDefault();
+      const drugName = drugNameInput.value.trim();
+      const searchType = searchTypeSelect.value;
+      
+      if (!drugName) {
+        showStatus('Please enter a drug name', 'error');
+        return;
+      }
+      
+      setLoading(true);
+      showStatus(`Searching for ${drugName}...`);
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/drug/${encodeURIComponent(drugName)}?type=${searchType}`);
+        const data = await response.json();
+        console.log(data)
+        
+        if (data.error) {
+          showStatus(data.error, 'error');
+          setLoading(false);
+          return;
+        }
+        
+        displayResults(data, drugName);
+        hideStatus();
+      } catch (error) {
+        console.error('Error fetching drug data:', error);
+        showStatus('Error fetching data. Please try again.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Add this function to fetch recent submissions
+  async function fetchRecentSubmissions() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/recent`);
+      const data = await response.json();
+      
+      if (data.recentSubmissions && data.recentSubmissions.length > 0) {
+        displayRecentSubmissions(data.recentSubmissions);
+      }
+    } catch (error) {
+      console.error('Error fetching recent submissions:', error);
+    }
+  }
+  
+  // Add this function to display recent submissions
+  function displayRecentSubmissions(submissions) {
+  recentSubmissionsContainer.innerHTML = '';
+  
+  submissions.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow';
+    
+    // Improved date formatting
+    let formattedDate = 'Unknown';
+    try {
+      if (item.date && item.date !== 'Unknown') {
+        // First check if it's YYYY-MM-DD format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(item.date)) {
+          const parts = item.date.split('-');
+          formattedDate = `${parts[1]}/${parts[2]}/${parts[0]}`; // Convert to MM/DD/YYYY
+        }
+        // Then check if it's YYYYMMDD format
+        else if (/^\d{8}$/.test(item.date)) {
+          const year = item.date.substring(0, 4);
+          const month = item.date.substring(4, 6);
+          const day = item.date.substring(6, 8);
+          formattedDate = `${month}/${day}/${year}`;
+        }
+        // Otherwise try to parse as Date object
+        else {
+          const date = new Date(item.date);
+          if (!isNaN(date.getTime())) {
+            formattedDate = date.toLocaleDateString();
+          } else {
+            formattedDate = item.date; // Use as-is if cannot parse
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      formattedDate = item.date || 'Unknown';
+    }
+    
+    // Create badge for submission type
+    let badgeClass = 'bg-blue-100 text-blue-800';
+    if (item.type === 'FDA Approval') {
+      badgeClass = 'bg-green-100 text-green-800';
+    }
+    
+    card.innerHTML = `
+      <div class="flex items-start justify-between">
+        <span class="inline-block px-2 py-1 text-xs rounded ${badgeClass} mb-2">${item.type}</span>
+        <span class="text-xs text-gray-500">${formattedDate}</span>
+      </div>
+      <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${item.title}</h3>
+      <a href="${item.url}" target="_blank" class="text-blue-600 text-sm hover:underline flex items-center mt-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+        View Details
+      </a>
+    `;
+    
+    recentSubmissionsContainer.appendChild(card);
+  });
+  
+  recentSubmissions.classList.remove('hidden');
+} 
+    // function displayResults(data, searchTerm) {
+    //   resultsContainer.innerHTML = '';
+      
+    //   if (Object.keys(data).length === 0) {
+    //     resultsContainer.innerHTML = `
+    //       <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+    //         <p class="text-yellow-700">No results found for "${searchTerm}"</p>
+    //       </div>
+    //     `;
+    //     return;
+    //   }
+      
+    //   Object.keys(data).forEach(brandName => {
+    //     const brandData = data[brandName];
+    //     const brandCard = document.createElement('div');
+    //     brandCard.className = 'bg-white rounded-lg shadow-md overflow-hidden border border-gray-200';
+        
+    //     const header = document.createElement('div');
+    //     header.className = 'bg-blue-50 p-4 border-b border-gray-200';
+    //     header.innerHTML = `<h2 class="text-xl font-semibold text-blue-800 capitalize">${brandName}</h2>`;
+    //     brandCard.appendChild(header);
+        
+    //     const strengthsContainer = document.createElement('div');
+    //     strengthsContainer.className = 'divide-y divide-gray-200';
+        
+    //     Object.keys(brandData).forEach(strength => {
+    //       const products = brandData[strength];
+    //       const strengthSection = document.createElement('div');
+    //       strengthSection.className = 'p-4';
+          
+    //       strengthSection.innerHTML = `<h3 class="font-medium text-gray-700 mb-2">Strength: ${strength}</h3>`;
+    //       const productsList = document.createElement('ul');
+    //       productsList.className = 'space-y-2';
+          
+    //       products.forEach((product, index) => {
+    //         const productItem = document.createElement('li');
+    //         productItem.className = 'bg-gray-50 p-3 rounded flex justify-between items-center';
+    //         productItem.innerHTML = `
+    //           <div>
+    //             <p><span class="font-medium">Application:</span> ${product.applicationNumber}</p>
+    //             <p><span class="font-medium">Approved:</span> ${formatDate(product.approvalDate)}</p>
+    //             <p><span class="font-medium">Manufacturer:</span> ${product.sponsorName}</p>
+    //             <p><span class="font-medium">Dosage:</span> ${product.dosageForm || 'N/A'}</p>
+    //           </div>
+    //           <button 
+    //             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    //             onclick='showDrugDetails(${JSON.stringify(product).replace(/'/g, "\\'")})'
+    //           >
+    //             Details
+    //           </button>
+    //         `;
+    //         productsList.appendChild(productItem);
+    //       });
+          
+    //       strengthSection.appendChild(productsList);
+    //       strengthsContainer.appendChild(strengthSection);
+    //     });
+        
+    //     brandCard.appendChild(strengthsContainer);
+    //     resultsContainer.appendChild(brandCard);
+    //   });
+    // }
+    
+    // function showDrugDetails(product) {
+    //   document.getElementById('modalTitle').textContent = `${product.brandName || product.applicationNumber} Details`;
+      
+    //   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    //   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    //   document.querySelector('.tab[data-tab="overview"]').classList.add('active');
+    //   document.getElementById('overview').classList.add('active');
+      
+    //   // Overview Tab (Enhanced for TRD compatibility)
+    //   const overviewTab = document.getElementById('overview');
+    //   overviewTab.innerHTML = `
+    //     <div class="space-y-4">
+    //       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //         <div>
+    //           <h3 class="text-lg font-medium text-gray-800 mb-2">Application Details</h3>
+    //           <ul class="space-y-2">
+    //             <li><span class="font-medium">Application Number:</span> ${product.applicationNumber}</li>
+    //             <li><span class="font-medium">Approval Date:</span> ${formatDate(product.approvalDate)}</li>
+    //             <li><span class="font-medium">Sponsor/Manufacturer:</span> ${product.sponsorName || product.manufacturer || 'N/A'}</li>
+    //             ${product.dosageForm ? `<li><span class="font-medium">Dosage Form:</span> ${product.dosageForm}</li>` : ''}
+    //             ${product.route ? `<li><span class="font-medium">Route:</span> ${product.route}</li>` : ''}
+    //             ${product.marketingStatus ? `<li><span class="font-medium">Marketing Status:</span> ${product.marketingStatus}</li>` : ''}
+    //           </ul>
+    //         </div>
+    //         <div>
+    //           <h3 class="text-lg font-medium text-gray-800 mb-2">Active Ingredients</h3>
+    //           <ul class="space-y-1">
+    //             ${product.activeIngredients?.map(ingredient => 
+    //               `<li><span class="font-medium">${ingredient.name}:</span> ${ingredient.strength || 'N/A'}</li>`
+    //             ).join('') || '<li>N/A</li>'}
+    //           </ul>
+    //           ${product.indication ? `
+    //             <div class="mt-4">
+    //               <h3 class="text-lg font-medium text-gray-800 mb-2">Indication</h3>
+    //               <p>${product.indication}</p>
+    //             </div>
+    //           ` : ''}
+    //         </div>
+    //       </div>
+    //       ${product.fdaPage ? `
+    //         <div class="mt-4">
+    //           <h3 class="text-lg font-medium text-gray-800 mb-2">FDA Links</h3>
+    //           <a href="${product.fdaPage}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+    //             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    //             </svg>
+    //             FDA Drug Approval Page
+    //           </a>
+    //         </div>
+    //       ` : ''}
+    //     </div>
+    //   `;
+      
+    //   // FDA Documents Tab
+    //   const fdaTab = document.getElementById('fda');
+    //   fdaTab.innerHTML = product.pdfLinks ? `
+    //     <div class="space-y-4">
+    //       <p class="text-sm text-gray-600 mb-4">PDF documents from FDA's database for this drug application:</p>
+    //       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //         ${Object.entries(product.pdfLinks).map(([key, url]) => `
+    //           ${url ? `
+    //             <a href="${url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+    //               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    //               </svg>
+    //               ${formatDocumentName(key)}
+    //               <div class="tooltip ml-1">
+    //                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    //                 </svg>
+    //                 <span class="tooltip-text">${getDocumentDescription(key)}</span>
+    //               </div>
+    //             </a>
+    //           ` : ''}
+    //         `).join('')}
+    //       </div>
+    //     </div>
+    //   ` : '<p>No FDA documents available</p>';
+      
+    //   // Fetch additional data
+    //   fetchDailyMedData(product, document.getElementById('dailymed'));
+    //   fetchOrangeBookData(product, document.getElementById('orangebook'));
+    //   fetchGuidanceDocuments(product, document.getElementById('guidances'));
+    //   fetchApplicationData(product, document.getElementById('application'));
+      
+    //   modal.classList.add('show');
+    // }
+    
+      // Fix the showDrugDetails function to properly handle errors and missing data
+      function displayResults(data, searchTerm) {
+  resultsContainer.innerHTML = '';
+  
+  if (Object.keys(data).length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+        <p class="text-yellow-700">No results found for "${searchTerm}"</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Build the view toggle buttons
+  const viewToggle = `
+    <div class="flex items-center space-x-2 mb-4">
+      <span class="text-sm text-gray-600">View as:</span>
+      <button id="cardViewBtn" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Cards</button>
+      <button id="listViewBtn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">List</button>
+    </div>
+  `;
+  
+  // Build the card view content
+  let cardViewHtml = '';
+  
+  Object.keys(data).forEach(brandName => {
+    const brandData = data[brandName];
+    
+    cardViewHtml += `
+      <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 mb-4">
+        <div class="bg-blue-50 p-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-blue-800 capitalize">${brandName}</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+    `;
+    
+    Object.keys(brandData).forEach(strength => {
+      const products = brandData[strength];
+      cardViewHtml += `
+        <div class="p-4">
+          <h3 class="font-medium text-gray-700 mb-2">Strength: ${strength}</h3>
+          <ul class="space-y-2">
+      `;
+      
+      products.forEach((product, index) => {
+        cardViewHtml += `
+          <li class="bg-gray-50 p-3 rounded flex justify-between items-center">
+            <div>
+              <p><span class="font-medium">Application:</span> ${product.applicationNumber}</p>
+              <p><span class="font-medium">Approved:</span> ${formatDate(product.approvalDate)}</p>
+              <p><span class="font-medium">Manufacturer:</span> ${product.sponsorName}</p>
+              <p><span class="font-medium">Dosage:</span> ${product.dosageForm || 'N/A'}</p>
+            </div>
+            <button 
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onclick='showDrugDetails(${JSON.stringify(product).replace(/'/g, "\\'")})'
+            >
+              Details
+            </button>
+          </li>
+        `;
+      });
+      
+      cardViewHtml += `
+          </ul>
+        </div>
+      `;
+    });
+    
+    cardViewHtml += `
+        </div>
+      </div>
+    `;
+  });
+  
+  // Build the list view content
+  let listViewHtml = `
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Brand Name</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Manufacturer</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+  `;
+  
+  Object.keys(data).forEach(brandName => {
+    const brandData = data[brandName];
+    
+    Object.keys(brandData).forEach(strength => {
+      const products = brandData[strength];
+      
+      products.forEach(product => {
+        listViewHtml += `
+          <tr>
+            <td class="px-4 py-2">${brandName}</td>
+            <td class="px-4 py-2">${strength}</td>
+            <td class="px-4 py-2">${product.applicationNumber}</td>
+            <td class="px-4 py-2">${formatDate(product.approvalDate)}</td>
+            <td class="px-4 py-2">${product.sponsorName}</td>
+            <td class="px-4 py-2">
+              <button 
+                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                onclick='showDrugDetails(${JSON.stringify(product).replace(/'/g, "\\'")})'
+              >
+                Details
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    });
+  });
+  
+  listViewHtml += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  // Construct the final HTML with both views
+  resultsContainer.innerHTML = `
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Search Results for "${searchTerm}"</h2>
+      ${viewToggle}
+      <div id="cardView" class="block">${cardViewHtml}</div>
+      <div id="listView" class="hidden">${listViewHtml}</div>
+    </div>
+  `;
+  
+  // Add event listeners to toggle buttons
+  document.getElementById('cardViewBtn').addEventListener('click', () => {
+    document.getElementById('cardView').classList.remove('hidden');
+    document.getElementById('cardView').classList.add('block');
+    document.getElementById('listView').classList.add('hidden');
+    document.getElementById('cardViewBtn').classList.replace('bg-gray-200', 'bg-blue-600');
+    document.getElementById('cardViewBtn').classList.replace('text-gray-700', 'text-white');
+    document.getElementById('listViewBtn').classList.replace('bg-blue-600', 'bg-gray-200');
+    document.getElementById('listViewBtn').classList.replace('text-white', 'text-gray-700');
+  });
+  
+  document.getElementById('listViewBtn').addEventListener('click', () => {
+    document.getElementById('cardView').classList.add('hidden');
+    document.getElementById('cardView').classList.remove('block');
+    document.getElementById('listView').classList.remove('hidden');
+    document.getElementById('listViewBtn').classList.replace('bg-gray-200', 'bg-blue-600');
+    document.getElementById('listViewBtn').classList.replace('text-gray-700', 'text-white');
+    document.getElementById('cardViewBtn').classList.replace('bg-blue-600', 'bg-gray-200');
+    document.getElementById('cardViewBtn').classList.replace('text-white', 'text-gray-700');
+  });
+}
+ 
+ 
+  //     function showDrugDetails(product) {
+  //   document.getElementById('modalTitle').textContent = `${product.brandName || product.applicationNumber} Details`;
+    
+  //   // Reset tabs
+  //   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  //   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  //   document.querySelector('.tab[data-tab="overview"]').classList.add('active');
+  //   document.getElementById('overview').classList.add('active');
+    
+  //   // Overview Tab
+  //   const overviewTab = document.getElementById('overview');
+  //   overviewTab.innerHTML = `
+  //     <div class="space-y-4">
+  //       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  //         <div>
+  //           <h3 class="text-lg font-medium text-gray-800 mb-2">Application Details</h3>
+  //           <ul class="space-y-2">
+  //             <li><span class="font-medium">Application Number:</span> ${product.applicationNumber}</li>
+  //             <li><span class="font-medium">Approval Date:</span> ${formatDate(product.approvalDate)}</li>
+  //             <li><span class="font-medium">Sponsor/Manufacturer:</span> ${product.sponsorName || product.manufacturer || 'N/A'}</li>
+  //             ${product.dosageForm ? `<li><span class="font-medium">Dosage Form:</span> ${product.dosageForm}</li>` : ''}
+  //             ${product.route ? `<li><span class="font-medium">Route:</span> ${product.route}</li>` : ''}
+  //             ${product.marketingStatus ? `<li><span class="font-medium">Marketing Status:</span> ${product.marketingStatus}</li>` : ''}
+  //           </ul>
+  //         </div>
+  //         <div>
+  //           <h3 class="text-lg font-medium text-gray-800 mb-2">Active Ingredients</h3>
+  //           <ul class="space-y-1">
+  //             ${product.activeIngredients?.map(ingredient => 
+  //               `<li><span class="font-medium">${ingredient.name}:</span> ${ingredient.strength || 'N/A'}</li>`
+  //             ).join('') || '<li>N/A</li>'}
+  //           </ul>
+  //           ${product.indication ? `
+  //             <div class="mt-4">
+  //               <h3 class="text-lg font-medium text-gray-800 mb-2">Indication</h3>
+  //               <p>${product.indication}</p>
+  //             </div>
+  //           ` : ''}
+  //         </div>
+  //       </div>
+  //       ${product.fdaPage ? `
+  //         <div class="mt-4">
+  //           <h3 class="text-lg font-medium text-gray-800 mb-2">FDA Links</h3>
+  //           <a href="${product.fdaPage}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+  //             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  //             </svg>
+  //             FDA Drug Approval Page
+  //           </a>
+  //         </div>
+  //       ` : ''}
+  //     </div>
+  //   `;
+    
+  //   // FDA Documents Tab
+  //   const fdaTab = document.getElementById('fda');
+  //   fdaTab.innerHTML = product.pdfLinks ? `
+  //     <div class="space-y-4">
+  //       <p class="text-sm text-gray-600 mb-4">PDF documents from FDA's database for this drug application:</p>
+  //       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  //         ${Object.entries(product.pdfLinks).map(([key, url]) => `
+  //           ${url ? `
+  //             <a href="${url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+  //               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+  //               </svg>
+  //               ${formatDocumentName(key)}
+  //               <div class="tooltip ml-1">
+  //                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  //                 </svg>
+  //                 <span class="tooltip-text">${getDocumentDescription(key)}</span>
+  //               </div>
+  //             </a>
+  //           ` : ''}
+  //         `).join('')}
+  //       </div>
+  //     </div>
+  //   ` : '<p>No FDA documents available</p>';
+    
+  //   // Fetch additional data with error handling
+  //   fetchDailyMedData(product, document.getElementById('dailymed'));
+  //   fetchOrangeBookData(product, document.getElementById('orangebook'));
+  //   fetchGuidanceDocuments(product, document.getElementById('guidances'));
+  //   fetchApplicationData(product, document.getElementById('application'));
+    
+  //   modal.classList.add('show');
+  // }
+
+
+  function showDrugDetails(product) {
+  document.getElementById('modalTitle').textContent = `${product.brandName || product.applicationNumber} Details`;
+  
+  // Reset tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab[data-tab="overview"]').classList.add('active');
+  document.getElementById('overview').classList.add('active');
+  
+  // Overview Tab
+  const overviewTab = document.getElementById('overview');
+  overviewTab.innerHTML = `
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">Application Details</h3>
+          <ul class="space-y-2">
+            <li><span class="font-medium">Application Number:</span> ${product.applicationNumber}</li>
+            <li><span class="font-medium">Approval Date:</span> ${formatDate(product.approvalDate)}</li>
+            <li><span class="font-medium">Sponsor/Manufacturer:</span> ${product.sponsorName || product.manufacturer || 'N/A'}</li>
+            ${product.dosageForm ? `<li><span class="font-medium">Dosage Form:</span> ${product.dosageForm}</li>` : ''}
+            ${product.route ? `<li><span class="font-medium">Route:</span> ${product.route}</li>` : ''}
+            ${product.marketingStatus ? `<li><span class="font-medium">Marketing Status:</span> ${product.marketingStatus}</li>` : ''}
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">Active Ingredients</h3>
+          <ul class="space-y-1">
+            ${product.activeIngredients?.map(ingredient => 
+              `<li><span class="font-medium">${ingredient.name}:</span> ${ingredient.strength || 'N/A'}</li>`
+            ).join('') || '<li>N/A</li>'}
+          </ul>
+          ${product.indication ? `
+            <div class="mt-4">
+              <h3 class="text-lg font-medium text-gray-800 mb-2">Indication</h3>
+              <p>${product.indication}</p>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      ${product.fdaPage ? `
+        <div class="mt-4">
+          <h3 class="text-lg font-medium text-gray-800 mb-2">FDA Links</h3>
+          <a href="${product.fdaPage}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            FDA Drug Approval Page
+          </a>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  // FDA Documents Tab - use the new function
+  updateFdaDocumentsTab(product, document.getElementById('fda'));
+  
+  // Fetch additional data with improved error handling
+  fetchDailyMedData(product, document.getElementById('dailymed'));
+  fetchOrangeBookData(product, document.getElementById('orangebook'));
+  fetchGuidanceDocuments(product, document.getElementById('guidances'));
+  fetchApplicationData(product, document.getElementById('application'));
+  
+  modal.classList.add('show');
+}
+
+// Add function to fetch and display recent submissions on page load
+function fetchAndDisplayRecentSubmissions() {
+  fetch(`${API_BASE_URL}/recent`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.recentSubmissions && data.recentSubmissions.length > 0) {
+        displayRecentSubmissions(data.recentSubmissions);
+        recentSubmissions.classList.remove('hidden');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching recent submissions:', error);
+    });
+}
+
+  function updateFdaDocumentsTab(product, container) {
+  if (!product.pdfLinks) {
+    container.innerHTML = '<p>No FDA documents available</p>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="space-y-4">
+      <p class="text-sm text-gray-600 mb-4">PDF documents from FDA's database for this drug application:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${Object.entries(product.pdfLinks).map(([key, url]) => `
+          ${url ? `
+            <a href="${url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              ${formatDocumentName(key)}
+              <div class="tooltip ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="tooltip-text">${getDocumentDescription(key)}</span>
+              </div>
+            </a>
+          ` : ''}
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+
+
+
+
+  async function fetchApplicationData(product, container) {
+    container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/application/${encodeURIComponent(product.applicationNumber)}`);
+      const data = await response.json();
+      
+      if (data.error) {
+        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
+        return;
+      }
+      
+      // Handle missing data gracefully
+      const products = data.products || [];
+      const originalApproval = data.approvalHistory?.originalApproval || {};
+      const supplements = data.approvalHistory?.supplements || [];
+      const therapeuticEquivalents = data.therapeuticEquivalents || [];
+      
+      let productsHtml = '';
+      if (products.length > 0) {
+        productsHtml = `
+          <h3 class="text-lg font-medium text-gray-800">Products</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage/Route</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${products.map(p => `
+                  <tr>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.drugName || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.strength || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.dosageFormRoute || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.marketingStatus || 'Unknown'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      
+      let approvalHistoryHtml = '';
+      if (originalApproval.actionDate) {
+        approvalHistoryHtml = `
+          <h3 class="text-lg font-medium text-gray-800 mt-6">Approval History</h3>
+          <div>
+            <h4 class="font-medium">Original Approval</h4>
+            <p><span class="font-medium">Date:</span> ${formatDate(originalApproval.actionDate)}</p>
+            <p><span class="font-medium">Type:</span> ${originalApproval.actionType || 'N/A'}</p>
+            <div class="mt-2">
+              ${originalApproval.letters ? `<a href="${originalApproval.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
+              ${originalApproval.labels ? `<a href="${originalApproval.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
+              ${originalApproval.review ? `<a href="${originalApproval.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+            </div>
+          </div>
+        `;
+        
+        if (supplements.length > 0) {
+          approvalHistoryHtml += `
+            <div class="mt-4">
+              <h4 class="font-medium">Supplements</h4>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    ${supplements.map(s => `
+                      <tr>
+                        <td class="px-4 py-2 whitespace-nowrap">${formatDate(s.actionDate)}</td>
+                        <td class="px-4 py-2 whitespace-nowrap">${s.submission || 'N/A'}</td>
+                        <td class="px-4 py-2 whitespace-nowrap">${s.supplementCategories || 'N/A'}</td>
+                        <td class="px-4 py-2 whitespace-nowrap">
+                          ${s.letters ? `<a href="${s.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
+                          ${s.labels ? `<a href="${s.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
+                          ${s.review ? `<a href="${s.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+      }
+      
+      let teHtml = '';
+      if (therapeuticEquivalents.length > 0) {
+        teHtml = `
+          <h3 class="text-lg font-medium text-gray-800 mt-6">Therapeutic Equivalents</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${therapeuticEquivalents.map(te => `
+                  <tr>
+                    <td class="px-4 py-2 whitespace-nowrap">${te.drugName || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${te.company || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${te.teCode || 'N/A'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      
+      if (!productsHtml && !approvalHistoryHtml && !teHtml) {
+        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No application data available</p></div>`;
+      } else {
+        container.innerHTML = `
+          <div class="space-y-6">
+            ${productsHtml}
+            ${approvalHistoryHtml}
+            ${teHtml}
+          </div>
+        `;
+      }
+    } catch (error) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching application data</p></div>`;
+    }
+  }
+  
+
+    // async function fetchApplicationData(product, container) {
+    //   container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+      
+    //   try {
+    //     const response = await fetch(`${API_BASE_URL}/application/${encodeURIComponent(product.applicationNumber)}`);
+    //     const data = await response.json();
+        
+    //     if (data.error) {
+    //       container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
+    //       return;
+    //     }
+        
+    //     container.innerHTML = `
+    //       <div class="space-y-6">
+    //         <h3 class="text-lg font-medium text-gray-800">Products</h3>
+    //         <div class="overflow-x-auto">
+    //           <table class="min-w-full divide-y divide-gray-200">
+    //             <thead class="bg-gray-50">
+    //               <tr>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage/Route</th>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+    //               </tr>
+    //             </thead>
+    //             <tbody class="bg-white divide-y divide-gray-200">
+    //               ${data.products.map(p => `
+    //                 <tr>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${p.drugName}</td>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${p.strength}</td>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${p.dosageFormRoute}</td>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${p.teCode}</td>
+    //                 </tr>
+    //               `).join('')}
+    //             </tbody>
+    //           </table>
+    //         </div>
+
+    //         <h3 class="text-lg font-medium text-gray-800">Approval History</h3>
+    //         <div>
+    //           <h4 class="font-medium">Original Approval</h4>
+    //           <p><span class="font-medium">Date:</span> ${formatDate(data.approvalHistory.originalApproval.actionDate)}</p>
+    //           <p><span class="font-medium">Type:</span> ${data.approvalHistory.originalApproval.actionType}</p>
+    //           ${data.approvalHistory.originalApproval.letters ? `<a href="${data.approvalHistory.originalApproval.letters}" target="_blank" class="text-blue-600 hover:underline">Letter</a>` : ''}
+    //           ${data.approvalHistory.originalApproval.labels ? `<a href="${data.approvalHistory.originalApproval.labels}" target="_blank" class="text-blue-600 hover:underline ml-2">Label</a>` : ''}
+    //           ${data.approvalHistory.originalApproval.review ? `<a href="${data.approvalHistory.originalApproval.review}" target="_blank" class="text-blue-600 hover:underline ml-2">Review</a>` : ''}
+    //         </div>
+    //         ${data.approvalHistory.supplements.length ? `
+    //           <div>
+    //             <h4 class="font-medium mt-4">Supplements</h4>
+    //             <div class="overflow-x-auto">
+    //               <table class="min-w-full divide-y divide-gray-200">
+    //                 <thead class="bg-gray-50">
+    //                   <tr>
+    //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+    //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+    //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
+    //                   </tr>
+    //                 </thead>
+    //                 <tbody class="bg-white divide-y divide-gray-200">
+    //                   ${data.approvalHistory.supplements.map(s => `
+    //                     <tr>
+    //                       <td class="px-4 py-2 whitespace-nowrap">${formatDate(s.actionDate)}</td>
+    //                       <td class="px-4 py-2 whitespace-nowrap">${s.supplementCategories}</td>
+    //                       <td class="px-4 py-2 whitespace-nowrap">
+    //                         ${s.letters ? `<a href="${s.letters}" target="_blank" class="text-blue-600 hover:underline">Letter</a>` : ''}
+    //                         ${s.labels ? `<a href="${s.labels}" target="_blank" class="text-blue-600 hover:underline ml-2">Label</a>` : ''}
+    //                         ${s.review ? `<a href="${s.review}" target="_blank" class="text-blue-600 hover:underline ml-2">Review</a>` : ''}
+    //                       </td>
+    //                     </tr>
+    //                   `).join('')}
+    //                 </tbody>
+    //               </table>
+    //             </div>
+    //           </div>
+    //         ` : ''}
+
+    //         <h3 class="text-lg font-medium text-gray-800 mt-6">Therapeutic Equivalents</h3>
+    //         <div class="overflow-x-auto">
+    //           <table class="min-w-full divide-y divide-gray-200">
+    //             <thead class="bg-gray-50">
+    //               <tr>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+    //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+    //               </tr>
+    //             </thead>
+    //             <tbody class="bg-white divide-y divide-gray-200">
+    //               ${data.therapeuticEquivalents.map(te => `
+    //                 <tr>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${te.drugName}</td>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${te.company}</td>
+    //                   <td class="px-4 py-2 whitespace-nowrap">${te.teCode}</td>
+    //                 </tr>
+    //               `).join('')}
+    //             </tbody>
+    //           </table>
+    //         </div>
+    //       </div>
+    //     `;
+    //   } catch (error) {
+    //     console.error('Error fetching application data:', error);
+    //     container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-400 p-4"><p class="text-red-700">Error fetching application data.</p></div>`;
+    //   }
+    // }
+    
+    // async function fetchDailyMedData(product, container) {
+    //   container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+    //   try {
+    //     const ingredient = product.activeIngredients?.[0]?.name || '';
+    //     const response = await fetch(`${API_BASE_URL}/dailymed/${encodeURIComponent(ingredient)}`);
+    //     const data = await response.json();
+    //     if (data.error) {
+    //       container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
+    //       return;
+    //     }
+    //     container.innerHTML = `
+    //       <div class="space-y-4">
+    //         <p class="text-sm text-gray-600 mb-4">Current drug labels and packaging from DailyMed:</p>
+    //         <div class="space-y-3">
+    //           ${data.label_info?.map(label => `
+    //             <div class="border rounded p-3">
+    //               <div class="flex justify-between">
+    //                 <h3 class="font-medium">${label.title || 'Unlabeled'}</h3>
+    //                 <span class="text-sm text-gray-500">Updated: ${formatDate(label.published)}</span>
+    //               </div>
+    //               <div class="mt-2 flex flex-wrap gap-2">
+    //                 <a href="${label.labelUrl}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline text-sm">
+    //                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    //                   </svg>
+    //                   View Label
+    //                 </a>
+    //                 ${label.packageUrl ? `
+    //                   <a href="${label.packageUrl}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline text-sm">
+    //                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+    //                     </svg>
+    //                     View Packaging
+    //                   </a>
+    //                 ` : ''}
+    //               </div>
+    //             </div>
+    //           `).join('') || '<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No DailyMed data found</p></div>'}
+    //         </div>
+    //       </div>
+    //     `;
+    //   } catch (error) {
+    //     container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-400 p-4"><p class="text-red-700">Error fetching DailyMed data.</p></div>`;
+    //   }
+    // }
+    
+    async function fetchDailyMedData(product, container) {
+  container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+  try {
+    // Use application number or brand name to get specific drug data
+    const identifier = product.applicationNumber || product.brandName;
+    
+    if (!identifier) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No drug identifier available</p></div>`;
+      return;
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/dailymed/drug/${encodeURIComponent(identifier)}`);
+    const data = await response.json();
+    
+    if (data.error || !data.label_info || data.label_info.length === 0) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error || 'No DailyMed data found'}</p></div>`;
+      return;
+    }
+    
+    container.innerHTML = `
+      <div class="space-y-4">
+        <p class="text-sm text-gray-600 mb-4">Current drug labels and packaging from DailyMed:</p>
+        <div class="space-y-3">
+          ${data.label_info.map(label => `
+            <div class="border rounded p-3">
+              <div class="flex justify-between">
+                <h3 class="font-medium">${label.title || 'Unlabeled'}</h3>
+                <span class="text-sm text-gray-500">Updated: ${formatDate(label.published)}</span>
+              </div>
+              ${label.manufacturer && label.manufacturer !== 'N/A' ? `<p class="text-sm mt-1">Manufacturer: ${label.manufacturer}</p>` : ''}
+              ${label.dosageForm && label.dosageForm !== 'N/A' ? `<p class="text-sm">Dosage Form: ${label.dosageForm}</p>` : ''}
+              <div class="mt-2 flex flex-wrap gap-2">
+                <a href="${label.labelUrl}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  View Label
+                </a>
+                ${label.packageUrl ? `
+                  <a href="${label.packageUrl}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    View Packaging
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `).join('') || '<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No DailyMed data found</p></div>'}
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('Error fetching DailyMed data:', error);
+    container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching DailyMed data. Please try again later.</p></div>`;
+  }
+}
+
+async function fetchOrangeBookData(product, container) {
+    container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+    try {
+      const response = await fetch(`${API_BASE_URL}/orangebook/${encodeURIComponent(product.applicationNumber)}`);
+      const data = await response.json();
+      
+      // Build HTML even when there's no data
+      let patentsHtml = '';
+      let exclusivitiesHtml = '';
+      
+      if (data.patents && data.patents.length > 0) {
+        patentsHtml = `
+          <div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Patents</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${data.patents.map(patent => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${patent.patentNo}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${formatDate(patent.expirationDate)}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${patent.drugSubstance ? 'Yes' : 'No'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${patent.drugProduct ? 'Yes' : 'No'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+      
+      if (data.exclusivities && data.exclusivities.length > 0) {
+        exclusivitiesHtml = `
+          <div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Exclusivities</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${data.exclusivities.map(exclusivity => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${exclusivity.code}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${formatDate(exclusivity.expirationDate)}</td>
+                      <td class="px-4 py-2">${getExclusivityDescription(exclusivity.code)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+      
+      if (!patentsHtml && !exclusivitiesHtml) {
+        container.innerHTML = `
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <p class="text-yellow-700">No Orange Book data found for this application</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="space-y-4">
+            ${patentsHtml}
+            ${exclusivitiesHtml}
+          </div>
+        `;
+      }
+    } catch (error) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No Orange Book data available</p></div>`;
+    }
+  }
+  
+  // Fix Guidance Documents fetching
+  async function fetchGuidanceDocuments(product, container) {
+    container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+    try {
+      // Use the first active ingredient name as search term
+      const searchTerm = product.activeIngredients?.[0]?.name || 
+                         product.brandName || 
+                         product.applicationNumber;
+      
+      const response = await fetch(`${API_BASE_URL}/guidances?q=${encodeURIComponent(searchTerm)}`);
+      const data = await response.json();
+      
+      if (data.error || !data.guidances || data.guidances.length === 0) {
+        container.innerHTML = `
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <p class="text-yellow-700">No guidance documents found for this product</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = `
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600 mb-4">Regulatory guidances that may be relevant to this product:</p>
+          <div class="space-y-4">
+            ${data.guidances.map(guidance => `
+              <div class="border rounded p-4">
+                <h3 class="font-medium text-blue-800">${guidance.title}</h3>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="font-medium">Source:</span> ${guidance.source} | 
+                  <span class="font-medium">Published:</span> ${formatDate(guidance.date)}
+                </p>
+                <p class="mt-2 text-gray-700">${guidance.description || 'No description available'}</p>
+                <div class="mt-3">
+                  <a href="${guidance.url}" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    View Document
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } catch (error) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching guidance documents</p></div>`;
+    }
+  }
+   
+  async function fetchTRDData() {
+      setLoading(true);
+      showStatus('Fetching TRD Depression data...');
+      try {
+        const response = await fetch(`${API_BASE_URL}/trd-depression`);
+        const data = await response.json();
+        if (data.error) {
+          showStatus(data.error, 'error');
+          return;
+        }
+        displayTRDData(data);
+        hideStatus();
+      } catch (error) {
+        console.error('Error fetching TRD data:', error);
+        showStatus('Error fetching TRD Depression data. Please try again.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+   
+    function displayTRDData(data) {
+  resultsContainer.innerHTML = `
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-blue-700">Treatment-Resistant Depression (TRD) Approved Drugs</h2>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-600">View as:</span>
+          <button id="gridViewBtn" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Grid</button>
+          <button id="tableViewBtn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">Table</button>
+        </div>
+      </div>
+      <p class="text-gray-600 mb-6">FDA-approved medications for treatment-resistant depression and related conditions.</p>
+      
+      <!-- Grid View (default) -->
+      <div id="gridView" class="space-y-6">
+        ${Object.entries(data).map(([category, drugs]) => `
+          <div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">${category}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${drugs.map(drug => `
+                <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                  <div class="bg-blue-50 px-4 py-3 border-b">
+                    <h4 class="font-medium">${drug.brandName}</h4>
+                    <p class="text-sm text-gray-600">${drug.genericName}</p>
+                  </div>
+                  <div class="p-4">
+                    <p class="text-sm"><span class="font-medium">Approved:</span> ${formatDate(drug.approvalDate)}</p>
+                    <p class="text-sm"><span class="font-medium">Manufacturer:</span> ${drug.manufacturer}</p>
+                    ${drug.indication ? `<p class="text-sm mt-2">${drug.indication}</p>` : ''}
+                    <div class="mt-3 flex space-x-2">
+                      <button 
+                        class="text-blue-600 text-sm hover:underline"
+                        onclick='showDrugDetails(${JSON.stringify(drug).replace(/'/g, "\\'")})'
+                      >
+                        View Details
+                      </button>
+                      ${drug.fdaPage ? `
+                        <a href="${drug.fdaPage}" target="_blank" class="text-blue-600 text-sm hover:underline flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          FDA Page
+                        </a>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <!-- Table View (hidden by default) -->
+      <div id="tableView" class="hidden">
+        ${Object.entries(data).map(([category, drugs]) => `
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">${category}</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Brand Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Generic Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approval Date</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Manufacturer</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${drugs.map(drug => `
+                    <tr>
+                      <td class="px-4 py-2">${drug.brandName}</td>
+                      <td class="px-4 py-2">${drug.genericName}</td>
+                      <td class="px-4 py-2">${formatDate(drug.approvalDate)}</td>
+                      <td class="px-4 py-2">${drug.manufacturer}</td>
+                      <td class="px-4 py-2">
+                        <div class="flex space-x-2">
+                          <button 
+                            class="text-blue-600 text-sm hover:underline"
+                            onclick='showDrugDetails(${JSON.stringify(drug).replace(/'/g, "\\'")})'
+                          >
+                            Details
+                          </button>
+                          ${drug.fdaPage ? `
+                            <a href="${drug.fdaPage}" target="_blank" class="text-blue-600 text-sm hover:underline">
+                              FDA
+                            </a>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  // Add event listeners for view toggle buttons
+  document.getElementById('gridViewBtn').addEventListener('click', () => {
+    document.getElementById('gridView').classList.remove('hidden');
+    document.getElementById('tableView').classList.add('hidden');
+    document.getElementById('gridViewBtn').classList.replace('bg-gray-200', 'bg-blue-600');
+    document.getElementById('gridViewBtn').classList.replace('text-gray-700', 'text-white');
+    document.getElementById('tableViewBtn').classList.replace('bg-blue-600', 'bg-gray-200');
+    document.getElementById('tableViewBtn').classList.replace('text-white', 'text-gray-700');
+  });
+  
+  document.getElementById('tableViewBtn').addEventListener('click', () => {
+    document.getElementById('gridView').classList.add('hidden');
+    document.getElementById('tableView').classList.remove('hidden');
+    document.getElementById('tableViewBtn').classList.replace('bg-gray-200', 'bg-blue-600');
+    document.getElementById('tableViewBtn').classList.replace('text-gray-700', 'text-white');
+    document.getElementById('gridViewBtn').classList.replace('bg-blue-600', 'bg-gray-200');
+    document.getElementById('gridViewBtn').classList.replace('text-white', 'text-gray-700');
+  });
+}
+
+
+    // function displayTRDData(data) {
+    //   resultsContainer.innerHTML = `
+    //     <div class="bg-white rounded-lg shadow-md p-6">
+    //       <h2 class="text-2xl font-bold text-blue-700 mb-4">Treatment-Resistant Depression (TRD) Approved Drugs</h2>
+    //       <p class="text-gray-600 mb-6">FDA-approved medications for treatment-resistant depression and related conditions.</p>
+    //       <div class="space-y-6">
+    //         ${Object.entries(data).map(([category, drugs]) => `
+    //           <div>
+    //             <h3 class="text-xl font-semibold text-gray-800 mb-3">${category}</h3>
+    //             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    //               ${drugs.map(drug => `
+    //                 <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+    //                   <div class="bg-blue-50 px-4 py-3 border-b">
+    //                     <h4 class="font-medium">${drug.brandName}</h4>
+    //                     <p class="text-sm text-gray-600">${drug.genericName}</p>
+    //                   </div>
+    //                   <div class="p-4">
+    //                     <p class="text-sm"><span class="font-medium">Approved:</span> ${formatDate(drug.approvalDate)}</p>
+    //                     <p class="text-sm"><span class="font-medium">Manufacturer:</span> ${drug.manufacturer}</p>
+    //                     ${drug.indication ? `<p class="text-sm mt-2">${drug.indication}</p>` : ''}
+    //                     <div class="mt-3 flex space-x-2">
+    //                       <button 
+    //                         class="text-blue-600 text-sm hover:underline"
+    //                         onclick='showDrugDetails(${JSON.stringify(drug).replace(/'/g, "\\'")})'
+    //                       >
+    //                         View Details
+    //                       </button>
+    //                       ${drug.fdaPage ? `
+    //                         <a href="${drug.fdaPage}" target="_blank" class="text-blue-600 text-sm hover:underline flex items-center">
+    //                           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    //                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    //                           </svg>
+    //                           FDA Page
+    //                         </a>
+    //                       ` : ''}
+    //                     </div>
+    //                   </div>
+    //                 </div>
+    //               `).join('')}
+    //             </div>
+    //           </div>
+    //         `).join('')}
+    //       </div>
+    //     </div>
+    //   `;
+    // }
+    
+    // Helper Functions
+    function closeModal() {
+      modal.classList.remove('show');
+    }
+    
+    // function formatDate(dateStr) {
+    //   if (!dateStr || dateStr === 'Unknown') return 'Unknown';
+    //   if (/^\d{8}$/.test(dateStr)) {
+    //     const year = dateStr.substring(0, 4);
+    //     const month = dateStr.substring(4, 6);
+    //     const day = dateStr.substring(6, 8);
+    //     return `${month}/${day}/${year}`;
+    //   }
+    //   try {
+    //     const date = new Date(dateStr);
+    //     return date.toLocaleDateString();
+    //   } catch (e) {
+    //     return dateStr;
+    //   }
+    // }
+    
+    // function formatDocumentName(key) {
+    //   return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    // }
+    
+    // function getDocumentDescription(key) {
+    //   const descriptions = {
+    //     approvalLetter: 'The FDA letter granting approval for the drug application',
+    //     label: 'The FDA-approved drug label with prescribing information',
+    //     review: 'Review documentation (e.g., clinical, medical, or chemistry reviews)',
+    //     labeling: 'Older term for drug label with prescribing information',
+    //     medicalReview: 'Medical officer\'s review of clinical trial data',
+    //     chemistryReview: 'Review of the drug\'s chemistry, manufacturing, and controls',
+    //     clinicalPharmaReview: 'Clinical pharmacology review and assessment',
+    //     adminDocs: 'Administrative documents related to the application',
+    //     correspondence: 'Correspondence between the FDA and the applicant'
+    //   };
+    //   return descriptions[key] || 'Additional FDA documentation';
+    // }
+    
+     // Format date helper function with improved robustness
+     function formatDate(dateStr) {
+  if (!dateStr || dateStr === 'Unknown') return 'Unknown';
+  
+  // Check for YYYYMMDD format (FDA common format)
+  if (/^\d{8}$/.test(dateStr)) {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    return `${month}/${day}/${year}`;
+  }
+  
+  // Check for YYYY-MM-DD ISO format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const parts = dateStr.split('-');
+    return `${parts[1]}/${parts[2]}/${parts[0]}`; // MM/DD/YYYY
+  }
+  
+  try {
+    const date = new Date(dateStr);
+    // Check if valid date object
+    if (isNaN(date.getTime())) {
+      return dateStr; // Return original if can't parse
+    }
+    // Format as MM/DD/YYYY
+    return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${
+      date.getDate().toString().padStart(2, '0')}/${
+      date.getFullYear()}`;
+  } catch (e) {
+    console.error("Error formatting date:", e);
+    return dateStr; // Return original string if parsing fails
+  }
+}
+  
+  // Add this helper function for exclusivity code descriptions
+  function getExclusivityDescription(code) {
+    const descriptions = {
+      'NCE': 'New Chemical Entity (5 years)',
+      'NP': 'New Product (3 years)',
+      'ODE': 'Orphan Drug Exclusivity (7 years)',
+      'PED': 'Pediatric Exclusivity (6 months)',
+      'PC': 'Patent Challenge (180 days)',
+      'MOU': 'Minor Use/Minor Species (7 years)',
+      'M': 'GAIN Exclusivity - Qualified Infectious Disease Product (5 years added)',
+      'U-1': 'QIDP exclusivity (5 years)',
+      'D': 'Dosage Form Exclusivity',
+      'I': 'Active Ingredient Exclusivity',
+      'AP': 'Approval or New Indication Exclusivity (3 years)',
+      'PDX': 'Pediatric Exclusivity Attached to Approval',
+      'U-2': 'QIDP exclusivity (an additional 6 months)'
+    };
+    return descriptions[code] || code;
+  }
+  
+  // Add this helper function for document descriptions
+  function getDocumentDescription(key) {
+    const descriptions = {
+      'approvalLetter': 'The FDA letter granting approval for the drug application',
+      'label': 'The FDA-approved drug label with prescribing information',
+      'review': 'Review documentation (e.g., clinical, medical, or chemistry reviews)',
+      'labeling': 'Older term for drug label with prescribing information',
+      'medicalReview': 'Medical officer\'s review of clinical trial data',
+      'chemistryReview': 'Review of the drug\'s chemistry, manufacturing, and controls',
+      'clinicalPharmaReview': 'Clinical pharmacology review and assessment',
+      'adminDocs': 'Administrative documents related to the application',
+      'correspondence': 'Correspondence between the FDA and the applicant'
+    };
+    return descriptions[key] || 'Additional FDA documentation';
+  }
+  
+  // Add this helper function for document name formatting
+  function formatDocumentName(key) {
+  const formatting = {
+    'approvalLetter': 'Approval Letter',
+    'label': 'Drug Label',
+    'review': 'Medical Review',
+    'labeling': 'Drug Labeling',
+    'medicalReview': 'Medical Review',
+    'chemistryReview': 'Chemistry Review',
+    'clinicalPharmaReview': 'Clinical Pharmacology Review',
+    'adminDocs': 'Administrative Documents',
+    'correspondence': 'FDA Correspondence'
+  };
+  
+  return formatting[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+}
+    // function getExclusivityDescription(code) {
+    //   const descriptions = {
+    //     'NCE': 'New Chemical Entity (5 years)',
+    //     'NP': 'New Product (3 years)',
+    //     'ODE': 'Orphan Drug Exclusivity (7 years)',
+    //     'PED': 'Pediatric Exclusivity (6 months)',
+    //     'PC': 'Patent Challenge (180 days)',
+    //     'MOU': 'Minor Use/Minor Species (7 years)',
+    //     'M': 'GAIN Exclusivity - Qualified Infectious Disease Product (5 years added)',
+    //     'U-1': 'QIDP exclusivity (5 years)'
+    //   };
+    //   return descriptions[code] || code;
+    // }
+    
+    function setLoading(isLoading) {
+      if (isLoading) {
+        searchSpinner.classList.remove('hidden');
+        searchButtonText.textContent = 'Searching...';
+        searchButton.disabled = true;
+      } else {
+        searchSpinner.classList.add('hidden');
+        searchButtonText.textContent = 'Search';
+        searchButton.disabled = false;
+      }
+    }
+    
+    function showStatus(message, type = 'info') {
+      searchStatus.classList.remove('hidden');
+      statusText.textContent = message;
+      const statusBox = searchStatus.querySelector('div');
+      statusBox.className = 'p-4 rounded flex items-center';
+      if (type === 'error') {
+        statusBox.classList.add('bg-red-50', 'text-red-700');
+      } else if (type === 'warning') {
+        statusBox.classList.add('bg-yellow-50', 'text-yellow-700');
+      } else {
+        statusBox.classList.add('bg-blue-50', 'text-blue-700');
+      }
+    }
+    
+    function hideStatus() {
+      searchStatus.classList.add('hidden');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+  fetchAndDisplayRecentSubmissions();
+});
+  </script>
+</body>
+</html>
