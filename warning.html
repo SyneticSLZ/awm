@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDA Warning Letters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for spinner */
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Dropdown styles */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 10;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 0.5rem;
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        /* Group toggle styles */
+        .group-toggle {
+            cursor: pointer;
+        }
+        .group-toggle.expanded .toggle-icon {
+            transform: rotate(90deg);
+        }
+        /* Pagination button styles */
+        .pagination-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <h1 class="text-2xl font-bold">FDA Warning Letters</h1>
+    </header>
+
+    <main class="container mx-auto p-4">
+        <!-- Search Form with Auto-suggest -->
+        <div class="mb-6 relative">
+            <form id="searchForm" class="mb-2">
+                <div class="flex gap-2">
+                    <div class="flex-grow relative">
+                        <input
+                            type="text"
+                            id="searchQuery"
+                            placeholder="Search by company, subject, or office..."
+                            class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autocomplete="off"
+                        >
+                        <div id="suggestions" class="dropdown-content w-full mt-1 border border-gray-200"></div>
+                    </div>
+                    <button
+                        type="submit"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex-shrink-0"
+                    >
+                        Search
+                    </button>
+                    <button
+                        type="button"
+                        id="clearBtn"
+                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex-shrink-0"
+                    >
+                        Clear
+                    </button>
+                    <button
+                        type="button"
+                        id="toggleFiltersBtn"
+                        class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition flex-shrink-0"
+                    >
+                        Filters
+                    </button>
+                </div>
+            </form>
+
+            <!-- Advanced Filters (Hidden by default) -->
+            <div id="filtersPanel" class="p-4 bg-white rounded-lg shadow mb-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Date Range Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                        <select id="dateFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="">Any time</option>
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="365">Last year</option>
+                        </select>
+                    </div>
+
+                    <!-- Issuing Office Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Issuing Office</label>
+                        <select id="officeFilter" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="">All offices</option>
+                            <option value="Center for Drug Evaluation and Research">Center for Drug Evaluation and Research</option>
+                            <option value="Center for Food Safety and Applied Nutrition">Center for Food Safety and Applied Nutrition</option>
+                            <option value="Center for Devices and Radiological Health">Center for Devices and Radiological Health</option>
+                            <option value="Center for Biologics Evaluation and Research">Center for Biologics Evaluation and Research</option>
+                            <option value="Center for Tobacco Products">Center for Tobacco Products</option>
+                            <option value="Center for Veterinary Medicine">Center for Veterinary Medicine</option>
+                        </select>
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject Contains</label>
+                        <input type="text" id="subjectFilter" placeholder="Enter keywords..." class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <!-- Toggle for showing letters with response/closeout -->
+                <div class="mt-4 flex flex-wrap gap-4">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="responseFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <span class="ml-2 text-gray-700">Show letters with response</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="closeoutFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <span class="ml-2 text-gray-700">Show letters with closeout</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="groupCompaniesFilter" class="form-checkbox h-5 w-5 text-blue-600">
+                        <span class="ml-2 text-gray-700">Group by company name</span>
+                    </label>
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <button type="button" id="applyFiltersBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="text-center my-8">
+            <div class="spinner mx-auto"></div>
+            <p class="mt-2">Loading...</p>
+        </div>
+
+        <!-- Results count and view options -->
+        <div id="resultsInfo" class="flex justify-between items-center mb-4 hidden">
+            <div>
+                <p id="totalResults" class="text-gray-600"></p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600 mr-2">Items per page:</label>
+                <select id="itemsPerPage" class="p-1 border border-gray-300 rounded">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div id="tableContainer" class="overflow-x-auto bg-white rounded-lg shadow hidden">
+            <table id="lettersTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="postedDate">
+                            Posted Date <span class="sort-icon">↓</span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="letterIssueDate">
+                            Letter Date <span class="sort-icon"></span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="companyName">
+                            Company <span class="sort-icon"></span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="issuingOffice">
+                            Issuing Office <span class="sort-icon"></span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="subject">
+                            Subject <span class="sort-icon"></span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Response/Closeout
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="mt-4 flex justify-center hidden">
+            <div class="flex space-x-1">
+                <button id="firstPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">«</button>
+                <button id="prevPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">‹</button>
+                <div id="pageNumbers" class="flex space-x-1"></div>
+                <button id="nextPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">›</button>
+                <button id="lastPage" class="pagination-btn px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">»</button>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center p-8 bg-white rounded-lg shadow hidden">
+            <p class="text-gray-600">No warning letters found matching your criteria.</p>
+        </div>
+    </main>
+
+    <script>
+        // API base URL - update this to match your backend server
+        const apiBaseUrl = 'http://localhost:3000';
+        
+        // Render letters to table
+        function renderLetters(letters) {
+          const tableBody = document.getElementById('tableBody');
+          tableBody.innerHTML = '';
+          
+          if (!letters || letters.length === 0) {
+            document.getElementById('tableContainer').classList.add('hidden');
+            document.getElementById('noResults').classList.remove('hidden');
+            document.getElementById('pagination').classList.add('hidden');
+            return;
+          }
+          
+          document.getElementById('tableContainer').classList.remove('hidden');
+          document.getElementById('noResults').classList.add('hidden');
+          document.getElementById('pagination').classList.remove('hidden');
+          
+          const groupByCompany = document.getElementById('groupCompaniesFilter').checked;
+          
+          if (groupByCompany) {
+            renderGroupedLetters(letters);
+          } else {
+            renderFlatLetters(letters);
+          }
+        }
+        
+        // Render letters grouped by company
+        function renderGroupedLetters(letters) {
+          const tableBody = document.getElementById('tableBody');
+          const companyGroups = {};
+          
+          // Group letters by company
+          letters.forEach(letter => {
+            const companyName = letter.companyName || 'Unknown';
+            if (!companyGroups[companyName]) {
+              companyGroups[companyName] = [];
+            }
+            companyGroups[companyName].push(letter);
+          });
+          
+          // Render each group
+          Object.keys(companyGroups).sort().forEach(company => {
+            const letters = companyGroups[company];
+            
+            // Create group header row
+            const groupHeaderRow = document.createElement('tr');
+            groupHeaderRow.className = 'group-toggle bg-gray-100 hover:bg-gray-200';
+            
+            groupHeaderRow.innerHTML = `
+              <td colspan="6" class="px-6 py-3">
+                <div class="flex items-center">
+                  <span class="toggle-icon inline-block transform mr-2">▶</span>
+                  <span class="font-medium">${company}</span>
+                  <span class="ml-2 text-gray-500">(${letters.length} letter${letters.length > 1 ? 's' : ''})</span>
+                </div>
+              </td>
+            `;
+            
+            // Toggle visibility of group content
+            groupHeaderRow.addEventListener('click', () => {
+              const icon = groupHeaderRow.querySelector('.toggle-icon');
+              icon.style.transform = icon.style.transform === 'rotate(90deg)' ? '' : 'rotate(90deg)';
+              
+              // Toggle all sibling rows until next group header
+              let row = groupHeaderRow.nextElementSibling;
+              while (row && !row.classList.contains('group-toggle')) {
+                row.classList.toggle('hidden');
+                row = row.nextElementSibling;
+              }
+            });
+            
+            tableBody.appendChild(groupHeaderRow);
+            
+            // Create rows for each letter in the group (initially hidden)
+            letters.forEach(letter => {
+              const letterRow = document.createElement('tr');
+              letterRow.className = 'hidden hover:bg-gray-50';
+              
+              letterRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.postedDate || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.letterIssueDate || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                    ${letter.companyName || ''}
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.issuingOffice || ''}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">${letter.subject || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  ${renderResponseCloseout(letter)}
+                </td>
+              `;
+              
+              tableBody.appendChild(letterRow);
+            });
+          });
+        }
+        
+        // Render letters in a flat list
+        function renderFlatLetters(letters) {
+          const tableBody = document.getElementById('tableBody');
+          
+          letters.forEach(letter => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.postedDate || ''}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.letterIssueDate || ''}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <a href="${letter.companyUrl || '#'}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                  ${letter.companyName || ''}
+                </a>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${letter.issuingOffice || ''}</td>
+              <td class="px-6 py-4 text-sm text-gray-900">${letter.subject || ''}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${renderResponseCloseout(letter)}
+              </td>
+            `;
+            
+            tableBody.appendChild(row);
+          });
+        }
+        
+        // Render response/closeout information
+        function renderResponseCloseout(letter) {
+          let html = '';
+          
+          if (letter.responseLetter) {
+            html += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1">
+              Response: ${letter.responseLetter}
+            </span>`;
+          }
+          
+          if (letter.closeoutLetter) {
+            html += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              Closeout: ${letter.closeoutLetter}
+            </span>`;
+          }
+          
+          return html;
+        }
+        
+        // Main function to fetch and display letters
+        async function fetchLetters(url) {
+          try {
+            toggleLoading(true);
+            
+            // Fix the undefined URL issue
+            const requestUrl = url || `${apiBaseUrl}/all`;
+            console.log('Fetching from:', requestUrl);
+            
+            const response = await fetch(requestUrl);
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error(`Error response: ${response.status}`, errorText);
+              throw new Error(`Network response was not ok: ${response.status}`);
+            }
+            
+            const letters = await response.json();
+            console.log('Data received:', letters);
+            renderLetters(letters);
+            
+            // Update pagination if implemented
+            updatePagination(letters);
+            
+          } catch (error) {
+            console.error('Error fetching letters:', error);
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">
+              Error loading data: ${error.message}
+            </td></tr>`;
+            document.getElementById('noResults').classList.add('hidden');
+            document.getElementById('tableContainer').classList.remove('hidden');
+          } finally {
+            toggleLoading(false);
+          }
+        }
+        
+        // Update pagination controls
+        function updatePagination(letters) {
+          // If you have pagination implemented, update it here
+          // For now, just showing all results
+          document.getElementById('totalResults').textContent = `Showing ${letters.length} results`;
+        }
+        
+        // Show/hide loading spinner
+        function toggleLoading(isLoading) {
+          const loading = document.getElementById('loading');
+          const spinner = loading.querySelector('.spinner');
+          const tableContainer = document.getElementById('tableContainer');
+          const pagination = document.getElementById('pagination');
+          const resultsInfo = document.getElementById('resultsInfo');
+          
+          spinner.style.display = isLoading ? 'block' : 'none';
+          loading.style.display = isLoading ? 'block' : 'none';
+          tableContainer.style.display = isLoading ? 'none' : '';
+          pagination.style.display = isLoading ? 'none' : '';
+          resultsInfo.style.display = isLoading ? 'none' : '';
+        }
+        
+        // Initialize the page
+        function initPage() {
+          // Set up event listeners
+          document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchQuery').value.trim();
+            if (query) {
+              fetchLetters(`${apiBaseUrl}/search?query=${encodeURIComponent(query)}`);
+            } else {
+              fetchLetters(`${apiBaseUrl}/all`);
+            }
+          });
+          
+          document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('searchQuery').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('officeFilter').value = '';
+            document.getElementById('subjectFilter').value = '';
+            document.getElementById('responseFilter').checked = false;
+            document.getElementById('closeoutFilter').checked = false;
+            document.getElementById('groupCompaniesFilter').checked = false;
+            fetchLetters(`${apiBaseUrl}/all`);
+          });
+          
+          // Toggle filters panel
+          document.getElementById('toggleFiltersBtn').addEventListener('click', () => {
+            document.getElementById('filtersPanel').classList.toggle('hidden');
+          });
+          
+          // Apply filters button
+          document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+            const dateRange = document.getElementById('dateFilter').value;
+            const office = document.getElementById('officeFilter').value;
+            const subject = document.getElementById('subjectFilter').value;
+            const hasResponse = document.getElementById('responseFilter').checked;
+            const hasCloseout = document.getElementById('closeoutFilter').checked;
+            
+            let url = `${apiBaseUrl}/search?`;
+            const params = [];
+            
+            if (dateRange) params.push(`days=${dateRange}`);
+            if (office) params.push(`office=${encodeURIComponent(office)}`);
+            if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+            if (hasResponse) params.push('hasResponse=true');
+            if (hasCloseout) params.push('hasCloseout=true');
+            
+            url += params.join('&');
+            fetchLetters(url);
+          });
+          
+          // Sort columns
+          document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+              const sortField = th.getAttribute('data-sort');
+              const currentDirection = th.querySelector('.sort-icon').textContent;
+              
+              // Reset all sort icons
+              document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.textContent = '';
+              });
+              
+              // Set the new sort icon
+              const newDirection = currentDirection === '↓' ? '↑' : '↓';
+              th.querySelector('.sort-icon').textContent = newDirection;
+              
+              // Re-fetch with sort parameters
+              const urlParams = new URLSearchParams(window.location.search);
+              urlParams.set('sort', sortField);
+              urlParams.set('direction', newDirection === '↑' ? 'asc' : 'desc');
+              
+              let url = `${apiBaseUrl}/search?${urlParams.toString()}`;
+              fetchLetters(url);
+            });
+          });
+          
+          // Initial data load
+          fetchLetters(`${apiBaseUrl}/all`);
+        }
+        
+        // Call initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initPage);
+        </script>
+</body>
+</html>

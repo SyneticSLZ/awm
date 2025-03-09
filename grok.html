@@ -5,7 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Advanced Drug Search Tool</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%232563EB' /%3E%3Cpath d='M35 50 L45 60 L65 40' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E" type="image/svg+xml">
+
   <style>
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+  
+  .loading {
+    animation: pulse 1.5s infinite;
+  }
+  
+  .document-link {
+    transition: all 0.2s ease;
+  }
+  
+  .document-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip .tooltip-text {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    font-weight: normal;
+  }
+  
+  .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 0.9;
+  }
+  
+  /* Better visual separation between document groups */
+  .document-group {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Custom styling for tabs */
+  .tab {
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+  
+  .tab.active::after {
+    background-color: #3b82f6;
+  }
+  
+  .tab:hover::after {
+    background-color: #93c5fd;
+  }
     #recentSubmissions {
     margin-bottom: 20px;
   }
@@ -132,19 +213,48 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
   <!-- Enhanced Navbar -->
-  <nav class="bg-blue-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex justify-between items-center flex-wrap">
-      <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold">Advanced Drug Search Tool</h1>
+  <nav class="bg-gradient-to-r from-blue-700 to-blue-600 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <!-- App Icon/Logo -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" fill="white" />
+            <path d="M30 50 L45 65 L70 40" stroke="#2563EB" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <h1 class="text-2xl font-bold">Advanced Drug Search Tool</h1>
+        </div>
+        
+        <div class="hidden md:flex space-x-4 items-center">
+          <button id="trdButton" class="px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors">
+            TRD Depression Data
+          </button>
+          <button id="recentDataBtn" class="px-4 py-2 text-white border border-white rounded-lg hover:bg-blue-600 transition-colors">
+            Recent Submissions
+          </button>
+          <a href="/" class="px-4 py-2 text-white hover:text-blue-100 transition-colors">
+            Home
+          </a>
+        </div>
+        
+        <button id="navbarToggle" class="md:hidden text-white focus:outline-none">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
       </div>
-      <button id="navbarToggle" class="md:hidden text-white focus:outline-none">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-        </svg>
-      </button>
-      <div id="navbarMenu" class="navbar-menu w-full md:w-auto md:flex md:space-x-4 mt-2 md:mt-0">
-        <button id="trdButton" class="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100 w-full md:w-auto text-left">TRD Depression Data</button>
-        <a href="/" class="px-4 py-2 bg-white text-blue-600 rounded hover:bg-gray-100 w-full md:w-auto text-left">Home</a>
+      
+      <!-- Mobile menu -->
+      <div id="navbarMenu" class="navbar-menu hidden md:hidden mt-3 pb-2">
+        <button id="mobileTrdButton" class="block w-full text-left px-4 py-2 bg-white text-blue-700 rounded-t-lg hover:bg-blue-50 transition-colors">
+          TRD Depression Data
+        </button>
+        <button id="mobileRecentDataBtn" class="block w-full text-left px-4 py-2 bg-blue-600 text-white border-t border-blue-500 hover:bg-blue-500 transition-colors">
+          Recent Submissions
+        </button>
+        <a href="/" class="block w-full text-left px-4 py-2 bg-blue-600 text-white border-t border-blue-500 rounded-b-lg hover:bg-blue-500 transition-colors">
+          Home
+        </a>
       </div>
     </div>
   </nav>
@@ -860,6 +970,220 @@
   modal.classList.add('show');
 }
 
+
+
+// Update the showDrugDetails function to fetch FDA document links on demand
+function showDrugDetails(product) {
+  document.getElementById('modalTitle').textContent = `${product.brandName || product.applicationNumber} Details`;
+  
+  // Reset tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab[data-tab="overview"]').classList.add('active');
+  document.getElementById('overview').classList.add('active');
+  
+  // Overview Tab
+  const overviewTab = document.getElementById('overview');
+  overviewTab.innerHTML = `
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">Application Details</h3>
+          <ul class="space-y-2">
+            <li><span class="font-medium">Application Number:</span> ${product.applicationNumber}</li>
+            <li><span class="font-medium">Approval Date:</span> ${formatDate(product.approvalDate)}</li>
+            <li><span class="font-medium">Sponsor/Manufacturer:</span> ${product.sponsorName || product.manufacturer || 'N/A'}</li>
+            ${product.dosageForm ? `<li><span class="font-medium">Dosage Form:</span> ${product.dosageForm}</li>` : ''}
+            ${product.route ? `<li><span class="font-medium">Route:</span> ${product.route}</li>` : ''}
+            ${product.marketingStatus ? `<li><span class="font-medium">Marketing Status:</span> ${product.marketingStatus}</li>` : ''}
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">Active Ingredients</h3>
+          <ul class="space-y-1">
+            ${product.activeIngredients?.map(ingredient => 
+              `<li><span class="font-medium">${ingredient.name}:</span> ${ingredient.strength || 'N/A'}</li>`
+            ).join('') || '<li>N/A</li>'}
+          </ul>
+          ${product.indication ? `
+            <div class="mt-4">
+              <h3 class="text-lg font-medium text-gray-800 mb-2">Indication</h3>
+              <p>${product.indication}</p>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      ${product.fdaPage ? `
+        <div class="mt-4">
+          <h3 class="text-lg font-medium text-gray-800 mb-2">FDA Links</h3>
+          <a href="${product.fdaPage}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            FDA Drug Approval Page
+          </a>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  // FDA Documents Tab - fetch on demand
+  const fdaTab = document.getElementById('fda');
+  fdaTab.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div><p class="ml-3 text-gray-600">Fetching FDA documents...</p></div>';
+  fetchFdaDocuments(product, fdaTab);
+  
+  // Fetch additional data with improved error handling
+  fetchDailyMedData(product, document.getElementById('dailymed'));
+  fetchOrangeBookData(product, document.getElementById('orangebook'));
+  fetchGuidanceDocuments(product, document.getElementById('guidances'));
+  fetchApplicationData(product, document.getElementById('application'));
+  
+  modal.classList.add('show');
+}
+
+// New function to fetch FDA documents from the API
+async function fetchFdaDocuments(product, container) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(product.applicationNumber)}`);
+    const data = await response.json();
+    
+    if (!data.links || Object.keys(data.links).length === 0) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No FDA documents found</p></div>`;
+      return;
+    }
+    
+    // Remove duplicate links (ones with number suffixes that point to the same documents)
+    const uniqueLinks = {};
+    Object.entries(data.links).forEach(([key, url]) => {
+      // Remove any numeric suffix from key (e.g., approvalLetter2 -> approvalLetter)
+      const baseKey = key.replace(/\d+$/, '');
+      if (!uniqueLinks[baseKey] && url) {
+        uniqueLinks[baseKey] = url;
+      }
+    });
+    
+    // Group links by type for better organization
+    const groupedLinks = {
+      approvals: [],
+      labels: [],
+      reviews: [],
+      other: []
+    };
+    
+    Object.entries(uniqueLinks).forEach(([key, url]) => {
+      if (key.toLowerCase().includes('approv')) {
+        groupedLinks.approvals.push({ key, url });
+      } else if (key.toLowerCase().includes('lbl') || key.toLowerCase().includes('label')) {
+        groupedLinks.labels.push({ key, url });
+      } else if (key.toLowerCase().includes('review') || key.toLowerCase().includes('toc')) {
+        groupedLinks.reviews.push({ key, url });
+      } else {
+        groupedLinks.other.push({ key, url });
+      }
+    });
+    
+    container.innerHTML = `
+      <div class="space-y-4">
+        <p class="text-sm text-gray-600 mb-4">FDA documents for application ${product.applicationNumber}:</p>
+        
+        ${groupedLinks.approvals.length > 0 ? `
+          <div>
+            <h3 class="text-md font-medium text-gray-800 mb-2">Approval Documents</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${groupedLinks.approvals.map(link => `
+                <a href="${link.url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  ${formatDocumentName(link.key)}
+                  <div class="tooltip ml-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="tooltip-text">${getDocumentDescription(link.key)}</span>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${groupedLinks.labels.length > 0 ? `
+          <div>
+            <h3 class="text-md font-medium text-gray-800 mb-2">Labels & Packaging</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${groupedLinks.labels.map(link => `
+                <a href="${link.url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  ${formatDocumentName(link.key)}
+                  <div class="tooltip ml-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="tooltip-text">${getDocumentDescription(link.key)}</span>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${groupedLinks.reviews.length > 0 ? `
+          <div>
+            <h3 class="text-md font-medium text-gray-800 mb-2">Reviews & Clinical Data</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${groupedLinks.reviews.map(link => `
+                <a href="${link.url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  ${formatDocumentName(link.key)}
+                  <div class="tooltip ml-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="tooltip-text">${getDocumentDescription(link.key)}</span>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${groupedLinks.other.length > 0 ? `
+          <div>
+            <h3 class="text-md font-medium text-gray-800 mb-2">Other Documents</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${groupedLinks.other.map(link => `
+                <a href="${link.url}" target="_blank" class="block p-3 border rounded hover:bg-gray-50 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  ${formatDocumentName(link.key)}
+                  <div class="tooltip ml-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="tooltip-text">${getDocumentDescription(link.key)}</span>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } catch (error) {
+    console.error('Error fetching FDA documents:', error);
+    container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching FDA documents</p></div>`;
+  }
+}
+
+// Enhanced function for formatting document names
+
+
 // Add function to fetch and display recent submissions on page load
 function fetchAndDisplayRecentSubmissions() {
   fetch(`${API_BASE_URL}/recent`)
@@ -909,147 +1233,310 @@ function fetchAndDisplayRecentSubmissions() {
 
 
 
-
-  async function fetchApplicationData(product, container) {
-    container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+async function fetchApplicationData(product, container) {
+  container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div><p class="ml-3 text-gray-600">Fetching application data...</p></div>';
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/application/${encodeURIComponent(product.applicationNumber)}`);
+    const data = await response.json();
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/application/${encodeURIComponent(product.applicationNumber)}`);
-      const data = await response.json();
-      
-      if (data.error) {
-        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
-        return;
-      }
-      
-      // Handle missing data gracefully
-      const products = data.products || [];
-      const originalApproval = data.approvalHistory?.originalApproval || {};
-      const supplements = data.approvalHistory?.supplements || [];
-      const therapeuticEquivalents = data.therapeuticEquivalents || [];
-      
-      let productsHtml = '';
-      if (products.length > 0) {
-        productsHtml = `
-          <h3 class="text-lg font-medium text-gray-800">Products</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage/Route</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                ${products.map(p => `
-                  <tr>
-                    <td class="px-4 py-2 whitespace-nowrap">${p.drugName || 'N/A'}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">${p.strength || 'N/A'}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">${p.dosageFormRoute || 'N/A'}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">${p.marketingStatus || 'Unknown'}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
-      
-      let approvalHistoryHtml = '';
-      if (originalApproval.actionDate) {
-        approvalHistoryHtml = `
-          <h3 class="text-lg font-medium text-gray-800 mt-6">Approval History</h3>
-          <div>
-            <h4 class="font-medium">Original Approval</h4>
-            <p><span class="font-medium">Date:</span> ${formatDate(originalApproval.actionDate)}</p>
-            <p><span class="font-medium">Type:</span> ${originalApproval.actionType || 'N/A'}</p>
-            <div class="mt-2">
-              ${originalApproval.letters ? `<a href="${originalApproval.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
-              ${originalApproval.labels ? `<a href="${originalApproval.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
-              ${originalApproval.review ? `<a href="${originalApproval.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
-            </div>
-          </div>
-        `;
-        
-        if (supplements.length > 0) {
-          approvalHistoryHtml += `
-            <div class="mt-4">
-              <h4 class="font-medium">Supplements</h4>
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    ${supplements.map(s => `
-                      <tr>
-                        <td class="px-4 py-2 whitespace-nowrap">${formatDate(s.actionDate)}</td>
-                        <td class="px-4 py-2 whitespace-nowrap">${s.submission || 'N/A'}</td>
-                        <td class="px-4 py-2 whitespace-nowrap">${s.supplementCategories || 'N/A'}</td>
-                        <td class="px-4 py-2 whitespace-nowrap">
-                          ${s.letters ? `<a href="${s.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
-                          ${s.labels ? `<a href="${s.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
-                          ${s.review ? `<a href="${s.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
-                        </td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
+    if (data.error) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
+      return;
+    }
+    
+    // Also fetch FDA document links to enhance application data
+    const docResponse = await fetch(`${API_BASE_URL}/documents/${encodeURIComponent(product.applicationNumber)}`);
+    const docData = await docResponse.json();
+    
+    // Handle missing data gracefully
+    const products = data.products || [];
+    const originalApproval = data.approvalHistory?.originalApproval || {};
+    const supplements = data.approvalHistory?.supplements || [];
+    const therapeuticEquivalents = data.therapeuticEquivalents || [];
+    
+    // Enhanced links for original approval
+    if (docData && docData.links) {
+      // Update original approval links with better ones from scraping
+      if (originalApproval) {
+        if (docData.links.approvalLetter) {
+          originalApproval.letters = docData.links.approvalLetter;
+        }
+        if (docData.links.label) {
+          originalApproval.labels = docData.links.label;
+        }
+        if (docData.links.medicalReview || docData.links.reviewTOC) {
+          originalApproval.review = docData.links.medicalReview || docData.links.reviewTOC;
         }
       }
       
-      let teHtml = '';
-      if (therapeuticEquivalents.length > 0) {
-        teHtml = `
-          <h3 class="text-lg font-medium text-gray-800 mt-6">Therapeutic Equivalents</h3>
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                ${therapeuticEquivalents.map(te => `
-                  <tr>
-                    <td class="px-4 py-2 whitespace-nowrap">${te.drugName || 'N/A'}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">${te.company || 'N/A'}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">${te.teCode || 'N/A'}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
-      
-      if (!productsHtml && !approvalHistoryHtml && !teHtml) {
-        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No application data available</p></div>`;
-      } else {
-        container.innerHTML = `
-          <div class="space-y-6">
-            ${productsHtml}
-            ${approvalHistoryHtml}
-            ${teHtml}
-          </div>
-        `;
-      }
-    } catch (error) {
-      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching application data</p></div>`;
+      // Could also update supplement links, but that's more complex
+      // Would need to match by date or submission number
     }
+    
+    let productsHtml = '';
+    if (products.length > 0) {
+      productsHtml = `
+        <h3 class="text-lg font-medium text-gray-800">Products</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage/Route</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${products.map(p => `
+                <tr>
+                  <td class="px-4 py-2 whitespace-nowrap">${p.drugName || 'N/A'}</td>
+                  <td class="px-4 py-2 whitespace-nowrap">${p.strength || 'N/A'}</td>
+                  <td class="px-4 py-2 whitespace-nowrap">${p.dosageFormRoute || 'N/A'}</td>
+                  <td class="px-4 py-2 whitespace-nowrap">${p.marketingStatus || 'Unknown'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    
+    let approvalHistoryHtml = '';
+    if (originalApproval.actionDate) {
+      approvalHistoryHtml = `
+        <h3 class="text-lg font-medium text-gray-800 mt-6">Approval History</h3>
+        <div>
+          <h4 class="font-medium">Original Approval</h4>
+          <p><span class="font-medium">Date:</span> ${formatDate(originalApproval.actionDate)}</p>
+          <p><span class="font-medium">Type:</span> ${originalApproval.actionType || 'N/A'}</p>
+          <div class="mt-2">
+            ${originalApproval.letters ? `<a href="${originalApproval.letters}" target="_blank" class="text-blue-600 hover:underline mr-3">Approval Letter</a>` : ''}
+            ${originalApproval.labels ? `<a href="${originalApproval.labels}" target="_blank" class="text-blue-600 hover:underline mr-3">Label</a>` : ''}
+            ${originalApproval.review ? `<a href="${originalApproval.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+          </div>
+        </div>
+      `;
+      
+      if (supplements.length > 0) {
+        approvalHistoryHtml += `
+          <div class="mt-4">
+            <h4 class="font-medium">Supplements</h4>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${supplements.map(s => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${formatDate(s.actionDate)}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${s.submission || 'N/A'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${s.supplementCategories || 'N/A'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">
+                        ${s.letters ? `<a href="${s.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
+                        ${s.labels ? `<a href="${s.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
+                        ${s.review ? `<a href="${s.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    let teHtml = '';
+    if (therapeuticEquivalents && therapeuticEquivalents.length > 0) {
+      teHtml = `
+        <h3 class="text-lg font-medium text-gray-800 mt-6">Therapeutic Equivalents</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${therapeuticEquivalents.map(te => `
+                <tr>
+                  <td class="px-4 py-2 whitespace-nowrap">${te.drugName || 'N/A'}</td>
+                  <td class="px-4 py-2 whitespace-nowrap">${te.company || 'N/A'}</td>
+                  <td class="px-4 py-2 whitespace-nowrap">${te.teCode || 'N/A'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    
+    if (!productsHtml && !approvalHistoryHtml && !teHtml) {
+      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No application data available</p></div>`;
+    } else {
+      container.innerHTML = `
+        <div class="space-y-6">
+          ${productsHtml}
+          ${approvalHistoryHtml}
+          ${teHtml}
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error fetching application data:', error);
+    container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching application data</p></div>`;
   }
+}
+  // async function fetchApplicationData(product, container) {
+  //   container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+    
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/application/${encodeURIComponent(product.applicationNumber)}`);
+  //     const data = await response.json();
+      
+  //     if (data.error) {
+  //       container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">${data.error}</p></div>`;
+  //       return;
+  //     }
+      
+  //     // Handle missing data gracefully
+  //     const products = data.products || [];
+  //     const originalApproval = data.approvalHistory?.originalApproval || {};
+  //     const supplements = data.approvalHistory?.supplements || [];
+  //     const therapeuticEquivalents = data.therapeuticEquivalents || [];
+      
+  //     let productsHtml = '';
+  //     if (products.length > 0) {
+  //       productsHtml = `
+  //         <h3 class="text-lg font-medium text-gray-800">Products</h3>
+  //         <div class="overflow-x-auto">
+  //           <table class="min-w-full divide-y divide-gray-200">
+  //             <thead class="bg-gray-50">
+  //               <tr>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage/Route</th>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody class="bg-white divide-y divide-gray-200">
+  //               ${products.map(p => `
+  //                 <tr>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${p.drugName || 'N/A'}</td>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${p.strength || 'N/A'}</td>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${p.dosageFormRoute || 'N/A'}</td>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${p.marketingStatus || 'Unknown'}</td>
+  //                 </tr>
+  //               `).join('')}
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       `;
+  //     }
+      
+  //     let approvalHistoryHtml = '';
+  //     if (originalApproval.actionDate) {
+  //       approvalHistoryHtml = `
+  //         <h3 class="text-lg font-medium text-gray-800 mt-6">Approval History</h3>
+  //         <div>
+  //           <h4 class="font-medium">Original Approval</h4>
+  //           <p><span class="font-medium">Date:</span> ${formatDate(originalApproval.actionDate)}</p>
+  //           <p><span class="font-medium">Type:</span> ${originalApproval.actionType || 'N/A'}</p>
+  //           <div class="mt-2">
+  //             ${originalApproval.letters ? `<a href="${originalApproval.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
+  //             ${originalApproval.labels ? `<a href="${originalApproval.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
+  //             ${originalApproval.review ? `<a href="${originalApproval.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+  //           </div>
+  //         </div>
+  //       `;
+        
+  //       if (supplements.length > 0) {
+  //         approvalHistoryHtml += `
+  //           <div class="mt-4">
+  //             <h4 class="font-medium">Supplements</h4>
+  //             <div class="overflow-x-auto">
+  //               <table class="min-w-full divide-y divide-gray-200">
+  //                 <thead class="bg-gray-50">
+  //                   <tr>
+  //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+  //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
+  //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+  //                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
+  //                   </tr>
+  //                 </thead>
+  //                 <tbody class="bg-white divide-y divide-gray-200">
+  //                   ${supplements.map(s => `
+  //                     <tr>
+  //                       <td class="px-4 py-2 whitespace-nowrap">${formatDate(s.actionDate)}</td>
+  //                       <td class="px-4 py-2 whitespace-nowrap">${s.submission || 'N/A'}</td>
+  //                       <td class="px-4 py-2 whitespace-nowrap">${s.supplementCategories || 'N/A'}</td>
+  //                       <td class="px-4 py-2 whitespace-nowrap">
+  //                         ${s.letters ? `<a href="${s.letters}" target="_blank" class="text-blue-600 hover:underline mr-2">Letter</a>` : ''}
+  //                         ${s.labels ? `<a href="${s.labels}" target="_blank" class="text-blue-600 hover:underline mr-2">Label</a>` : ''}
+  //                         ${s.review ? `<a href="${s.review}" target="_blank" class="text-blue-600 hover:underline">Review</a>` : ''}
+  //                       </td>
+  //                     </tr>
+  //                   `).join('')}
+  //                 </tbody>
+  //               </table>
+  //             </div>
+  //           </div>
+  //         `;
+  //       }
+  //     }
+      
+  //     let teHtml = '';
+  //     if (therapeuticEquivalents.length > 0) {
+  //       teHtml = `
+  //         <h3 class="text-lg font-medium text-gray-800 mt-6">Therapeutic Equivalents</h3>
+  //         <div class="overflow-x-auto">
+  //           <table class="min-w-full divide-y divide-gray-200">
+  //             <thead class="bg-gray-50">
+  //               <tr>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+  //                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody class="bg-white divide-y divide-gray-200">
+  //               ${therapeuticEquivalents.map(te => `
+  //                 <tr>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${te.drugName || 'N/A'}</td>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${te.company || 'N/A'}</td>
+  //                   <td class="px-4 py-2 whitespace-nowrap">${te.teCode || 'N/A'}</td>
+  //                 </tr>
+  //               `).join('')}
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       `;
+  //     }
+      
+  //     if (!productsHtml && !approvalHistoryHtml && !teHtml) {
+  //       container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No application data available</p></div>`;
+  //     } else {
+  //       container.innerHTML = `
+  //         <div class="space-y-6">
+  //           ${productsHtml}
+  //           ${approvalHistoryHtml}
+  //           ${teHtml}
+  //         </div>
+  //       `;
+  //     }
+  //   } catch (error) {
+  //     container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching application data</p></div>`;
+  //   }
+  // }
   
 
     // async function fetchApplicationData(product, container) {
@@ -1685,36 +2172,57 @@ async function fetchOrangeBookData(product, container) {
   }
   
   // Add this helper function for document descriptions
-  function getDocumentDescription(key) {
-    const descriptions = {
-      'approvalLetter': 'The FDA letter granting approval for the drug application',
-      'label': 'The FDA-approved drug label with prescribing information',
-      'review': 'Review documentation (e.g., clinical, medical, or chemistry reviews)',
-      'labeling': 'Older term for drug label with prescribing information',
-      'medicalReview': 'Medical officer\'s review of clinical trial data',
-      'chemistryReview': 'Review of the drug\'s chemistry, manufacturing, and controls',
-      'clinicalPharmaReview': 'Clinical pharmacology review and assessment',
-      'adminDocs': 'Administrative documents related to the application',
-      'correspondence': 'Correspondence between the FDA and the applicant'
-    };
-    return descriptions[key] || 'Additional FDA documentation';
-  }
-  
-  // Add this helper function for document name formatting
   function formatDocumentName(key) {
-  const formatting = {
+  const formattedNames = {
     'approvalLetter': 'Approval Letter',
     'label': 'Drug Label',
-    'review': 'Medical Review',
-    'labeling': 'Drug Labeling',
     'medicalReview': 'Medical Review',
+    'clinicalReview': 'Clinical Review',
     'chemistryReview': 'Chemistry Review',
-    'clinicalPharmaReview': 'Clinical Pharmacology Review',
-    'adminDocs': 'Administrative Documents',
-    'correspondence': 'FDA Correspondence'
+    'reviewTOC': 'Review Table of Contents',
+    'summaryReview': 'Summary Review',
+    'pharmReview': 'Pharmacology Review',
+    'microReview': 'Microbiology Review',
+    'bioReview': 'Biopharmaceutics Review',
+    'statReview': 'Statistical Review'
   };
   
-  return formatting[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  // Remove numeric suffixes for display
+  const baseKey = key.replace(/\d+$/, '');
+  
+  return formattedNames[baseKey] || baseKey.replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+    .replace(/Toc/, 'Table of Contents')
+    .replace(/Lbl/, 'Label')
+    .replace(/Approv/, 'Approval');
+}
+
+// Enhanced function for document descriptions
+function getDocumentDescription(key) {
+  const descriptions = {
+    'approvalLetter': 'The FDA letter granting approval for the drug application',
+    'label': 'The FDA-approved drug label with prescribing information',
+    'medicalReview': 'Medical officer\'s review of clinical trial data',
+    'clinicalReview': 'Assessment of clinical trial results and efficacy',
+    'chemistryReview': 'Review of the drug\'s chemistry, manufacturing, and controls',
+    'reviewTOC': 'Table of contents for all review documents',
+    'summaryReview': 'Overall summary of FDA\'s assessment of the drug',
+    'pharmReview': 'Review of pharmacology and toxicology studies',
+    'microReview': 'Microbiology review for antimicrobial products',
+    'bioReview': 'Biopharmaceutics review including bioavailability data',
+    'statReview': 'Statistical analysis of clinical trial data',
+    'otherDocument': 'Additional FDA documentation',
+  };
+  
+  // Remove numeric suffixes for lookup
+  const baseKey = key.replace(/\d+$/, '');
+  
+  // If it's an "otherDocument" with a number, provide a more helpful description
+  if (baseKey === 'otherDocument') {
+    return 'Additional FDA documentation';
+  }
+  
+  return descriptions[baseKey] || 'FDA documentation';
 }
     // function getExclusivityDescription(code) {
     //   const descriptions = {
