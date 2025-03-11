@@ -268,6 +268,27 @@
     </div>
     <div class="bg-white rounded-lg shadow-lg p-6">
       <!-- Search Form -->
+      <!-- <form id="searchForm" class="flex flex-col md:flex-row mb-6 gap-2">
+        <input 
+          type="text" 
+          id="drugName" 
+          placeholder="Enter drug name (e.g., Adderall)" 
+          class="flex-grow p-3 border rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <select id="searchType" class="p-3 border rounded-lg md:rounded-none focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="brand">Brand Name</option>
+          <option value="generic">Generic Name</option>
+          <option value="indication">Indication</option>
+        </select>
+        <button 
+          type="submit" 
+          id="searchButton"
+          class="bg-blue-600 text-white p-3 rounded-lg md:rounded-l-none hover:bg-blue-700 flex items-center justify-center"
+        >
+          <span id="searchButtonText">Search</span>
+          <span id="searchSpinner" class="loading ml-2 hidden"></span>
+        </button>
+      </form> -->
       <form id="searchForm" class="flex flex-col md:flex-row mb-6 gap-2">
         <input 
           type="text" 
@@ -289,6 +310,36 @@
           <span id="searchSpinner" class="loading ml-2 hidden"></span>
         </button>
       </form>
+      <!-- Results -
+      <div id="searchStatus" class="mb-4 hidden">
+        <div class="bg-blue-50 text-blue-700 p-4 rounded flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="statusText">Searching...</span>
+        </div>
+      </div>
+
+      <div id="results" class="space-y-6"></div> -->
+      <!-- New Orange Book Search Section -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Orange Book Search</h3>
+        <div class="flex flex-col md:flex-row gap-2">
+          <input 
+            type="text" 
+            id="orangeBookSearch" 
+            placeholder="Search Orange Book (e.g., patent number, drug name)"
+            class="flex-grow p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <button 
+            id="orangeBookSearchBtn"
+            class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 flex items-center justify-center"
+          >
+            <span id="orangeBookSearchText">Search</span>
+            <span id="orangeBookSpinner" class="loading ml-2 hidden"></span>
+          </button>
+        </div>
+      </div>
 
       <!-- Results -->
       <div id="searchStatus" class="mb-4 hidden">
@@ -368,6 +419,10 @@
     const navbarMenu = document.getElementById('navbarMenu');
     const recentSubmissions = document.getElementById('recentSubmissions');
   const recentSubmissionsContainer = document.getElementById('recentSubmissionsContainer');
+  const orangeBookSearch = document.getElementById('orangeBookSearch');
+    const orangeBookSearchBtn = document.getElementById('orangeBookSearchBtn');
+    const orangeBookSpinner = document.getElementById('orangeBookSpinner');
+    const orangeBookSearchText = document.getElementById('orangeBookSearchText');
   
     
     // Event Listeners
@@ -379,7 +434,8 @@
     navbarToggle.addEventListener('click', () => {
       navbarMenu.classList.toggle('open');
     });
-    
+    orangeBookSearchBtn.addEventListener('click', handleOrangeBookSearch);
+
     // Tab functionality
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -408,7 +464,6 @@
       try {
         const response = await fetch(`${API_BASE_URL}/drug/${encodeURIComponent(drugName)}?type=${searchType}`);
         const data = await response.json();
-        console.log(data)
         
         if (data.error) {
           showStatus(data.error, 'error');
@@ -425,9 +480,169 @@
         setLoading(false);
       }
     }
+    // async function handleSearch(event) {
+    //   event.preventDefault();
+    //   const drugName = drugNameInput.value.trim();
+    //   const searchType = searchTypeSelect.value;
+      
+    //   if (!drugName) {
+    //     showStatus('Please enter a drug name', 'error');
+    //     return;
+    //   }
+      
+    //   setLoading(true);
+    //   showStatus(`Searching for ${drugName}...`);
+      
+    //   try {
+    //     const response = await fetch(`${API_BASE_URL}/drug/${encodeURIComponent(drugName)}?type=${searchType}`);
+    //     const data = await response.json();
+    //     console.log(data)
+        
+    //     if (data.error) {
+    //       showStatus(data.error, 'error');
+    //       setLoading(false);
+    //       return;
+    //     }
+        
+    //     displayResults(data, drugName);
+    //     hideStatus();
+    //   } catch (error) {
+    //     console.error('Error fetching drug data:', error);
+    //     showStatus('Error fetching data. Please try again.', 'error');
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // }
 
     // Add this function to fetch recent submissions
-  async function fetchRecentSubmissions() {
+  
+    async function handleOrangeBookSearch() {
+      const query = orangeBookSearch.value.trim();
+      if (!query) {
+        showStatus('Please enter an Orange Book search term', 'error');
+        return;
+      }
+
+      setOrangeBookLoading(true);
+      showStatus(`Searching Orange Book for ${query}...`);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/orangebook/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data.error) {
+          showStatus(data.error, 'error');
+          setOrangeBookLoading(false);
+          return;
+        }
+
+        displayOrangeBookResults(data, query);
+        hideStatus();
+      } catch (error) {
+        console.error('Error fetching Orange Book data:', error);
+        showStatus('Error fetching Orange Book data.', 'error');
+      } finally {
+        setOrangeBookLoading(false);
+      }
+    }
+
+    function displayOrangeBookResults(data, query) {
+      resultsContainer.innerHTML = `
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4">Orange Book Results for "${query}"</h2>
+          <div class="space-y-6">
+            <!-- Products -->
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">Products (${data.total.products})</h3>
+              ${data.results.products.length ? `
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage Form</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      ${data.results.products.map(p => `
+                        <tr>
+                          <td class="px-4 py-2">${p['Trade Name'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${p['New Drug Application (NDA) Number'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${p['Strength'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${p['Dosage Form/Route'] || 'N/A'}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : '<p class="text-gray-600">No products found</p>'}
+            </div>
+
+            <!-- Patents -->
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">Patents (${data.total.patents})</h3>
+              ${data.results.patents.length ? `
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      ${data.results.patents.map(p => `
+                        <tr>
+                          <td class="px-4 py-2">${p['Patent Number'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${p['New Drug Application (NDA) Number'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${formatDate(p['Patent Expire Date'])}</td>
+                          <td class="px-4 py-2">${p['Drug Substance Flag'] === 'Y' ? 'Yes' : 'No'}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : '<p class="text-gray-600">No patents found</p>'}
+            </div>
+
+            <!-- Exclusivity -->
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">Exclusivity (${data.total.exclusivity})</h3>
+              ${data.results.exclusivity.length ? `
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      ${data.results.exclusivity.map(e => `
+                        <tr>
+                          <td class="px-4 py-2">${e['Exclusivity Code'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${e['New Drug Application (NDA) Number'] || 'N/A'}</td>
+                          <td class="px-4 py-2">${formatDate(e['Exclusivity Date'])}</td>
+                          <td class="px-4 py-2">${getExclusivityDescription(e['Exclusivity Code'])}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : '<p class="text-gray-600">No exclusivity data found</p>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  
+    async function fetchRecentSubmissions() {
     try {
       const response = await fetch(`${API_BASE_URL}/recent`);
       const data = await response.json();
@@ -1748,19 +1963,13 @@ async function fetchApplicationData(product, container) {
     container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching DailyMed data. Please try again later.</p></div>`;
   }
 }
-
 async function fetchOrangeBookData(product, container) {
-    container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
-    try {
-      const response = await fetch(`${API_BASE_URL}/orangebook/${encodeURIComponent(product.applicationNumber)}`);
-      const data = await response.json();
-      
-      // Build HTML even when there's no data
-      let patentsHtml = '';
-      let exclusivitiesHtml = '';
-      
-      if (data.patents && data.patents.length > 0) {
-        patentsHtml = `
+      container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+      try {
+        const response = await fetch(`${API_BASE_URL}/orangebook/${encodeURIComponent(product.applicationNumber)}`);
+        const data = await response.json();
+        
+        let patentsHtml = data.patents.length ? `
           <div>
             <h3 class="text-lg font-medium text-gray-800 mb-2">Patents</h3>
             <div class="overflow-x-auto">
@@ -1771,6 +1980,7 @@ async function fetchOrangeBookData(product, container) {
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -1780,19 +1990,18 @@ async function fetchOrangeBookData(product, container) {
                       <td class="px-4 py-2 whitespace-nowrap">${formatDate(patent.expirationDate)}</td>
                       <td class="px-4 py-2 whitespace-nowrap">${patent.drugSubstance ? 'Yes' : 'No'}</td>
                       <td class="px-4 py-2 whitespace-nowrap">${patent.drugProduct ? 'Yes' : 'No'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${patent.useCode}</td>
                     </tr>
                   `).join('')}
                 </tbody>
               </table>
             </div>
           </div>
-        `;
-      }
-      
-      if (data.exclusivities && data.exclusivities.length > 0) {
-        exclusivitiesHtml = `
+        ` : '';
+
+        let exclusivitiesHtml = data.exclusivities.length ? `
           <div>
-            <h3 class="text-lg font-medium text-gray-800 mb-2">Exclusivities</h3>
+            <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Exclusivities</h3>
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -1814,27 +2023,120 @@ async function fetchOrangeBookData(product, container) {
               </table>
             </div>
           </div>
-        `;
-      }
-      
-      if (!patentsHtml && !exclusivitiesHtml) {
-        container.innerHTML = `
-          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <p class="text-yellow-700">No Orange Book data found for this application</p>
-          </div>
-        `;
-      } else {
+        ` : '';
+
         container.innerHTML = `
           <div class="space-y-4">
-            ${patentsHtml}
-            ${exclusivitiesHtml}
+            ${patentsHtml || exclusivitiesHtml ? patentsHtml + exclusivitiesHtml : `
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <p class="text-yellow-700">No Orange Book data found for this application</p>
+              </div>
+            `}
           </div>
         `;
+      } catch (error) {
+        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching Orange Book data</p></div>`;
       }
-    } catch (error) {
-      container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No Orange Book data available</p></div>`;
     }
-  }
+
+    function setOrangeBookLoading(isLoading) {
+      if (isLoading) {
+        orangeBookSpinner.classList.remove('hidden');
+        orangeBookSearchText.textContent = 'Searching...';
+        orangeBookSearchBtn.disabled = true;
+      } else {
+        orangeBookSpinner.classList.add('hidden');
+        orangeBookSearchText.textContent = 'Search';
+        orangeBookSearchBtn.disabled = false;
+      }
+    }
+    
+// async function fetchOrangeBookData(product, container) {
+//     container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
+//     try {
+//       const response = await fetch(`${API_BASE_URL}/orangebook/${encodeURIComponent(product.applicationNumber)}`);
+//       const data = await response.json();
+      
+//       // Build HTML even when there's no data
+//       let patentsHtml = '';
+//       let exclusivitiesHtml = '';
+      
+//       if (data.patents && data.patents.length > 0) {
+//         patentsHtml = `
+//           <div>
+//             <h3 class="text-lg font-medium text-gray-800 mb-2">Patents</h3>
+//             <div class="overflow-x-auto">
+//               <table class="min-w-full divide-y divide-gray-200">
+//                 <thead class="bg-gray-50">
+//                   <tr>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody class="bg-white divide-y divide-gray-200">
+//                   ${data.patents.map(patent => `
+//                     <tr>
+//                       <td class="px-4 py-2 whitespace-nowrap">${patent.patentNo}</td>
+//                       <td class="px-4 py-2 whitespace-nowrap">${formatDate(patent.expirationDate)}</td>
+//                       <td class="px-4 py-2 whitespace-nowrap">${patent.drugSubstance ? 'Yes' : 'No'}</td>
+//                       <td class="px-4 py-2 whitespace-nowrap">${patent.drugProduct ? 'Yes' : 'No'}</td>
+//                     </tr>
+//                   `).join('')}
+//                 </tbody>
+//               </table>
+//             </div>
+//           </div>
+//         `;
+//       }
+      
+//       if (data.exclusivities && data.exclusivities.length > 0) {
+//         exclusivitiesHtml = `
+//           <div>
+//             <h3 class="text-lg font-medium text-gray-800 mb-2">Exclusivities</h3>
+//             <div class="overflow-x-auto">
+//               <table class="min-w-full divide-y divide-gray-200">
+//                 <thead class="bg-gray-50">
+//                   <tr>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+//                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody class="bg-white divide-y divide-gray-200">
+//                   ${data.exclusivities.map(exclusivity => `
+//                     <tr>
+//                       <td class="px-4 py-2 whitespace-nowrap">${exclusivity.code}</td>
+//                       <td class="px-4 py-2 whitespace-nowrap">${formatDate(exclusivity.expirationDate)}</td>
+//                       <td class="px-4 py-2">${getExclusivityDescription(exclusivity.code)}</td>
+//                     </tr>
+//                   `).join('')}
+//                 </tbody>
+//               </table>
+//             </div>
+//           </div>
+//         `;
+//       }
+      
+//       if (!patentsHtml && !exclusivitiesHtml) {
+//         container.innerHTML = `
+//           <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+//             <p class="text-yellow-700">No Orange Book data found for this application</p>
+//           </div>
+//         `;
+//       } else {
+//         container.innerHTML = `
+//           <div class="space-y-4">
+//             ${patentsHtml}
+//             ${exclusivitiesHtml}
+//           </div>
+//         `;
+//       }
+//     } catch (error) {
+//       container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">No Orange Book data available</p></div>`;
+//     }
+//   }
   
   // Fix Guidance Documents fetching
   async function fetchGuidanceDocuments(product, container) {
