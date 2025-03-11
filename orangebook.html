@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Book Data Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center mb-6">Orange Book Data Explorer</h1>
+
+        <!-- Search and Filters -->
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="searchInput" placeholder="Search all fields..." 
+                       class="w-full md:w-1/3 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="dataType" class="p-2 border rounded-md">
+                    <option value="products">Products</option>
+                    <option value="patents">Patents</option>
+                    <option value="exclusivity">Exclusivity</option>
+                </select>
+                <select id="viewType" class="p-2 border rounded-md">
+                    <option value="table">Table View</option>
+                    <option value="card">Card View</option>
+                    <option value="list">List View</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results" class="space-y-4"></div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center items-center gap-4 mt-6">
+            <button id="prevBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400">Previous</button>
+            <span id="pageInfo" class="text-lg"></span>
+            <button id="nextBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-400">Next</button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let allData = { products: [], patents: [], exclusivity: [] };
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Load JSON data
+        async function loadData() {
+            try {
+                const [products, patents, exclusivity] = await Promise.all([
+                    fetch('./products_data.json').then(res => res.json()),
+                    fetch('./patent_data.json').then(res => res.json()),
+                    fetch('./exclusivity_data.json').then(res => res.json())
+                ]);
+                allData.products = products;
+                allData.patents = patents;
+                allData.exclusivity = exclusivity;
+                updateDisplay();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('results').innerHTML = '<p class="text-red-500">Error loading data</p>';
+            }
+        }
+
+        // Filter and search data
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const dataType = document.getElementById('dataType').value;
+            const data = allData[dataType];
+
+            filteredData = data.filter(item => 
+                Object.values(item).some(val => 
+                    String(val).toLowerCase().includes(searchTerm)
+                )
+            );
+            currentPage = 1;
+            updateDisplay();
+        }
+
+        // Update display based on view type and pagination
+        function updateDisplay() {
+            const viewType = document.getElementById('viewType').value;
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedData = filteredData.slice(start, end);
+
+            let html = '';
+            if (viewType === 'table') {
+                html = renderTable(paginatedData);
+            } else if (viewType === 'card') {
+                html = renderCards(paginatedData);
+            } else if (viewType === 'list') {
+                html = renderList(paginatedData);
+            }
+
+            document.getElementById('results').innerHTML = html;
+            updatePagination();
+        }
+
+        // Render Table View
+        function renderTable(data) {
+            if (!data.length) return '<p>No results found</p>';
+            const headers = Object.keys(data[0]);
+            return `
+                <table class="w-full border-collapse bg-white shadow-md rounded-lg">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            ${headers.map(h => `<th class="p-2 border">${h}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr class="hover:bg-gray-100">
+                                ${headers.map(h => `<td class="p-2 border">${item[h] || ''}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Render Card View
+        function renderCards(data) {
+            if (!data.length) return '<p>No results found</p>';
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${data.map(item => `
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            ${Object.entries(item).map(([key, value]) => `
+                                <p><strong>${key}:</strong> ${value || ''}</p>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Render List View
+        function renderList(data) {
+            if (!data.length) return '<p>No results found</p>';
+            return `
+                <ul class="space-y-2">
+                    ${data.map(item => `
+                        <li class="bg-white p-4 rounded-lg shadow-md">
+                            ${Object.entries(item).map(([key, value]) => `
+                                <span class="block">${key}: ${value || ''}</span>
+                            `).join('')}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Update Pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('dataType').addEventListener('change', filterData);
+        document.getElementById('viewType').addEventListener('change', updateDisplay);
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateDisplay();
+            }
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateDisplay();
+            }
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

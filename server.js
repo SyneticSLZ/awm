@@ -21,6 +21,40 @@ const DAILYMED_API_URL = 'https://dailymed.nlm.nih.gov/dailymed/services/v2';
 const ORANGE_BOOK_API_URL = 'https://api.fda.gov/drug/orangebook.json'; // Live FDA Orange Book API
 const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live FDA Guidance API
 
+
+// Local Orange Book Data
+let orangeBookData = {
+  products: [],
+  patents: [],
+  exclusivity: []
+};
+
+// Load Orange Book JSON files on startup
+function loadOrangeBookData() {
+  try {
+    const files = {
+      products: 'products_data.json',
+      patents: 'patent_data.json',
+      exclusivity: 'exclusivity_data.json'
+    };
+
+    Object.keys(files).forEach(key => {
+      const filePath = path.join(__dirname, files[key]);
+      if (fs.existsSync(filePath)) {
+        const jsonData = fs.readFileSync(filePath, 'utf8');
+        orangeBookData[key] = JSON.parse(jsonData);
+        console.log(`Loaded ${orangeBookData[key].length} ${key} from ${files[key]}`);
+      } else {
+        console.warn(`Warning: ${files[key]} not found. Starting with empty ${key} dataset.`);
+        orangeBookData[key] = [];
+      }
+    });
+  } catch (error) {
+    console.error('Error loading Orange Book data:', error);
+    orangeBookData = { products: [], patents: [], exclusivity: [] };
+  }
+}
+
 // Helper functions
 const formatYear = (date) => date ? date.substring(0, 4) : 'unknown';
 
@@ -805,46 +839,134 @@ app.get('/api/recent', async (req, res) => {
   }
 });
 // Fix for Orange Book API endpoint
+// New Orange Book Search Endpoint
+app.get('/api/orangebook/search', (req, res) => {
+  const { q: query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ error: 'Query parameter is required' });
+  }
+
+  const searchTerm = query.toLowerCase();
+  const results = {
+    products: [],
+    patents: [],
+    exclusivity: []
+  };
+
+  // Search Products
+  results.products = orangeBookData.products.filter(product =>
+    Object.values(product).some(val =>
+      String(val).toLowerCase().includes(searchTerm)
+    )
+  );
+
+  // Search Patents
+  results.patents = orangeBookData.patents.filter(patent =>
+    Object.values(patent).some(val =>
+      String(val).toLowerCase().includes(searchTerm)
+    )
+  );
+
+  // Search Exclusivity
+  results.exclusivity = orangeBookData.exclusivity.filter(exclusivity =>
+    Object.values(exclusivity).some(val =>
+      String(val).toLowerCase().includes(searchTerm)
+    )
+  );
+
+  res.json({
+    results: {
+      products: results.products.slice(0, 50), // Limit results for performance
+      patents: results.patents.slice(0, 50),
+      exclusivity: results.exclusivity.slice(0, 50)
+    },
+    total: {
+      products: results.products.length,
+      patents: results.patents.length,
+      exclusivity: results.exclusivity.length
+    }
+  });
+});
+
+// Existing /api/orangebook/:appNumber endpoint (updated to include local data as fallback)
 app.get('/api/orangebook/:appNumber', async (req, res) => {
   const { appNumber } = req.params;
-  
+
   try {
-    // Make request to FDA Orange Book API
+    // Try live FDA Orange Book API first
     const response = await axios.get(`${ORANGE_BOOK_API_URL}?search=application_number:"${appNumber}"&limit=10`);
     const results = response.data.results || [];
-    
-    if (!results.length) {
-      // Return empty but valid response instead of error when no data found
+
+    if (results.length) {
+      const drugData = results[0];
       return res.json({
-        applicationNumber: appNumber,
-        patents: [],
-        exclusivities: []
+        applicationNumber: drugData.application_number,
+        patents: drugData.patent?.map(p => ({
+          patentNo: p.patent_number,
+          expirationDate: p.expiration_date,
+          drugSubstance: p.drug_substance_flag === 'Y',
+          drugProduct: p.drug_product_flag === 'Y',
+          useCode: p.patent_use_code || 'N/A'
+        })) || [],
+        exclusivities: drugData.exclusivity?.map(e => ({
+          code: e.exclusivity_code,
+          expirationDate: e.expiration_date
+        })) || []
       });
     }
-    
-    const drugData = results[0];
-    const formattedData = {
-      applicationNumber: drugData.application_number,
-      patents: drugData.patent?.map(p => ({
-        patentNo: p.patent_number,
-        expirationDate: p.expiration_date,
-        drugSubstance: p.drug_substance_flag === 'Y',
-        drugProduct: p.drug_product_flag === 'Y',
-        useCode: p.patent_use_code || 'N/A'
-      })) || [],
-      exclusivities: drugData.exclusivity?.map(e => ({
-        code: e.exclusivity_code,
-        expirationDate: e.expiration_date
-      })) || []
+
+    // Fallback to local JSON data if API returns no results
+    const localResults = {
+      applicationNumber: appNumber,
+      patents: orangeBookData.patents.filter(p => p['New Drug Application (NDA) Number'] === appNumber),
+      exclusivities: orangeBookData.exclusivity.filter(e => e['New Drug Application (NDA) Number'] === appNumber)
     };
-    
-    res.json(formattedData);
-  } catch (error) {
-    // Return empty valid response object instead of error
+
+    if (localResults.patents.length || localResults.exclusivities.length) {
+      return res.json({
+        applicationNumber: appNumber,
+        patents: localResults.patents.map(p => ({
+          patentNo: p['Patent Number'],
+          expirationDate: p['Patent Expire Date'],
+          drugSubstance: p['Drug Substance Flag'] === 'Y',
+          drugProduct: p['Drug Product Flag'] === 'Y',
+          useCode: p['Patent Use Code'] || 'N/A'
+        })),
+        exclusivities: localResults.exclusivities.map(e => ({
+          code: e['Exclusivity Code'],
+          expirationDate: e['Exclusivity Date']
+        }))
+      });
+    }
+
+    // If no data found in API or local files
     res.json({
       applicationNumber: appNumber,
       patents: [],
       exclusivities: []
+    });
+  } catch (error) {
+    // Fallback to local data on API error
+    const localResults = {
+      applicationNumber: appNumber,
+      patents: orangeBookData.patents.filter(p => p['New Drug Application (NDA) Number'] === appNumber),
+      exclusivities: orangeBookData.exclusivity.filter(e => e['New Drug Application (NDA) Number'] === appNumber)
+    };
+
+    res.json({
+      applicationNumber: appNumber,
+      patents: localResults.patents.map(p => ({
+        patentNo: p['Patent Number'],
+        expirationDate: p['Patent Expire Date'],
+        drugSubstance: p['Drug Substance Flag'] === 'Y',
+        drugProduct: p['Drug Product Flag'] === 'Y',
+        useCode: p['Patent Use Code'] || 'N/A'
+      })),
+      exclusivities: localResults.exclusivities.map(e => ({
+        code: e['Exclusivity Code'],
+        expirationDate: e['Exclusivity Date']
+      }))
     });
   }
 });
@@ -1721,6 +1843,7 @@ app.get('*', (req, res) => {
 function startServer() {
   try {
     // Load data from JSON file
+    loadOrangeBookData();
     loadData();
     
     app.listen(PORT, () => {
