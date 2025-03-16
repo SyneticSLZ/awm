@@ -2830,3 +2830,8 @@
 ::1 - - [16/Mar/2025:21:24:15 +0000] "GET /api/fda/drug/PCN-101 HTTP/1.1" 404 155 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [16/Mar/2025:21:24:16 +0000] "GET /api/fda/orangebook/search?q=PCN-101 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [16/Mar/2025:21:24:16 +0000] "GET /api/fda/dailymed/PCN-101 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:21:30:16 +0000] "GET / HTTP/1.1" 200 366117 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:21:30:17 +0000] "GET /favicon.ico HTTP/1.1" 200 366117 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:21:30:22 +0000] "GET /api/fda/drug/PCN-101 HTTP/1.1" 404 155 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:21:30:22 +0000] "GET /api/fda/orangebook/search?q=PCN-101 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:21:30:23 +0000] "GET /api/fda/dailymed/PCN-101 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
