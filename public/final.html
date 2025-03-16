@@ -1900,7 +1900,7 @@ function collectAllTrialOutcomes() {
             outcome.classes.forEach(cls => {
                 cls.categories.forEach(cat => {
                     const categoryData = {
-                        title: cat.title || 'Unknown Category',
+                        title: cat.title || '',
                         measurements: []
                     };
                     
@@ -2282,7 +2282,7 @@ function createOverallTreatmentEffectChart(outcomes) {
                                     dispersion: dispersion,
                                     dispersionType: dispersionType,
                                     spread: spread,
-                                    category: cat.title || 'Unknown Category',
+                                    category: cat.title || '',
                                     sampleSize: group.participantsAnalyzedList?.[0]?.count || 0
                                 });
                             }
@@ -7778,7 +7778,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nctId: "NCT02196259",
             outcomes: [
                 {
-                    category: "Unknown Category",
+                    category: "",
                     controlSampleSize: 0,
                     controlValue: null,
                     effectSize: null,
