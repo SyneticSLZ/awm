@@ -1668,6 +1668,7 @@ function getColorByIndex(index, alpha = 1) {
         }
 
         function displayStudyDetail(study) {
+            console.log(study)
             const identification = study.protocolSection?.identificationModule || {};
             const design = study.protocolSection?.designModule || {};
             const description = study.protocolSection?.descriptionModule || {};
