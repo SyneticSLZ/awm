@@ -4499,6 +4499,92 @@ if (!response.ok) {
 //     });
 //   }
 // }
+function formatAISummary(rawSummary) {
+  // Split the raw summary into lines
+  const lines = rawSummary.trim().split('\n');
+  let html = '<div class="ai-summary-content">';
+  let currentSection = '';
+  let inList = false;
+
+  lines.forEach((line, index) => {
+    line = line.trim();
+
+    // Handle section headings (e.g., ### 1. Drug Name and Active Ingredients)
+    if (line.startsWith('###')) {
+      if (currentSection) {
+        if (inList) {
+          currentSection += '</ul>';
+          inList = false;
+        }
+        html += currentSection + '</div>';
+      }
+      const sectionTitle = line.replace('###', '').trim();
+      currentSection = `
+        <div class="section mt-4">
+          <h5 class="font-semibold text-purple-800 mb-2">${sectionTitle}</h5>
+      `;
+    }
+    // Handle bold items (e.g., **Drug Name:**)
+    else if (line.includes('**')) {
+      if (inList) {
+        currentSection += '</ul>';
+        inList = false;
+      }
+      const parts = line.split('**');
+      let formattedLine = '';
+      for (let i = 0; i < parts.length; i++) {
+        if (i % 2 === 1) {
+          // Bold and purple text
+          formattedLine += `<strong class="text-purple-700">${parts[i]}</strong>`;
+        } else {
+          formattedLine += parts[i];
+        }
+      }
+      currentSection += `<p>${formattedLine}</p>`;
+    }
+    // Handle list items (e.g., - Item)
+    else if (line.startsWith('-')) {
+      if (!inList) {
+        currentSection += '<ul class="list-disc ml-5 mb-2">';
+        inList = true;
+      }
+      const listItem = line.replace('-', '').trim();
+      if (listItem.includes('**')) {
+        const parts = listItem.split('**');
+        let formattedItem = '';
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 1) {
+            formattedItem += `<strong class="text-purple-700">${parts[i]}</strong>`;
+          } else {
+            formattedItem += parts[i];
+          }
+        }
+        currentSection += `<li>${formattedItem}</li>`;
+      } else {
+        currentSection += `<li>${listItem}</li>`;
+      }
+    }
+    // Handle plain text
+    else if (line.length > 0) {
+      if (inList) {
+        currentSection += '</ul>';
+        inList = false;
+      }
+      currentSection += `<p>${line}</p>`;
+    }
+  });
+
+  // Close the last section
+  if (currentSection) {
+    if (inList) {
+      currentSection += '</ul>';
+    }
+    html += currentSection + '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
 
 async function generateAISummary() {
   const modalContent = document.getElementById('modalContent');
@@ -4592,75 +4678,75 @@ async function generateAISummary() {
     `;
 
     // Simulated API response (replace with actual fetch call)
-    const response = {
-      ok: true,
-      json: async () => ({
-        summary: `
-          <div class="ai-summary-content">
-            <div class="section">
-              <h5 class="font-semibold text-purple-800 mb-2">1. Drug Name and Active Ingredients</h5>
-              <p><strong class="text-purple-700">Drug Name:</strong> ADDERALL XR</p>
-              <p><strong class="text-purple-700">Active Ingredients:</strong></p>
-              <ul class="list-disc ml-5 mb-2">
-                <li>Dextroamphetamine Saccharate</li>
-                <li>Amphetamine Aspartate Monohydrate</li>
-                <li>Dextroamphetamine Sulfate USP</li>
-                <li>Amphetamine Sulfate USP</li>
-              </ul>
-              <p>Each capsule contains a combination of these salts, with total amphetamine base equivalence of 6.3 mg, 12.5 mg, or 18.8 mg for the 10 mg, 20 mg, and 30 mg capsules, respectively.</p>
-            </div>
+    // const response = {
+    //   ok: true,
+    //   json: async () => ({
+    //     summary: `
+    //       <div class="ai-summary-content">
+    //         <div class="section">
+    //           <h5 class="font-semibold text-purple-800 mb-2">1. Drug Name and Active Ingredients</h5>
+    //           <p><strong class="text-purple-700">Drug Name:</strong> ADDERALL XR</p>
+    //           <p><strong class="text-purple-700">Active Ingredients:</strong></p>
+    //           <ul class="list-disc ml-5 mb-2">
+    //             <li>Dextroamphetamine Saccharate</li>
+    //             <li>Amphetamine Aspartate Monohydrate</li>
+    //             <li>Dextroamphetamine Sulfate USP</li>
+    //             <li>Amphetamine Sulfate USP</li>
+    //           </ul>
+    //           <p>Each capsule contains a combination of these salts, with total amphetamine base equivalence of 6.3 mg, 12.5 mg, or 18.8 mg for the 10 mg, 20 mg, and 30 mg capsules, respectively.</p>
+    //         </div>
 
-            <div class="section mt-4">
-              <h5 class="font-semibold text-purple-800 mb-2">2. Approved Indications</h5>
-              <p><strong class="text-purple-700">Indications:</strong> ADDERALL XR is indicated for the treatment of Attention Deficit Hyperactivity Disorder (ADHD) in patients who meet DSM-IV criteria for ADHD, including the combined type or the hyperactive-impulsive type.</p>
-            </div>
+    //         <div class="section mt-4">
+    //           <h5 class="font-semibold text-purple-800 mb-2">2. Approved Indications</h5>
+    //           <p><strong class="text-purple-700">Indications:</strong> ADDERALL XR is indicated for the treatment of Attention Deficit Hyperactivity Disorder (ADHD) in patients who meet DSM-IV criteria for ADHD, including the combined type or the hyperactive-impulsive type.</p>
+    //         </div>
 
-            <div class="section mt-4">
-              <h5 class="font-semibold text-purple-800 mb-2">3. Important Safety Information</h5>
-              <ul class="list-disc ml-5 mb-2">
-                <li><strong class="text-purple-700">High Potential for Abuse:</strong> Amphetamines have a high potential for abuse and prolonged use may lead to drug dependence.</li>
-                <li><strong class="text-purple-700">Non-Therapeutic Use:</strong> There is a risk of subjects obtaining amphetamines for non-therapeutic use or distribution to others. The drug should be prescribed or dispensed sparingly.</li>
-                <li><strong class="text-purple-700">Clinical Trials:</strong> Efficacy was demonstrated in controlled trials in children aged 6 to 12, showing significant improvements in behavior and performance compared to placebo.</li>
-              </ul>
-            </div>
+    //         <div class="section mt-4">
+    //           <h5 class="font-semibold text-purple-800 mb-2">3. Important Safety Information</h5>
+    //           <ul class="list-disc ml-5 mb-2">
+    //             <li><strong class="text-purple-700">High Potential for Abuse:</strong> Amphetamines have a high potential for abuse and prolonged use may lead to drug dependence.</li>
+    //             <li><strong class="text-purple-700">Non-Therapeutic Use:</strong> There is a risk of subjects obtaining amphetamines for non-therapeutic use or distribution to others. The drug should be prescribed or dispensed sparingly.</li>
+    //             <li><strong class="text-purple-700">Clinical Trials:</strong> Efficacy was demonstrated in controlled trials in children aged 6 to 12, showing significant improvements in behavior and performance compared to placebo.</li>
+    //           </ul>
+    //         </div>
 
-            <div class="section mt-4">
-              <h5 class="font-semibold text-purple-800 mb-2">4. Dosage Recommendations</h5>
-              <ul class="list-disc ml-5 mb-2">
-                <li><strong class="text-purple-700">Dosage Forms:</strong> Available in 10 mg, 20 mg, and 30 mg capsules.</li>
-                <li><strong class="text-purple-700">Administration:</strong> Once daily in the morning. The capsule can be opened and sprinkled on applesauce if needed, with comparable absorption to the intact capsule.</li>
-                <li><strong class="text-purple-700">Dose Range:</strong> The effective dose range in clinical trials was 10 mg to 30 mg once daily.</li>
-                <li><strong class="text-purple-700">Pharmacokinetics:</strong> The time to reach maximum plasma concentration (Tmax) is about 7 hours, and the drug demonstrates linear pharmacokinetics over the dose range of 10 to 30 mg.</li>
-              </ul>
-            </div>
+    //         <div class="section mt-4">
+    //           <h5 class="font-semibold text-purple-800 mb-2">4. Dosage Recommendations</h5>
+    //           <ul class="list-disc ml-5 mb-2">
+    //             <li><strong class="text-purple-700">Dosage Forms:</strong> Available in 10 mg, 20 mg, and 30 mg capsules.</li>
+    //             <li><strong class="text-purple-700">Administration:</strong> Once daily in the morning. The capsule can be opened and sprinkled on applesauce if needed, with comparable absorption to the intact capsule.</li>
+    //             <li><strong class="text-purple-700">Dose Range:</strong> The effective dose range in clinical trials was 10 mg to 30 mg once daily.</li>
+    //             <li><strong class="text-purple-700">Pharmacokinetics:</strong> The time to reach maximum plasma concentration (Tmax) is about 7 hours, and the drug demonstrates linear pharmacokinetics over the dose range of 10 to 30 mg.</li>
+    //           </ul>
+    //         </div>
 
-            <div class="section mt-4">
-              <h5 class="font-semibold text-purple-800 mb-2">5. Contraindications</h5>
-              <p>The document does not explicitly list contraindications, but it emphasizes the high potential for abuse and the need for careful prescribing practices.</p>
-            </div>
+    //         <div class="section mt-4">
+    //           <h5 class="font-semibold text-purple-800 mb-2">5. Contraindications</h5>
+    //           <p>The document does not explicitly list contraindications, but it emphasizes the high potential for abuse and the need for careful prescribing practices.</p>
+    //         </div>
 
-            <div class="section mt-4">
-              <h5 class="font-semibold text-purple-800 mb-2">6. Special Populations and Warnings</h5>
-              <ul class="list-disc ml-5 mb-2">
-                <li><strong class="text-purple-700">Pediatric Patients:</strong> Children aged 6 to 12 years eliminate amphetamine faster than adults, with a shorter elimination half-life. However, they have higher systemic exposure due to higher doses on a mg/kg basis.</li>
-                <li><strong class="text-purple-700">Gender:</strong> Women have 20-30% higher systemic exposure to amphetamine than men, attributed to higher doses on a mg/kg basis.</li>
-                <li><strong class="text-purple-700">Race:</strong> Pharmacokinetics appear comparable among Caucasians, Blacks, and Hispanics.</li>
-                <li><strong class="text-purple-700">Food Effects:</strong> Food does not affect the extent of absorption but prolongs Tmax by 2.5 hours.</li>
-              </ul>
-              <p class="mt-2"><strong class="text-purple-700">Warnings:</strong></p>
-              <ul class="list-disc ml-5">
-                <li><strong class="text-purple-700">Abuse and Dependence:</strong> The document repeatedly warns about the potential for abuse and dependence with prolonged use of amphetamines.</li>
-                <li><strong class="text-purple-700">Prescribing Practices:</strong> Emphasis on prescribing or dispensing the drug sparingly due to the risk of non-therapeutic use or distribution.</li>
-              </ul>
-            </div>
-          </div>
-        `,
-        imageCount: 0
-      })
-    };
+    //         <div class="section mt-4">
+    //           <h5 class="font-semibold text-purple-800 mb-2">6. Special Populations and Warnings</h5>
+    //           <ul class="list-disc ml-5 mb-2">
+    //             <li><strong class="text-purple-700">Pediatric Patients:</strong> Children aged 6 to 12 years eliminate amphetamine faster than adults, with a shorter elimination half-life. However, they have higher systemic exposure due to higher doses on a mg/kg basis.</li>
+    //             <li><strong class="text-purple-700">Gender:</strong> Women have 20-30% higher systemic exposure to amphetamine than men, attributed to higher doses on a mg/kg basis.</li>
+    //             <li><strong class="text-purple-700">Race:</strong> Pharmacokinetics appear comparable among Caucasians, Blacks, and Hispanics.</li>
+    //             <li><strong class="text-purple-700">Food Effects:</strong> Food does not affect the extent of absorption but prolongs Tmax by 2.5 hours.</li>
+    //           </ul>
+    //           <p class="mt-2"><strong class="text-purple-700">Warnings:</strong></p>
+    //           <ul class="list-disc ml-5">
+    //             <li><strong class="text-purple-700">Abuse and Dependence:</strong> The document repeatedly warns about the potential for abuse and dependence with prolonged use of amphetamines.</li>
+    //             <li><strong class="text-purple-700">Prescribing Practices:</strong> Emphasis on prescribing or dispensing the drug sparingly due to the risk of non-therapeutic use or distribution.</li>
+    //           </ul>
+    //         </div>
+    //       </div>
+    //     `,
+    //     imageCount: 0
+    //   })
+    // };
 
     // Uncomment this for actual API call
-    /*
+    
     const response = await fetch('/api/analyze-fda-doc', {
       method: 'POST',
       headers: {
@@ -4677,17 +4763,18 @@ async function generateAISummary() {
     }
 
     const result = await response.json();
+    
     if (result.error) {
       throw new Error(result.error);
     }
-    */
+    
 
-    const result = await response.json();
-
+    // const result = await response.json();
+const html = formatAISummary(result.summary)
     // Display the summary with enhanced formatting
     document.getElementById('aiSummaryContent').innerHTML = `
       <div class="text-sm text-gray-700">
-        ${result.summary}
+        ${html}
       </div>
       <div class="mt-4 flex justify-between items-center text-xs text-gray-500 border-t pt-2">
         <span>Document: ${docToAnalyze.type} - ${
@@ -6262,10 +6349,20 @@ const TrialDashboard = (function() {
     let dashboardInitialized = false;
     
     const COLORS = {
-        control: { primary: 'rgba(136, 132, 216, 0.8)', secondary: 'rgba(136, 132, 216, 0.2)' },
-        experimental: { primary: 'rgba(130, 202, 157, 0.8)', secondary: 'rgba(130, 202, 157, 0.2)' },
-        effect: ['#e6f7ff', '#bae7ff', '#91d5ff', '#69c0ff', '#40a9ff', '#096dd9'],
-        success: ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc']
+        control: { primary: 'rgba(59, 130, 246, 0.8)', secondary: 'rgba(59, 130, 246, 0.2)' },
+        experimental: { primary: 'rgba(16, 185, 129, 0.8)', secondary: 'rgba(16, 185, 129, 0.2)' },
+        effect: ['#ebf8ff', '#bee3f8', '#90cdf4', '#63b3ed', '#4299e1', '#3182ce', '#2b6cb0'],
+        success: ['#c6f6d5', '#9ae6b4', '#68d391', '#48bb78', '#38a169'],
+        status: {
+            'COMPLETED': '#10b981',
+            'TERMINATED': '#ef4444',
+            'ACTIVE': '#f59e0b',
+            'RECRUITING': '#6366f1',
+            'NOT_YET_RECRUITING': '#8b5cf6',
+            'SUSPENDED': '#f43f5e',
+            'WITHDRAWN': '#64748b',
+            'UNKNOWN': '#9ca3af'
+        }
     };
 
     function init(containerId = 'trial-dashboard') {
@@ -6274,65 +6371,243 @@ const TrialDashboard = (function() {
             console.error(`Container with ID "${containerId}" not found.`);
             return null;
         }
+        
+        // Set container to full width
+        container.classList.add('w-full', 'max-w-full');
         container.innerHTML = '';
         container.style.display = 'none';
+        
+        // Add custom stylesheet
+        addCustomStyles();
+        
         dashboardInitialized = true;
         return container;
+    }
+    
+    function addCustomStyles() {
+        const styleId = 'trial-dashboard-styles';
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+                .trial-card {
+                    transition: all 0.2s ease-in-out;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+                }
+                .trial-card:hover {
+                    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+                }
+                .dashboard-header {
+                    background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+                }
+                .status-badge {
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    color: white;
+                }
+                .score-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 3rem;
+                    height: 1.5rem;
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                }
+                .tooltip {
+                    position: relative;
+                    display: inline-block;
+                }
+                .tooltip .tooltip-text {
+                    visibility: hidden;
+                    width: 200px;
+                    background-color: #333;
+                    color: #fff;
+                    text-align: center;
+                    border-radius: 6px;
+                    padding: 5px;
+                    position: absolute;
+                    z-index: 1;
+                    bottom: 125%;
+                    left: 50%;
+                    margin-left: -100px;
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+                .tooltip:hover .tooltip-text {
+                    visibility: visible;
+                    opacity: 1;
+                }
+                .toggle-details {
+                    cursor: pointer;
+                    user-select: none;
+                }
+                .trial-details {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease-out;
+                }
+                .trial-details.open {
+                    max-height: 500px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     function createDashboardStructure(containerId = 'trial-dashboard') {
         const container = document.getElementById(containerId);
         if (!container) return;
+        
         container.innerHTML = `
-            <div class="mb-6 text-center">
-                <h1 class="text-2xl font-bold text-gray-800">Summary of Clinical Trials</h1>
-                <p class="text-gray-600">Analysis of all trials in the dataset</p>
-            </div>
-            <div class="bg-white p-4 rounded shadow mb-6">
-                <h2 class="text-lg font-semibold mb-2 text-gray-700">Trial Summary</h2>
-                <div id="trial-summary-table" class="overflow-x-auto">
-                    <table class="min-w-full border-collapse">
-                        <thead>
-                            <tr>
-                                <th class="border p-2 text-left">NCT ID</th>
-                                <th class="border p-2 text-left">Title</th>
-                                <th class="border p-2 text-left">Phase</th>
-                                <th class="border p-2 text-left">Status</th>
-                                <th class="border p-2 text-left">Sponsor</th>
-                                <th class="border p-2 text-left">Success Score</th>
-                                <th class="border p-2 text-left">Details</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trial-summary-body"></tbody>
-                    </table>
+            <div class="dashboard-header w-full p-6 mb-6 rounded-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Clinical Trials Dashboard</h1>
+                        <p class="text-gray-600">Comprehensive analysis of trial outcomes and metrics</p>
+                    </div>
+                    <div class="flex items-center mt-4 md:mt-0">
+                        <div class="bg-white rounded-full shadow-sm px-4 py-2 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="font-medium text-gray-700" id="trials-count">Analyzing trials...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="summary-metrics">
+                    <!-- Summary metrics will be inserted here -->
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Success Scores Across Trials</h2>
-                    <div class="h-64"><canvas id="successScoresChart"></canvas></div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white p-5 rounded-lg shadow trial-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Success Scores Distribution</h2>
+                        <div class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="tooltip-text">Score based on effect size, response rates, and trial outcomes</span>
+                        </div>
+                    </div>
+                    <div class="h-72"><canvas id="successScoresChart"></canvas></div>
                 </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Phase Distribution</h2>
-                    <div class="h-64"><canvas id="phaseDistributionChart"></canvas></div>
+                <div class="bg-white p-5 rounded-lg shadow trial-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Trial Phase Distribution</h2>
+                        <div class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="tooltip-text">Distribution of trials by clinical phase</span>
+                        </div>
+                    </div>
+                    <div class="h-72"><canvas id="phaseDistributionChart"></canvas></div>
                 </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Status Distribution</h2>
-                    <div class="h-64"><canvas id="statusDistributionChart"></canvas></div>
+                <div class="bg-white p-5 rounded-lg shadow trial-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Trial Status Overview</h2>
+                        <div class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="tooltip-text">Current status of all trials in the dataset</span>
+                        </div>
+                    </div>
+                    <div class="h-72"><canvas id="statusDistributionChart"></canvas></div>
                 </div>
-                <div class="bg-white p-4 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Average Effect Sizes</h2>
-                    <p class="text-sm text-gray-500 mb-4" id="effect-size-desc">Comparing trials with available data</p>
+                <div class="bg-white p-5 rounded-lg shadow trial-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-800">Effect Size Analysis</h2>
+                        <div class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="tooltip-text">Cohen's d effect sizes across trials with available data</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3" id="effect-size-desc">Analyzing effect sizes across trials...</p>
                     <div class="h-64"><canvas id="effectSizeChart"></canvas></div>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded shadow">
-                <h2 class="text-lg font-semibold mb-2 text-gray-700">Summary Conclusions</h2>
-                <ul class="list-disc pl-5 space-y-2" id="conclusions-list">
-                    <li>Analyzing trial data...</li>
-                </ul>
+            
+            <div class="bg-white p-5 rounded-lg shadow trial-card mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Key Insights & Conclusions</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Summary of findings from all analyzed trials</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <ul class="space-y-3" id="conclusions-list">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Analyzing trial data...</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="response-remission-chart-container" class="h-64">
+                        <canvas id="responseRemissionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Trial Details</h2>
+                    <div class="flex items-center">
+                        <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="overflow-x-auto" id="trials-table-container">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sponsor</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="trial-summary-body">
+                            <!-- Trial data rows will go here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         `;
+        
+        // Add search functionality
+        const searchInput = document.getElementById('trial-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#trial-summary-body tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
     }
 
     function loadData(data) {
@@ -6359,8 +6634,20 @@ const TrialDashboard = (function() {
 
             // Process all trials and calculate success metrics
             const trialSummaries = processAllTrials(data);
+            
+            // Update trials count
+            document.getElementById('trials-count').textContent = `${trialSummaries.length} Trials Analyzed`;
+            
+            // Populate summary metrics
+            populateSummaryMetrics(trialSummaries);
+            
+            // Populate trials table
             populateSummaryTable(trialSummaries);
+            
+            // Generate charts
             generateSummaryCharts(trialSummaries);
+            
+            // Generate conclusions
             generateSummaryConclusions(trialSummaries);
 
             return true;
@@ -6380,9 +6667,15 @@ const TrialDashboard = (function() {
             return;
         }
         container.innerHTML = `
-            <div class="p-4 text-center">
-                <h1 class="text-2xl font-bold text-red-600">Error Loading Data</h1>
-                <p class="text-gray-600 mt-2">${message}</p>
+            <div class="w-full p-8 text-center bg-white rounded-lg shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h1 class="text-2xl font-bold text-red-600 mb-2">Error Loading Data</h1>
+                <p class="text-gray-600 mb-4">${message}</p>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="location.reload()">
+                    Try Again
+                </button>
             </div>
         `;
         container.style.display = 'block';
@@ -6466,8 +6759,67 @@ const TrialDashboard = (function() {
         trialSummaries.avgEffectSize = effectSizeCount > 0 ? totalEffectSize / effectSizeCount : null;
         trialSummaries.avgResponseDiff = responseCount > 0 ? totalResponseDiff / responseCount : null;
         trialSummaries.avgRemissionDiff = remissionCount > 0 ? totalRemissionDiff / remissionCount : null;
+        
+        // Store counts for summary metrics
+        trialSummaries.totalTrials = trialSummaries.length;
+        trialSummaries.trialsWithOutcomes = trialSummaries.filter(summary => summary.hasOutcomes).length;
+        trialSummaries.completedTrials = trialSummaries.filter(summary => summary.status === 'COMPLETED').length;
+        trialSummaries.highSuccessTrials = trialSummaries.filter(summary => summary.successScore >= 70).length;
 
         return trialSummaries;
+    }
+
+    function populateSummaryMetrics(trialSummaries) {
+        const container = document.getElementById('summary-metrics');
+        if (!container) return;
+        
+        const metrics = [
+            {
+                label: 'Total Trials',
+                value: trialSummaries.totalTrials,
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />',
+                color: 'blue'
+            },
+            {
+                label: 'Completed Trials',
+                value: trialSummaries.completedTrials,
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
+                color: 'green'
+            },
+            {
+                label: 'With Outcomes',
+                value: trialSummaries.trialsWithOutcomes,
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />',
+                color: 'purple'
+            },
+            {
+                label: 'High Success',
+                value: trialSummaries.highSuccessTrials,
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />',
+                color: 'yellow'
+            }
+        ];
+        
+        container.innerHTML = '';
+        
+        metrics.forEach(metric => {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-4 rounded-lg shadow trial-card';
+            card.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-${metric.color}-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-${metric.color}-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            ${metric.icon}
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">${metric.label}</p>
+                        <p class="text-2xl font-semibold text-gray-900">${metric.value}</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
     }
 
     function calculateFallbackSuccessScore(trial) {
@@ -6527,7 +6879,8 @@ const TrialDashboard = (function() {
                 const expRate = expValues.length > 0 ? expValues.reduce((sum, v) => sum + v, 0) / expValues.length : 0;
                 result.responseDiff = expRate - controlRate;
                 result.details.push(`Response rate difference: ${result.responseDiff >= 0 ? '+' : ''}${result.responseDiff.toFixed(1)}%`);
-            } else {
+            }
+            else {
                 result.details.push('No measurements for response rate.');
             }
         } else {
@@ -6593,22 +6946,81 @@ const TrialDashboard = (function() {
         return 'Huge clinical effect';
     }
 
+    function getScoreColor(score) {
+        if (score >= 70) return 'bg-green-500';
+        if (score >= 50) return 'bg-blue-500';
+        if (score >= 30) return 'bg-yellow-500';
+        return 'bg-gray-500';
+    }
+
+    function getStatusBadgeColor(status) {
+        return COLORS.status[status] || '#9ca3af';
+    }
+
     function populateSummaryTable(trialSummaries) {
         const tbody = document.getElementById('trial-summary-body');
+        if (!tbody) return;
+        
         tbody.innerHTML = '';
 
-        trialSummaries.forEach(summary => {
+        trialSummaries.forEach((summary, index) => {
             const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            
+            const detailsId = `trial-details-${index}`;
+            const toggleId = `toggle-details-${index}`;
+            
             row.innerHTML = `
-                <td class="border p-2">${summary.nctId}</td>
-                <td class="border p-2">${summary.title.length > 50 ? summary.title.substring(0, 47) + '...' : summary.title}</td>
-                <td class="border p-2">${summary.phase}</td>
-                <td class="border p-2">${summary.status}</td>
-                <td class="border p-2">${summary.sponsor}</td>
-                <td class="border p-2">${summary.successScore.toFixed(1)}</td>
-                <td class="border p-2">${summary.details.join('<br>')}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex flex-col">
+                        <div class="text-sm font-medium text-gray-900">${summary.nctId}</div>
+                        <div class="text-sm text-gray-500">${summary.title.length > 50 ? summary.title.substring(0, 47) + '...' : summary.title}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        ${summary.phase || 'N/A'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="status-badge" style="background-color: ${getStatusBadgeColor(summary.status)}">
+                        ${summary.status || 'Unknown'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${summary.sponsor || 'Not specified'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="score-pill text-white ${getScoreColor(summary.successScore)}">
+                        ${summary.successScore.toFixed(0)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div class="flex items-center">
+                        <button id="${toggleId}" class="toggle-details px-3 py-1 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            View Details
+                        </button>
+                    </div>
+                    <div id="${detailsId}" class="trial-details mt-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
+                        ${summary.details.map(detail => `<p class="mb-1">${detail}</p>`).join('')}
+                    </div>
+                </td>
             `;
+            
             tbody.appendChild(row);
+            
+            // Add toggle functionality after adding to DOM
+            setTimeout(() => {
+                const toggleBtn = document.getElementById(toggleId);
+                const detailsElement = document.getElementById(detailsId);
+                
+                if (toggleBtn && detailsElement) {
+                    toggleBtn.addEventListener('click', function() {
+                        detailsElement.classList.toggle('open');
+                        toggleBtn.textContent = detailsElement.classList.contains('open') ? 'Hide Details' : 'View Details';
+                    });
+                }
+            }, 0);
         });
     }
 
@@ -6619,9 +7031,11 @@ const TrialDashboard = (function() {
             datasets: [{
                 label: 'Success Score',
                 data: trialSummaries.map(summary => summary.successScore),
-                backgroundColor: COLORS.success[2],
-                borderColor: COLORS.success[2].replace('0.8', '1'),
-                borderWidth: 1
+                backgroundColor: trialSummaries.map(summary => getScoreColor(summary.successScore)),
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1,
+                borderRadius: 4,
+                maxBarThickness: 35
             }]
         };
         const successScoresConfig = {
@@ -6630,8 +7044,47 @@ const TrialDashboard = (function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Success Score' } } },
-                plugins: { legend: { display: false } }
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 100, 
+                        title: { 
+                            display: true, 
+                            text: 'Success Score (0-100)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Trial ID',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const index = tooltipItems[0].dataIndex;
+                                return trialSummaries[index].title;
+                            }
+                        }
+                    }
+                }
             }
         };
         createOrUpdateChart('successScoresChart', 'bar', successScoresConfig);
@@ -6639,7 +7092,7 @@ const TrialDashboard = (function() {
         // Phase Distribution Chart
         const phaseCounts = {};
         trialSummaries.forEach(summary => {
-            const phase = summary.phase || 'N/A';
+            const phase = summary.phase || 'Not Specified';
             phaseCounts[phase] = (phaseCounts[phase] || 0) + 1;
         });
         const phaseData = {
@@ -6647,47 +7100,112 @@ const TrialDashboard = (function() {
             datasets: [{
                 label: 'Number of Trials',
                 data: Object.values(phaseCounts),
-                backgroundColor: COLORS.effect.slice(0, Object.keys(phaseCounts).length)
+                backgroundColor: COLORS.effect.slice(0, Object.keys(phaseCounts).length),
+                borderWidth: 1,
+                borderColor: '#fff'
             }]
         };
         const phaseConfig = {
-            type: 'pie',
+            type: 'doughnut',
             data: phaseData,
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
         };
-        createOrUpdateChart('phaseDistributionChart', 'pie', phaseConfig);
+        createOrUpdateChart('phaseDistributionChart', 'doughnut', phaseConfig);
 
         // Status Distribution Chart
         const statusCounts = {};
         trialSummaries.forEach(summary => {
-            const status = summary.status || 'N/A';
+            const status = summary.status || 'UNKNOWN';
             statusCounts[status] = (statusCounts[status] || 0) + 1;
         });
+        const statusColors = Object.keys(statusCounts).map(status => getStatusBadgeColor(status));
         const statusData = {
             labels: Object.keys(statusCounts),
             datasets: [{
                 label: 'Number of Trials',
                 data: Object.values(statusCounts),
-                backgroundColor: COLORS.effect.slice(0, Object.keys(statusCounts).length)
+                backgroundColor: statusColors,
+                borderWidth: 1,
+                borderColor: '#fff'
             }]
         };
         const statusConfig = {
-            type: 'pie',
+            type: 'doughnut',
             data: statusData,
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
         };
-        createOrUpdateChart('statusDistributionChart', 'pie', statusConfig);
+        createOrUpdateChart('statusDistributionChart', 'doughnut', statusConfig);
 
         // Effect Size Chart
         const effectSizes = trialSummaries.filter(summary => summary.effectSize !== null);
+        effectSizes.sort((a, b) => b.effectSize - a.effectSize);
+        const topEffectSizes = effectSizes.slice(0, 10); // Show top 10 for better readability
+        
         const effectSizeData = {
-            labels: effectSizes.map(summary => summary.nctId),
+            labels: topEffectSizes.map(summary => summary.nctId),
             datasets: [{
                 label: 'Effect Size (Cohen\'s d)',
-                data: effectSizes.map(summary => summary.effectSize),
-                backgroundColor: COLORS.control.primary,
-                borderColor: COLORS.control.primary.replace('0.8', '1'),
-                borderWidth: 1
+                data: topEffectSizes.map(summary => summary.effectSize),
+                backgroundColor: function(context) {
+                    const value = context.raw;
+                    if (value >= 0.8) return 'rgba(16, 185, 129, 0.8)'; // Large effect
+                    if (value >= 0.5) return 'rgba(59, 130, 246, 0.8)'; // Medium effect
+                    return 'rgba(249, 115, 22, 0.8)'; // Small effect
+                },
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1,
+                borderRadius: 4,
+                maxBarThickness: 35
             }]
         };
         const effectSizeConfig = {
@@ -6696,57 +7214,187 @@ const TrialDashboard = (function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'Effect Size' } } },
-                plugins: { legend: { display: false } }
+                indexAxis: 'y',
+                scales: { 
+                    x: { 
+                        beginAtZero: true, 
+                        title: { 
+                            display: true, 
+                            text: 'Effect Size (Cohen\'s d)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const index = tooltipItems[0].dataIndex;
+                                return topEffectSizes[index].title;
+                            },
+                            label: function(context) {
+                                const value = context.raw;
+                                return `Effect Size: ${value.toFixed(2)} (${getEffectSizeDescription(value)})`;
+                            }
+                        }
+                    }
+                }
             }
         };
         createOrUpdateChart('effectSizeChart', 'bar', effectSizeConfig);
 
         document.getElementById('effect-size-desc').textContent = effectSizes.length > 0 
-            ? `Average effect size: ${trialSummaries.avgEffectSize.toFixed(2)}`
+            ? `Average effect size: ${trialSummaries.avgEffectSize.toFixed(2)} (${getEffectSizeDescription(trialSummaries.avgEffectSize)})`
             : 'No effect size data available.';
+            
+        // Response & Remission Chart
+        const responseData = {
+            labels: ['Response Rate', 'Remission Rate'],
+            datasets: [{
+                label: 'Average Difference (%)',
+                data: [
+                    trialSummaries.avgResponseDiff !== null ? trialSummaries.avgResponseDiff : 0,
+                    trialSummaries.avgRemissionDiff !== null ? trialSummaries.avgRemissionDiff : 0
+                ],
+                backgroundColor: [COLORS.experimental.primary, COLORS.control.primary],
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        };
+        const responseConfig = {
+            type: 'bar',
+            data: responseData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { 
+                        title: { 
+                            display: true, 
+                            text: 'Average Difference (%)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    }
+                },
+                plugins: { 
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Treatment vs Control Difference',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        };
+        createOrUpdateChart('responseRemissionChart', 'bar', responseConfig);
     }
 
     function generateSummaryConclusions(trialSummaries) {
         const conclusionsList = document.getElementById('conclusions-list');
+        if (!conclusionsList) return;
+        
         conclusionsList.innerHTML = '';
 
         const conclusions = [];
-        conclusions.push(`Analyzed ${trialSummaries.length} trials.`);
-
-        const completedTrials = trialSummaries.filter(summary => summary.status === 'COMPLETED').length;
-        conclusions.push(`${completedTrials} trials were completed, ${trialSummaries.length - completedTrials} were terminated.`);
-
-        const avgSuccessScore = trialSummaries.reduce((sum, summary) => sum + summary.successScore, 0) / trialSummaries.length;
-        conclusions.push(`Average success score across all trials: ${avgSuccessScore.toFixed(1)}.`);
-
-        if (trialSummaries.avgEffectSize !== null) {
-            conclusions.push(`Average effect size across trials with data: ${trialSummaries.avgEffectSize.toFixed(2)} (${getEffectSizeDescription(trialSummaries.avgEffectSize)}).`);
-        } else {
-            conclusions.push('No effect size data available across trials.');
-        }
-
-        if (trialSummaries.avgResponseDiff !== null) {
-            conclusions.push(`Average response rate difference: ${trialSummaries.avgResponseDiff.toFixed(1)}%.`);
-        } else {
-            conclusions.push('No response rate data available across trials.');
-        }
-
-        if (trialSummaries.avgRemissionDiff !== null) {
-            conclusions.push(`Average remission rate difference: ${trialSummaries.avgRemissionDiff.toFixed(1)}%.`);
-        } else {
-            conclusions.push('No remission rate data available across trials.');
-        }
-
-        conclusions.forEach(conclusion => {
+        
+        // Add conclusion items with icons
+        const addConclusion = (text, icon, color = 'blue') => {
             const li = document.createElement('li');
-            li.textContent = conclusion;
+            li.className = 'flex items-start mb-3';
+            li.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-${color}-500 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    ${icon}
+                </svg>
+                <span>${text}</span>
+            `;
             conclusionsList.appendChild(li);
-        });
+        };
 
+        // Analysis summary
+        addConclusion(
+            `Analyzed ${trialSummaries.length} trials with ${trialSummaries.trialsWithOutcomes} providing detailed outcome data.`,
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+        );
+
+        // Trial status
+        const completedTrials = trialSummaries.filter(summary => summary.status === 'COMPLETED').length;
+        const completionRate = ((completedTrials / trialSummaries.length) * 100).toFixed(1);
+        addConclusion(
+            `${completedTrials} trials were completed (${completionRate}%), ${trialSummaries.length - completedTrials} were terminated or in other states.`,
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
+            completionRate >= 70 ? 'green' : completionRate >= 50 ? 'yellow' : 'red'
+        );
+
+        // Success score
+        const avgSuccessScore = trialSummaries.reduce((sum, summary) => sum + summary.successScore, 0) / trialSummaries.length;
+        const highSuccessTrials = trialSummaries.filter(summary => summary.successScore >= 70).length;
+        const highSuccessRate = ((highSuccessTrials / trialSummaries.length) * 100).toFixed(1);
+        addConclusion(
+            `Average success score: ${avgSuccessScore.toFixed(1)}. ${highSuccessTrials} trials (${highSuccessRate}%) showed high success (score ≥ 70).`,
+            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />',
+            avgSuccessScore >= 70 ? 'green' : avgSuccessScore >= 50 ? 'yellow' : 'gray'
+        );
+
+        // Effect size
+        if (trialSummaries.avgEffectSize !== null) {
+            const effectDescription = getEffectSizeDescription(trialSummaries.avgEffectSize);
+            const effectColor = trialSummaries.avgEffectSize >= 0.8 ? 'green' : trialSummaries.avgEffectSize >= 0.5 ? 'blue' : 'yellow';
+            addConclusion(
+                `Average effect size (Cohen's d): ${trialSummaries.avgEffectSize.toFixed(2)} (${effectDescription}).`,
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />',
+                effectColor
+            );
+        } else {
+            addConclusion(
+                'No effect size data available across trials.',
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
+                'gray'
+            );
+        }
+
+        // Response rate
+        if (trialSummaries.avgResponseDiff !== null) {
+            const responseColor = trialSummaries.avgResponseDiff >= 15 ? 'green' : trialSummaries.avgResponseDiff >= 5 ? 'blue' : 'yellow';
+            addConclusion(
+                `Average response rate improvement: ${trialSummaries.avgResponseDiff > 0 ? '+' : ''}${trialSummaries.avgResponseDiff.toFixed(1)}% vs. control.`,
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />',
+                responseColor
+            );
+        }
+
+        // Remission rate
+        if (trialSummaries.avgRemissionDiff !== null) {
+            const remissionColor = trialSummaries.avgRemissionDiff >= 15 ? 'green' : trialSummaries.avgRemissionDiff >= 5 ? 'blue' : 'yellow';
+            addConclusion(
+                `Average remission rate improvement: ${trialSummaries.avgRemissionDiff > 0 ? '+' : ''}${trialSummaries.avgRemissionDiff.toFixed(1)}% vs. control.`,
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />',
+                remissionColor
+            );
+        }
+
+        // Disclaimer
         const disclaimer = document.createElement('li');
-        disclaimer.textContent = 'Note: Success scores are estimates and should be reviewed by clinical experts.';
-        disclaimer.className = 'text-sm text-gray-500 italic mt-2';
+        disclaimer.className = 'flex items-start mt-4';
+        disclaimer.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-sm text-gray-500 italic">Note: Success scores are estimates and should be reviewed by clinical experts. All analyses are based on available data and may not reflect the complete clinical picture.</span>
+        `;
         conclusionsList.appendChild(disclaimer);
     }
 
