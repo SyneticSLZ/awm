@@ -4350,11 +4350,161 @@ if (!response.ok) {
 // Function to generate AI summary of documents
 // Function to generate AI summary of documents
 // Modified function to generate AI summary of documents
+// async function generateAISummary() {
+//   const modalContent = document.getElementById('modalContent');
+//   const aiSummaryBtn = document.getElementById('aiSummaryBtn');
+//   const currentContent = modalContent.innerHTML;
+  
+//   // Get document data stored in the button's data attribute
+//   let documentLinks = [];
+//   try {
+//     documentLinks = JSON.parse(aiSummaryBtn.getAttribute('data-documents') || '[]');
+//   } catch (error) {
+//     console.error("Error parsing document data:", error);
+//   }
+  
+//   // Count document types
+//   const docTypeCounts = {};
+//   documentLinks.forEach(doc => {
+//     docTypeCounts[doc.type] = (docTypeCounts[doc.type] || 0) + 1;
+//   });
+  
+//   const docTypeSummary = Object.entries(docTypeCounts)
+//     .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
+//     .join(', ');
+  
+//   // Append AI summary section with loading state
+//   modalContent.innerHTML = currentContent + `
+//     <div id="aiSummarySection" class="mt-6 border-t pt-4">
+//       <h4 class="text-md font-semibold border-b pb-2 mb-2">AI Document Summary</h4>
+//       <div class="bg-purple-50 p-4 rounded">
+//         <div class="flex items-center mb-3">
+//           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+//           </svg>
+//           <span class="font-medium text-purple-700">AI Analysis</span>
+//         </div>
+        
+//         <div id="aiSummaryContent">
+//           <div class="flex justify-center items-center py-4">
+//             <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//             </svg>
+//             <span class="ml-2 text-gray-600">Analyzing documents...</span>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   // Find PDF document links (with priority order)
+//   const pdfLinks = documentLinks.filter(doc => doc.url.toLowerCase().endsWith('.pdf'));
+  
+//   // Priority order: Label > Review > Letter > Other
+//   const labelDocs = pdfLinks.filter(doc => doc.type === 'Label');
+//   const reviewDocs = pdfLinks.filter(doc => doc.type === 'Review');
+//   const letterDocs = pdfLinks.filter(doc => doc.type === 'Letter');
+  
+//   // Choose documents to analyze based on priority
+//   let docsToAnalyze = [];
+//   if (labelDocs.length > 0) {
+//     docsToAnalyze = labelDocs;
+//   } else if (reviewDocs.length > 0) {
+//     docsToAnalyze = reviewDocs;
+//   } else if (letterDocs.length > 0) {
+//     docsToAnalyze = letterDocs;
+//   } else {
+//     docsToAnalyze = pdfLinks;
+//   }
+  
+//   if (docsToAnalyze.length === 0) {
+//     // No PDF documents found
+//     document.getElementById('aiSummaryContent').innerHTML = `
+//       <div class="text-center text-gray-600 p-4">
+//         <p>No PDF documents found to analyze. AI summary unavailable.</p>
+//       </div>
+//     `;
+//     return;
+//   }
+  
+//   try {
+//     // Choose the first document for analysis
+//     const docToAnalyze = docsToAnalyze[0];
+    
+//     // Update status message
+//     document.getElementById('aiSummaryContent').innerHTML = `
+//       <div class="flex flex-col items-center py-4">
+//         <div class="flex items-center">
+//           <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//           </svg>
+//           <span class="ml-2 text-gray-600">Analyzing document...</span>
+//         </div>
+//         <div class="mt-2 text-xs text-gray-500">
+//           Processing: ${docToAnalyze.name} (${docToAnalyze.type})
+//         </div>
+//       </div>
+//     `;
+    
+//     // Call backend to analyze the document
+//     const response = await fetch('/api/analyze-fda-doc', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({
+//         pdfUrl: docToAnalyze.url
+//       })
+//     });
+    
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`API request failed (${response.status}): ${errorText}`);
+//     }
+    
+//     const result = await response.json();
+    
+//     if (result.error) {
+//       throw new Error(result.error);
+//     }
+    
+//     // Display the summary with enhanced formatting
+//     document.getElementById('aiSummaryContent').innerHTML = `
+//       <div class="mt-1 text-sm bg-white p-4 rounded border border-purple-100 prose">
+//         ${result.summary}
+//       </div>
+      
+//       <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
+//         <span>Document: ${docToAnalyze.type} - ${docToAnalyze.name.length > 40 ? docToAnalyze.name.substring(0, 40) + '...' : docToAnalyze.name}</span>
+//         ${result.imageCount > 0 ? `<span>Images analyzed: ${result.imageCount}</span>` : ''}
+//       </div>
+//     `;
+    
+//   } catch (error) {
+//     console.error("Error generating AI summary:", error);
+//     document.getElementById('aiSummaryContent').innerHTML = `
+//       <div class="text-center text-red-500 p-4">
+//         <p>Error generating AI summary: ${error.message}</p>
+//         <button id="retryAnalysisBtn" class="mt-2 px-3 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600">
+//           Retry Analysis
+//         </button>
+//       </div>
+//     `;
+    
+//     // Add retry button functionality
+//     document.getElementById('retryAnalysisBtn').addEventListener('click', () => {
+//       generateAISummary();
+//     });
+//   }
+// }
+
 async function generateAISummary() {
   const modalContent = document.getElementById('modalContent');
   const aiSummaryBtn = document.getElementById('aiSummaryBtn');
   const currentContent = modalContent.innerHTML;
-  
+
   // Get document data stored in the button's data attribute
   let documentLinks = [];
   try {
@@ -4362,29 +4512,28 @@ async function generateAISummary() {
   } catch (error) {
     console.error("Error parsing document data:", error);
   }
-  
+
   // Count document types
   const docTypeCounts = {};
   documentLinks.forEach(doc => {
     docTypeCounts[doc.type] = (docTypeCounts[doc.type] || 0) + 1;
   });
-  
+
   const docTypeSummary = Object.entries(docTypeCounts)
     .map(([type, count]) => `${count} ${type}${count > 1 ? 's' : ''}`)
     .join(', ');
-  
-  // Append AI summary section with loading state
+
+  // Append AI summary section with loading state and improved styling
   modalContent.innerHTML = currentContent + `
     <div id="aiSummarySection" class="mt-6 border-t pt-4">
-      <h4 class="text-md font-semibold border-b pb-2 mb-2">AI Document Summary</h4>
-      <div class="bg-purple-50 p-4 rounded">
-        <div class="flex items-center mb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <h4 class="text-lg font-semibold text-purple-900 border-b pb-2 mb-4">AI Document Summary</h4>
+      <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-100">
+        <div class="flex items-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          <span class="font-medium text-purple-700">AI Analysis</span>
+          <span class="font-medium text-purple-700 text-lg">AI Analysis</span>
         </div>
-        
         <div id="aiSummaryContent">
           <div class="flex justify-center items-center py-4">
             <svg class="animate-spin h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -4397,16 +4546,13 @@ async function generateAISummary() {
       </div>
     </div>
   `;
-  
+
   // Find PDF document links (with priority order)
   const pdfLinks = documentLinks.filter(doc => doc.url.toLowerCase().endsWith('.pdf'));
-  
-  // Priority order: Label > Review > Letter > Other
   const labelDocs = pdfLinks.filter(doc => doc.type === 'Label');
   const reviewDocs = pdfLinks.filter(doc => doc.type === 'Review');
   const letterDocs = pdfLinks.filter(doc => doc.type === 'Letter');
-  
-  // Choose documents to analyze based on priority
+
   let docsToAnalyze = [];
   if (labelDocs.length > 0) {
     docsToAnalyze = labelDocs;
@@ -4417,9 +4563,8 @@ async function generateAISummary() {
   } else {
     docsToAnalyze = pdfLinks;
   }
-  
+
   if (docsToAnalyze.length === 0) {
-    // No PDF documents found
     document.getElementById('aiSummaryContent').innerHTML = `
       <div class="text-center text-gray-600 p-4">
         <p>No PDF documents found to analyze. AI summary unavailable.</p>
@@ -4427,12 +4572,10 @@ async function generateAISummary() {
     `;
     return;
   }
-  
+
   try {
-    // Choose the first document for analysis
     const docToAnalyze = docsToAnalyze[0];
     
-    // Update status message
     document.getElementById('aiSummaryContent').innerHTML = `
       <div class="flex flex-col items-center py-4">
         <div class="flex items-center">
@@ -4447,8 +4590,77 @@ async function generateAISummary() {
         </div>
       </div>
     `;
-    
-    // Call backend to analyze the document
+
+    // Simulated API response (replace with actual fetch call)
+    const response = {
+      ok: true,
+      json: async () => ({
+        summary: `
+          <div class="ai-summary-content">
+            <div class="section">
+              <h5 class="font-semibold text-purple-800 mb-2">1. Drug Name and Active Ingredients</h5>
+              <p><strong class="text-purple-700">Drug Name:</strong> ADDERALL XR</p>
+              <p><strong class="text-purple-700">Active Ingredients:</strong></p>
+              <ul class="list-disc ml-5 mb-2">
+                <li>Dextroamphetamine Saccharate</li>
+                <li>Amphetamine Aspartate Monohydrate</li>
+                <li>Dextroamphetamine Sulfate USP</li>
+                <li>Amphetamine Sulfate USP</li>
+              </ul>
+              <p>Each capsule contains a combination of these salts, with total amphetamine base equivalence of 6.3 mg, 12.5 mg, or 18.8 mg for the 10 mg, 20 mg, and 30 mg capsules, respectively.</p>
+            </div>
+
+            <div class="section mt-4">
+              <h5 class="font-semibold text-purple-800 mb-2">2. Approved Indications</h5>
+              <p><strong class="text-purple-700">Indications:</strong> ADDERALL XR is indicated for the treatment of Attention Deficit Hyperactivity Disorder (ADHD) in patients who meet DSM-IV criteria for ADHD, including the combined type or the hyperactive-impulsive type.</p>
+            </div>
+
+            <div class="section mt-4">
+              <h5 class="font-semibold text-purple-800 mb-2">3. Important Safety Information</h5>
+              <ul class="list-disc ml-5 mb-2">
+                <li><strong class="text-purple-700">High Potential for Abuse:</strong> Amphetamines have a high potential for abuse and prolonged use may lead to drug dependence.</li>
+                <li><strong class="text-purple-700">Non-Therapeutic Use:</strong> There is a risk of subjects obtaining amphetamines for non-therapeutic use or distribution to others. The drug should be prescribed or dispensed sparingly.</li>
+                <li><strong class="text-purple-700">Clinical Trials:</strong> Efficacy was demonstrated in controlled trials in children aged 6 to 12, showing significant improvements in behavior and performance compared to placebo.</li>
+              </ul>
+            </div>
+
+            <div class="section mt-4">
+              <h5 class="font-semibold text-purple-800 mb-2">4. Dosage Recommendations</h5>
+              <ul class="list-disc ml-5 mb-2">
+                <li><strong class="text-purple-700">Dosage Forms:</strong> Available in 10 mg, 20 mg, and 30 mg capsules.</li>
+                <li><strong class="text-purple-700">Administration:</strong> Once daily in the morning. The capsule can be opened and sprinkled on applesauce if needed, with comparable absorption to the intact capsule.</li>
+                <li><strong class="text-purple-700">Dose Range:</strong> The effective dose range in clinical trials was 10 mg to 30 mg once daily.</li>
+                <li><strong class="text-purple-700">Pharmacokinetics:</strong> The time to reach maximum plasma concentration (Tmax) is about 7 hours, and the drug demonstrates linear pharmacokinetics over the dose range of 10 to 30 mg.</li>
+              </ul>
+            </div>
+
+            <div class="section mt-4">
+              <h5 class="font-semibold text-purple-800 mb-2">5. Contraindications</h5>
+              <p>The document does not explicitly list contraindications, but it emphasizes the high potential for abuse and the need for careful prescribing practices.</p>
+            </div>
+
+            <div class="section mt-4">
+              <h5 class="font-semibold text-purple-800 mb-2">6. Special Populations and Warnings</h5>
+              <ul class="list-disc ml-5 mb-2">
+                <li><strong class="text-purple-700">Pediatric Patients:</strong> Children aged 6 to 12 years eliminate amphetamine faster than adults, with a shorter elimination half-life. However, they have higher systemic exposure due to higher doses on a mg/kg basis.</li>
+                <li><strong class="text-purple-700">Gender:</strong> Women have 20-30% higher systemic exposure to amphetamine than men, attributed to higher doses on a mg/kg basis.</li>
+                <li><strong class="text-purple-700">Race:</strong> Pharmacokinetics appear comparable among Caucasians, Blacks, and Hispanics.</li>
+                <li><strong class="text-purple-700">Food Effects:</strong> Food does not affect the extent of absorption but prolongs Tmax by 2.5 hours.</li>
+              </ul>
+              <p class="mt-2"><strong class="text-purple-700">Warnings:</strong></p>
+              <ul class="list-disc ml-5">
+                <li><strong class="text-purple-700">Abuse and Dependence:</strong> The document repeatedly warns about the potential for abuse and dependence with prolonged use of amphetamines.</li>
+                <li><strong class="text-purple-700">Prescribing Practices:</strong> Emphasis on prescribing or dispensing the drug sparingly due to the risk of non-therapeutic use or distribution.</li>
+              </ul>
+            </div>
+          </div>
+        `,
+        imageCount: 0
+      })
+    };
+
+    // Uncomment this for actual API call
+    /*
     const response = await fetch('/api/analyze-fda-doc', {
       method: 'POST',
       headers: {
@@ -4458,49 +4670,51 @@ async function generateAISummary() {
         pdfUrl: docToAnalyze.url
       })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`API request failed (${response.status}): ${errorText}`);
     }
-    
+
     const result = await response.json();
-    
     if (result.error) {
       throw new Error(result.error);
     }
-    
+    */
+
+    const result = await response.json();
+
     // Display the summary with enhanced formatting
     document.getElementById('aiSummaryContent').innerHTML = `
-      <div class="mt-1 text-sm bg-white p-4 rounded border border-purple-100 prose">
+      <div class="text-sm text-gray-700">
         ${result.summary}
       </div>
-      
-      <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
-        <span>Document: ${docToAnalyze.type} - ${docToAnalyze.name.length > 40 ? docToAnalyze.name.substring(0, 40) + '...' : docToAnalyze.name}</span>
+      <div class="mt-4 flex justify-between items-center text-xs text-gray-500 border-t pt-2">
+        <span>Document: ${docToAnalyze.type} - ${
+          docToAnalyze.name.length > 40 
+            ? docToAnalyze.name.substring(0, 40) + '...' 
+            : docToAnalyze.name
+        }</span>
         ${result.imageCount > 0 ? `<span>Images analyzed: ${result.imageCount}</span>` : ''}
       </div>
     `;
-    
+
   } catch (error) {
     console.error("Error generating AI summary:", error);
     document.getElementById('aiSummaryContent').innerHTML = `
       <div class="text-center text-red-500 p-4">
         <p>Error generating AI summary: ${error.message}</p>
-        <button id="retryAnalysisBtn" class="mt-2 px-3 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600">
+        <button id="retryAnalysisBtn" class="mt-2 px-4 py-1 bg-purple-500 text-white text-sm rounded hover:bg-purple-600">
           Retry Analysis
         </button>
       </div>
     `;
     
-    // Add retry button functionality
     document.getElementById('retryAnalysisBtn').addEventListener('click', () => {
       generateAISummary();
     });
   }
 }
-
-
 
 function createStatisticalSummaryTable(outcomes) {
     const table = elements.statisticalSummaryTable;
@@ -6042,7 +6256,788 @@ function copyTrialDataToClipboard(nctId) {
 
 // Clinical Trial Dashboard Module
 // Robust Clinical Trial Dashboard Module
+const TrialDashboard = (function() {
+    let chartInstances = {};
+    let allTrialsData = null;
+    let dashboardInitialized = false;
+    
+    const COLORS = {
+        control: { primary: 'rgba(136, 132, 216, 0.8)', secondary: 'rgba(136, 132, 216, 0.2)' },
+        experimental: { primary: 'rgba(130, 202, 157, 0.8)', secondary: 'rgba(130, 202, 157, 0.2)' },
+        effect: ['#e6f7ff', '#bae7ff', '#91d5ff', '#69c0ff', '#40a9ff', '#096dd9'],
+        success: ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc']
+    };
 
+    function init(containerId = 'trial-dashboard') {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`Container with ID "${containerId}" not found.`);
+            return null;
+        }
+        container.innerHTML = '';
+        container.style.display = 'none';
+        dashboardInitialized = true;
+        return container;
+    }
+
+    function createDashboardStructure(containerId = 'trial-dashboard') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `
+            <div class="mb-6 text-center">
+                <h1 class="text-2xl font-bold text-gray-800">Summary of Clinical Trials</h1>
+                <p class="text-gray-600">Analysis of all trials in the dataset</p>
+            </div>
+            <div class="bg-white p-4 rounded shadow mb-6">
+                <h2 class="text-lg font-semibold mb-2 text-gray-700">Trial Summary</h2>
+                <div id="trial-summary-table" class="overflow-x-auto">
+                    <table class="min-w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border p-2 text-left">NCT ID</th>
+                                <th class="border p-2 text-left">Title</th>
+                                <th class="border p-2 text-left">Phase</th>
+                                <th class="border p-2 text-left">Status</th>
+                                <th class="border p-2 text-left">Sponsor</th>
+                                <th class="border p-2 text-left">Success Score</th>
+                                <th class="border p-2 text-left">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trial-summary-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Success Scores Across Trials</h2>
+                    <div class="h-64"><canvas id="successScoresChart"></canvas></div>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Phase Distribution</h2>
+                    <div class="h-64"><canvas id="phaseDistributionChart"></canvas></div>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Status Distribution</h2>
+                    <div class="h-64"><canvas id="statusDistributionChart"></canvas></div>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-700">Average Effect Sizes</h2>
+                    <p class="text-sm text-gray-500 mb-4" id="effect-size-desc">Comparing trials with available data</p>
+                    <div class="h-64"><canvas id="effectSizeChart"></canvas></div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-lg font-semibold mb-2 text-gray-700">Summary Conclusions</h2>
+                <ul class="list-disc pl-5 space-y-2" id="conclusions-list">
+                    <li>Analyzing trial data...</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    function loadData(data) {
+        const container = document.getElementById('trial-dashboard');
+        if (!container) {
+            console.error('Container "trial-dashboard" not found');
+            return false;
+        }
+
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+            console.error('No data provided or empty array');
+            container.style.display = 'none';
+            return false;
+        }
+
+        if (!dashboardInitialized) {
+            init('trial-dashboard');
+        }
+
+        try {
+            allTrialsData = data;
+            container.style.display = 'block';
+            createDashboardStructure('trial-dashboard');
+
+            // Process all trials and calculate success metrics
+            const trialSummaries = processAllTrials(data);
+            populateSummaryTable(trialSummaries);
+            generateSummaryCharts(trialSummaries);
+            generateSummaryConclusions(trialSummaries);
+
+            return true;
+        } catch (error) {
+            console.error('Error processing data:', error);
+            container.style.display = 'none';
+            showError('Error processing data: ' + error.message);
+            return false;
+        }
+    }
+
+    function showError(message) {
+        const container = document.getElementById('trial-dashboard');
+        if (!container) return;
+        if (!dashboardInitialized) {
+            console.error(message);
+            return;
+        }
+        container.innerHTML = `
+            <div class="p-4 text-center">
+                <h1 class="text-2xl font-bold text-red-600">Error Loading Data</h1>
+                <p class="text-gray-600 mt-2">${message}</p>
+            </div>
+        `;
+        container.style.display = 'block';
+    }
+
+    function processAllTrials(data) {
+        const trialSummaries = [];
+        let totalEffectSize = 0;
+        let effectSizeCount = 0;
+        let totalResponseDiff = 0;
+        let responseCount = 0;
+        let totalRemissionDiff = 0;
+        let remissionCount = 0;
+
+        data.forEach((trial, index) => {
+            const summary = {
+                nctId: trial.nctId,
+                title: trial.title,
+                phase: trial.phase,
+                status: trial.status,
+                sponsor: trial.sponsor,
+                successScore: 0,
+                effectSize: null,
+                responseDiff: null,
+                remissionDiff: null,
+                details: [],
+                hasOutcomes: trial.outcomes && trial.outcomes.length > 0
+            };
+
+            if (!summary.hasOutcomes) {
+                // Estimate success based on status and phase
+                summary.successScore = calculateFallbackSuccessScore(trial);
+                summary.details.push('No outcome data available.');
+                trialSummaries.push(summary);
+                return;
+            }
+
+            // Process outcomes
+            const primaryOutcomes = trial.outcomes.filter(outcome => outcome.type.toLowerCase() === 'primary');
+            const responderOutcomes = trial.outcomes.filter(outcome => 
+                outcome.title.toLowerCase().includes('improvement') || 
+                outcome.title.toLowerCase().includes('response') ||
+                outcome.title.toLowerCase().includes('>=') // e.g., ">= 50% Improvement"
+            );
+            const remitterOutcomes = trial.outcomes.filter(outcome => 
+                outcome.title.toLowerCase().includes('<=') || // e.g., "<= 10"
+                outcome.title.toLowerCase().includes('remission')
+            );
+
+            // Calculate effect size
+            if (primaryOutcomes.length > 0) {
+                const effectSizeResult = calculateEffectSizeForTrial(primaryOutcomes);
+                summary.effectSize = effectSizeResult.effectSize;
+                summary.details.push(effectSizeResult.detail);
+                if (summary.effectSize !== null) {
+                    totalEffectSize += summary.effectSize;
+                    effectSizeCount++;
+                }
+            }
+
+            // Calculate response and remission rates
+            const successRates = calculateSuccessRatesForTrial(responderOutcomes, remitterOutcomes);
+            summary.responseDiff = successRates.responseDiff;
+            summary.remissionDiff = successRates.remissionDiff;
+            summary.details.push(...successRates.details);
+            if (summary.responseDiff !== null) {
+                totalResponseDiff += summary.responseDiff;
+                responseCount++;
+            }
+            if (summary.remissionDiff !== null) {
+                totalRemissionDiff += summary.remissionDiff;
+                remissionCount++;
+            }
+
+            // Calculate success score
+            summary.successScore = calculateSuccessScore(summary);
+            trialSummaries.push(summary);
+        });
+
+        // Store averages for charts
+        trialSummaries.avgEffectSize = effectSizeCount > 0 ? totalEffectSize / effectSizeCount : null;
+        trialSummaries.avgResponseDiff = responseCount > 0 ? totalResponseDiff / responseCount : null;
+        trialSummaries.avgRemissionDiff = remissionCount > 0 ? totalRemissionDiff / remissionCount : null;
+
+        return trialSummaries;
+    }
+
+    function calculateFallbackSuccessScore(trial) {
+        let score = 0;
+        if (trial.status === 'COMPLETED') score += 50;
+        else if (trial.status === 'TERMINATED') score += 20;
+        if (trial.phase === 'PHASE4') score += 30;
+        else if (trial.phase === 'PHASE3') score += 20;
+        else if (trial.phase === 'PHASE2') score += 10;
+        return score;
+    }
+
+    function calculateEffectSizeForTrial(primaryOutcomes) {
+        if (!primaryOutcomes || primaryOutcomes.length === 0) {
+            return { effectSize: null, detail: 'No primary outcomes available.' };
+        }
+
+        const outcome = primaryOutcomes[0];
+        if (!outcome.measurements || outcome.measurements.length < 2) {
+            return { effectSize: null, detail: 'Insufficient measurements for effect size.' };
+        }
+
+        const controlMeasurements = outcome.measurements.filter(m => m.isControlGroup);
+        const expMeasurements = outcome.measurements.filter(m => !m.isControlGroup);
+
+        if (controlMeasurements.length === 0 || expMeasurements.length === 0) {
+            return { effectSize: null, detail: 'Missing control or experimental data.' };
+        }
+
+        const controlMean = controlMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / controlMeasurements.length;
+        const expMean = expMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / expMeasurements.length;
+        const controlSE = controlMeasurements[0].standardError;
+        const expSE = expMeasurements[0].standardError;
+        const estimatedSD = controlSE || expSE || (outcome.title.toLowerCase().includes('connectivity') ? 0.1 : 8.5);
+        const cohensD = Math.abs(expMean - controlMean) / estimatedSD;
+
+        return {
+            effectSize: cohensD,
+            detail: `Effect size: d = ${cohensD.toFixed(2)} (${getEffectSizeDescription(cohensD)})`
+        };
+    }
+
+    function calculateSuccessRatesForTrial(responderOutcomes, remitterOutcomes) {
+        const result = {
+            responseDiff: null,
+            remissionDiff: null,
+            details: []
+        };
+
+        if (responderOutcomes.length > 0) {
+            const outcome = responderOutcomes[responderOutcomes.length - 1];
+            if (outcome.measurements && outcome.measurements.length > 0) {
+                const controlValues = outcome.measurements.filter(m => m.isControlGroup).map(m => m.value).filter(v => v !== null);
+                const expValues = outcome.measurements.filter(m => !m.isControlGroup).map(m => m.value).filter(v => v !== null);
+
+                const controlRate = controlValues.length > 0 ? controlValues.reduce((sum, v) => sum + v, 0) / controlValues.length : 0;
+                const expRate = expValues.length > 0 ? expValues.reduce((sum, v) => sum + v, 0) / expValues.length : 0;
+                result.responseDiff = expRate - controlRate;
+                result.details.push(`Response rate difference: ${result.responseDiff >= 0 ? '+' : ''}${result.responseDiff.toFixed(1)}%`);
+            } else {
+                result.details.push('No measurements for response rate.');
+            }
+        } else {
+            result.details.push('No response rate data available.');
+        }
+
+        if (remitterOutcomes.length > 0) {
+            const outcome = remitterOutcomes[remitterOutcomes.length - 1];
+            if (outcome.measurements && outcome.measurements.length > 0) {
+                const controlValues = outcome.measurements.filter(m => m.isControlGroup).map(m => m.value).filter(v => v !== null);
+                const expValues = outcome.measurements.filter(m => !m.isControlGroup).map(m => m.value).filter(v => v !== null);
+
+                const controlRate = controlValues.length > 0 ? controlValues.reduce((sum, v) => sum + v, 0) / controlValues.length : 0;
+                const expRate = expValues.length > 0 ? expValues.reduce((sum, v) => sum + v, 0) / expValues.length : 0;
+                result.remissionDiff = expRate - controlRate;
+                result.details.push(`Remission rate difference: ${result.remissionDiff >= 0 ? '+' : ''}${result.remissionDiff.toFixed(1)}%`);
+            } else {
+                result.details.push('No measurements for remission rate.');
+            }
+        } else {
+            result.details.push('No remission rate data available.');
+        }
+
+        return result;
+    }
+
+    function calculateSuccessScore(summary) {
+        let score = 0;
+        if (summary.hasOutcomes) {
+            if (summary.effectSize !== null) {
+                // Scale effect size to contribute up to 50 points
+                if (summary.effectSize >= 2.0) score += 50;
+                else if (summary.effectSize >= 1.2) score += 40;
+                else if (summary.effectSize >= 0.8) score += 30;
+                else if (summary.effectSize >= 0.5) score += 20;
+                else if (summary.effectSize >= 0.2) score += 10;
+            }
+            if (summary.responseDiff !== null) {
+                // Scale response difference to contribute up to 25 points
+                if (summary.responseDiff >= 20) score += 25;
+                else if (summary.responseDiff >= 10) score += 15;
+                else if (summary.responseDiff > 0) score += 5;
+            }
+            if (summary.remissionDiff !== null) {
+                // Scale remission difference to contribute up to 25 points
+                if (summary.remissionDiff >= 20) score += 25;
+                else if (summary.remissionDiff >= 10) score += 15;
+                else if (summary.remissionDiff > 0) score += 5;
+            }
+        } else {
+            // Use fallback score for trials without outcomes
+            score = summary.successScore;
+        }
+        return Math.min(score, 100); // Cap at 100
+    }
+
+    function getEffectSizeDescription(cohensD) {
+        if (cohensD < 0.2) return 'Negligible clinical effect';
+        if (cohensD < 0.5) return 'Small clinical effect';
+        if (cohensD < 0.8) return 'Medium clinical effect';
+        if (cohensD < 1.2) return 'Large clinical effect';
+        if (cohensD < 2.0) return 'Very large clinical effect';
+        return 'Huge clinical effect';
+    }
+
+    function populateSummaryTable(trialSummaries) {
+        const tbody = document.getElementById('trial-summary-body');
+        tbody.innerHTML = '';
+
+        trialSummaries.forEach(summary => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="border p-2">${summary.nctId}</td>
+                <td class="border p-2">${summary.title.length > 50 ? summary.title.substring(0, 47) + '...' : summary.title}</td>
+                <td class="border p-2">${summary.phase}</td>
+                <td class="border p-2">${summary.status}</td>
+                <td class="border p-2">${summary.sponsor}</td>
+                <td class="border p-2">${summary.successScore.toFixed(1)}</td>
+                <td class="border p-2">${summary.details.join('<br>')}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function generateSummaryCharts(trialSummaries) {
+        // Success Scores Chart
+        const successScoresData = {
+            labels: trialSummaries.map(summary => summary.nctId),
+            datasets: [{
+                label: 'Success Score',
+                data: trialSummaries.map(summary => summary.successScore),
+                backgroundColor: COLORS.success[2],
+                borderColor: COLORS.success[2].replace('0.8', '1'),
+                borderWidth: 1
+            }]
+        };
+        const successScoresConfig = {
+            type: 'bar',
+            data: successScoresData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Success Score' } } },
+                plugins: { legend: { display: false } }
+            }
+        };
+        createOrUpdateChart('successScoresChart', 'bar', successScoresConfig);
+
+        // Phase Distribution Chart
+        const phaseCounts = {};
+        trialSummaries.forEach(summary => {
+            const phase = summary.phase || 'N/A';
+            phaseCounts[phase] = (phaseCounts[phase] || 0) + 1;
+        });
+        const phaseData = {
+            labels: Object.keys(phaseCounts),
+            datasets: [{
+                label: 'Number of Trials',
+                data: Object.values(phaseCounts),
+                backgroundColor: COLORS.effect.slice(0, Object.keys(phaseCounts).length)
+            }]
+        };
+        const phaseConfig = {
+            type: 'pie',
+            data: phaseData,
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        };
+        createOrUpdateChart('phaseDistributionChart', 'pie', phaseConfig);
+
+        // Status Distribution Chart
+        const statusCounts = {};
+        trialSummaries.forEach(summary => {
+            const status = summary.status || 'N/A';
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+        });
+        const statusData = {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+                label: 'Number of Trials',
+                data: Object.values(statusCounts),
+                backgroundColor: COLORS.effect.slice(0, Object.keys(statusCounts).length)
+            }]
+        };
+        const statusConfig = {
+            type: 'pie',
+            data: statusData,
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        };
+        createOrUpdateChart('statusDistributionChart', 'pie', statusConfig);
+
+        // Effect Size Chart
+        const effectSizes = trialSummaries.filter(summary => summary.effectSize !== null);
+        const effectSizeData = {
+            labels: effectSizes.map(summary => summary.nctId),
+            datasets: [{
+                label: 'Effect Size (Cohen\'s d)',
+                data: effectSizes.map(summary => summary.effectSize),
+                backgroundColor: COLORS.control.primary,
+                borderColor: COLORS.control.primary.replace('0.8', '1'),
+                borderWidth: 1
+            }]
+        };
+        const effectSizeConfig = {
+            type: 'bar',
+            data: effectSizeData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'Effect Size' } } },
+                plugins: { legend: { display: false } }
+            }
+        };
+        createOrUpdateChart('effectSizeChart', 'bar', effectSizeConfig);
+
+        document.getElementById('effect-size-desc').textContent = effectSizes.length > 0 
+            ? `Average effect size: ${trialSummaries.avgEffectSize.toFixed(2)}`
+            : 'No effect size data available.';
+    }
+
+    function generateSummaryConclusions(trialSummaries) {
+        const conclusionsList = document.getElementById('conclusions-list');
+        conclusionsList.innerHTML = '';
+
+        const conclusions = [];
+        conclusions.push(`Analyzed ${trialSummaries.length} trials.`);
+
+        const completedTrials = trialSummaries.filter(summary => summary.status === 'COMPLETED').length;
+        conclusions.push(`${completedTrials} trials were completed, ${trialSummaries.length - completedTrials} were terminated.`);
+
+        const avgSuccessScore = trialSummaries.reduce((sum, summary) => sum + summary.successScore, 0) / trialSummaries.length;
+        conclusions.push(`Average success score across all trials: ${avgSuccessScore.toFixed(1)}.`);
+
+        if (trialSummaries.avgEffectSize !== null) {
+            conclusions.push(`Average effect size across trials with data: ${trialSummaries.avgEffectSize.toFixed(2)} (${getEffectSizeDescription(trialSummaries.avgEffectSize)}).`);
+        } else {
+            conclusions.push('No effect size data available across trials.');
+        }
+
+        if (trialSummaries.avgResponseDiff !== null) {
+            conclusions.push(`Average response rate difference: ${trialSummaries.avgResponseDiff.toFixed(1)}%.`);
+        } else {
+            conclusions.push('No response rate data available across trials.');
+        }
+
+        if (trialSummaries.avgRemissionDiff !== null) {
+            conclusions.push(`Average remission rate difference: ${trialSummaries.avgRemissionDiff.toFixed(1)}%.`);
+        } else {
+            conclusions.push('No remission rate data available across trials.');
+        }
+
+        conclusions.forEach(conclusion => {
+            const li = document.createElement('li');
+            li.textContent = conclusion;
+            conclusionsList.appendChild(li);
+        });
+
+        const disclaimer = document.createElement('li');
+        disclaimer.textContent = 'Note: Success scores are estimates and should be reviewed by clinical experts.';
+        disclaimer.className = 'text-sm text-gray-500 italic mt-2';
+        conclusionsList.appendChild(disclaimer);
+    }
+
+    function createOrUpdateChart(canvasId, type, config) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error(`Canvas with ID "${canvasId}" not found`);
+            return null;
+        }
+        if (chartInstances[canvasId]) {
+            chartInstances[canvasId].destroy();
+        }
+        chartInstances[canvasId] = new Chart(canvas, config);
+        return chartInstances[canvasId];
+    }
+
+    return {
+        init: init,
+        loadData: loadData
+    };
+})();
+
+// Usage with your full dataset
+document.addEventListener('DOMContentLoaded', function() {
+    TrialDashboard.init('trial-dashboard');
+
+    // Your dataset with added mock outcomes for demonstration
+    const trialData = [
+        {
+            nctId: "NCT02196259",
+            outcomes: [
+                {
+                    category: "Unknown Category",
+                    controlSampleSize: 0,
+                    controlValue: null,
+                    effectSize: null,
+                    experimentalSampleSize: 0,
+                    experimentalValue: null,
+                    measurements: [
+                        { dispersion: null, dispersionType: null, groupId: "OG000", groupTitle: "Initial MRI", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3114 },
+                        { dispersion: null, dispersionType: null, groupId: "OG001", groupTitle: "Depression", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3459 }
+                    ],
+                    timeFrame: "8 minutes scans, acquired between 1 day and 3 days (see above)",
+                    title: "Functional Connectivity",
+                    type: "primary"
+                }
+            ],
+            phase: "NA",
+            sponsor: "University of Michigan",
+            status: "TERMINATED",
+            title: "Anesthesia and Functional Connectivity: An Analysis of fMRI Changes"
+        },
+        {
+            nctId: "NCT01179009",
+            title: "Treatment Resistant Depression (Pilot)",
+            phase: "NA",
+            sponsor: "Washington University School of Medicine",
+            status: "COMPLETED",
+            outcomes: [] // No outcomes
+        },
+        {
+            nctId: "NCT01627782",
+            title: "A Study of Ketamine in Patients With Treatment-resistant Depression",
+            phase: "PHASE2",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: [
+                {
+                    title: "MADRS Score Reduction",
+                    type: "primary",
+                    timeFrame: "4 weeks",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 15.2 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 5.0 }
+                    ]
+                },
+                {
+                    title: "Response Rate (>= 50% Improvement)",
+                    type: "secondary",
+                    timeFrame: "4 weeks",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 45 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 20 }
+                    ]
+                },
+                {
+                    title: "Remission Rate (MADRS <= 10)",
+                    type: "secondary",
+                    timeFrame: "4 weeks",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 30 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 10 }
+                    ]
+                }
+            ]
+        },
+        {
+            nctId: "NCT05414422",
+            title: "A Randomized, Placebo-Controlled, Double-Blind Study to Assess Safety and Efficacy of PCN-101 in TRD",
+            phase: "PHASE2",
+            sponsor: "Perception Neuroscience",
+            status: "COMPLETED",
+            outcomes: [
+                {
+                    title: "MADRS Score Reduction",
+                    type: "primary",
+                    timeFrame: "24 hours",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "PCN-101", isControlGroup: false, sampleSize: 0, value: 12.5 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 4.0 }
+                    ]
+                }
+            ]
+        },
+        // Add mock outcomes for a few more trials for demonstration
+        {
+            nctId: "NCT00768430",
+            title: "Optimization of IV Ketamine for Treatment Resistant Depression",
+            phase: "PHASE2",
+            sponsor: "Baylor College of Medicine",
+            status: "COMPLETED",
+            outcomes: [
+                {
+                    title: "MADRS Score Reduction",
+                    type: "primary",
+                    timeFrame: "1 week",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 18.0 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 6.0 }
+                    ]
+                },
+                {
+                    title: "Response Rate (>= 50% Improvement)",
+                    type: "secondary",
+                    timeFrame: "1 week",
+                    measurements: [
+                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 50 },
+                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 15 }
+                    ]
+                }
+            ]
+        },
+        // Remaining trials without outcomes
+        {
+            nctId: "NCT02360280",
+            title: "Efficacy of Repeated Ketamine Infusions for Treatment-resistant Depression",
+            phase: "PHASE2",
+            sponsor: "VA Office of Research and Development",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT03756129",
+            title: "Proof of Concept Study Evaluating the Efficacy and…1 in Patients With Treatment-resistant Depression",
+            phase: "PHASE2",
+            sponsor: "Novartis",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT01998958",
+            title: "A Study to Evaluate the Safety and Efficacy of Int…asal Esketamine in Treatment-resistant Depression",
+            phase: "PHASE2",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT03113968",
+            title: "ELEKT-D: Electroconvulsive Therapy (ECT) vs. Ketam…atients With Treatment Resistant Depression (TRD)",
+            phase: "PHASE2",
+            sponsor: "The Cleveland Clinic",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02935595",
+            title: "Low Dose Intravenous Ketamine in Treatment Resistant Depression Patients",
+            phase: "PHASE2",
+            sponsor: "The University of Texas Health Science Center, Houston",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02078817",
+            title: "Ketamine in Adolescents With Treatment-Resistant Depression",
+            phase: "PHASE2",
+            sponsor: "University of Minnesota",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02918318",
+            title: "A Study to Evaluate the Efficacy, Safety and Toler… Participants With Treatment Resistant Depression",
+            phase: "PHASE2",
+            sponsor: "Janssen Pharmaceutical K.K.",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT01920555",
+            title: "Double-Blind, Placebo-Controlled Trial of Ketamine Therapy in Treatment-Resistant Depression (TRD)",
+            phase: "PHASE2",
+            sponsor: "Massachusetts General Hospital",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02422186",
+            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02493868",
+            title: "A Study of Intranasal Esketamine Plus an Oral Anti… Participants With Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02782104",
+            title: "A Long-term Safety Study of Esketamine Nasal Spray in Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT03434041",
+            title: "A Study to Evaluate the Efficacy, Pharmacokinetics… Participants With Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02556606",
+            title: "Ketamine for Treatment Resistant Late-Life Depression",
+            phase: "PHASE3",
+            sponsor: "VA Office of Research and Development",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT04338321",
+            title: "A Long-term Comparison of Esketamine Nasal Spray V…ith Treatment Resistant Major Depressive Disorder",
+            phase: "PHASE3",
+            sponsor: "Janssen-Cilag International NV",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02417064",
+            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT02418585",
+            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+            phase: "PHASE3",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT03149991",
+            title: "A Study of Brexpiprazole Plus Ketamine in Treatment-Resistant Depression (TRD)",
+            phase: "PHASE4",
+            sponsor: "Massachusetts General Hospital",
+            status: "COMPLETED",
+            outcomes: []
+        },
+        {
+            nctId: "NCT04599855",
+            title: "A Study of Esketamine Nasal Spray, Administered as… Participants With Treatment-resistant Depression",
+            phase: "PHASE4",
+            sponsor: "Janssen Research & Development, LLC",
+            status: "COMPLETED",
+            outcomes: []
+        }
+    ];
+
+    // TrialDashboard.loadData(trialData);
+});
 
   document.addEventListener('DOMContentLoaded', () => {
     const trialSelect = document.getElementById('trial-selection');
