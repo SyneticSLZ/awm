@@ -6580,7 +6580,7 @@ const TrialDashboard = (function() {
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sponsor</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effect Size</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="trial-summary-body">
@@ -6879,8 +6879,7 @@ const TrialDashboard = (function() {
                 const expRate = expValues.length > 0 ? expValues.reduce((sum, v) => sum + v, 0) / expValues.length : 0;
                 result.responseDiff = expRate - controlRate;
                 result.details.push(`Response rate difference: ${result.responseDiff >= 0 ? '+' : ''}${result.responseDiff.toFixed(1)}%`);
-            }
-            else {
+            } else {
                 result.details.push('No measurements for response rate.');
             }
         } else {
@@ -6996,31 +6995,13 @@ const TrialDashboard = (function() {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div class="flex items-center">
-                        <button id="${toggleId}" class="toggle-details px-3 py-1 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            View Details
-                        </button>
-                    </div>
-                    <div id="${detailsId}" class="trial-details mt-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
-                        ${summary.details.map(detail => `<p class="mb-1">${detail}</p>`).join('')}
-                    </div>
+                    ${summary.effectSize !== null ? `<span class="font-medium">${summary.effectSize.toFixed(2)}</span> <span class="text-xs">(${getEffectSizeDescription(summary.effectSize)})</span>` : 'N/A'}
                 </td>
             `;
             
             tbody.appendChild(row);
             
-            // Add toggle functionality after adding to DOM
-            setTimeout(() => {
-                const toggleBtn = document.getElementById(toggleId);
-                const detailsElement = document.getElementById(detailsId);
-                
-                if (toggleBtn && detailsElement) {
-                    toggleBtn.addEventListener('click', function() {
-                        detailsElement.classList.toggle('open');
-                        toggleBtn.textContent = detailsElement.classList.contains('open') ? 'Hide Details' : 'View Details';
-                    });
-                }
-            }, 0);
+            // No toggle functionality needed anymore
         });
     }
 
@@ -7415,7 +7396,24 @@ const TrialDashboard = (function() {
         init: init,
         loadData: loadData
     };
-})();
+})(); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Usage with your full dataset
 document.addEventListener('DOMContentLoaded', function() {

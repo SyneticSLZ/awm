@@ -14,7 +14,7 @@ const { PDFDocument } = require('pdf-lib');
 const pdfParse = require('pdf-parse');
 const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
-const { createCanvas } = require('canvas');
+
 const { OpenAI } = require('openai');
 
 const { 
