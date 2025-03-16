@@ -400,8 +400,8 @@
 
   <script>
     // Constants
-    // const API_BASE_URL = 'http://localhost:3000/api';
-    const API_BASE_URL = 'https://awm-92tz.onrender.com/api';
+    const API_BASE_URL = 'http://localhost:3000/api/fda';
+    // const API_BASE_URL = 'https://awm-92tz.onrender.com/api';
     
     // DOM Elements
     const searchForm = document.getElementById('searchForm');
@@ -547,101 +547,118 @@
     }
 
     function displayOrangeBookResults(data, query) {
-      resultsContainer.innerHTML = `
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-2xl font-bold text-blue-700 mb-4">Orange Book Results for "${query}"</h2>
-          <div class="space-y-6">
-            <!-- Products -->
-            <div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">Products (${data.total.products})</h3>
-              ${data.results.products.length ? `
-                <div class="overflow-x-auto">
-                  <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                      <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage Form</th>
-                      </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                      ${data.results.products.map(p => `
-                        <tr>
-                          <td class="px-4 py-2">${p['Trade Name'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${p['New Drug Application (NDA) Number'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${p['Strength'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${p['Dosage Form/Route'] || 'N/A'}</td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              ` : '<p class="text-gray-600">No products found</p>'}
+  resultsContainer.innerHTML = `
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-blue-700 mb-4">Orange Book Results for "${query}"</h2>
+      <div class="space-y-6">
+        <!-- Products -->
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Products (${data.total.products})</h3>
+          ${data.results.products.length ? `
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage Form</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Applicant</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approval Date</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${data.results.products.map(p => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Trade_Name'] || p['Ingredient'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Appl_No'] || 'Not Available'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Strength'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['DF;Route'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Applicant_Full_Name'] || p['Applicant'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Approval_Date'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['TE_Code'] || 'N/A'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
-
-            <!-- Patents -->
-            <div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">Patents (${data.total.patents})</h3>
-              ${data.results.patents.length ? `
-                <div class="overflow-x-auto">
-                  <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                      <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
-                      </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                      ${data.results.patents.map(p => `
-                        <tr>
-                          <td class="px-4 py-2">${p['Patent Number'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${p['New Drug Application (NDA) Number'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${formatDate(p['Patent Expire Date'])}</td>
-                          <td class="px-4 py-2">${p['Drug Substance Flag'] === 'Y' ? 'Yes' : 'No'}</td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              ` : '<p class="text-gray-600">No patents found</p>'}
-            </div>
-
-            <!-- Exclusivity -->
-            <div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">Exclusivity (${data.total.exclusivity})</h3>
-              ${data.results.exclusivity.length ? `
-                <div class="overflow-x-auto">
-                  <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                      <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                      </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                      ${data.results.exclusivity.map(e => `
-                        <tr>
-                          <td class="px-4 py-2">${e['Exclusivity Code'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${e['New Drug Application (NDA) Number'] || 'N/A'}</td>
-                          <td class="px-4 py-2">${formatDate(e['Exclusivity Date'])}</td>
-                          <td class="px-4 py-2">${getExclusivityDescription(e['Exclusivity Code'])}</td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              ` : '<p class="text-gray-600">No exclusivity data found</p>'}
-            </div>
-          </div>
+            ${data.total.products > 50 ? `
+              <div class="mt-4">
+                <p class="text-sm text-gray-600">Showing 50 of ${data.total.products} products</p>
+                <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" onclick="alert('Feature to load more results coming soon!')">
+                  Show More
+                </button>
+              </div>
+            ` : ''}
+          ` : '<p class="text-gray-600">No products found</p>'}
         </div>
-      `;
-    }
-  
+
+        <!-- Patents -->
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Patents (${data.total.patents})</h3>
+          ${data.results.patents.length ? `
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${data.results.patents.map(p => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Patent_No'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Appl_No'] || 'Not Available'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Patent_Expire_Date_Text'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Patent_Use_Code'] || 'N/A'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Drug_Substance_Flag'] === 'Y' ? 'Yes' : 'No'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${p['Drug_Product_Flag'] === 'Y' ? 'Yes' : 'No'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<p class="text-gray-600">No patents found</p>'}
+        </div>
+
+        <!-- Exclusivity -->
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Exclusivity (${data.total.exclusivity})</h3>
+          ${data.results.exclusivity.length ? `
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${data.results.exclusivity.map(e => `
+                    <tr>
+                      <td class="px-4 py-2 whitespace-nowrap">${e['Exclusivity_Code'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${e['Appl_No'] || 'Not Available'}</td>
+                      <td class="px-4 py-2 whitespace-nowrap">${e['Exclusivity_Date'] || 'Not Specified'}</td>
+                      <td class="px-4 py-2">${getExclusivityDescription(e['Exclusivity_Code'])}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<p class="text-gray-600">No exclusivity data found</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+}
     async function fetchRecentSubmissions() {
     try {
       const response = await fetch(`${API_BASE_URL}/recent`);
@@ -1964,80 +1981,164 @@ async function fetchApplicationData(product, container) {
   }
 }
 async function fetchOrangeBookData(product, container) {
-      container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
-      try {
-        const response = await fetch(`${API_BASE_URL}/orangebook/${encodeURIComponent(product.applicationNumber)}`);
-        const data = await response.json();
-        
-        let patentsHtml = data.patents.length ? `
-          <div>
-            <h3 class="text-lg font-medium text-gray-800 mb-2">Patents</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  ${data.patents.map(patent => `
-                    <tr>
-                      <td class="px-4 py-2 whitespace-nowrap">${patent.patentNo}</td>
-                      <td class="px-4 py-2 whitespace-nowrap">${formatDate(patent.expirationDate)}</td>
-                      <td class="px-4 py-2 whitespace-nowrap">${patent.drugSubstance ? 'Yes' : 'No'}</td>
-                      <td class="px-4 py-2 whitespace-nowrap">${patent.drugProduct ? 'Yes' : 'No'}</td>
-                      <td class="px-4 py-2 whitespace-nowrap">${patent.useCode}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ` : '';
-
-        let exclusivitiesHtml = data.exclusivities.length ? `
-          <div>
-            <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Exclusivities</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  ${data.exclusivities.map(exclusivity => `
-                    <tr>
-                      <td class="px-4 py-2 whitespace-nowrap">${exclusivity.code}</td>
-                      <td class="px-4 py-2 whitespace-nowrap">${formatDate(exclusivity.expirationDate)}</td>
-                      <td class="px-4 py-2">${getExclusivityDescription(exclusivity.code)}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ` : '';
-
-        container.innerHTML = `
-          <div class="space-y-4">
-            ${patentsHtml || exclusivitiesHtml ? patentsHtml + exclusivitiesHtml : `
-              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                <p class="text-yellow-700">No Orange Book data found for this application</p>
-              </div>
-            `}
-          </div>
-        `;
-      } catch (error) {
-        container.innerHTML = `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4"><p class="text-yellow-700">Error fetching Orange Book data</p></div>`;
-      }
+  container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div><p class="ml-2 text-gray-600">Loading Orange Book data...</p></div>';
+  try {
+    const productName = product.tradeName || product.Ingredient || "OLANZAPINE AND FLUOXETINE HYDROCHLORIDE";
+    const response = await fetch(`${API_BASE_URL}/orangebook/search?q=${encodeURIComponent(productName)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    console.log('Server response:', data);
+
+    // Check if data has the expected structure
+    if (!data || !data.results || typeof data.results !== 'object') {
+      throw new Error('Invalid response format from server');
+    }
+
+    // Default to empty arrays if properties are missing
+    const products = data.results.products || [];
+    const patents = data.results.patents || [];
+    const exclusivities = data.results.exclusivities || [];
+    const totalProducts = data.total?.products || products.length;
+    const totalPatents = data.total?.patents || patents.length;
+    const totalExclusivity = data.total?.exclusivity || exclusivities.length;
+
+    let contentHtml = `
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-lg font-medium text-gray-800 mb-2">Orange Book Data for "${productName}"</h3>
+        </div>
+    `;
+
+    // Products Section
+    contentHtml += `
+      <div>
+        <h3 class="text-lg font-medium text-gray-800 mb-2">Products (${products.length})</h3>
+        ${products.length ? `
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Name</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Strength</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage Form</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Applicant</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approval Date</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TE Code</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${products.map(p => `
+                  <tr>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.Trade_Name || p.Ingredient || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.Appl_No || 'Not Available'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.Strength || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p['DF;Route'] || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.Applicant_Full_Name || p.Applicant || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.Approval_Date || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${p.TE_Code || 'N/A'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${totalProducts > products.length ? `
+            <p class="mt-2 text-sm text-gray-600">Showing ${products.length} of ${totalProducts} products</p>
+          ` : ''}
+        ` : '<p class="text-gray-600">No products found for this drug</p>'}
+      </div>
+    `;
+
+    // Patents Section
+    contentHtml += `
+      <div>
+        <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Patents (${patents.length})</h3>
+        ${patents.length ? `
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Substance</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Product</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${patents.map(patent => `
+                  <tr>
+                    <td class="px-4 py-2 whitespace-nowrap">${patent.Patent_No || patent.patentNo || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${ Kpatent.Appl_No || 'Not Available'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${patent.Patent_Expire_Date_Text || patent.expirationDate || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${patent.Patent_Use_Code || patent.useCode || 'N/A'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${patent.Drug_Substance_Flag === 'Y' || patent.drugSubstance ? 'Yes' : 'No'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${patent.Drug_Product_Flag === 'Y' || patent.drugProduct ? 'Yes' : 'No'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${totalPatents > patents.length ? `
+            <p class="mt-2 text-sm text-gray-600">Showing ${patents.length} of ${totalPatents} patents</p>
+          ` : ''}
+        ` : '<p class="text-gray-600">No patents associated with this drug</p>'}
+      </div>
+    `;
+
+    // Exclusivities Section
+    contentHtml += `
+      <div>
+        <h3 class="text-lg font-medium text-gray-800 mb-2 mt-4">Exclusivities (${exclusivities.length})</h3>
+        ${exclusivities.length ? `
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Application</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${exclusivities.map(exclusivity => `
+                  <tr>
+                    <td class="px-4 py-2 whitespace-nowrap">${exclusivity.Exclusivity_Code || exclusivity.code || 'Not Specified'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${exclusivity.Appl_No || 'Not Available'}</td>
+                    <td class="px-4 py-2 whitespace-nowrap">${exclusivity.Exclusivity_Date || exclusivity.expirationDate || 'Not Specified'}</td>
+                    <td class="px-4 py-2">${getExclusivityDescription(exclusivity.Exclusivity_Code || exclusivity.code)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${totalExclusivity > exclusivities.length ? `
+            <p class="mt-2 text-sm text-gray-600">Showing ${exclusivities.length} of ${totalExclusivity} exclusivities</p>
+          ` : ''}
+        ` : '<p class="text-gray-600">No exclusivity data associated with this drug</p>'}
+      </div>
+    `;
+
+    contentHtml += `</div>`;
+
+    container.innerHTML = contentHtml;
+  } catch (error) {
+    console.error('Error fetching Orange Book data:', error);
+    container.innerHTML = `
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+        <p class="text-yellow-700">Error fetching Orange Book data for "${product.tradeName || product.Ingredient || 'unknown product'}": ${error.message}</p>
+      </div>
+    `;
+  }
+}
+
+// Update exclusivity description function to include RTO
 
     function setOrangeBookLoading(isLoading) {
       if (isLoading) {
@@ -2050,7 +2151,7 @@ async function fetchOrangeBookData(product, container) {
         orangeBookSearchBtn.disabled = false;
       }
     }
-    
+
 // async function fetchOrangeBookData(product, container) {
 //     container.innerHTML = '<div class="flex justify-center py-4"><div class="loading"></div></div>';
 //     try {
@@ -2468,7 +2569,9 @@ async function fetchOrangeBookData(product, container) {
       'I': 'Active Ingredient Exclusivity',
       'AP': 'Approval or New Indication Exclusivity (3 years)',
       'PDX': 'Pediatric Exclusivity Attached to Approval',
-      'U-2': 'QIDP exclusivity (an additional 6 months)'
+      'U-2': 'QIDP exclusivity (an additional 6 months)',
+      'NCE': 'New Chemical Entity (5 years)',
+    'RTO': 'Reference Listed Drug Exclusivity for Therapeutic Equivalence'
     };
     return descriptions[code] || code;
   }

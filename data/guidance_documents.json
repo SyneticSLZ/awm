@@ -1,0 +1,198 @@
+{
+  "guidances": [
+    {
+      "title": "Antipsychotic Drugs: Full and Abbreviated New Drug Applications",
+      "date": "2020-09-15",
+      "type": "drug",
+      "drugTerms": [
+        "olanzapine",
+        "risperidone",
+        "quetiapine",
+        "aripiprazole",
+        "antipsychotic"
+      ],
+      "classTerms": [
+        "psycholeptics",
+        "antipsychotics"
+      ],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/antipsychotic-drugs-full-and-abbreviated-new-drug-applications",
+      "recommendations": [
+        "Two adequate and well-controlled trials generally required",
+        "Primary endpoint should demonstrate improvement in symptoms using validated scale",
+        "Trials should include placebo control arm",
+        "Minimum 6-week treatment duration for acute trials",
+        "Long-term safety data (minimum 6 months) required for maintenance indications"
+      ],
+      "patientRecommendations": {
+        "phase1": "20-40 healthy volunteers",
+        "phase2": "100-300 patients",
+        "phase3": "1000-3000 patients",
+        "specialPopulations": "Include elderly patients with careful monitoring"
+      }
+    },
+    {
+      "title": "Antidepressant Drug Products: Full and Abbreviated ANDAs",
+      "date": "2022-06-30",
+      "type": "drug",
+      "drugTerms": [
+        "fluoxetine",
+        "sertraline",
+        "paroxetine",
+        "citalopram",
+        "antidepressant",
+        "ssri"
+      ],
+      "classTerms": [
+        "psychoanaleptics",
+        "antidepressants"
+      ],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/antidepressant-drug-products-full-and-abbreviated-andas",
+      "recommendations": [
+        "Two adequate and well-controlled trials generally required",
+        "Primary endpoint should demonstrate improvement in symptoms using validated scale",
+        "Trials should include placebo control arm",
+        "Minimum 8-week treatment duration for acute trials",
+        "Long-term safety data (minimum10-12 months) required for maintenance indications"
+      ],
+      "patientRecommendations": {
+        "phase1": "20-50 healthy volunteers",
+        "phase2": "100-300 patients",
+        "phase3": "1000-3000 patients",
+        "specialPopulations": "Include adolescent and elderly populations in separate studies"
+      }
+    },
+    {
+      "title": "Diabetes Mellitus: Developing Drugs and Therapeutic Biologics for Treatment and Prevention",
+      "date": "2023-02-15",
+      "type": "drug",
+      "drugTerms": [
+        "metformin",
+        "insulin",
+        "glipizide",
+        "sitagliptin",
+        "antidiabetic"
+      ],
+      "classTerms": [
+        "antidiabetic",
+        "blood glucose lowering drugs"
+      ],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/diabetes-mellitus-developing-drugs-and-therapeutic-biologics-treatment-and-prevention",
+      "recommendations": [
+        "HbA1c reduction as primary endpoint",
+        "Minimum 6-month controlled trial data",
+        "Cardiovascular outcomes assessment required",
+        "Include patients with renal impairment",
+        "Hypoglycemia monitoring requirements"
+      ],
+      "patientRecommendations": {
+        "phase1": "20-80 healthy volunteers and patients",
+        "phase2": "200-500 patients",
+        "phase3": "2000-5000 patients",
+        "specialPopulations": "Include patients with renal impairment and cardiovascular risk factors"
+      }
+    },
+    {
+      "title": "Hypertension: Developing Fixed-Combination Drug Products for Treatment",
+      "date": "2022-01-20",
+      "type": "drug",
+      "drugTerms": [
+        "amlodipine",
+        "lisinopril",
+        "losartan",
+        "valsartan",
+        "antihypertensive"
+      ],
+      "classTerms": [
+        "antihypertensives",
+        "calcium channel blockers",
+        "ace inhibitors"
+      ],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/hypertension-developing-fixed-combination-drug-products-treatment",
+      "recommendations": [
+        "Blood pressure reduction as primary endpoint",
+        "Factorial design studies for combination products",
+        "24-hour ambulatory blood pressure monitoring",
+        "Minimum 8-week treatment duration",
+        "Assessment of orthostatic hypotension"
+      ],
+      "patientRecommendations": {
+        "phase1": "20-60 healthy volunteers and patients",
+        "phase2": "100-300 patients",
+        "phase3": "1000-3000 patients",
+        "specialPopulations": "Include elderly patients and those with renal impairment"
+      }
+    },
+    {
+      "title": "Analgesic Indications: Developing Drug and Biological Products",
+      "date": "2023-05-10",
+      "type": "drug",
+      "drugTerms": [
+        "ibuprofen",
+        "naproxen",
+        "celecoxib",
+        "diclofenac",
+        "analgesic"
+      ],
+      "classTerms": [
+        "analgesics",
+        "nsaids",
+        "anti-inflammatory"
+      ],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/analgesic-indications-developing-drug-and-biological-products",
+      "recommendations": [
+        "Pain intensity as primary endpoint using validated scale",
+        "Enriched enrollment study designs",
+        "Multiple-dose studies required",
+        "Assessment of onset and duration of effect",
+        "Cardiovascular risk assessment for NSAIDs"
+      ],
+      "patientRecommendations": {
+        "phase1": "20-60 healthy volunteers",
+        "phase2": "100-300 patients",
+        "phase3": "800-2000 patients",
+        "specialPopulations": "Include elderly patients and assess renal and hepatic effects"
+      }
+    },
+    {
+      "title": "Drug Development and Drug Interactions: Regulatory Considerations",
+      "date": "2023-01-05",
+      "type": "general",
+      "drugTerms": [],
+      "classTerms": [],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/drug-development-and-drug-interactions-regulatory-considerations",
+      "recommendations": [
+        "In vitro drug metabolism and transport studies",
+        "Clinical drug-drug interaction studies",
+        "Pharmacokinetic assessments",
+        "Model-informed approaches for clinical trials",
+        "Drug interaction labeling requirements"
+      ],
+      "patientRecommendations": {
+        "phase1": "Depends on study design",
+        "phase2": "Dedicated studies or subset analysis",
+        "phase3": "Population pharmacokinetic analysis"
+      }
+    },
+    {
+      "title": "Guideline for Good Clinical Practice",
+      "date": "2022-12-15",
+      "type": "general",
+      "drugTerms": [],
+      "classTerms": [],
+      "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/guideline-good-clinical-practice",
+      "recommendations": [
+        "Ethical principles based on Declaration of Helsinki",
+        "Institutional Review Board/Independent Ethics Committee requirements",
+        "Informed consent procedures",
+        "Safety reporting requirements",
+        "Protocol development and amendments"
+      ],
+      "patientRecommendations": {
+        "phase1": "Careful monitoring of first-in-human studies",
+        "phase2": "Adequate safety monitoring",
+        "phase3": "Representative patient population",
+        "specialPopulations": "Additional safeguards for vulnerable populations"
+      }
+    }
+  ]
+}

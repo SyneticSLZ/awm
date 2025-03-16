@@ -1,0 +1,360 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT06524830",
+      "orgStudyIdInfo": {
+        "id": "VLS-01-203"
+      },
+      "organization": {
+        "fullName": "atai Therapeutics, Inc.",
+        "class": "INDUSTRY"
+      },
+      "briefTitle": "A Study to Assess the Efficacy, Safety and Tolerability of VLS-01 Buccal Film, Compared to Placebo in Patients with Treatment Resistant Depression (ELUMINA)",
+      "officialTitle": "A Phase 2, Multicenter, Double-blind, Randomized, Placebo-controlled Trial to Assess the Efficacy, Safety, and Tolerability of Repeated Doses of VLS-01 Buccal Film in Participants with Treatment Resistant Depression"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2025-03",
+      "overallStatus": "RECRUITING",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2024-12-30",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2025-12-31",
+        "type": "ESTIMATED"
+      },
+      "completionDateStruct": {
+        "date": "2026-03-30",
+        "type": "ESTIMATED"
+      },
+      "studyFirstSubmitDate": "2024-07-24",
+      "studyFirstSubmitQcDate": "2024-07-24",
+      "studyFirstPostDateStruct": {
+        "date": "2024-07-29",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2025-03-11",
+      "lastUpdatePostDateStruct": {
+        "date": "2025-03-13",
+        "type": "ESTIMATED"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "atai Therapeutics, Inc.",
+        "class": "INDUSTRY"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": false,
+      "isFdaRegulatedDrug": true,
+      "isFdaRegulatedDevice": false,
+      "isUsExport": false
+    },
+    "descriptionModule": {
+      "briefSummary": "This Phase 2 study (protocol number VLS-01-203) will determine the efficacy, safety, and tolerability of short-term treatment with a VLS-01 transmucosal buccal film (VLS-01-BU) in patients with treatment resistant Major Depressive disorder (TRD) and will characterize the onset and durability of antidepressant effects of VLS-01-BU versus placebo.",
+      "detailedDescription": "This Phase 2, multicenter, double-blind, randomized, placebo-controlled trial will enroll approximately 142 participants with TRD, randomized 1:1 to receive a total of 2 double-blind administrations of VLS- 01-BU (buccal film containing VLS-01) or placebo, administered via the buccal transmucosal route, with a 2-week interval between each administration, during the placebo-controlled treatment period. All participants will have their symptoms monitored for 12 weeks in the placebo- controlled follow-up period, following the second administration of VLS-01-BU or placebo. After the placebo-controlled treatment and observation period all participants will be re-randomized 1:1 to receive one double-blinded administration of VLS-01-BU (dose strength 1 or dose strength 2) during a non-placebo-controlled treatment period. Final safety and efficacy assessment will be conducted two weeks after administration of the third dose."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Treatment Resistant Depression"
+      ],
+      "keywords": [
+        "Major Depression",
+        "Mood Disorders",
+        "Mental Disorders",
+        "Depressive Disorder",
+        "Depression",
+        "Depressive Disorder, Major",
+        "Antidepressive Agents",
+        "Psychotropic Drugs",
+        "Treatment Resistant Depression",
+        "Behavioral Symptoms",
+        "Depressive Disorder, Treatment-Resistant"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "TRIPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "INVESTIGATOR",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 142,
+        "type": "ESTIMATED"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "VLS-01-BU",
+          "type": "EXPERIMENTAL",
+          "interventionNames": [
+            "Drug: VLS-01-203 BU"
+          ]
+        },
+        {
+          "label": "VLS-01-BU Placebo",
+          "type": "PLACEBO_COMPARATOR",
+          "interventionNames": [
+            "Drug: VLS-01-BU Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "VLS-01-203 BU",
+          "description": "VLS-01 buccal transmucosal administration",
+          "armGroupLabels": [
+            "VLS-01-BU"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "VLS-01-BU Placebo",
+          "description": "Placebo buccal transmucosal administration",
+          "armGroupLabels": [
+            "VLS-01-BU Placebo"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Change from Baseline in Montgomery-Åsberg Depression Rating Scale (MADRS) total score",
+          "timeFrame": "Baseline to Day 29"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Change from Baseline in MADRS total score",
+          "timeFrame": "Baseline to Day 43"
+        }
+      ],
+      "otherOutcomes": [
+        {
+          "measure": "Incidence and severity of adverse events, adverse events of special interest and serious adverse events",
+          "timeFrame": "Baseline to Day 113"
+        },
+        {
+          "measure": "Incidence of clinically significant abnormalities in physical examinations, vital signs, electrocardiogram parameters, and safety laboratory results",
+          "timeFrame": "Baseline to Day 113"
+        },
+        {
+          "measure": "Columbia-Suicide Severity Rating Scale (C- SSRS) scores",
+          "timeFrame": "Baseline to Day 113"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* Participant must be 18 to 65 years of age inclusive at the time of signing the Informed Consent.\n* Has a diagnosis of recurrent moderate or severe MDD without psychotic features or single- episode MDD with duration greater than or equal to 3 months without psychotic features and is currently experiencing a major depressive episode.\n* Onset of first episode of MDD occurred before age 55.\n* Has not responded to an adequate dose and duration of at least two and no more than five antidepressant medications for the current depressive episode, as determined by the Massachusetts General Hospital Antidepressant Treatment Response Questionnaire (MGH- ATRQ).\n* Capable of giving signed informed consent which includes compliance with the requirements and restrictions listed in the informed consent form (ICF) and in the protocol.\n\nExclusion Criteria:\n\n* Has a current or prior DSM-5-TR diagnosis of a schizophrenia spectrum and other psychotic disorder, substance/medication-induced psychotic disorder, bipolar and related disorder, or any disorder with psychotic features.\n* Has a moderate or severe substance use disorder (drug, alcohol, or tobacco) within the 6 months before Screening and/or history of moderate or severe substance use disorder (drug alcohol) within the previous 1 year before Screening\n* Has a history of, or current signs and symptoms of, diseases or conditions that would make participation not be in the best interest (e.g., compromise the wellbeing) of the participant or that could prevent, limit, or confound the protocol-specified assessments.\n* Has suicidal ideation with some intent to act within 6 months before Screening or a history of suicidal behavior within the past 1 year before Screening.\n* Has a history of clinically significant cardiovascular, cerebrovascular, or peripheral vascular disease or condition, including but not limited to unstable angina, myocardial infarction, congestive heart failure, cardiac arrhythmia, valvular heart disease, obstructive coronary artery disease, hypertension, hypotension, bradycardia, tachycardia, or risk factors for long QT Syndrome.\n* Has an active malignancy, or history of malignancy, excluding basal or squamous cell carcinoma of the skin, within 2 years before Screening.\n* Has any known allergy or hypersensitivity to VLS-01 or to any of the excipients in the formulation.\n* Has recently initiated and is currently undergoing directive psychotherapy (e.g., cognitive behavioral therapy, interpersonal psychotherapy, psychodynamic psychotherapy) within the past 30 days before Screening. Participants planning to initiate individual or group therapy during the study are also not eligible.\n* Has received any prohibited therapies.\n* Has clinically significant laboratory abnormalities at Screening.",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "maximumAge": "65 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "centralContacts": [
+        {
+          "name": "Kevin Craig, MD",
+          "role": "CONTACT",
+          "phone": "332-282-0507",
+          "phoneExt": "+1",
+          "email": "clinicaltrials@atai.life"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Woodland Research Northwest",
+          "status": "RECRUITING",
+          "city": "Woodland",
+          "state": "Arkansas",
+          "zip": "72758",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 35.52425,
+            "lon": -93.52074
+          }
+        },
+        {
+          "facility": "Mountain View Clinical Research Inc.",
+          "status": "RECRUITING",
+          "city": "Denver",
+          "state": "Colorado",
+          "zip": "80209",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.73915,
+            "lon": -104.9847
+          }
+        },
+        {
+          "facility": "InSite Clinical Research",
+          "status": "RECRUITING",
+          "city": "DeSoto",
+          "state": "Texas",
+          "zip": "75115",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.58986,
+            "lon": -96.85695
+          }
+        },
+        {
+          "facility": "Cedar Clinical Research Inc",
+          "status": "RECRUITING",
+          "city": "Draper",
+          "state": "Utah",
+          "zip": "84020",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.52467,
+            "lon": -111.86382
+          }
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO"
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D061218",
+          "term": "Depressive Disorder, Treatment-Resistant"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7060",
+          "name": "Depressive Disorder, Major",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M29783",
+          "name": "Depressive Disorder, Treatment-Resistant",
+          "asFound": "Treatment Resistant Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "browseLeaves": [
+        {
+          "id": "M4247",
+          "name": "Antidepressive Agents",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14474",
+          "name": "Psychotropic Drugs",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "PsychDr",
+          "name": "Psychotropic Drugs"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": false
+}

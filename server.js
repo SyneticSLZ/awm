@@ -191,6 +191,7 @@ async function scrapeApprovalDate(appNumber) {
 // });
 
 app.get('/api/drug/:drugName', async (req, res) => {
+  console.log("194")
   const { drugName } = req.params;
   const searchType = req.query.type || 'brand';
   
@@ -445,6 +446,7 @@ function constructFdaDocLinks(appNumber, approvalDate) {
 
 // Updated endpoint to get FDA document links
 app.get('/api/documents/:appNumber', async (req, res) => {
+  console.log("448")
   const { appNumber } = req.params;
   
   try {
@@ -494,6 +496,7 @@ app.get('/api/documents/:appNumber', async (req, res) => {
  * GET /api/dailymed/:ingredient
  */
 app.get('/api/dailymed/:ingredient', async (req, res) => {
+  console.log("497")
   const { ingredient } = req.params;
   
   try {
@@ -587,6 +590,7 @@ app.get('/api/dailymed/:ingredient', async (req, res) => {
 
 
 app.get('/api/dailymed/recent', async (req, res) => {
+  console.log("593")
   try {
     // DailyMed API doesn't have a direct "sort by date" option, so we'll fetch SPLs and sort manually
     const response = await axios.get(`${DAILYMED_API_URL}/spls.json?limit=50`);
@@ -643,6 +647,7 @@ app.get('/api/dailymed/recent', async (req, res) => {
  * GET /api/dailymed/search?q=query&type=drug|condition
  */
 app.get('/api/dailymed/search', async (req, res) => {
+  console.log("650")
   const { q: query } = req.query;
   const searchType = req.query.type || 'drug';
   
@@ -841,6 +846,7 @@ app.get('/api/recent', async (req, res) => {
 // Fix for Orange Book API endpoint
 // New Orange Book Search Endpoint
 app.get('/api/orangebook/search', (req, res) => {
+  console.log("849")
   const { q: query } = req.query;
 
   if (!query) {
@@ -891,6 +897,7 @@ app.get('/api/orangebook/search', (req, res) => {
 
 // Existing /api/orangebook/:appNumber endpoint (updated to include local data as fallback)
 app.get('/api/orangebook/:appNumber', async (req, res) => {
+  console.log("900")
   const { appNumber } = req.params;
 
   try {

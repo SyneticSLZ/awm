@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved Chart.js Visualization</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Data Visualization</h1>
+            
+            <!-- Chart container with responsive height -->
+            <div class="h-96 w-full">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Controls section -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Chart Customization</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Chart type selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Chart Type</label>
+                    <select id="chart-type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="line">Line</option>
+                        <option value="bar">Bar</option>
+                        <option value="radar">Radar</option>
+                        <option value="polarArea">Polar Area</option>
+                        <option value="doughnut">Doughnut</option>
+                    </select>
+                </div>
+                
+                <!-- Color scheme selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Color Scheme</label>
+                    <select id="color-scheme" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="default">Default</option>
+                        <option value="pastel">Pastel</option>
+                        <option value="vibrant">Vibrant</option>
+                        <option value="monochrome">Monochrome</option>
+                    </select>
+                </div>
+                
+                <!-- Smoothing factor for line charts -->
+                <div id="smoothing-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Line Smoothing</label>
+                    <input type="range" id="smoothing" min="0" max="0.9" step="0.1" value="0.4" 
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data - replace with your actual data
+        const sampleData = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [
+                {
+                    label: 'Dataset 1',
+                    data: [65, 59, 80, 81, 56, 55, 40],
+                    borderWidth: 2,
+                    pointRadius: 4
+                },
+                {
+                    label: 'Dataset 2',
+                    data: [28, 48, 40, 19, 86, 27, 90],
+                    borderWidth: 2,
+                    pointRadius: 4
+                }
+            ]
+        };
+
+        // Color schemes
+        const colorSchemes = {
+            default: {
+                backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)']
+            },
+            pastel: {
+                backgroundColor: ['rgba(187, 222, 251, 0.2)', 'rgba(248, 187, 208, 0.2)'],
+                borderColor: ['rgba(100, 181, 246, 1)', 'rgba(240, 98, 146, 1)']
+            },
+            vibrant: {
+                backgroundColor: ['rgba(0, 176, 255, 0.2)', 'rgba(255, 64, 129, 0.2)'],
+                borderColor: ['rgba(0, 176, 255, 1)', 'rgba(255, 64, 129, 1)']
+            },
+            monochrome: {
+                backgroundColor: ['rgba(75, 75, 75, 0.2)', 'rgba(120, 120, 120, 0.2)'],
+                borderColor: ['rgba(75, 75, 75, 1)', 'rgba(120, 120, 120, 1)']
+            }
+        };
+
+        // Initialize chart
+        let chartInstance;
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        function createChart(type = 'line', colorScheme = 'default', tension = 0.4) {
+            // Destroy existing chart if it exists
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // Apply color scheme
+            const colors = colorSchemes[colorScheme];
+            sampleData.datasets.forEach((dataset, index) => {
+                dataset.backgroundColor = colors.backgroundColor[index];
+                dataset.borderColor = colors.borderColor[index];
+                dataset.tension = tension;
+            });
+
+            // Customize options based on chart type
+            let options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {}
+            };
+
+            // Add specific options for line/bar charts
+            if (type === 'line' || type === 'bar') {
+                options.scales = {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            drawBorder: false,
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                };
+            }
+
+            // Create new chart
+            chartInstance = new Chart(ctx, {
+                type: type,
+                data: sampleData,
+                options: options
+            });
+        }
+
+        // Event listeners for controls
+        document.getElementById('chart-type').addEventListener('change', function() {
+            const type = this.value;
+            const colorScheme = document.getElementById('color-scheme').value;
+            const tension = document.getElementById('smoothing').value;
+            
+            // Show/hide smoothing control for line charts only
+            document.getElementById('smoothing-container').style.display = 
+                type === 'line' ? 'block' : 'none';
+            
+            createChart(type, colorScheme, tension);
+        });
+
+        document.getElementById('color-scheme').addEventListener('change', function() {
+            const type = document.getElementById('chart-type').value;
+            const colorScheme = this.value;
+            const tension = document.getElementById('smoothing').value;
+            createChart(type, colorScheme, tension);
+        });
+
+        document.getElementById('smoothing').addEventListener('input', function() {
+            const type = document.getElementById('chart-type').value;
+            const colorScheme = document.getElementById('color-scheme').value;
+            const tension = this.value;
+            createChart(type, colorScheme, tension);
+        });
+
+        // Initialize chart on page load
+        createChart();
+
+        // -----------------------------------------------------
+        // To use your actual data from Python, replace sampleData with your own data
+        // Example of how to format your data for Chart.js:
+        /*
+        const yourData = {
+            labels: ['Your', 'X', 'Axis', 'Labels', 'Here'],
+            datasets: [
+                {
+                    label: 'Your Dataset Name',
+                    data: [your, data, points, here],
+                    // Additional options can be set here
+                }
+            ]
+        };
+        
+        // Then replace sampleData with yourData in the createChart function
+        */
+    </script>
+</body>
+</html>
+<section id="fdaDataSection" class="mb-8 hidden">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start mb-4">
+        <h2 class="text-xl font-semibold">FDA Data Explorer</h2>
+        <div class="flex space-x-2">
+          <input 
+            type="text" 
+            id="selectedDrugInput" 
+            class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            placeholder="Enter drug name"
+          >
+          <button 
+            id="fetchCompleteDataBtn"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-3 py-1 transition"
+          >
+            Fetch Data
+          </button>
+        </div>
+      </div>
+      
+      <!-- Loading Indicator -->
+      <div id="fdaDataLoading" class="hidden mb-4">
+        <div class="flex justify-center items-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </div>
+      
+      <!-- Error Message -->
+      <div id="fdaDataError" class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+      
+      <!-- FDA Data Content -->
+      <div id="fdaDataContent">
+        <!-- Individual Data Sections -->
+        <div class="space-y-8">
+          <!-- Drug Info Section -->
+          <div id="drugInfoSection" class="mb-6"></div>
+          
+          <!-- Tabs for different data categories -->
+          <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="FDA Data Categories">
+              <button class="border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('regulatory')">
+                Regulatory Information
+              </button>
+              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('clinical')">
+                Clinical Information
+              </button>
+              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('compliance')">
+                Compliance & Patents
+              </button>
+            </nav>
+          </div>
+          
+          <!-- Regulatory Tab Content -->
+          <div id="regulatoryTab" class="tab-content space-y-6">
+            <!-- FDA Guidance Section -->
+            <div id="fdaGuidanceSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">FDA Guidance Documents</h3>
+                <button 
+                  id="fetchGuidanceBtn"
+                  class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Refresh Guidance
+                </button>
+              </div>
+              <div id="guidanceLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              </div>
+              <div id="guidanceContent"></div>
+            </div>
+            
+            <!-- FDA Approval Section -->
+            <div id="fdaApprovalSection" class="mb-6"></div>
+          </div>
+          
+          <!-- Clinical Tab Content -->
+          <div id="clinicalTab" class="tab-content hidden space-y-6">
+            <!-- Trials Summary Section -->
+            <div id="trialsSummarySection" class="mb-6"></div>
+            
+            <!-- DailyMed Label Section -->
+            <div id="dailyMedSection" class="mb-6"></div>
+            
+            <!-- Publications Section -->
+            <div id="publicationsSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Scientific Publications</h3>
+                <button 
+                  id="fetchPublicationsBtn"
+                  class="bg-green-600 hover:bg-green-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Publications
+                </button>
+              </div>
+              <div id="publicationsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                </div>
+              </div>
+              <div id="publicationsContent"></div>
+            </div>
+            
+            <!-- Treatment Effect Section -->
+            <div id="treatmentEffectSection" class="mb-6"></div>
+          </div>
+          
+          <!-- Compliance Tab Content -->
+          <div id="complianceTab" class="tab-content hidden space-y-6">
+            <!-- Warning Letters Section -->
+            <div id="warningLettersSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">FDA Warning Letters</h3>
+                <button 
+                  id="fetchWarningsBtn"
+                  class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Warnings
+                </button>
+              </div>
+              <div id="warningsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+                </div>
+              </div>
+              <div id="warningsContent"></div>
+            </div>
+            
+            <!-- Orange Book Section -->
+            <div id="orangeBookSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Orange Book Patent Information</h3>
+                <button 
+                  id="fetchPatentsBtn"
+                  class="bg-yellow-600 hover:bg-yellow-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Patents
+                </button>
+              </div>
+              <div id="patentsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+                </div>
+              </div>
+              <div id="patentsContent"></div>
+            </div>
+          </div>
+          
+          <!-- Similar Drugs Section -->
+          <div id="similarDrugsSection" class="mb-6"></div>
+        </div>
+      </div>
+    </div>
+  </section>

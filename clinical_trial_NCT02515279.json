@@ -1,0 +1,1031 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT02515279",
+      "orgStudyIdInfo": {
+        "id": "ML22273"
+      },
+      "organization": {
+        "fullName": "Hoffmann-La Roche",
+        "class": "INDUSTRY"
+      },
+      "briefTitle": "An Observational Study of Peginterferon Alfa-2a Plus Ribavirin for Hepatitis C Virus (HCV) Infection in Austria",
+      "officialTitle": "A Non-Interventional Trial of Pegasys/Copegus in HCV Patients for 12 Months"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2017-03",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2008-11"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2014-12",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2014-12",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2015-07-29",
+      "studyFirstSubmitQcDate": "2015-07-31",
+      "studyFirstPostDateStruct": {
+        "date": "2015-08-04",
+        "type": "ESTIMATED"
+      },
+      "resultsFirstSubmitDate": "2016-01-12",
+      "resultsFirstSubmitQcDate": "2016-01-12",
+      "resultsFirstPostDateStruct": {
+        "date": "2016-02-10",
+        "type": "ESTIMATED"
+      },
+      "lastUpdateSubmitDate": "2017-03-10",
+      "lastUpdatePostDateStruct": {
+        "date": "2017-04-10",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Hoffmann-La Roche",
+        "class": "INDUSTRY"
+      }
+    },
+    "descriptionModule": {
+      "briefSummary": "This noninterventional, open-label study will observe the safety and tolerability of peginterferon alfa-2a in combination with ribavirin among Austrian participants treated for HCV infection according to routine practice."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Hepatitis C"
+      ]
+    },
+    "designModule": {
+      "studyType": "OBSERVATIONAL",
+      "designInfo": {
+        "observationalModel": "COHORT",
+        "timePerspective": "PROSPECTIVE"
+      },
+      "enrollmentInfo": {
+        "count": 463,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Participants With Hepatitis C",
+          "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months.",
+          "interventionNames": [
+            "Drug: Peginterferon alfa-2a",
+            "Drug: Ribavirin"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "Peginterferon alfa-2a",
+          "description": "180 micrograms subcutaneous weekly for 48 weeks.",
+          "armGroupLabels": [
+            "Participants With Hepatitis C"
+          ],
+          "otherNames": [
+            "Pegasys"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Ribavirin",
+          "description": "1000-1600 mg day orally for 48 weeks.",
+          "armGroupLabels": [
+            "Participants With Hepatitis C"
+          ],
+          "otherNames": [
+            "Copegus"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Percentage of Participants With Serious Adverse Events (SAEs) and Adverse Events (AEs)",
+          "description": "An AE was any untoward medical occurrence in a participant who received study drug without regard to possibility of causal relationship. An SAE was an AE resulting in any of the following outcomes or deemed significant for any other reason: death; initial or prolonged inpatient hospitalization; life-threatening experience (immediate risk of dying); persistent or significant disability or incapacity; and congenital anomaly. Percentage of participants with AEs included participants affected with both SAEs and non-SAEs.",
+          "timeFrame": "Up to 6 years"
+        },
+        {
+          "measure": "Percentage of Participants With End of Treatment Response",
+          "description": "Clinical response to the treatment was measured by qualitative negative polymerase chain reaction (PCR). A participant was considered to have and end of treatment response if there was undetectable Hepatitis C Virus (HCV) ribonucleic acid (RNA) after completing treatment. Participants with available PCR results were reported.",
+          "timeFrame": "12 months"
+        },
+        {
+          "measure": "Percentage of Participants With Sustained Virologic Response 24 (SVR24)",
+          "description": "Clinical response to the treatment was measured by qualitative negative polymerase chain reaction (PCR). SVR24 is defined as the percentage of participants with undetectable HCV RNA 24 weeks after completing treatment.",
+          "timeFrame": "18 months"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* Ongoing treatment with peginterferon alfa-2a and ribavirin at the discretion of the prescribing physician\n* HCV infection\n\nExclusion Criteria:\n\n* None specified",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "stdAges": [
+        "CHILD",
+        "ADULT",
+        "OLDER_ADULT"
+      ],
+      "studyPopulation": "The study will enroll Austrian participants receiving peginterferon alfa-2a and ribavirin for HCV infection according to routine practice.",
+      "samplingMethod": "NON_PROBABILITY_SAMPLE"
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "Clinical Trials",
+          "affiliation": "Hoffmann-La Roche",
+          "role": "STUDY_DIRECTOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "A.Ö. Krankenhaus Der Barmherzigen Schwestern Ried; Interne Abtl.",
+          "city": "Ried-innkreis",
+          "zip": "4910",
+          "country": "Austria"
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Participants With Hepatitis C",
+          "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months."
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "463"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "359"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "104"
+                }
+              ]
+            }
+          ],
+          "dropWithdraws": [
+            {
+              "type": "Adverse Event",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "7"
+                }
+              ]
+            },
+            {
+              "type": "Lack of Efficacy",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "31"
+                }
+              ]
+            },
+            {
+              "type": "Lost to Follow-up",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "9"
+                }
+              ]
+            },
+            {
+              "type": "Withdrawal by Subject",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "18"
+                }
+              ]
+            },
+            {
+              "type": "End-of-treatment visit not attended",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "17"
+                }
+              ]
+            },
+            {
+              "type": "Other",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "22"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "populationDescription": "All participants who were enrolled in the study.",
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Participants With Hepatitis C",
+          "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months."
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "463"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "41.0",
+                      "spread": "13.3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex/Gender, Customized",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "Female",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "151"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Male",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "310"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Missing",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With Serious Adverse Events (SAEs) and Adverse Events (AEs)",
+          "description": "An AE was any untoward medical occurrence in a participant who received study drug without regard to possibility of causal relationship. An SAE was an AE resulting in any of the following outcomes or deemed significant for any other reason: death; initial or prolonged inpatient hospitalization; life-threatening experience (immediate risk of dying); persistent or significant disability or incapacity; and congenital anomaly. Percentage of participants with AEs included participants affected with both SAEs and non-SAEs.",
+          "populationDescription": "All participants who were enrolled in the study.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "Up to 6 years",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Participants With Hepatitis C",
+              "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "463"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "AEs",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "44.28"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "SAEs",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With End of Treatment Response",
+          "description": "Clinical response to the treatment was measured by qualitative negative polymerase chain reaction (PCR). A participant was considered to have and end of treatment response if there was undetectable Hepatitis C Virus (HCV) ribonucleic acid (RNA) after completing treatment. Participants with available PCR results were reported.",
+          "populationDescription": "All participants who were enrolled in the study. N (Number of participants analysed)=participants who were evaluable for this measure.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "12 months",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Participants With Hepatitis C",
+              "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "446"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Participants with negative PCR",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "83.8"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Participants with positive PCR",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "9.7"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With Sustained Virologic Response 24 (SVR24)",
+          "description": "Clinical response to the treatment was measured by qualitative negative polymerase chain reaction (PCR). SVR24 is defined as the percentage of participants with undetectable HCV RNA 24 weeks after completing treatment.",
+          "populationDescription": "All participant who were enrolled in the study. N=number of participants evaluable for this measure.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "18 months",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Participants With Hepatitis C",
+              "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "144"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "26.6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "5",
+      "timeFrame": "up to 6 years",
+      "description": "All participant who were enrolled in the study.",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Participants With Hepatitis C",
+          "description": "All participants were treated with Peginterferon alfa-2a+Ribavirin (Pegasys/Copegus) according to the summary of product characteristics and to the investigator's discretion. The daily recommended dose for Pegasys, for the treatment of chronic Hepatitis C, was 180 micrograms once weekly by subcutaneous administration. Copegus was administered orally in doses according to the physician's decision (depending on the participant's weight and genotype). All participants were observed for 12 months.",
+          "seriousNumAffected": 18,
+          "seriousNumAtRisk": 463,
+          "otherNumAffected": 148,
+          "otherNumAtRisk": 463
+        }
+      ],
+      "seriousEvents": [
+        {
+          "term": "Anaemia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 8,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Leukopenia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Thrombocytopenia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Influenza like illness",
+          "organSystem": "General disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 4,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Fatigue",
+          "organSystem": "General disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Headache",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Diarrhoea",
+          "organSystem": "Gastrointestinal disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Arthralgia",
+          "organSystem": "Musculoskeletal and connective tissue disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Depression",
+          "organSystem": "Psychiatric disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Pneumonia",
+          "organSystem": "Respiratory, thoracic and mediastinal disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Drug eruption",
+          "organSystem": "Skin and subcutaneous tissue disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Pruritus",
+          "organSystem": "Skin and subcutaneous tissue disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Syncope",
+          "organSystem": "Vascular disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 463
+            }
+          ]
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "Leukopenia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 64,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Anaemia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 59,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Thrombocytopenia",
+          "organSystem": "Blood and lymphatic system disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 40,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Fatigue",
+          "organSystem": "General disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 39,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Depression",
+          "organSystem": "Psychiatric disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 27,
+              "numAtRisk": 463
+            }
+          ]
+        },
+        {
+          "term": "Pruritus",
+          "organSystem": "Skin and subcutaneous tissue disorders",
+          "sourceVocabulary": "MedDRA 18.1",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 26,
+              "numAtRisk": 463
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "limitationsAndCaveats": {
+        "description": "The sustained viral response that had to be filled out 6 months (or later) after the end of treatment was documented poorly due to reasons such as participants that were lost to follow-up or the study closure was before the visit date for the SVR."
+      },
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictionType": "OTHER",
+        "restrictiveAgreement": true,
+        "otherDetails": "The Study being conducted under this Agreement is part of the Overall Study. Investigator is free to publish in reputable journals or to present at professional conferences the results of the Study, but only after the first publication or presentation that involves the Overall Study. The Sponsor may request that Confidential Information be deleted and/or the publication be postponed in order to protect the Sponsor's intellectual property rights."
+      },
+      "pointOfContact": {
+        "title": "Medical Communications",
+        "organization": "Hoffmann-LaRoche",
+        "email": "genentech@druginfo.com",
+        "phone": "800-821-8590"
+      }
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D006506",
+          "term": "Hepatitis A"
+        },
+        {
+          "id": "D006526",
+          "term": "Hepatitis C"
+        },
+        {
+          "id": "D006505",
+          "term": "Hepatitis"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D008107",
+          "term": "Liver Diseases"
+        },
+        {
+          "id": "D004066",
+          "term": "Digestive System Diseases"
+        },
+        {
+          "id": "D006525",
+          "term": "Hepatitis, Viral, Human"
+        },
+        {
+          "id": "D014777",
+          "term": "Virus Diseases"
+        },
+        {
+          "id": "D007239",
+          "term": "Infections"
+        },
+        {
+          "id": "D004769",
+          "term": "Enterovirus Infections"
+        },
+        {
+          "id": "D010850",
+          "term": "Picornaviridae Infections"
+        },
+        {
+          "id": "D012327",
+          "term": "RNA Virus Infections"
+        },
+        {
+          "id": "D000086982",
+          "term": "Blood-Borne Infections"
+        },
+        {
+          "id": "D003141",
+          "term": "Communicable Diseases"
+        },
+        {
+          "id": "D018178",
+          "term": "Flaviviridae Infections"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M10283",
+          "name": "Infections",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M9592",
+          "name": "Hepatitis A",
+          "asFound": "Hepatitis",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M9591",
+          "name": "Hepatitis",
+          "asFound": "Hepatitis",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M9611",
+          "name": "Hepatitis C",
+          "asFound": "Hepatitis C",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M6368",
+          "name": "Communicable Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M17522",
+          "name": "Virus Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M11107",
+          "name": "Liver Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M8883",
+          "name": "Gastrointestinal Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M7255",
+          "name": "Digestive System Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M9610",
+          "name": "Hepatitis, Viral, Human",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M7930",
+          "name": "Enterovirus Infections",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M13745",
+          "name": "Picornaviridae Infections",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M15149",
+          "name": "RNA Virus Infections",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M2593",
+          "name": "Blood-Borne Infections",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20324",
+          "name": "Flaviviridae Infections",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BC01",
+          "name": "Infections"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        },
+        {
+          "abbrev": "BC06",
+          "name": "Digestive System Diseases"
+        },
+        {
+          "abbrev": "BC23",
+          "name": "Symptoms and General Pathology"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D012254",
+          "term": "Ribavirin"
+        },
+        {
+          "id": "C100416",
+          "term": "Peginterferon alfa-2a"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D000963",
+          "term": "Antimetabolites"
+        },
+        {
+          "id": "D045504",
+          "term": "Molecular Mechanisms of Pharmacological Action"
+        },
+        {
+          "id": "D000998",
+          "term": "Antiviral Agents"
+        },
+        {
+          "id": "D000890",
+          "term": "Anti-Infective Agents"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M15083",
+          "name": "Ribavirin",
+          "asFound": "Carboplatin",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M247369",
+          "name": "Peginterferon alfa-2a",
+          "asFound": "Erector Spinae",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4281",
+          "name": "Antimetabolites",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4314",
+          "name": "Antiviral Agents",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4214",
+          "name": "Anti-Infective Agents",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "Infe",
+          "name": "Anti-Infective Agents"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

@@ -1,0 +1,350 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT04959253",
+      "orgStudyIdInfo": {
+        "id": "252750"
+      },
+      "organization": {
+        "fullName": "King's College London",
+        "class": "OTHER"
+      },
+      "briefTitle": "Psilocybin in Depression Resistant to Standard Treatments",
+      "officialTitle": "A Randomised, Placebo Controlled Trial of Psilocybin in Treatment Resistant Depression: A Feasibility Study",
+      "acronym": "PsiDeR"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2021-06",
+      "overallStatus": "UNKNOWN",
+      "lastKnownStatus": "RECRUITING",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2020-09-01",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2023-09-01",
+        "type": "ESTIMATED"
+      },
+      "completionDateStruct": {
+        "date": "2023-11-01",
+        "type": "ESTIMATED"
+      },
+      "studyFirstSubmitDate": "2021-07-01",
+      "studyFirstSubmitQcDate": "2021-07-01",
+      "studyFirstPostDateStruct": {
+        "date": "2021-07-13",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2021-07-15",
+      "lastUpdatePostDateStruct": {
+        "date": "2021-07-22",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "King's College London",
+        "class": "OTHER"
+      },
+      "collaborators": [
+        {
+          "name": "South London and Maudsley NHS Foundation Trust",
+          "class": "OTHER"
+        }
+      ]
+    },
+    "oversightModule": {
+      "oversightHasDmc": true,
+      "isFdaRegulatedDrug": false,
+      "isFdaRegulatedDevice": false,
+      "isUsExport": false
+    },
+    "descriptionModule": {
+      "briefSummary": "A single centre clinical trial to evaluate the feasibility, safety and efficacy of psilocybin, given under supportive conditions, in a randomised, blinded design in adult participants with treatment resistant major depressive disorder. The primary objective is to evaluate feasibility by measuring recruitment rates, dropout rates and by estimating the variance of the primary outcome measure (MADRS)."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Treatment Resistant Depression"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "QUADRUPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "CARE_PROVIDER",
+            "INVESTIGATOR",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 60,
+        "type": "ESTIMATED"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Psilocybin 25mg PO",
+          "type": "EXPERIMENTAL",
+          "interventionNames": [
+            "Combination Product: Psilocybin assisted therapy"
+          ]
+        },
+        {
+          "label": "Placebo PO",
+          "type": "PLACEBO_COMPARATOR",
+          "interventionNames": [
+            "Combination Product: Placebo assisted therapy"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "COMBINATION_PRODUCT",
+          "name": "Psilocybin assisted therapy",
+          "description": "A package of psychological therapy and a single dosing session of psilocybin.",
+          "armGroupLabels": [
+            "Psilocybin 25mg PO"
+          ]
+        },
+        {
+          "type": "COMBINATION_PRODUCT",
+          "name": "Placebo assisted therapy",
+          "description": "A package of psychological therapy and a single dosing session of placebo.",
+          "armGroupLabels": [
+            "Placebo PO"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Montgomery Asberg Depression Rating Scale",
+          "description": "Investigator rated depression scale",
+          "timeFrame": "3 weeks from baseline. Lower score is a better outcome."
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Quick Inventory of Depressive Symptoms SR 16",
+          "description": "Participant rated depression scale",
+          "timeFrame": "3 weeks from baseline. Lower score is a better outcome."
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* Age 25 - 80 years\n* Fluent in the English language\n* Fulfil Diagnostic and Statistical Manual of Mental Disorders (5th Edition) (DSM-5) criteria for a primary diagnosis of current single or recurrent episodes of MDD of at least moderate severity but without psychotic features as defined on the MINI 7.0. Positive and primary diagnoses on the MINI 7.0 will be subject to confirmation at clinical interview by a psychiatrist.\n* 17-item HAM-D score ≥ 14.\n* Have failed to respond to 2 or more antidepressants prescribed at the minimum effective dose for at least 6 weeks OR at least 1 antidepressant prescribed at the minimum effective dose for at least 6 weeks AND a course of evidence-based psychotherapy given for at least 6 sessions.\n* For those aged ≥ 60 years, the first episode of depression must have started prior to their 60th birthday.\n\nExclusion Criteria:\n\n* Diagnosis of bipolar disorder (defined as meeting DSM-5 criteria for bipolar 1 or bipolar 2) on the MINI 7.0. Positive diagnoses on the MINI will be subject to confirmation at clinical interview by a psychiatrist.\n* Diagnosis of psychotic disorder (defined as meeting DSM-5 criteria for any psychotic disorder) on the MINI 7.0, EXCEPT substance/medication induced psychotic disorder where the duration was limited to the acute period of direct intoxication with the substance/medication. Positive diagnoses on the MINI will be subject to confirmation at clinical interview by a psychiatrist.\n* Diagnosis of drug or alcohol dependence syndrome (defined as meeting DSM-5 criteria for any dependence syndrome) on the MINI 7.0. Positive diagnoses on the MINI will be subject to confirmation at clinical interview by a psychiatrist.\n* Diagnosis of any personality disorder (defined as meeting DSM-5 criteria for any personality disorder) based on clinical interview and the MINI 7.0. Positive diagnoses on the MINI will be subject to confirmation at clinical interview by a psychiatrist.\n* Diagnosis of any dementia (defined as meeting DSM-5 criteria for any dementia disorder) based on clinical interview by a psychiatrist.\n* Personal history of a ≥ 1 suicide attempt in the past year requiring hospitalization, defined using the CSSRS (Q6 (past year) = \"y\") and clinical interview with a psychiatrist.\n* Other personal circumstances and behaviour judged to be incompatible with establishment of rapport or safe exposure to psilocybin.\n* Depression secondary to other medical conditions\n* Medical diagnosis incompatible with psilocybin treatment\n* Inability to provide a screening blood sample, urine sample or electrocardiogram.\n* Biochemical abnormalities (defined as falling outside the normal reference range) as evaluated by a full blood count, full biochemistry profile and thyroid function tests. Biochemical abnormalities must also be determined as clinically significant by a medical doctor to fulfil the criterion for exclusion.\n* Electrocardiographic abnormalities, defined as any abnormality that is not normal sinus rhythm and determined as clinically significant by a medical doctor.\n* Women of child bearing potential not using adequate contraception.\n* Pregnant or breast-feeding women.\n* Those unable to give informed consent.\n* Non-registration with a GP or failure to consent to sharing of the GP summary care record and any psychiatric assessments held.\n* Those enrolled in another drug trial\n* Hypersensitivity to the IMP or to any of the excipients or placebo\n\nExclusions for Pre-Existing Medical Conditions\n\nParticipants will be excluded if they have a current diagnosis of ≥1 of:\n\n* Uncontrolled diabetes\n* Hypertension (defined as a systolic blood pressure ≥ 160mm/Hg or a diastolic blood pressure ≥ 100mm/Hg on three separate readings). All readings of systolic blood pressure ≥ 140mm/Hg or diastolic blood pressure ≥ 90mm/Hg will be reviewed by a clinician. Hypertension ascertained prior to dosing will be subject to clinical confirmation via collateral information from the GP or other source.\n* Cardiac failure, defined as class IV of the New York Heart Association classification\n* Renal failure, defined as ≥ stage 4 (GFR ≤ 29mL/min)\n* Liver failure, defined as a clinical diagnosis of liver fibrosis, cirrhosis of the liver, liver failure or advanced liver disease.\n* Any cardiac arrhythmia, except atrial fibrillation.\n* Any form of epilepsy\n\nPast diagnosis of ≥1 of:\n\n* Cerebrovascular accident or intracerebral trauma.\n* Myocardial infarction within 1 year prior to the screening visit.",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "25 Years",
+      "maximumAge": "80 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "centralContacts": [
+        {
+          "name": "James Rucker",
+          "role": "CONTACT",
+          "phone": "+442032991851",
+          "email": "kingscrf@kcl.ac.uk"
+        }
+      ],
+      "overallOfficials": [
+        {
+          "name": "James Rucker, MD PhD",
+          "affiliation": "King's College London",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Clinical Research Facility, King's College Hospital",
+          "status": "RECRUITING",
+          "city": "London",
+          "zip": "SE5 9RS",
+          "country": "United Kingdom",
+          "contacts": [
+            {
+              "name": "James Rucker, MD",
+              "role": "CONTACT",
+              "phone": "+442032991851",
+              "email": "kingscrf@kcl.ac.uk"
+            }
+          ],
+          "geoPoint": {
+            "lat": 51.50853,
+            "lon": -0.12574
+          }
+        }
+      ]
+    },
+    "referencesModule": {
+      "references": [
+        {
+          "pmid": "34853114",
+          "type": "DERIVED",
+          "citation": "Rucker J, Jafari H, Mantingh T, Bird C, Modlin NL, Knight G, Reinholdt F, Day C, Carter B, Young A. Psilocybin-assisted therapy for the treatment of resistant major depressive disorder (PsiDeR): protocol for a randomised, placebo-controlled feasibility trial. BMJ Open. 2021 Dec 1;11(12):e056091. doi: 10.1136/bmjopen-2021-056091."
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO"
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D061218",
+          "term": "Depressive Disorder, Treatment-Resistant"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M29783",
+          "name": "Depressive Disorder, Treatment-Resistant",
+          "asFound": "Treatment Resistant Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D011562",
+          "term": "Psilocybin"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D006213",
+          "term": "Hallucinogens"
+        },
+        {
+          "id": "D045505",
+          "term": "Physiological Effects of Drugs"
+        },
+        {
+          "id": "D011619",
+          "term": "Psychotropic Drugs"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M14419",
+          "name": "Psilocybin",
+          "asFound": "AUC",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M9305",
+          "name": "Hallucinogens",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14474",
+          "name": "Psychotropic Drugs",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "PsychDr",
+          "name": "Psychotropic Drugs"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": false
+}

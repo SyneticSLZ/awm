@@ -1,0 +1,640 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT04990687",
+      "orgStudyIdInfo": {
+        "id": "IRB-300007636"
+      },
+      "organization": {
+        "fullName": "University of Alabama at Birmingham",
+        "class": "OTHER"
+      },
+      "briefTitle": "Vagal Nerve Stimulation for Treatment Resistant Major Depression",
+      "officialTitle": "Vagal Nerve Stimulation for Treatment Resistant Major Depression"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2024-06",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2022-01-01",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2023-09-08",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2024-04-03",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2021-07-12",
+      "studyFirstSubmitQcDate": "2021-07-27",
+      "studyFirstPostDateStruct": {
+        "date": "2021-08-04",
+        "type": "ACTUAL"
+      },
+      "resultsFirstSubmitDate": "2024-04-13",
+      "resultsFirstSubmitQcDate": "2024-06-27",
+      "resultsFirstPostDateStruct": {
+        "date": "2024-07-01",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2024-06-27",
+      "lastUpdatePostDateStruct": {
+        "date": "2024-07-01",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "PRINCIPAL_INVESTIGATOR",
+        "investigatorFullName": "Matthew Macaluso",
+        "investigatorTitle": "Bee McWane Reid Professor, Department of Psychiatry and Behavioral Neurobiology",
+        "investigatorAffiliation": "University of Alabama at Birmingham"
+      },
+      "leadSponsor": {
+        "name": "University of Alabama at Birmingham",
+        "class": "OTHER"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": true,
+      "isFdaRegulatedDrug": false,
+      "isFdaRegulatedDevice": true,
+      "isUsExport": true
+    },
+    "descriptionModule": {
+      "briefSummary": "The purpose of this study is to 1) explore whether vagal nerve stimulation (nVNS) using a hand- held non-invasive device (gammaCore™) works to treat depression and 2) to confirm gammaCore™'s safety profile.",
+      "detailedDescription": "The study will be up to 7 visits, which will occur for up to a 6 month period. The first visit is a screening visit, which will take about one hour to determine eligibility. If participants are eligible, participants will be scheduled for a baseline visit and 6 monthly visits to determine the antidepressant effects and possible side effects."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Major Depressive Disorder"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "NA"
+      ],
+      "designInfo": {
+        "allocation": "NA",
+        "interventionModel": "SINGLE_GROUP",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "NONE"
+        }
+      },
+      "enrollmentInfo": {
+        "count": 5,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Intervention Group",
+          "type": "EXPERIMENTAL",
+          "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.",
+          "interventionNames": [
+            "Device: gammaCore™"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DEVICE",
+          "name": "gammaCore™",
+          "description": "Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity.",
+          "armGroupLabels": [
+            "Intervention Group"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Montgomery-Asberg Depression Rating Scale (MADRS) at 3 Months",
+          "description": "Calculated by the Montgomery-Asberg Depression Rating Scale (MADRS): Each item has a severity scale from 0 to 6, with higher scores reflecting more severe symptoms. Ratings can be added to form an overall score (from 0 to 60). Snaith, Harrop, Newby, and Teale (1986) proposed the following cut-offs: scores of 0-6 indicate an absence of symptoms; 7-19 represent mild Depression; 20-34 moderate; 35-60 indicate severe Depression.",
+          "timeFrame": "3 months"
+        },
+        {
+          "measure": "Number of Participants With Adverse Events",
+          "description": "gammaCore (nVNS) activates the vagus nerve with patented, gentle electrical stimulation. Adverse events were collected for each study participant, and assessed for relatedness to study treatment.",
+          "timeFrame": "3 months"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n1. Age 18-75 years old\n2. Sufficient fluency in English to understand testing procedures and provide written informed consent\n3. A Hamilton Depression Rating Scale total score greater than or equal 18\n4. A DSM 5 diagnosis of MDD based on the MINI\n\nExclusion Criteria:\n\n1. Evidence of alcohol or other substance use disorder in the past 3 months\n2. For females: current pregnancy or lactation (women of reproductive potential must have a negative urine pregnancy test at screening).\n3. Depressed patients who have failed at least one adequate antidepressant trial during the current depressive episode based on the ATRQ.\n4. Diagnosis of other primary psychiatric disorder (defined in this case as being the main focus of treatment) as determined by the MINI, such as: bipolar disorder, personality disorders, psychotic disorders, post-traumatic stress disorder, obsessive-compulsive disorder, dissociative disorders, eating disorder, or cognitive task due to neurological conditions\n5. Systolic blood pressure \\< 150 and/or diastolic blood pressure \\< 90 at screening\n6. Post-partum state (being within 2 months of delivery or miscarriage)\n7. Imminent suicide or homicide risk as determined by the investigator\n8. Being treated with one of the following medications: benzodiazepines or other CNS depressants.\n9. No clinically significant neurological disease based on medical history (e.g., epilepsy) or significant head injury.\n10. Any of the following disorders are exclusionary: Rheumatoid arthritis; Lupus erythematosus; Autoimmune hepatitis; Autoimmune peripheral neuropathy; Autoimmune pancreatitis; Behcet's disease; Crohn's disease; Autoimmune glomerulonephritis; Grave's disease; Guillain-Barre syndrome; Hashimoto's thyroiditis; Autoimmune polymyositis or polymyalgia; Myasthenia gravis; Narcolepsy; Polyarteritis nodosa; Scleroderma; Sjogren's syndrome; Transverse myelitis; Wegener's granulomatosis; History of seizures (only childhood febrile seizures are allowed)\n11. The presence of clinically significant laboratory findings in the opinion of the investigator including, but not limited to, clinically significant anemia or transaminase elevation is considered exclusionary.\n12. If the UDS is positive, the subject would be excluded if, in the opinion of the investigator, the positive UDS meant the subject has an active substance use disorder.\n13. Patients with prior exposure to VNS therapy whether using an implantable or external device will be excluded.\n14. An active implantable medical device, such as a pacemaker, hearing aid implant, or any implanted electronic device\n15. A metallic device, such as a stent, bone plate, or bone screw, implanted at or near the neck\n16. An open wound, rash, infection, swelling, cut, sore, drug patch, or surgical scar(s) on the neck at the treatment location\n17. Patients diagnosed with narrowing of the arteries (carotid atherosclerosis)\n18. Patients who have had surgery to cut the vagus nerve in the neck (cervical vagotomy)\n19. Patients with clinically significant hypertension, hypotension, bradycardia, or tachycardia",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "maximumAge": "75 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "Matthew Macaluso, M.D.",
+          "affiliation": "The University of Alabama at Birmingham",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "The University of Alabama at Birmingham",
+          "city": "Birmingham",
+          "state": "Alabama",
+          "zip": "35294",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.52066,
+            "lon": -86.80249
+          }
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO",
+      "description": "To be Determined"
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "recruitmentDetails": "Potential study participant pre-screening and recruitment activities were initiated January 1, 2022. The first study participant was screened May 5, 2022, and enrolled May 27, 2022. The last study participant was screened March 7, 2023, and enrolled March 10, 2023. Potential participants were recruited from the outpatient clinic at UAB and in the surrounding community.",
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Intervention Group",
+          "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.\n\ngammaCore™: Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity."
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "5"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "5"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Intervention Group",
+          "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.\n\ngammaCore™: Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity."
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "5"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Categorical",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "<=18 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Between 18 and 65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "5"
+                    }
+                  ]
+                },
+                {
+                  "title": ">=65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "American Indian or Alaska Native",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Asian",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Native Hawaiian or Other Pacific Islander",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Black or African American",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "White",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "5"
+                    }
+                  ]
+                },
+                {
+                  "title": "More than one race",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Montgomery-Asberg Depression Rating Scale (MADRS) at 3 Months",
+          "description": "Calculated by the Montgomery-Asberg Depression Rating Scale (MADRS): Each item has a severity scale from 0 to 6, with higher scores reflecting more severe symptoms. Ratings can be added to form an overall score (from 0 to 60). Snaith, Harrop, Newby, and Teale (1986) proposed the following cut-offs: scores of 0-6 indicate an absence of symptoms; 7-19 represent mild Depression; 20-34 moderate; 35-60 indicate severe Depression.",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "3 months",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Intervention Group",
+              "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.\n\ngammaCore™: Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "12.3",
+                      "spread": "8.6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Number of Participants With Adverse Events",
+          "description": "gammaCore (nVNS) activates the vagus nerve with patented, gentle electrical stimulation. Adverse events were collected for each study participant, and assessed for relatedness to study treatment.",
+          "populationDescription": "There were no serious adverse events related to nVNS. One participant required surgery that was unrelated to nVNS and was lost to follow-up after month five. The only adverse event reported was one instance of mild neck soreness which resolved after changing the side to which stimulation was administered.",
+          "reportingStatus": "POSTED",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "timeFrame": "3 months",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Intervention Group",
+              "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.\n\ngammaCore™: Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "0",
+      "timeFrame": "Adverse events data was collected over a 6 month period of enrollment.",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Intervention Group",
+          "description": "Treatment effects will be measured using standard rating scales including the HDRS-17, MADRS, SF-36, CSSR-S, CGI-I, CGI-S, which will be completed at each visit. The following scales will be completed at every other visit following the screening visit: Social Anhedonia Scale, the Motivation and Energy Inventory and the Physical Anhedonia Scale. At each study visit safety assessments including vital sign assessment and adverse event assessment will be completed. Subjects will also undergo physical examination and an ECG for safety during screening, after 8 weeks of treatment and at the end of 12 weeks of treatment.\n\ngammaCore™: Implantable VNS (iVNS), the electrical stimulation of the nervous system to modulate or modify function, has been FDA approved in the United States since the late 1990s. Implantable VNS therapy has been approved for use in epilepsy and depression.\n\nWhen treating major depression with implanted VNS, the widely held belief is that chronic stimulation is required for therapeutic effect. In trials of implantable VNS in major depression, more patients respond at 12 months than at 3 months. Once depressed patients respond to VNS, the effects have been demonstrated to continue for up to five years with continued stimulation. This finding suggests that VNS gradually changes brain function through neuroplasticity.",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 5,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 5,
+          "otherNumAffected": 1,
+          "otherNumAtRisk": 5
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "soreness",
+          "organSystem": "Skin and subcutaneous tissue disorders",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "notes": "mild soreness, right side of neck; resolved after changing the side to which stimulation was administered.",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": true
+      },
+      "pointOfContact": {
+        "title": "Samantha White",
+        "organization": "UAB",
+        "email": "swwhite@uabmc.edu",
+        "phone": "205-934-1989"
+      }
+    }
+  },
+  "documentSection": {
+    "largeDocumentModule": {
+      "largeDocs": [
+        {
+          "typeAbbrev": "Prot",
+          "hasProtocol": true,
+          "hasSap": false,
+          "hasIcf": false,
+          "label": "Study Protocol",
+          "date": "2022-08-30",
+          "uploadDate": "2024-06-17T13:14",
+          "filename": "Prot_003.pdf",
+          "size": 326965
+        },
+        {
+          "typeAbbrev": "SAP",
+          "hasProtocol": false,
+          "hasSap": true,
+          "hasIcf": false,
+          "label": "Statistical Analysis Plan",
+          "date": "2024-04-03",
+          "uploadDate": "2024-05-15T12:32",
+          "filename": "SAP_002.pdf",
+          "size": 81569
+        }
+      ]
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13",
+      "submissionTracking": {
+        "firstMcpInfo": {
+          "postDateStruct": {
+            "date": "2024-05-07",
+            "type": "ACTUAL"
+          }
+        }
+      }
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D003865",
+          "term": "Depressive Disorder, Major"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depressive Disorder",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7060",
+          "name": "Depressive Disorder, Major",
+          "asFound": "Major Depressive Disorder",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

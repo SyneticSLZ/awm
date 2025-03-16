@@ -1,0 +1,2466 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT03235479",
+      "orgStudyIdInfo": {
+        "id": "BHV-3000-301"
+      },
+      "organization": {
+        "fullName": "Pfizer",
+        "class": "INDUSTRY"
+      },
+      "briefTitle": "Safety and Efficacy Study in Adult Subjects With Acute Migraines",
+      "officialTitle": "BHV3000-301: Phase 3: Double-Blind, Randomized, Placebo-Controlled, Safety and Efficacy Trial of BHV-3000 (Rimegepant) for the Acute Treatment of Migraine"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2023-02",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2017-07-18",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2018-01-21",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2018-01-26",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2017-07-14",
+      "studyFirstSubmitQcDate": "2017-07-27",
+      "studyFirstPostDateStruct": {
+        "date": "2017-08-01",
+        "type": "ACTUAL"
+      },
+      "resultsFirstSubmitDate": "2020-11-30",
+      "resultsFirstSubmitQcDate": "2020-11-30",
+      "resultsFirstPostDateStruct": {
+        "date": "2020-12-23",
+        "type": "ACTUAL"
+      },
+      "dispFirstSubmitDate": "2019-01-09",
+      "dispFirstSubmitQcDate": "2019-01-09",
+      "dispFirstPostDateStruct": {
+        "date": "2019-01-11",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2023-02-14",
+      "lastUpdatePostDateStruct": {
+        "date": "2023-02-16",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Pfizer",
+        "class": "INDUSTRY"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": false,
+      "isFdaRegulatedDrug": true,
+      "isFdaRegulatedDevice": false
+    },
+    "descriptionModule": {
+      "briefSummary": "The purpose of this study is to compare the efficacy of BHV-3000 (rimegepant) versus placebo in subjects with Acute Migraines"
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Migraine, With or Without Aura"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE3"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "interventionModelDescription": "Randomized Controlled Trial",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "TRIPLE",
+          "maskingDescription": "Double-blind to Sponsor, Investigator and Participant",
+          "whoMasked": [
+            "PARTICIPANT",
+            "CARE_PROVIDER",
+            "INVESTIGATOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 1485,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Rimegepant 75 mg",
+          "type": "EXPERIMENTAL",
+          "description": "Participants were administered a single oral dose of 75 mg of rimegepant tablet on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization.",
+          "interventionNames": [
+            "Drug: Rimegepant"
+          ]
+        },
+        {
+          "label": "Placebo",
+          "type": "PLACEBO_COMPARATOR",
+          "description": "Participants were administered a single oral dose of matching placebo tablet for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization.",
+          "interventionNames": [
+            "Drug: Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "Rimegepant",
+          "description": "75 mg tablet QD",
+          "armGroupLabels": [
+            "Rimegepant 75 mg"
+          ],
+          "otherNames": [
+            "BHV-3000"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Placebo",
+          "description": "Placebo tablet to match rimegepant dose QD",
+          "armGroupLabels": [
+            "Placebo"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Percentage of Participants With Freedom From Pain at 2 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the electronic diary (eDiary). Pain freedom was defined as pain level of none.",
+          "timeFrame": "2 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Freedom From Most Bothersome Symptom (MBS) at 2 Hours Post-dose",
+          "description": "MBS was reported as nausea, photophobia, or phonophobia at migraine onset using the eDiary. Symptom status (absent, present) was assessed post-dose using the eDiary separately for nausea, photophobia, and phonophobia. Freedom from MBS was defined as MBS reported at onset that was absent post-dose.",
+          "timeFrame": "2 hours post-dose"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Percentage of Participants With Freedom From Photophobia at 2 Hours Post-dose",
+          "description": "Photophobia (sensitivity to light) status was measured as absent or present in the eDiary. Freedom from photophobia was defined as photophobia absent.",
+          "timeFrame": "2 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Freedom From Phonophobia at 2 Hours Post-dose",
+          "description": "Phonophobia (sensitivity to sound) status was measured as absent or present in the eDiary. Freedom from phonophobia was defined as phonophobia absent.",
+          "timeFrame": "2 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Pain Relief at 2 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Pain relief was defined as pain level of none or mild.",
+          "timeFrame": "2 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Freedom From Nausea at 2 Hours Post-dose",
+          "description": "Nausea status was measured as absent or present in the eDiary. Freedom from nausea was defined as nausea absent.",
+          "timeFrame": "2 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Rescue Medication Use Within 24 Hours Post-dose",
+          "description": "Participants who did not experience relief of their migraine headache at the end of 2 hours after dosing with study medication (and after the 2-hour assessments had been completed on the eDiary) were permitted to use the following rescue medications: aspirin, ibuprofen, acetaminophen up to 1000 mg/day (this includes Excedrin Migraine), naproxen (or any other type of nonsteroidal anti-inflammatory drug), antiemetics (e.g., metoclopramide or promethazine), or baclofen. The participant's use of rescue medication was recorded by the participant in a paper diary.",
+          "timeFrame": "24 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Sustained Pain Freedom From 2 to 24 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain freedom was defined as pain level of none at 2 hours up to 24 hours post-dose with no rescue medication use through 24 hours post-dose.",
+          "timeFrame": "From 2 hours up to 24 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Sustained Pain Relief From 2 to 24 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain relief was defined as pain level of none or mild at 2 hours up to 24 hours post-dose with no rescue medication use through 24 hours post-dose.",
+          "timeFrame": "From 2 hours up to 24 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Sustained Pain Freedom From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain freedom was defined as pain level of none at 2 hours up to 48 hours post-dose with no rescue medication use through 48 hours post-dose.",
+          "timeFrame": "From 2 hours up to 48 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Sustained Pain Relief From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain relief was defined as pain level of none or mild at 2 hours up to 48 hours post-dose with no rescue medication use through 48 hours post-dose.",
+          "timeFrame": "From 2 hours up to 48 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Pain Relapse From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Pain relapse was defined as pain level of mild, moderate, or severe after 2 hours up to 48 hours for the participants who were pain-free at 2 hours post-dose.",
+          "timeFrame": "From 2 hours up to 48 hours post-dose"
+        },
+        {
+          "measure": "Percentage of Participants With Freedom From Functional Disability at 2 Hours Post-dose",
+          "description": "Functional disability level was assessed in the eDiary on a 4-point scale: normal function, mild impairment, severe impairment, required bed rest. Freedom from functional disability was defined as normal function.",
+          "timeFrame": "2 hours post-dose"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Key Inclusion Criteria:\n\n1. Patient has at least 1 year history of migraines (with or without aura), consistent with a diagnosis according to the International Classification of Headache Disorder, 3rd Edition, Beta version\\[1\\] including the following:\n\n   * Not more than 8 attacks of moderate or severe intensity per month within last 3 months\n   * Consistent migraine headaches of at least 2 migraine headache attacks of moderate or severe intensity in each of the 3 months prior to the Screening Visit and maintains this requirement during the Screening Period\n2. Less than 15 days with headache (migraine or non-migraine) per month in each of the 3 months prior to the Screening Visit and maintains this requirement during the Screening Period\n3. Patients on prophylactic migraine medication are permitted to remain on therapy provided they have been on a stable dose for at least 3 months prior to study entry.\n4. Patients with contraindications for use of triptans may be included provided they meet all other study entry criteria.\n\nKey Exclusion Criteria:\n\n1. Patient history of HIV disease\n2. Patient history with current evidence of uncontrolled, unstable or recently diagnosed cardiovascular disease, such as ischemic heart disease, coronary artery vasospasm, and cerebral ischemia. Patients with Myocardial Infarction (MI), Acute Coronary Syndrome (ACS),Percutaneous Coronary Intervention (PCI), cardiac surgery, stroke or transient ischemic attack (TIA) during the 6 months prior to screening.\n3. Uncontrolled hypertension (high blood pressure), or uncontrolled diabetes (however patients can be included who have stable hypertension and/or diabetes for 3 months prior to being enrolled)\n4. Patient has a current diagnosis of major depression, other pain syndromes, psychiatric conditions (eg, schizophrenia), dementia, or significant neurological disorders (other than migraine) that, in the Investigator's opinion, might interfere with study assessments\n5. Patient has a history of gastric, or small intestinal surgery, or has a disease that causes mal-absorption\n6. The patient has a history or current evidence of any significant and/or unstable medical conditions (eg, history of congenital heart disease or arrhythmia, known suspected infection, hepatitis B or C, or cancer) that, in the investigator's opinion, would expose them to undue risk of a significant adverse event (AE) or interfere with assessments of safety or efficacy during the course of the trial\n7. History of, treatment for, or evidence of, alcohol or drug abuse within the past 12 months or patients who have met DSM-V criteria for any significant substance use disorder within the past 12 months from the date of the screening visit.",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "locations": [
+        {
+          "facility": "Central Research Associates, Inc",
+          "city": "Birmingham",
+          "state": "Alabama",
+          "zip": "35205",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.52066,
+            "lon": -86.80249
+          }
+        },
+        {
+          "facility": "Neurological Physicians of Arizona/Radiant Research Inc",
+          "city": "Gilbert",
+          "state": "Arizona",
+          "zip": "85282",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.35283,
+            "lon": -111.78903
+          }
+        },
+        {
+          "facility": "Clinical Research Consortium Arizona",
+          "city": "Tempe",
+          "state": "Arizona",
+          "zip": "85283",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.41477,
+            "lon": -111.90931
+          }
+        },
+        {
+          "facility": "Radiant Research, Inc.",
+          "city": "Tucson",
+          "state": "Arizona",
+          "zip": "85712",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.22174,
+            "lon": -110.92648
+          }
+        },
+        {
+          "facility": "Woodland International Research Group, LLC",
+          "city": "Little Rock",
+          "state": "Arkansas",
+          "zip": "72211",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.74648,
+            "lon": -92.28959
+          }
+        },
+        {
+          "facility": "Pharmacology Research Institute",
+          "city": "Encino",
+          "state": "California",
+          "zip": "91316",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.15917,
+            "lon": -118.50119
+          }
+        },
+        {
+          "facility": "Optimus Medical Group",
+          "city": "San Francisco",
+          "state": "California",
+          "zip": "94102",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 37.77493,
+            "lon": -122.41942
+          }
+        },
+        {
+          "facility": "California Medical Clinic for Headache",
+          "city": "Santa Monica",
+          "state": "California",
+          "zip": "90404",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.01945,
+            "lon": -118.49119
+          }
+        },
+        {
+          "facility": "Diablo Clinical Research, Inc",
+          "city": "Walnut Creek",
+          "state": "California",
+          "zip": "94598",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 37.90631,
+            "lon": -122.06496
+          }
+        },
+        {
+          "facility": "Qps Mra, Llc",
+          "city": "Hollywood",
+          "state": "Florida",
+          "zip": "33024",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 26.0112,
+            "lon": -80.14949
+          }
+        },
+        {
+          "facility": "Multi-Specialty Research Associates, Inc",
+          "city": "Lake City",
+          "state": "Florida",
+          "zip": "32055",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 30.18968,
+            "lon": -82.63929
+          }
+        },
+        {
+          "facility": "Qps Mra, Llc",
+          "city": "Miami",
+          "state": "Florida",
+          "zip": "33143",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 25.77427,
+            "lon": -80.19366
+          }
+        },
+        {
+          "facility": "Advanced Pharma CR, LLC",
+          "city": "Miami",
+          "state": "Florida",
+          "zip": "33147",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 25.77427,
+            "lon": -80.19366
+          }
+        },
+        {
+          "facility": "Compass Research, LLC",
+          "city": "Orlando",
+          "state": "Florida",
+          "zip": "32806",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 28.53834,
+            "lon": -81.37924
+          }
+        },
+        {
+          "facility": "Ormond Medical Arts Pharmaceutical Research",
+          "city": "Ormond Beach",
+          "state": "Florida",
+          "zip": "32174",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 29.28581,
+            "lon": -81.05589
+          }
+        },
+        {
+          "facility": "Meridian Clinical Research",
+          "city": "Savannah",
+          "state": "Georgia",
+          "zip": "31406",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.08354,
+            "lon": -81.09983
+          }
+        },
+        {
+          "facility": "New Orleans Center for Clinical Research",
+          "city": "New Orleans",
+          "state": "Louisiana",
+          "zip": "70119",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 29.95465,
+            "lon": -90.07507
+          }
+        },
+        {
+          "facility": "Boston Clinical Trials, Inc",
+          "city": "Boston",
+          "state": "Massachusetts",
+          "zip": "02131",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.35843,
+            "lon": -71.05977
+          }
+        },
+        {
+          "facility": "Milford Emergency Associates, Inc.",
+          "city": "Marlborough",
+          "state": "Massachusetts",
+          "zip": "01752",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.34593,
+            "lon": -71.55229
+          }
+        },
+        {
+          "facility": "Michigan Head Pain & Neurological Institute",
+          "city": "Ann Arbor",
+          "state": "Michigan",
+          "zip": "48104",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.27756,
+            "lon": -83.74088
+          }
+        },
+        {
+          "facility": "Clinical Research Institute, Inc",
+          "city": "Minneapolis",
+          "state": "Minnesota",
+          "zip": "55402",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 44.97997,
+            "lon": -93.26384
+          }
+        },
+        {
+          "facility": "Clinical Research Institute",
+          "city": "Minneapolis",
+          "state": "Minnesota",
+          "zip": "55402",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 44.97997,
+            "lon": -93.26384
+          }
+        },
+        {
+          "facility": "The Center for Pharmaceutical Research",
+          "city": "Kansas City",
+          "state": "Missouri",
+          "zip": "64114",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.09973,
+            "lon": -94.57857
+          }
+        },
+        {
+          "facility": "Sundance Clinical Research, LLC",
+          "city": "Saint Louis",
+          "state": "Missouri",
+          "zip": "63141",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 38.62727,
+            "lon": -90.19789
+          }
+        },
+        {
+          "facility": "Meridian Clinical Research -Norfolk",
+          "city": "Norfolk",
+          "state": "Nebraska",
+          "zip": "68701",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.02834,
+            "lon": -97.417
+          }
+        },
+        {
+          "facility": "Meridian Clinical Research, LLC",
+          "city": "Omaha",
+          "state": "Nebraska",
+          "zip": "68134",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 41.25626,
+            "lon": -95.94043
+          }
+        },
+        {
+          "facility": "Clinical Research Consortium- Las Vegas",
+          "city": "Las Vegas",
+          "state": "Nevada",
+          "zip": "89119",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 36.17497,
+            "lon": -115.13722
+          }
+        },
+        {
+          "facility": "Hassman Research Institute, LLC",
+          "city": "Berlin",
+          "state": "New Jersey",
+          "zip": "08009",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.79123,
+            "lon": -74.92905
+          }
+        },
+        {
+          "facility": "SPRI Clinical Trials, LLC",
+          "city": "Brooklyn",
+          "state": "New York",
+          "zip": "11235",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.6501,
+            "lon": -73.94958
+          }
+        },
+        {
+          "facility": "Regional Clinical Research, Inc.",
+          "city": "Endwell",
+          "state": "New York",
+          "zip": "13760",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.11285,
+            "lon": -76.02103
+          }
+        },
+        {
+          "facility": "Central New York Clinical Research",
+          "city": "Manlius",
+          "state": "New York",
+          "zip": "13104",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 43.00201,
+            "lon": -75.97686
+          }
+        },
+        {
+          "facility": "Fieve Clinical Research",
+          "city": "New York",
+          "state": "New York",
+          "zip": "10168",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.71427,
+            "lon": -74.00597
+          }
+        },
+        {
+          "facility": "Rochester Clinical Research, Inc",
+          "city": "Rochester",
+          "state": "New York",
+          "zip": "14609",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 43.15478,
+            "lon": -77.61556
+          }
+        },
+        {
+          "facility": "PharmQuest, LLC",
+          "city": "Greensboro",
+          "state": "North Carolina",
+          "zip": "27408",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 36.07264,
+            "lon": -79.79198
+          }
+        },
+        {
+          "facility": "CTI Clinical Research Center",
+          "city": "Cincinnati",
+          "state": "Ohio",
+          "zip": "45227",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.12713,
+            "lon": -84.51435
+          }
+        },
+        {
+          "facility": "Oregon Center for Clinical Investigations, Inc",
+          "city": "Portland",
+          "state": "Oregon",
+          "zip": "97214",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 45.52345,
+            "lon": -122.67621
+          }
+        },
+        {
+          "facility": "Clinical Research of Philadelphia, LLC",
+          "city": "Philadelphia",
+          "state": "Pennsylvania",
+          "zip": "19114-1029",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.95233,
+            "lon": -75.16379
+          }
+        },
+        {
+          "facility": "Preferred Primary Care Physicians",
+          "city": "Uniontown",
+          "state": "Pennsylvania",
+          "zip": "15401",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.90008,
+            "lon": -79.71643
+          }
+        },
+        {
+          "facility": "Omega Medical Research",
+          "city": "Warwick",
+          "state": "Rhode Island",
+          "zip": "02886",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 41.7001,
+            "lon": -71.41617
+          }
+        },
+        {
+          "facility": "Coastal Carolina Research Center",
+          "city": "Mount Pleasant",
+          "state": "South Carolina",
+          "zip": "29464",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.79407,
+            "lon": -79.86259
+          }
+        },
+        {
+          "facility": "Meridian Clinical Research",
+          "city": "Dakota Dunes",
+          "state": "South Dakota",
+          "zip": "57409",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.48749,
+            "lon": -96.48642
+          }
+        },
+        {
+          "facility": "FutureSearch Trials of Neurology, LP",
+          "city": "Austin",
+          "state": "Texas",
+          "zip": "78731",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 30.26715,
+            "lon": -97.74306
+          }
+        },
+        {
+          "facility": "FutureSearch Trials of Neurology, LP",
+          "city": "Dallas",
+          "state": "Texas",
+          "zip": "75231",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.78306,
+            "lon": -96.80667
+          }
+        },
+        {
+          "facility": "Texas Center for Drug Development",
+          "city": "Houston",
+          "state": "Texas",
+          "zip": "77081",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 29.76328,
+            "lon": -95.36327
+          }
+        },
+        {
+          "facility": "J.Lewis Research Inc / Foothill Family Clinic South",
+          "city": "Salt Lake City",
+          "state": "Utah",
+          "zip": "84121",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.76078,
+            "lon": -111.89105
+          }
+        },
+        {
+          "facility": "J.Lewis Research Inc. / Jordan River Family Med",
+          "city": "South Jordan",
+          "state": "Utah",
+          "zip": "84095",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.56217,
+            "lon": -111.92966
+          }
+        },
+        {
+          "facility": "Clinical Research Associates of Tidewater, Inc.",
+          "city": "Norfolk",
+          "state": "Virginia",
+          "zip": "23507",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 36.84681,
+            "lon": -76.28522
+          }
+        },
+        {
+          "facility": "Tidewater Integrated Medical Research",
+          "city": "Virginia Beach",
+          "state": "Virginia",
+          "zip": "23454",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 36.85293,
+            "lon": -75.97799
+          }
+        },
+        {
+          "facility": "Northwest Clinical Research Center",
+          "city": "Bellevue",
+          "state": "Washington",
+          "zip": "98007",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 47.61038,
+            "lon": -122.20068
+          }
+        },
+        {
+          "facility": "Seattle Women's:Health, Research & Gynecology",
+          "city": "Seattle",
+          "state": "Washington",
+          "zip": "98105",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 47.60621,
+            "lon": -122.33207
+          }
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "preAssignmentDetails": "A total of 1485 participants were enrolled, of which 1162 participants were randomized to BHV-3000 (rimegepant) 75 milligram (mg) or placebo. A total of 323 participants failed screening mainly due to failure to meet eligibility criteria.The randomization was stratified in a 1:1 ratio based on use of prophylactic migraine medications (yes or no).",
+      "recruitmentDetails": "The study was conducted at 50 centers in the United States.",
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Rimegepant 75 mg",
+          "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+        },
+        {
+          "id": "FG001",
+          "title": "Placebo",
+          "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "comment": "Randomized",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "582"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "580"
+                }
+              ]
+            },
+            {
+              "type": "Treated",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "546"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "549"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "541"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "540"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "41"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "40"
+                }
+              ]
+            }
+          ],
+          "dropWithdraws": [
+            {
+              "type": "Lost to Follow-up",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "8"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "11"
+                }
+              ]
+            },
+            {
+              "type": "Not Experienced Moderate/Severe Migraine",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "23"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "17"
+                }
+              ]
+            },
+            {
+              "type": "Pregnancy",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "1"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            },
+            {
+              "type": "Protocol Deviation",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "1"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "3"
+                }
+              ]
+            },
+            {
+              "type": "Technical Problems",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "3"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            },
+            {
+              "type": "Withdrawal by Subject",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            },
+            {
+              "type": "Other Reasons",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "3"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "5"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "populationDescription": "The analysis was performed on modified intent to treat (mITT) participants, defined as those who were randomized only once, took study medication, had moderate to severe pain level at migraine onset, and who provided at least 1 post-dose efficacy measurement (i.e., after taking study medication).",
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Rimegepant 75 mg",
+          "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+        },
+        {
+          "id": "BG001",
+          "title": "Placebo",
+          "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+        },
+        {
+          "id": "BG002",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "543"
+            },
+            {
+              "groupId": "BG001",
+              "value": "541"
+            },
+            {
+              "groupId": "BG002",
+              "value": "1084"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "41.945",
+                      "spread": "12.3286"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "41.326",
+                      "spread": "12.1381"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "41.636",
+                      "spread": "12.2322"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "464"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "463"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "927"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "79"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "78"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "157"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Ethnicity (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Hispanic or Latino",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "58"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "68"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "126"
+                    }
+                  ]
+                },
+                {
+                  "title": "Not Hispanic or Latino",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "485"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "473"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "958"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "American Indian or Alaska Native",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "4"
+                    }
+                  ]
+                },
+                {
+                  "title": "Asian",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "6"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "7"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "13"
+                    }
+                  ]
+                },
+                {
+                  "title": "Native Hawaiian or Other Pacific Islander",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "title": "Black or African American",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "107"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "80"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "187"
+                    }
+                  ]
+                },
+                {
+                  "title": "White",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "417"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "444"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "861"
+                    }
+                  ]
+                },
+                {
+                  "title": "More than one race",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "10"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "7"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "17"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Primary Migraine Type",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "title": "Migraine without Aura",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "353"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "358"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "711"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Migraine with Aura",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "190"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "183"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "373"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Randomization Strata, Prophylactic Migraine Medication Use",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Yes",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "90"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "92"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "182"
+                    }
+                  ]
+                },
+                {
+                  "title": "No",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "453"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "449"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "902"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With Freedom From Pain at 2 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the electronic diary (eDiary). Pain freedom was defined as pain level of none.",
+          "populationDescription": "The analysis was performed on modified intent to treat (mITT) participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "19.2",
+                      "lowerLimit": "15.8",
+                      "upperLimit": "22.5"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "14.2",
+                      "lowerLimit": "11.3",
+                      "upperLimit": "17.2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.0298",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "4.9",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "0.5",
+              "ciUpperLimit": "9.3"
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With Freedom From Most Bothersome Symptom (MBS) at 2 Hours Post-dose",
+          "description": "MBS was reported as nausea, photophobia, or phonophobia at migraine onset using the eDiary. Symptom status (absent, present) was assessed post-dose using the eDiary separately for nausea, photophobia, and phonophobia. Freedom from MBS was defined as MBS reported at onset that was absent post-dose.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "36.6",
+                      "lowerLimit": "32.6",
+                      "upperLimit": "40.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "27.7",
+                      "lowerLimit": "24.0",
+                      "upperLimit": "31.5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.0016",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "8.9",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "3.4",
+              "ciUpperLimit": "14.4"
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Freedom From Photophobia at 2 Hours Post-dose",
+          "description": "Photophobia (sensitivity to light) status was measured as absent or present in the eDiary. Freedom from photophobia was defined as photophobia absent.",
+          "populationDescription": "The analysis was performed on mITT participants with photophobia present at migraine onset.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "470"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "483"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "34.9",
+                      "lowerLimit": "30.6",
+                      "upperLimit": "39.2"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "24.8",
+                      "lowerLimit": "20.9",
+                      "upperLimit": "28.6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.0005",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "10.2",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "4.4",
+              "ciUpperLimit": "15.9"
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Freedom From Phonophobia at 2 Hours Post-dose",
+          "description": "Phonophobia (sensitivity to sound) status was measured as absent or present in the eDiary. Freedom from phonophobia was defined as phonophobia absent.",
+          "populationDescription": "The analysis was performed on mITT participants with phonophobia present at migraine onset.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "345"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "366"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "38.6",
+                      "lowerLimit": "33.4",
+                      "upperLimit": "43.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "30.9",
+                      "lowerLimit": "26.2",
+                      "upperLimit": "35.5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.0299",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "7.7",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "0.8",
+              "ciUpperLimit": "14.6"
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Pain Relief at 2 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Pain relief was defined as pain level of none or mild.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "56.0",
+                      "lowerLimit": "51.8",
+                      "upperLimit": "60.2"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "45.7",
+                      "lowerLimit": "41.5",
+                      "upperLimit": "49.9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.0006",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "10.3",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "4.4",
+              "ciUpperLimit": "16.2"
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Freedom From Nausea at 2 Hours Post-dose",
+          "description": "Nausea status was measured as absent or present in the eDiary. Freedom from nausea was defined as nausea absent.",
+          "populationDescription": "The analysis was performed on mITT participants with nausea present at migraine onset.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "318"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "322"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "46.9",
+                      "lowerLimit": "41.4",
+                      "upperLimit": "52.3"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "41.6",
+                      "lowerLimit": "36.2",
+                      "upperLimit": "47.0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "nonInferiorityType": "SUPERIORITY",
+              "pValue": "0.1815",
+              "pValueComment": "P-value ≥ 0.05; therefore, all secondary outcome measures listed after this outcome measure in the hierarchy were not tested.",
+              "statisticalMethod": "Cochran-Mantel-Haenszel",
+              "paramType": "Risk Difference (RD)",
+              "paramValue": "5.2",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "-2.4",
+              "ciUpperLimit": "12.9"
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Rescue Medication Use Within 24 Hours Post-dose",
+          "description": "Participants who did not experience relief of their migraine headache at the end of 2 hours after dosing with study medication (and after the 2-hour assessments had been completed on the eDiary) were permitted to use the following rescue medications: aspirin, ibuprofen, acetaminophen up to 1000 mg/day (this includes Excedrin Migraine), naproxen (or any other type of nonsteroidal anti-inflammatory drug), antiemetics (e.g., metoclopramide or promethazine), or baclofen. The participant's use of rescue medication was recorded by the participant in a paper diary.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "24 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "20.4",
+                      "lowerLimit": "17.1",
+                      "upperLimit": "23.8"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "31.8",
+                      "lowerLimit": "27.9",
+                      "upperLimit": "35.6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Sustained Pain Freedom From 2 to 24 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain freedom was defined as pain level of none at 2 hours up to 24 hours post-dose with no rescue medication use through 24 hours post-dose.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "From 2 hours up to 24 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "14.0",
+                      "lowerLimit": "11.1",
+                      "upperLimit": "16.9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "8.1",
+                      "lowerLimit": "5.8",
+                      "upperLimit": "10.4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Sustained Pain Relief From 2 to 24 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain relief was defined as pain level of none or mild at 2 hours up to 24 hours post-dose with no rescue medication use through 24 hours post-dose.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "From 2 hours up to 24 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "38.9",
+                      "lowerLimit": "34.8",
+                      "upperLimit": "43.0"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "27.9",
+                      "lowerLimit": "24.2",
+                      "upperLimit": "31.7"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Sustained Pain Freedom From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain freedom was defined as pain level of none at 2 hours up to 48 hours post-dose with no rescue medication use through 48 hours post-dose.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "From 2 hours up to 48 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "11.6",
+                      "lowerLimit": "8.9",
+                      "upperLimit": "14.3"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "7.2",
+                      "lowerLimit": "5.0",
+                      "upperLimit": "9.4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Sustained Pain Relief From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Sustained pain relief was defined as pain level of none or mild at 2 hours up to 48 hours post-dose with no rescue medication use through 48 hours post-dose.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "From 2 hours up to 48 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33.7",
+                      "lowerLimit": "29.7",
+                      "upperLimit": "37.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "23.9",
+                      "lowerLimit": "20.3",
+                      "upperLimit": "27.4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Pain Relapse From 2 to 48 Hours Post-dose",
+          "description": "Pain levels were assessed on a 4-point scale (none, mild, moderate, severe) using the eDiary. Pain relapse was defined as pain level of mild, moderate, or severe after 2 hours up to 48 hours for the participants who were pain-free at 2 hours post-dose.",
+          "populationDescription": "The analysis population was performed on mITT participants with pain freedom at 2 hours post-dose.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "From 2 hours up to 48 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "104"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "77"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "40.1",
+                      "lowerLimit": "30.6",
+                      "upperLimit": "49.6"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "50.0",
+                      "lowerLimit": "39.0",
+                      "upperLimit": "61.0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Percentage of Participants With Freedom From Functional Disability at 2 Hours Post-dose",
+          "description": "Functional disability level was assessed in the eDiary on a 4-point scale: normal function, mild impairment, severe impairment, required bed rest. Freedom from functional disability was defined as normal function.",
+          "populationDescription": "The analysis was performed on mITT participants.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "dispersionType": "95% Confidence Interval",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "2 hours post-dose",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Rimegepant 75 mg",
+              "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "543"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "541"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33.3",
+                      "lowerLimit": "29.4",
+                      "upperLimit": "37.3"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "21.8",
+                      "lowerLimit": "18.4",
+                      "upperLimit": "25.3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "5",
+      "timeFrame": "Serious adverse events (SAEs) were collected from informed consent up to the end of study, and adverse events (AEs) were collected from randomization up to the end of the study (up to 52 days).",
+      "description": "The safety population, all enrolled participants who received at least 1 dose of rimegepant or placebo, was used to determine the number of participants at risk for SAEs and other AEs.",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Rimegepant 75 mg",
+          "description": "Participants were administered a single oral dose of 75 mg of rimegepant on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization.",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 546,
+          "seriousNumAffected": 2,
+          "seriousNumAtRisk": 546,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 546
+        },
+        {
+          "id": "EG001",
+          "title": "Placebo",
+          "description": "Participants were administered a single oral dose of matching placebo for rimegepant (75 mg) on occurrence of migraine that reached moderate or severe intensity up to 45 days after randomization.",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 549,
+          "seriousNumAffected": 1,
+          "seriousNumAtRisk": 549,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 549
+        }
+      ],
+      "seriousEvents": [
+        {
+          "term": "Acute Respiratory Failure",
+          "organSystem": "Respiratory, thoracic and mediastinal disorders",
+          "sourceVocabulary": "MedDRA 20.0",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 546
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 549
+            }
+          ]
+        },
+        {
+          "term": "Pulmonary Embolism",
+          "organSystem": "Respiratory, thoracic and mediastinal disorders",
+          "sourceVocabulary": "MedDRA 20.0",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 546
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 549
+            }
+          ]
+        },
+        {
+          "term": "Colitis",
+          "organSystem": "Gastrointestinal disorders",
+          "sourceVocabulary": "MedDRA 20.0",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 546
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 549
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictionType": "LTE60",
+        "restrictiveAgreement": true
+      },
+      "pointOfContact": {
+        "title": "Chief Medical Officer",
+        "organization": "Biohaven Pharmaceuticals, Inc.",
+        "email": "clinicaltrials@biohavenpharma.com",
+        "phone": "203-404-0410"
+      }
+    }
+  },
+  "documentSection": {
+    "largeDocumentModule": {
+      "largeDocs": [
+        {
+          "typeAbbrev": "Prot",
+          "hasProtocol": true,
+          "hasSap": false,
+          "hasIcf": false,
+          "label": "Study Protocol",
+          "date": "2018-01-23",
+          "uploadDate": "2020-11-25T01:19",
+          "filename": "Prot_000.pdf",
+          "size": 2402887
+        },
+        {
+          "typeAbbrev": "SAP",
+          "hasProtocol": false,
+          "hasSap": true,
+          "hasIcf": false,
+          "label": "Statistical Analysis Plan",
+          "date": "2018-06-20",
+          "uploadDate": "2020-11-25T01:20",
+          "filename": "SAP_001.pdf",
+          "size": 6275241
+        }
+      ]
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D008881",
+          "term": "Migraine Disorders"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D051270",
+          "term": "Headache Disorders, Primary"
+        },
+        {
+          "id": "D020773",
+          "term": "Headache Disorders"
+        },
+        {
+          "id": "D001927",
+          "term": "Brain Diseases"
+        },
+        {
+          "id": "D002493",
+          "term": "Central Nervous System Diseases"
+        },
+        {
+          "id": "D009422",
+          "term": "Nervous System Diseases"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M11852",
+          "name": "Migraine Disorders",
+          "asFound": "Migraine",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M9351",
+          "name": "Headache",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M22529",
+          "name": "Headache Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M26657",
+          "name": "Headache Disorders, Primary",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M5204",
+          "name": "Brain Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M5742",
+          "name": "Central Nervous System Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "T170",
+          "name": "Acute Graft Versus Host Disease",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BC10",
+          "name": "Nervous System Diseases"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        },
+        {
+          "abbrev": "BC23",
+          "name": "Symptoms and General Pathology"
+        },
+        {
+          "abbrev": "Rare",
+          "name": "Rare Diseases"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

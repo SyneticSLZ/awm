@@ -1,0 +1,1927 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT02181231",
+      "orgStudyIdInfo": {
+        "id": "201406016"
+      },
+      "secondaryIdInfos": [
+        {
+          "id": "IND 123020",
+          "type": "OTHER",
+          "domain": "FDA"
+        },
+        {
+          "id": "IND 130774",
+          "type": "OTHER",
+          "domain": "FDA"
+        }
+      ],
+      "organization": {
+        "fullName": "Washington University School of Medicine",
+        "class": "OTHER"
+      },
+      "briefTitle": "Buprenorphine Used With Treatment Resistant Depression in Older Adults",
+      "officialTitle": "Incomplete Response in Late-Life Depression: Getting to Remission With Buprenorphine",
+      "acronym": "IRLGreyB"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2019-06",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2016-06-01",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2018-04-30",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2018-04-30",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2014-07-01",
+      "studyFirstSubmitQcDate": "2014-07-02",
+      "studyFirstPostDateStruct": {
+        "date": "2014-07-03",
+        "type": "ESTIMATED"
+      },
+      "resultsFirstSubmitDate": "2019-04-04",
+      "resultsFirstSubmitQcDate": "2019-06-03",
+      "resultsFirstPostDateStruct": {
+        "date": "2019-06-04",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2019-06-03",
+      "lastUpdatePostDateStruct": {
+        "date": "2019-06-04",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "PRINCIPAL_INVESTIGATOR",
+        "investigatorFullName": "Eric Lenze",
+        "investigatorTitle": "Professor of Psychiatry",
+        "investigatorAffiliation": "Washington University School of Medicine"
+      },
+      "leadSponsor": {
+        "name": "Washington University School of Medicine",
+        "class": "OTHER"
+      },
+      "collaborators": [
+        {
+          "name": "Reckitt Benckiser LLC",
+          "class": "INDUSTRY"
+        }
+      ]
+    },
+    "oversightModule": {
+      "oversightHasDmc": true,
+      "isFdaRegulatedDevice": false
+    },
+    "descriptionModule": {
+      "briefSummary": "The investigators are conducting a research study to learn about the safety and benefit of using a medication called buprenorphine for patients with difficult to treat depression. This research study is testing whether combining two medications will be effective in treating depression when initial treatment with just one antidepressant does not relieve the depressive symptoms; this is what is called \"difficult to treat depression\" or \"treatment resistant depression\". The two medications the investigators are using are: an anti-depressant medication called venlafaxine extended release (venlafaxine XR), which is the generic form of Effexor, and buprenorphine. Buprenorphine is a medication that is FDA approved for the treatment of opioid dependence. The investigators are testing whether adding buprenorphine to venlafaxine XR enhances treatment response.",
+      "detailedDescription": "We will consent approximately 100 participants, aged 50 and older, of both sexes and all races. Participation may last up to 32 weeks. We will utilize a clinical trial that has 3 Phases. In Phase 1 we will treat participants with an approximate 12 week course of open-label venlafaxine XR. This is the same lead-in treatment as in our ongoing \"IRL Grey\" (\"Incomplete Response in Late Life Depression: Getting to Remission\") multi-site R01 for late-life treatment resistant depression (LL-TRD), and we have found it to be highly successful. Participants who find relief from their depressive symptoms on venlafaxine XR alone will exit the study. Participants meeting criteria for an incomplete response (those still feeling depressed or withdrawn), will be randomly assigned to receive either low-dose buprenorphine or placebo augmentation of venlafaxine xr for 8 weeks (Phase 2), with the goal of achieving remission. Subjects will start at 0.2mg and titrate up as needed to 1.2mg. Subjects may undergo up to 2 MRI scans at the beginning and end of Phase 2 as well as cognitive testing at the same time points. At the conclusion of Phase 2, the blind will be broken for all participants. The participants who were on placebo will be able to begin taking buprenorphine immediately for Phase 3 (approximately 8 weeks). The participants who were already on buprenorphine in Phase 2 can continue to take it during Phase 3. Buprenorphine (BPN) will be tapered upon exiting the study, under the guidance of the P.I. The Phase 3 variations will allow all participants a chance to experience the benefits of buprenorphine (BPN). Efficacy and tolerability data will provide a clinically informative estimate of benefits and risks of buprenorphine augmentation for late-life treatment resistant depression (LL-TRD). We will randomize approximately 20 subjects into Phase 2. Additionally, we will collect buprenorphine (BPN) plasma levels on all those randomized to explore a dose-effect relationship on treatment response.\n\nA small pilot study (ages 21 and up) of up to 15 healthy control subjects will be studied over an approximate 2 week period in order to ensure all of our procedures are working and to determine that there are clinical effects from buprenorphine. Control subjects will undergo a baseline PET/MRI before taking buprenorphine. At least 24 hours after the imaging, control subjects will receive a small dose of BPN starting at 0.2 mg/day and will titrate up as tolerated to 1.2 mg/day for the first week. Each subject will remain at approximately 1.2 mg/day for the duration of the study. At the end of the study, subjects will undergo a second PET/MRI."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Major Depressive Disorder",
+        "Depression"
+      ],
+      "keywords": [
+        "depression",
+        "older adult",
+        "buprenorphine",
+        "Effexor XR",
+        "treatment resistant",
+        "venlafaxine",
+        "Saint Louis",
+        "late life",
+        "major depression"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE1",
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "TRIPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "INVESTIGATOR",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 18,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "venlafaxine plus buprenorphine",
+          "type": "EXPERIMENTAL",
+          "description": "Drug: venlafaxine XR plus buprenorphine Dosage varies. Subject remains on antidepressant throughout the 32 week study. Will be randomized to buprenorphine or placebo for up to 16 weeks. 2 MRI sessions may occur before and during randomization.",
+          "interventionNames": [
+            "Drug: venlafaxine XR",
+            "Drug: buprenorphine"
+          ]
+        },
+        {
+          "label": "venlafaxine XR plus placebo",
+          "type": "PLACEBO_COMPARATOR",
+          "description": "Drug: venlafaxine XR plus placebo Dosage varies. Subject remains on antidepressant throughout the 32 week study. Will be randomized to buprenorphine or placebo for up to 16 weeks. 2 MRI sessions may occur before and during randomization.",
+          "interventionNames": [
+            "Drug: venlafaxine XR",
+            "Drug: Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "venlafaxine XR",
+          "description": "slow titration up to maximum dose of 300mg per day, will remain on venlafaxine XR for up to 32 weeks",
+          "armGroupLabels": [
+            "venlafaxine XR plus placebo",
+            "venlafaxine plus buprenorphine"
+          ],
+          "otherNames": [
+            "Effexor XR"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "buprenorphine",
+          "description": "randomized to either buprenorphine or placebo, dose range from 0.2 mg/ qd to 2mg/ qd",
+          "armGroupLabels": [
+            "venlafaxine plus buprenorphine"
+          ],
+          "otherNames": [
+            "Temgesic",
+            "Subutex",
+            "Suboxone"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Placebo",
+          "description": "patients will remain on venlafaxine XR and be randomized to receive either placebo or buprenorphine for 8 weeks. at the end of the 8 weeks those who did not receive buprenorphine will be offered the opportunity to try it.",
+          "armGroupLabels": [
+            "venlafaxine XR plus placebo"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Montgomery-Asberg Depression Rating Scale (MADRS)",
+          "description": "Measure of depression severity, range of 0-60, with higher scores indicating more severe depression. We calculated the mean change in depression for both groups using baseline MADRS and week 8 MADRS scores.",
+          "timeFrame": "Baseline and 8 weeks"
+        },
+        {
+          "measure": "Frequency, Intensity, and Burden of Side Effects Rating (FIBSER)",
+          "description": "Three item side effect scale used to assess frequency and intensity of side effects (range 0-6 for each item). We calculated the total score of all three items (range 0-18) with lower numbers indicating less frequency.\n\nWe calculated the mean score at baseline and week 8 (final timepoint).",
+          "timeFrame": "Week 1 and week 8"
+        },
+        {
+          "measure": "Antidepressant Side Effect Checklist (ASEC)",
+          "description": "Measure of side effects, consisting of 21 items, ranging from 0-3 (0 indicates no side effect, 3 indicates severe side effect). We calculated the total final score for the 21 items (total range is 0-63). A higher total number represents a greater severity in reported side effects. We calculated the mean change in side effects for both groups using baseline and 8 week data.",
+          "timeFrame": "Baseline and 8 weeks"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Suicide Ideation Scale (SIS)",
+          "description": "A 19 item scale used to measure the presence or absence of suicidal ideations and the degree of severity of suicidal ideas. For this study, we computed the total score for all 19 items (total range 0-90). Higher scores represent a worse outcome. We also calculated the mean change in suicidal ideation for both groups using baseline and week 8 (final timepoint).",
+          "timeFrame": "Baseline and 8 weeks"
+        },
+        {
+          "measure": "Brief Symptom Inventory-Anxiety Subscale (BSI)",
+          "description": "Measure of anxiety. Six anxiety symptoms are rated based on how distressed the subject is for each symptom. The range for each symptom is 0-4, with 4 representing extreme distress. We computed the mean of the final BSI score (range 0-24), with a lower number indicating a better outcome. We also calculated the mean change in anxiety for both groups using baseline and Phase 2 week 8 (final time point) data.",
+          "timeFrame": "Baseline and 8 weeks"
+        },
+        {
+          "measure": "Numeric Scale of Pain (NRS-P)",
+          "description": "Measure used to assess pain, ranging from 0-10, with 10 being the worst possible pain.\n\nWe calculated the mean change in pain for both groups using baseline and week 8 (last time point).",
+          "timeFrame": "Baseline and 8 weeks"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria for Main Study:\n\n1. Age \\> or = to 50 years.\n2. Major depressive disorder (MDD), single or recurrent, as diagnosed by the Structured Clinical Interview for the Diagnostic and Statistical Manual for Mental Disorders (SCID-IV).\n3. Montgomery Asberg Depression Rating Scale (MADRS) \\>/= to 15.\n4. Has or agrees to establish a clinical relationship with primary care physician (PCP).\n5. Availability of an informant (e.g., emergency contact).\n\nExclusion Criteria:\n\n1. Inability to provide informed consent.\n2. Depressive symptoms not severe enough (i.e., MADRS \\< 15) at the baseline assessments\n3. Dementia, as defined by Mini Mental State Exam (3MS) \\< 84 and clinical evidence of dementia (e.g., memory impairment, executive dysfunction, agnosia, apraxia, aphasia, with functional impairment).\n4. Lifetime diagnosis of bipolar I or II disorder, schizophrenia, schizoaffective disorder, schizophreniform disorder, delusional disorder, or current psychotic symptoms, as diagnosed by the SCID.\n5. Abuse of or dependence on alcohol or other substances within the past 3 months as determined by SCID, and confirmed by study physician interview.\n6. Drinking 15 or more drinks per week or consuming 5 or more drinks on any one occasion in the past week.\n7. High risk for suicide (e.g., active SI and/or current/recent intent or plan) and unable to be managed safely in the clinical trial (e.g., unwilling to be hospitalized). Urgent psychiatric referral will be made in these cases.\n8. Contraindication to venlafaxine XR or BPN as determined by PCP and study physician including history of intolerance of either venlafaxine XR or BPN in the study target dosage range (venlafaxine XR at up to 300 mg/day; BPN at up to 2 mg/day).\n9. Inability to communicate in English (i.e., interview cannot be conducted without an interpreter; subject largely unable to understand questions and cannot respond in English).\n10. Non-correctable clinically significant sensory impairment (i.e., cannot hear well enough to cooperate with interview).\n11. Unstable medical illness, including delirium, uncontrolled diabetes mellitus, hypertension, hyperlipidemia, or cerebrovascular or cardiovascular risk factors that are not under medical management. This will be determined based on information from the patient's personal physician and study physician's clinical judgment. Referral to the patient's personal physician or to a general practitioner will be made in these cases.\n12. Subjects taking psychotropic medications that cannot be safely tapered and discontinued prior to study initiation. The following exceptions are allowed if they have been taken at a stable dose for at least 4 weeks prior to study entry and there is not a plan to change the dose during the next 28 weeks: benzodiazepines up to 2 mg/d lorazepam equivalent; other sedative-hypnotics (e.g., zolpidem, zaleplon, eszopiclone); gabapentin if prescribed for non-psychiatric indication (e.g., neuropathy).\n13. History of opioid abuse or dependence.\n14. Severe pain, defined as \\> 7 on 0-10 numeric rating scale for pain.\n15. Concomitant use of strong or moderate CYP3A4 inhibitor (indinavir, nelfinavir, ritonavir, clarithromycin, itraconazole, ketoconazole, nefazodone, saquinavir, telithromycin, aprepitant, erythromycin, fluconazole, grapefruit juice, verapamil, diltiazem).\n16. Refusal to stop all opioids (to avoid precipitating opioid withdrawal).\n17. Hepatic impairment\n18. Estimated Glomerular Filtration Rate (GFR) \\< 20 ml/min.\n19. Inability/refusal to identify a person as an emergency contact.\n20. Pregnancy",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "50 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "Eric J Lenze, MD",
+          "affiliation": "Washington University School of Medicine",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Washington University School of Medicine",
+          "city": "Saint Louis",
+          "state": "Missouri",
+          "zip": "63110",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 38.62727,
+            "lon": -90.19789
+          }
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Buprenorphine",
+          "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+        },
+        {
+          "id": "FG001",
+          "title": "Placebo",
+          "description": "Drug: placebo Matched placebo"
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "12"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "6"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "10"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "6"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Buprenorphine",
+          "description": "Drug: buprenorphine Low-dose buprenorphine (range 0.2mg/day-2.0mg/day)"
+        },
+        {
+          "id": "BG001",
+          "title": "Placebo",
+          "description": "Drug: matched placebo"
+        },
+        {
+          "id": "BG002",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "12"
+            },
+            {
+              "groupId": "BG001",
+              "value": "6"
+            },
+            {
+              "groupId": "BG002",
+              "value": "18"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Categorical",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "<=18 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Between 18 and 65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "8"
+                    }
+                  ]
+                },
+                {
+                  "title": ">=65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Age, Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "65.6",
+                      "spread": "9.5"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "60.8",
+                      "spread": "8.8"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "64",
+                      "spread": "9.3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "10"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "14"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "American Indian or Alaska Native",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Asian",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Native Hawaiian or Other Pacific Islander",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Black or African American",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "title": "White",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "11"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "6"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "17"
+                    }
+                  ]
+                },
+                {
+                  "title": "More than one race",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "12"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "6"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "18"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Montgomery-Asberg Depression Rating Scale (MADRS)",
+          "description": "Measure of depression severity, range of 0-60, with higher scores indicating more severe depression. We calculated the mean change in depression for both groups using baseline MADRS and week 8 MADRS scores.",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "units on a scale",
+          "timeFrame": "Baseline and 8 weeks",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Change in MADRS",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-1",
+                      "spread": "6.8"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-5.3",
+                      "spread": "8.8"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final MADRS Score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "21.3",
+                      "spread": "6.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "15.3",
+                      "spread": "11.5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Frequency, Intensity, and Burden of Side Effects Rating (FIBSER)",
+          "description": "Three item side effect scale used to assess frequency and intensity of side effects (range 0-6 for each item). We calculated the total score of all three items (range 0-18) with lower numbers indicating less frequency.\n\nWe calculated the mean score at baseline and week 8 (final timepoint).",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "Week 1 and week 8",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Mean baseline score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "5.6",
+                      "spread": "3.9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "1.3",
+                      "spread": "3.2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final FIBSER Score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.8",
+                      "spread": "4.0"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": ".5",
+                      "spread": "1.2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Antidepressant Side Effect Checklist (ASEC)",
+          "description": "Measure of side effects, consisting of 21 items, ranging from 0-3 (0 indicates no side effect, 3 indicates severe side effect). We calculated the total final score for the 21 items (total range is 0-63). A higher total number represents a greater severity in reported side effects. We calculated the mean change in side effects for both groups using baseline and 8 week data.",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "units on a scale",
+          "timeFrame": "Baseline and 8 weeks",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Change in ASEC",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "1",
+                      "spread": "7.0"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "1.8",
+                      "spread": "5.5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final ASEC score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "11.4",
+                      "spread": "7.6"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "8.5",
+                      "spread": "7.8"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Suicide Ideation Scale (SIS)",
+          "description": "A 19 item scale used to measure the presence or absence of suicidal ideations and the degree of severity of suicidal ideas. For this study, we computed the total score for all 19 items (total range 0-90). Higher scores represent a worse outcome. We also calculated the mean change in suicidal ideation for both groups using baseline and week 8 (final timepoint).",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "units on a scale",
+          "timeFrame": "Baseline and 8 weeks",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Change in SIS",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-.2",
+                      "spread": "4.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-1",
+                      "spread": "3.0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final SIS score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "1.1",
+                      "spread": "3.5"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "4.7",
+                      "spread": "11.4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Brief Symptom Inventory-Anxiety Subscale (BSI)",
+          "description": "Measure of anxiety. Six anxiety symptoms are rated based on how distressed the subject is for each symptom. The range for each symptom is 0-4, with 4 representing extreme distress. We computed the mean of the final BSI score (range 0-24), with a lower number indicating a better outcome. We also calculated the mean change in anxiety for both groups using baseline and Phase 2 week 8 (final time point) data.",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "units on a scale",
+          "timeFrame": "Baseline and 8 weeks",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Change in BSI",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": ".7",
+                      "spread": "2.8"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "0",
+                      "spread": "1.3"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final BSI score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3",
+                      "spread": "3.7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "2.7",
+                      "spread": "3.8"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Numeric Scale of Pain (NRS-P)",
+          "description": "Measure used to assess pain, ranging from 0-10, with 10 being the worst possible pain.\n\nWe calculated the mean change in pain for both groups using baseline and week 8 (last time point).",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "units on a scale",
+          "timeFrame": "Baseline and 8 weeks",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Buprenorphine",
+              "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)"
+            },
+            {
+              "id": "OG001",
+              "title": "Placebo",
+              "description": "Drug: placebo Matched placebo"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "10"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "6"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "Change in NRS-P",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-1.1",
+                      "spread": "2.4"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-1.3",
+                      "spread": "2.0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Final NRS-P score",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "2.9",
+                      "spread": "2.0"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "2.8",
+                      "spread": "3.2"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "0",
+      "timeFrame": "8 weeks",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Buprenorphine",
+          "description": "Drug: low dose buprenorphine (range .2mg/day-2.0mg/day)",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 12,
+          "seriousNumAffected": 1,
+          "seriousNumAtRisk": 12,
+          "otherNumAffected": 12,
+          "otherNumAtRisk": 12
+        },
+        {
+          "id": "EG001",
+          "title": "Placebo",
+          "description": "Drug: placebo Matched placebo",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 6,
+          "seriousNumAffected": 1,
+          "seriousNumAtRisk": 6,
+          "otherNumAffected": 4,
+          "otherNumAtRisk": 6
+        }
+      ],
+      "seriousEvents": [
+        {
+          "term": "Hospitalization",
+          "organSystem": "Cardiac disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "notes": "Hospitalized for emergency cardiac catheterization and insertion of cardiac stent. Diagnosed with partially closed blood vessel due to scleroderma diagnosis.",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Hospitalization for Pneumonia",
+          "organSystem": "Respiratory, thoracic and mediastinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "Dry mouth",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 8,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Decreased appetite",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Increased appetite",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Blurred vision",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Constipation",
+          "organSystem": "Gastrointestinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 7,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Diarrhea",
+          "organSystem": "Gastrointestinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Drowsiness",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 8,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Headaches",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Palpatations",
+          "organSystem": "Cardiac disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Disorientation",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Room spinning",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Lightheadedness",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 8,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Vomiting",
+          "organSystem": "Gastrointestinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Nausea",
+          "organSystem": "Gastrointestinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Sweating",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 4,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Increased body temperature",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Ringing in ears",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Tremor",
+          "organSystem": "Nervous system disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Yawning",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Urinary problems",
+          "organSystem": "Renal and urinary disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Swollen hands and ankles",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Hives",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Itching",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Increased intestinal gas",
+          "organSystem": "Gastrointestinal disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Falls",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        },
+        {
+          "term": "Weight gain",
+          "organSystem": "General disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 12
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 6
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictiveAgreement": false
+      },
+      "pointOfContact": {
+        "title": "Dr. Eric Lenze",
+        "organization": "Washington University School of Medicine",
+        "email": "lenzee@wustl.edu",
+        "phone": "314-362-1671"
+      }
+    }
+  },
+  "documentSection": {
+    "largeDocumentModule": {
+      "largeDocs": [
+        {
+          "typeAbbrev": "Prot_SAP",
+          "hasProtocol": true,
+          "hasSap": true,
+          "hasIcf": false,
+          "label": "Study Protocol and Statistical Analysis Plan",
+          "date": "2016-12-28",
+          "uploadDate": "2019-04-01T13:34",
+          "filename": "Prot_SAP_000.pdf",
+          "size": 377430
+        }
+      ]
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D003865",
+          "term": "Depressive Disorder, Major"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7060",
+          "name": "Depressive Disorder, Major",
+          "asFound": "Major Depressive Disorder",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M29783",
+          "name": "Depressive Disorder, Treatment-Resistant",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D002047",
+          "term": "Buprenorphine"
+        },
+        {
+          "id": "D000069470",
+          "term": "Venlafaxine Hydrochloride"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D000701",
+          "term": "Analgesics, Opioid"
+        },
+        {
+          "id": "D009294",
+          "term": "Narcotics"
+        },
+        {
+          "id": "D002492",
+          "term": "Central Nervous System Depressants"
+        },
+        {
+          "id": "D045505",
+          "term": "Physiological Effects of Drugs"
+        },
+        {
+          "id": "D000700",
+          "term": "Analgesics"
+        },
+        {
+          "id": "D018689",
+          "term": "Sensory System Agents"
+        },
+        {
+          "id": "D018373",
+          "term": "Peripheral Nervous System Agents"
+        },
+        {
+          "id": "D009292",
+          "term": "Narcotic Antagonists"
+        },
+        {
+          "id": "D000068760",
+          "term": "Serotonin and Noradrenaline Reuptake Inhibitors"
+        },
+        {
+          "id": "D014179",
+          "term": "Neurotransmitter Uptake Inhibitors"
+        },
+        {
+          "id": "D049990",
+          "term": "Membrane Transport Modulators"
+        },
+        {
+          "id": "D045504",
+          "term": "Molecular Mechanisms of Pharmacological Action"
+        },
+        {
+          "id": "D018377",
+          "term": "Neurotransmitter Agents"
+        },
+        {
+          "id": "D018687",
+          "term": "Antidepressive Agents, Second-Generation"
+        },
+        {
+          "id": "D000928",
+          "term": "Antidepressive Agents"
+        },
+        {
+          "id": "D011619",
+          "term": "Psychotropic Drugs"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M5317",
+          "name": "Buprenorphine",
+          "asFound": "Investigate",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4247",
+          "name": "Antidepressive Agents",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M439",
+          "name": "Venlafaxine Hydrochloride",
+          "asFound": "Significant",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M447",
+          "name": "Buprenorphine, Naloxone Drug Combination",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4032",
+          "name": "Analgesics",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4033",
+          "name": "Analgesics, Opioid",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M12245",
+          "name": "Narcotics",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M12243",
+          "name": "Narcotic Antagonists",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M12575",
+          "name": "Norepinephrine",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M15512",
+          "name": "Serotonin",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M305",
+          "name": "Serotonin and Noradrenaline Reuptake Inhibitors",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20504",
+          "name": "Neurotransmitter Agents",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14474",
+          "name": "Psychotropic Drugs",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "Analg",
+          "name": "Analgesics"
+        },
+        {
+          "abbrev": "CNSDep",
+          "name": "Central Nervous System Depressants"
+        },
+        {
+          "abbrev": "NarcAntag",
+          "name": "Narcotic Antagonists"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        },
+        {
+          "abbrev": "PsychDr",
+          "name": "Psychotropic Drugs"
+        },
+        {
+          "abbrev": "VaCoAg",
+          "name": "Vasoconstrictor Agents"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

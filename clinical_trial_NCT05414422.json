@@ -1,0 +1,3055 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT05414422",
+      "orgStudyIdInfo": {
+        "id": "PCN-101-21"
+      },
+      "organization": {
+        "fullName": "Perception Neuroscience",
+        "class": "INDUSTRY"
+      },
+      "briefTitle": "A Randomized, Placebo-Controlled, Double-Blind Study to Assess Safety and Efficacy of PCN-101 in TRD",
+      "officialTitle": "A Randomized, Placebo-Controlled, Double-Blind Study to Assess Safety and Efficacy of Intravenous PCN-101 in Treatment Resistant Depression"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2022-12",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2022-02-01",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2022-11-10",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2022-11-10",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2022-05-27",
+      "studyFirstSubmitQcDate": "2022-06-08",
+      "studyFirstPostDateStruct": {
+        "date": "2022-06-10",
+        "type": "ACTUAL"
+      },
+      "resultsFirstSubmitDate": "2024-05-10",
+      "resultsFirstSubmitQcDate": "2024-05-10",
+      "resultsFirstPostDateStruct": {
+        "date": "2024-06-04",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2024-05-10",
+      "lastUpdatePostDateStruct": {
+        "date": "2024-06-04",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Perception Neuroscience",
+        "class": "INDUSTRY"
+      },
+      "collaborators": [
+        {
+          "name": "Precision For Medicine",
+          "class": "INDUSTRY"
+        },
+        {
+          "name": "IQVIA Biotech",
+          "class": "INDUSTRY"
+        }
+      ]
+    },
+    "oversightModule": {
+      "oversightHasDmc": false,
+      "isFdaRegulatedDrug": true,
+      "isFdaRegulatedDevice": false
+    },
+    "descriptionModule": {
+      "briefSummary": "This is a double-blind, randomized, placebo-controlled, multicenter study comprised of 3 phases:screening (up to 2 weeks \\[Day -15 to Day -2\\]), In-Clinic Treatment (Day -1 to Day 2; including double-blind treatment \\[Day 1\\]), and post-treatment follow-up (7 and 14 days after infusion on Days 8 and 15, respectively). A total of 93 adult subjects with TRD will be randomly allocated in equal cohorts of 31 subjects/arm to the 3 arms of the study in a blinded manner."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Treatment Resistant Depression"
+      ],
+      "keywords": [
+        "PCN-101",
+        "R-ketamine"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "TRIPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "INVESTIGATOR",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 102,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "PCN-101 30 mg",
+          "type": "EXPERIMENTAL",
+          "description": "PCN-101 30 mg",
+          "interventionNames": [
+            "Drug: PCN-101"
+          ]
+        },
+        {
+          "label": "PCN-101 60 mg",
+          "type": "EXPERIMENTAL",
+          "description": "PCN-101 60 mg",
+          "interventionNames": [
+            "Drug: PCN-101"
+          ]
+        },
+        {
+          "label": "Placebo",
+          "type": "PLACEBO_COMPARATOR",
+          "description": "Placebo",
+          "interventionNames": [
+            "Drug: Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "PCN-101",
+          "description": "Concentrate for solution for infusion",
+          "armGroupLabels": [
+            "PCN-101 30 mg",
+            "PCN-101 60 mg"
+          ],
+          "otherNames": [
+            "R-ketamine"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Placebo",
+          "description": "Concentrate for solution for infusion",
+          "armGroupLabels": [
+            "Placebo"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Montgomery Asberg Depression Rating Scale (MADRS) 24 Hours",
+          "description": "Change from baseline to 24 hours after the start of infusion in the Montgomery Asberg Depression Rating Scale (MADRS). The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "timeFrame": "24 hours"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Montgomery Asberg Depression Rating Scale (MADRS) >= 50% Improvement",
+          "description": "Proportion of subjects with \\>= 50% improvement in MADRS total score from predose. The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "timeFrame": "2 hours, 4 hours, 24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Montgomery Asberg Depression Rating Scale (MADRS) <= 10",
+          "description": "Proportion of subjects with remission (MADRS total score \\<= 10). The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Hamilton Depression Rating Scale (HAM-D) Change From Baseline",
+          "description": "Change from Baseline in HAM-D. The total score across the 17 items could range from 0 to 52. Higher scores indicate more severe depression",
+          "timeFrame": "7 days and 14 days"
+        },
+        {
+          "measure": "Generalized Anxiety Disorder (GAD-7) Change From Baseline",
+          "description": "Change from Baseline in GAD-7. The total score of the 7 items range from 0 to 21. Higher scores indicate more anxiety.",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Clinical Global Impression - Severity (CGI-S) Change From Baseline",
+          "description": "Change from Baseline in CGI-S. The score ranged from 0 to 7. Higher scores indicate a more severe or worsening of condition.",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Clinical Global Impression - Improvement (CGI-I)",
+          "description": "This score ranges from 0 to 7. Higher scores indicate a more severe or worsening of the condition",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Quick Inventory of Depressive Symptomatology (QIDS-SR-16) Change From Baseline",
+          "description": "Change from Baseline in QIDS-SR-16. Total score ranges from 0 to 42. Higher scores indicate more severe depression.",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "European Quality - 5 Dimensions - 3 Levels (EQ-5D-3L) Change From Baseline",
+          "description": "Change from Baseline in EQ-5D-3L. The visual analogue scale ranges from 0 to 100. Higher scores indicate a better health state.",
+          "timeFrame": "24 hours, 7 days and 14 days"
+        },
+        {
+          "measure": "Treatment-emergent Adverse Events Summarized by Treatment Group, System Organ Class and Preferred Term",
+          "description": "The number of participants in each treatment group with treatment-emergent adverse events categorized using MedDRA v24.0 or higher",
+          "timeFrame": "14 days"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* Capable of giving and give signed informed consent\n* Weigh \\>= 50 kg and have a body mass index \\>= 18 and \\<= 35\n* Diagnosis of recurrent major depressive disorder (MDD) without psychotic features per Diagnostic and Statistical Manual of Mental Disorders, Fifth Edition (DSM-V), confirmed by Mini-International Neuropsychiatric Interview\n* Hamilton Depression Rating Scale total score \\> 20\n* Inadequate response to at least 2 antidepressants in the current episode of depression that were given for \\>= 6 weeks\n* Stable oral antidepressant treatment without dose change for at least 30 days\n\nExclusion Criteria:\n\n* History of, or current signs and symptoms of diseases or conditions that would make participation not be in the best interest of the subject or that could prevent, limit, or confound the protocol-specified assessments\n* History of moderate or severe head trauma or other neurological disorders, neurodegenerative disorder or systemic medical diseases that are in the opinion of the Investigator likely to interfere with the conduct of the study or confound the study assessments\n* Has a primary DSM-V diagnosis of current (active) MDD with psychotic features, panic disorder, obsessive compulsive disorder, posttraumatic stress disorder, anorexia nervosa, or bulimia nervosa.\n* Has a current of prior DSM-V diagnosis of a primary psychotic disorder, bipolar or related disorders, intellectual or autism spectrum disorder, or borderline personality disorder\n* Has any significant disease or disorder that in the opinion of the investigator, may either put the subject at risk because of participation in the study, influence the results of the study, or affect the subject's ability to participate in the study\n* Has uncontrolled hypertension, despite medication, at Screening systolic blood pressure \\> 160 mm Hg or diastolic blood pressure \\> 90 mm Hg or any past history of hypertensive crisis.\n* Has an abnormal ECG of clinical relevance at screening or baseline\n* Has known history of, or positive serology for human immunodeficiency virus, hepatitis B surface antigen, hepatitis C infection\n* Has a history of malignancy within the 5 years prior to screening (exceptions are squamous and basal cell carcinomas of the skin and carcinoma in situ of the cervix, or a malignancy that in the opinion of the investigator, with concurrence with the Sponsor's Medical Monitor, is considered to have minimal risk of recurrence)\n* Has homicidal ideation/intent per the Investigator's clinical judgment, or has suicidal ideation with some intent to act within 1 month prior to the start of screening per the Investigator's clinical judgement or based on the C-SSRS, or a history of suicidal behavior within the past year prior to the start of the screening/prospective observational phase\n* Has had major surgery within the 4 weeks before screening, or will not have fully recovered from surgery or planned surgery during the time the subject is expected to participate in the study\n* Has moderately impaired hepatic function at screening, defined as serum alanine aminotransferase or aspartate aminotransferase \\> 2 × upper limit of normal or total bilirubin \\> 2 × upper limit of normal\n* Has received any disallowed therapies as follows:\n* Receipt of a known potent inhibitor of hepatic cytochrome P450 (CYP) 2B6, or CYP3A, activity within 1 week or within a period 5 times the drug's half-life, whichever is longer, before the first administration of study drug on Day 1\n* Treatment with a disallowed antipsychotic within the past 30 days prior to screening, except subjects who are on stable doses of quetiapine, aripiprazole, brexpiprazole, or olanzapine prescribed as adjunct treatment for depression (without psychosis) may be included in the study\n* Any changes in psychotropic medication type or dose within the past 30 days prior to screening\n* Treatment with monoamine oxidase inhibitors currently or within the past 30 days of screening\n* Doses of oral contraception should not contain more than 30 micrograms of ethinyl estradiol per day\n* Has initiated psychotherapy or acupuncture acupuncture within the past 90 days of screening. Patients planning to initiate individual or group therapy during the study are also not eligible\n* Has received electroconvulsive therapy, transcranial magnetic stimulation, vagal nerve stimulation, deep brain stimulation, or other brain stimulation treatment within the past 4 weeks or currently used as either an acute or maintenance treatment of depression\n* Has received any IP within 30 days or 5 half-lives\n* Has a history of substance abuse (drug or alcohol) or dependence (except nicotine or caffeine) within the previous 6 months prior to the screening visit\n* Has a history of previous nonresponse to ketamine, R-ketamine or S-ketamine, or has received 8 or more doses of ketamine, R-ketamine or S-ketamine in their lifetime\n* Has a previous history of intolerance to ketamine, R-ketamine, or S-ketamine\n* History of abuse of ketamine, R-ketamine, S-ketamine, or phencyclidine\n* Subjects should not consume grapefruit, grapefruit juice, or Seville orange related products for 72 hours before IP administration and throughout the study\n* Has the presence of clinically relevant long-term COVID-19 symptoms. Has current signs or symptoms of COVID-19\n* COVID-19 vaccination is allowed as long as the doses are administered ≥ 30 days before study drug administration; vaccination is not allowed during the course of the study",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "maximumAge": "65 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "Chief Medical Officer",
+          "affiliation": "Perception Neuroscience",
+          "role": "STUDY_DIRECTOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Preferred Research Partners",
+          "city": "Little Rock",
+          "state": "Arkansas",
+          "zip": "72211",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.74648,
+            "lon": -92.28959
+          }
+        },
+        {
+          "facility": "CNS Network",
+          "city": "Garden Grove",
+          "state": "California",
+          "zip": "92845",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.77391,
+            "lon": -117.94145
+          }
+        },
+        {
+          "facility": "Kadima Neuropsychiatry Institute",
+          "city": "La Jolla",
+          "state": "California",
+          "zip": "92037",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.84727,
+            "lon": -117.2742
+          }
+        },
+        {
+          "facility": "Synergy San Diego",
+          "city": "Lemon Grove",
+          "state": "California",
+          "zip": "91945",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.74255,
+            "lon": -117.03142
+          }
+        },
+        {
+          "facility": "NRC Research Institute",
+          "city": "Orange",
+          "state": "California",
+          "zip": "92868",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.78779,
+            "lon": -117.85311
+          }
+        },
+        {
+          "facility": "Premier Clinical Research Institute Inc.",
+          "city": "Miami",
+          "state": "Florida",
+          "zip": "33122",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 25.77427,
+            "lon": -80.19366
+          }
+        },
+        {
+          "facility": "Psych Atlanta",
+          "city": "Marietta",
+          "state": "Georgia",
+          "zip": "30060",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.9526,
+            "lon": -84.54993
+          }
+        },
+        {
+          "facility": "Hassman Research Institute",
+          "city": "Berlin",
+          "state": "New Jersey",
+          "zip": "08009",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.79123,
+            "lon": -74.92905
+          }
+        },
+        {
+          "facility": "Princeton Medical Institute",
+          "city": "Princeton",
+          "state": "New Jersey",
+          "zip": "08540",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.34872,
+            "lon": -74.65905
+          }
+        },
+        {
+          "facility": "Midwest Clinical Research Center",
+          "city": "Dayton",
+          "state": "Ohio",
+          "zip": "45417",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.75895,
+            "lon": -84.19161
+          }
+        },
+        {
+          "facility": "Neuro-Behavioral Clinical Research",
+          "city": "North Canton",
+          "state": "Ohio",
+          "zip": "44720",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.87589,
+            "lon": -81.40234
+          }
+        },
+        {
+          "facility": "Insite Clinical Research LLC; Inpatient facility name: Serenity",
+          "city": "DeSoto",
+          "state": "Texas",
+          "zip": "75115",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.58986,
+            "lon": -96.85695
+          }
+        },
+        {
+          "facility": "Pillar Clinical Research, LLC",
+          "city": "Richardson",
+          "state": "Texas",
+          "zip": "75080",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.94818,
+            "lon": -96.72972
+          }
+        },
+        {
+          "facility": "Klinikum der Johann Wolfgang Goethe-Universitaet",
+          "city": "Frankfurt",
+          "zip": "60528",
+          "country": "Germany",
+          "geoPoint": {
+            "lat": 50.11552,
+            "lon": 8.68417
+          }
+        },
+        {
+          "facility": "Pharmakologisches Studienzentrum Chemnitz GmbH",
+          "city": "Mittweida",
+          "zip": "09648",
+          "country": "Germany",
+          "geoPoint": {
+            "lat": 50.98622,
+            "lon": 12.97537
+          }
+        },
+        {
+          "facility": "Somni bene GmbH",
+          "city": "Schwerin",
+          "zip": "19053",
+          "country": "Germany",
+          "geoPoint": {
+            "lat": 53.62937,
+            "lon": 11.41316
+          }
+        },
+        {
+          "facility": "Universitaetsklinikum Wuerzburg",
+          "city": "Würzburg",
+          "zip": "97080",
+          "country": "Germany",
+          "geoPoint": {
+            "lat": 49.79391,
+            "lon": 9.95121
+          }
+        },
+        {
+          "facility": "Indywidualna Specjalistyczna Praktyka Lekarska",
+          "city": "Gdańsk",
+          "zip": "80-438",
+          "country": "Poland",
+          "geoPoint": {
+            "lat": 54.35205,
+            "lon": 18.64637
+          }
+        },
+        {
+          "facility": "Centrum Badan Klinicznych PI-House sp. z o.o.",
+          "city": "Gdańsk",
+          "zip": "80-546",
+          "country": "Poland",
+          "geoPoint": {
+            "lat": 54.35205,
+            "lon": 18.64637
+          }
+        },
+        {
+          "facility": "Prywatny Gabinet Lekarski Jaroslaw Strzelec",
+          "city": "Tuszyn",
+          "zip": "95-080",
+          "country": "Poland",
+          "geoPoint": {
+            "lat": 51.60949,
+            "lon": 19.53009
+          }
+        },
+        {
+          "facility": "Wojewodzki Szpital Dla Nerwowo i Psychicznie Chorych",
+          "city": "Świecie",
+          "zip": "86-100",
+          "country": "Poland",
+          "geoPoint": {
+            "lat": 53.40953,
+            "lon": 18.44742
+          }
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO"
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "PCN-101 30 mg",
+          "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+        },
+        {
+          "id": "FG001",
+          "title": "PCN-101 60 mg",
+          "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+        },
+        {
+          "id": "FG002",
+          "title": "Placebo",
+          "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "33"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "35"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "34"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "31"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "35"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "31"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "PCN-101 30 mg",
+          "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+        },
+        {
+          "id": "BG001",
+          "title": "PCN-101 60 mg",
+          "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+        },
+        {
+          "id": "BG002",
+          "title": "Placebo",
+          "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+        },
+        {
+          "id": "BG003",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "33"
+            },
+            {
+              "groupId": "BG001",
+              "value": "35"
+            },
+            {
+              "groupId": "BG002",
+              "value": "33"
+            },
+            {
+              "groupId": "BG003",
+              "value": "101"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "47.2",
+                      "spread": "11.36"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "43.3",
+                      "spread": "12.28"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "44.3",
+                      "spread": "11.44"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "44.9",
+                      "spread": "11.71"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "22"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "19"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "20"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "61"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "11"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "16"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "13"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "40"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race and Ethnicity Not Collected",
+          "populationDescription": "Race and Ethnicity were not collected from any participant.",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG003",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "United States",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "10"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "27"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Europe",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "24"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "25"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "25"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "74"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MADRS",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "total score",
+          "classes": [
+            {
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "29.5",
+                      "spread": "4.74"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "29.7",
+                      "spread": "4.45"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "29.9",
+                      "spread": "5.44"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "29.7",
+                      "spread": "4.84"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "HAM-D",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "total score",
+          "classes": [
+            {
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "BG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "101"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "24.8",
+                      "spread": "3.06"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "24.1",
+                      "spread": "3.09"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "24.5",
+                      "spread": "4.79"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "24.4",
+                      "spread": "3.70"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Montgomery Asberg Depression Rating Scale (MADRS) 24 Hours",
+          "description": "Change from baseline to 24 hours after the start of infusion in the Montgomery Asberg Depression Rating Scale (MADRS). The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-13.7",
+                      "spread": "1.75"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-15.3",
+                      "spread": "1.69"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-13.7",
+                      "spread": "1.76"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Montgomery Asberg Depression Rating Scale (MADRS) >= 50% Improvement",
+          "description": "Proportion of subjects with \\>= 50% improvement in MADRS total score from predose. The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "populationDescription": "Subjects early terminated from the study after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "timeFrame": "2 hours, 4 hours, 24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "2 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "11"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "6"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "4 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "13"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "19"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "16"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "16"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "12"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "5"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "12"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "7"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Montgomery Asberg Depression Rating Scale (MADRS) <= 10",
+          "description": "Proportion of subjects with remission (MADRS total score \\<= 10). The overall score ranges from 0 to 60. Higher scores indicates more severe depression.",
+          "populationDescription": "Subject early terminated from the study after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "10"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "15"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "7"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "4"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "10"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "4"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Hamilton Depression Rating Scale (HAM-D) Change From Baseline",
+          "description": "Change from Baseline in HAM-D. The total score across the 17 items could range from 0 to 52. Higher scores indicate more severe depression",
+          "populationDescription": "Subjects early terminated after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-8.6",
+                      "spread": "7.61"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-9.3",
+                      "spread": "8.09"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-9.4",
+                      "spread": "7.07"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-6.1",
+                      "spread": "7.14"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-8.7",
+                      "spread": "8.70"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-8.1",
+                      "spread": "7.21"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Generalized Anxiety Disorder (GAD-7) Change From Baseline",
+          "description": "Change from Baseline in GAD-7. The total score of the 7 items range from 0 to 21. Higher scores indicate more anxiety.",
+          "populationDescription": "Subjects early terminated from the study after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-6.5",
+                      "spread": "0.84"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-7.5",
+                      "spread": "0.83"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-7.4",
+                      "spread": "0.85"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-5.8",
+                      "spread": "0.89"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-5.8",
+                      "spread": "0.85"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-5.8",
+                      "spread": "0.89"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-3.7",
+                      "spread": "0.87"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-4.3",
+                      "spread": "0.84"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-5.3",
+                      "spread": "0.88"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Clinical Global Impression - Severity (CGI-S) Change From Baseline",
+          "description": "Change from Baseline in CGI-S. The score ranged from 0 to 7. Higher scores indicate a more severe or worsening of condition.",
+          "populationDescription": "Subjects early terminated from the study after discharge. This assessment was also not completed at all visits by the clinician.",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "32"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.0",
+                      "spread": "0.23"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "3.0",
+                      "spread": "0.23"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "3.4",
+                      "spread": "0.23"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "21"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "24"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "19"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.4",
+                      "spread": "0.26"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "3.3",
+                      "spread": "0.25"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "3.5",
+                      "spread": "0.27"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "22"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "24"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "19"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.9",
+                      "spread": "0.29"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "3.3",
+                      "spread": "0.28"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "3.7",
+                      "spread": "0.31"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Clinical Global Impression - Improvement (CGI-I)",
+          "description": "This score ranges from 0 to 7. Higher scores indicate a more severe or worsening of the condition",
+          "populationDescription": "Subjects early terminated from the study after discharge also this assessment was not completed at all visits by the clinician",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "2.3",
+                      "spread": "0.20"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "2.2",
+                      "spread": "0.20"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "2.5",
+                      "spread": "0.20"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "21"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "25"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "19"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "2.8",
+                      "spread": "0.24"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "2.3",
+                      "spread": "0.23"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "2.6",
+                      "spread": "0.25"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "22"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "25"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "19"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "3.2",
+                      "spread": "0.25"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "2.5",
+                      "spread": "0.24"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "3.0",
+                      "spread": "0.27"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Quick Inventory of Depressive Symptomatology (QIDS-SR-16) Change From Baseline",
+          "description": "Change from Baseline in QIDS-SR-16. Total score ranges from 0 to 42. Higher scores indicate more severe depression.",
+          "populationDescription": "Subjects early terminated from the study after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-9.6",
+                      "spread": "1.23"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-10.7",
+                      "spread": "1.21"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-10.5",
+                      "spread": "1.25"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-8.4",
+                      "spread": "1.30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-10.1",
+                      "spread": "1.26"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-9.4",
+                      "spread": "1.32"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "-6.0",
+                      "spread": "1.42"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "-9.6",
+                      "spread": "1.38"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "-8.3",
+                      "spread": "1.46"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "European Quality - 5 Dimensions - 3 Levels (EQ-5D-3L) Change From Baseline",
+          "description": "Change from Baseline in EQ-5D-3L. The visual analogue scale ranges from 0 to 100. Higher scores indicate a better health state.",
+          "populationDescription": "Subject early terminated from the study after discharge",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "24 hours, 7 days and 14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "title": "24 hours",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "33"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "33"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "13.9",
+                      "spread": "3.30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "17.9",
+                      "spread": "3.20"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "14.9",
+                      "spread": "3.24"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "7 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "30"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "30"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "12.9",
+                      "spread": "3.46"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "14.1",
+                      "spread": "3.29"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "14.4",
+                      "spread": "3.40"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "14 days",
+              "denoms": [
+                {
+                  "units": "Participants",
+                  "counts": [
+                    {
+                      "groupId": "OG000",
+                      "value": "31"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "34"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "31"
+                    }
+                  ]
+                }
+              ],
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "8.2",
+                      "spread": "3.75"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "9.8",
+                      "spread": "3.58"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "11.0",
+                      "spread": "3.70"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Treatment-emergent Adverse Events Summarized by Treatment Group, System Organ Class and Preferred Term",
+          "description": "The number of participants in each treatment group with treatment-emergent adverse events categorized using MedDRA v24.0 or higher",
+          "reportingStatus": "POSTED",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "timeFrame": "14 days",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "PCN-101 30 mg",
+              "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG001",
+              "title": "PCN-101 60 mg",
+              "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion"
+            },
+            {
+              "id": "OG002",
+              "title": "Placebo",
+              "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "33"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "34"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "11"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "19"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "18"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "5",
+      "timeFrame": "14 days",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "PCN-101 30 mg",
+          "description": "PCN-101 30 mg\n\nPCN-101: Concentrate for solution for infusion",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 33,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 33,
+          "otherNumAffected": 11,
+          "otherNumAtRisk": 33
+        },
+        {
+          "id": "EG001",
+          "title": "PCN-101 60 mg",
+          "description": "PCN-101 60 mg\n\nPCN-101: Concentrate for solution for infusion",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 35,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 35,
+          "otherNumAffected": 18,
+          "otherNumAtRisk": 35
+        },
+        {
+          "id": "EG002",
+          "title": "Placebo",
+          "description": "Placebo\n\nPlacebo: Concentrate for solution for infusion",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 34,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 34,
+          "otherNumAffected": 18,
+          "otherNumAtRisk": 34
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "Somnolence",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 4,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 4,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 9,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Dizziness",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 2,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 7,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 5,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Headache",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 3,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 3,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Dysarthria",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 0,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Paraesthesia",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 0,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Derealisation",
+          "organSystem": "Psychiatric disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 4,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 3,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 4,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Nausea",
+          "organSystem": "Gastrointestinal disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 3,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 1,
+              "numAtRisk": 34
+            }
+          ]
+        },
+        {
+          "term": "Feeling drunk",
+          "organSystem": "General disorders",
+          "sourceVocabulary": "MedDRA (24.0)",
+          "assessmentType": "NON_SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 33
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 2,
+              "numAtRisk": 35
+            },
+            {
+              "groupId": "EG002",
+              "numAffected": 0,
+              "numAtRisk": 34
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictionType": "OTHER",
+        "restrictiveAgreement": true,
+        "otherDetails": "The results of this study may be published or presented at scientific meetings. If this is foreseen, the Investigator agrees to submit all manuscripts or abstracts to the Sponsor before submission. This allows the Sponsor to protect proprietary information and to provide comments."
+      },
+      "pointOfContact": {
+        "title": "Clinical Trials Group",
+        "organization": "Perception Neuroscience",
+        "email": "clinicaltrials@perceptionneuroscience.com",
+        "phone": "+49 (0) 89 2153 9035"
+      }
+    }
+  },
+  "documentSection": {
+    "largeDocumentModule": {
+      "largeDocs": [
+        {
+          "typeAbbrev": "Prot",
+          "hasProtocol": true,
+          "hasSap": false,
+          "hasIcf": false,
+          "label": "Study Protocol",
+          "date": "2022-05-19",
+          "uploadDate": "2024-05-10T15:09",
+          "filename": "Prot_000.pdf",
+          "size": 2034387
+        },
+        {
+          "typeAbbrev": "SAP",
+          "hasProtocol": false,
+          "hasSap": true,
+          "hasIcf": false,
+          "label": "Statistical Analysis Plan",
+          "date": "2022-11-14",
+          "uploadDate": "2024-05-10T15:10",
+          "filename": "SAP_001.pdf",
+          "size": 569982
+        }
+      ]
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D061218",
+          "term": "Depressive Disorder, Treatment-Resistant"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M29783",
+          "name": "Depressive Disorder, Treatment-Resistant",
+          "asFound": "Treatment Resistant Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D007649",
+          "term": "Ketamine"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D000700",
+          "term": "Analgesics"
+        },
+        {
+          "id": "D018689",
+          "term": "Sensory System Agents"
+        },
+        {
+          "id": "D018373",
+          "term": "Peripheral Nervous System Agents"
+        },
+        {
+          "id": "D045505",
+          "term": "Physiological Effects of Drugs"
+        },
+        {
+          "id": "D000778",
+          "term": "Anesthetics, Dissociative"
+        },
+        {
+          "id": "D018686",
+          "term": "Anesthetics, Intravenous"
+        },
+        {
+          "id": "D018681",
+          "term": "Anesthetics, General"
+        },
+        {
+          "id": "D000777",
+          "term": "Anesthetics"
+        },
+        {
+          "id": "D002492",
+          "term": "Central Nervous System Depressants"
+        },
+        {
+          "id": "D018691",
+          "term": "Excitatory Amino Acid Antagonists"
+        },
+        {
+          "id": "D018683",
+          "term": "Excitatory Amino Acid Agents"
+        },
+        {
+          "id": "D018377",
+          "term": "Neurotransmitter Agents"
+        },
+        {
+          "id": "D045504",
+          "term": "Molecular Mechanisms of Pharmacological Action"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M10674",
+          "name": "Ketamine",
+          "asFound": "Duration",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M21860",
+          "name": "Pharmaceutical Solutions",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4032",
+          "name": "Analgesics",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4107",
+          "name": "Anesthetics",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4108",
+          "name": "Anesthetics, Dissociative",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20766",
+          "name": "Anesthetics, Intravenous",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20761",
+          "name": "Anesthetics, General",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20771",
+          "name": "Excitatory Amino Acid Antagonists",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M20504",
+          "name": "Neurotransmitter Agents",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "Analg",
+          "name": "Analgesics"
+        },
+        {
+          "abbrev": "CNSDep",
+          "name": "Central Nervous System Depressants"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        },
+        {
+          "abbrev": "PhSol",
+          "name": "Pharmaceutical Solutions"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

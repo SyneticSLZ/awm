@@ -1,0 +1,706 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT01584479",
+      "orgStudyIdInfo": {
+        "id": "HUM00037624"
+      },
+      "organization": {
+        "fullName": "University of Michigan",
+        "class": "OTHER"
+      },
+      "briefTitle": "Periodontal Disease Prevention Study",
+      "officialTitle": "Periodontal Disease Prevention Study:A Retrospective Cohort Study to Assess the Effect of Genetics and Dental Preventive Care on Periodontal Disease"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2015-06",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2010-12"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2012-03",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2012-03",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2012-04-12",
+      "studyFirstSubmitQcDate": "2012-04-24",
+      "studyFirstPostDateStruct": {
+        "date": "2012-04-25",
+        "type": "ESTIMATED"
+      },
+      "resultsFirstSubmitDate": "2014-06-13",
+      "resultsFirstSubmitQcDate": "2015-06-17",
+      "resultsFirstPostDateStruct": {
+        "date": "2015-07-09",
+        "type": "ESTIMATED"
+      },
+      "lastUpdateSubmitDate": "2015-06-17",
+      "lastUpdatePostDateStruct": {
+        "date": "2015-07-09",
+        "type": "ESTIMATED"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "PRINCIPAL_INVESTIGATOR",
+        "investigatorFullName": "William Giannobile",
+        "investigatorTitle": "Principal Investigator",
+        "investigatorAffiliation": "University of Michigan"
+      },
+      "leadSponsor": {
+        "name": "University of Michigan",
+        "class": "OTHER"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": false
+    },
+    "descriptionModule": {
+      "briefSummary": "This study is one component of a program to improve the maintenance of good dental health and the prevention of disease by use of risk stratification methods to efficiently guide increased preventive services to adult dental patients who are at increased risk for the major dental diseases, caries and adult periodontitis.\n\nThe investigators will use a retrospective cohort model to analyze a large dental claims database to determine if the frequency of preventive services influenced the periodontal disease outcomes and to determine if periodontal risk assessment information can be used to stratify dental patients into \"high risk\" and \"low risk\" categories that influence the effect of preventive services on periodontitis outcomes.\n\nPrimary Objective To evaluate whether dental patients who are classified as \"low risk\" for periodontal disease progression, based on history of periodontitis (claims history), smoking, diabetes, and IL-1 genetic variations, have different primary and secondary endpoints if they had two dental cleanings per year compared to one cleaning per year.\n\nSecondary Objectives To evaluate whether dental patients who are classified as \"high risk\" for periodontal disease progression, based on a history of periodontitis, smoking, diabetes, and IL-1 genetic variations, have different primary and secondary endpoints if they had two dental cleanings per year compared to one cleaning per year.\n\nTo evaluate whether dental patients who have had one dental cleaning per year have different primary and secondary endpoints if they are classified as \"low risk\" for periodontal disease compared to patients who are classified as \"high risk.\" To evaluate whether dental patients who have had two dental cleaning per year have different primary and secondary endpoints if they are classified as \"low risk\" for periodontal disease compared to patients who are classified as \"high risk.\""
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Periodontitis"
+      ],
+      "keywords": [
+        "periodontitis"
+      ]
+    },
+    "designModule": {
+      "studyType": "OBSERVATIONAL",
+      "designInfo": {
+        "observationalModel": "COHORT",
+        "timePerspective": "RETROSPECTIVE"
+      },
+      "bioSpec": {
+        "retention": "SAMPLES_WITH_DNA",
+        "description": "buccal swabs"
+      },
+      "enrollmentInfo": {
+        "count": 5117,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Low Risk Experimental Group",
+          "description": "1 visit - Low Risk\n\n\\~1200 subjects\n\n- Low Risk Experimental Group = 1 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "label": "Low risk Control Group",
+          "description": "2 visits - Low Risk\n\n\\~1200 subjects\n\n- Low risk Control Group = 2 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "label": "High Risk Experimental Group",
+          "description": "1 visit - High Risk\n\n\\~800 subjects High Risk Experimental Group = 1 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        },
+        {
+          "label": "High Risk Control Group",
+          "description": "2 visits - High Risk\n\n\\~800 subjects High Risk Control Group = 2 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Percentage of Participants With Tooth Loss Over 16 Year Period",
+          "description": "Tooth loss rate over 16 years was calculated as the cumulative percentage of participants with tooth loss over 16 years.",
+          "timeFrame": "16 years"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Change in Total Dental Claims During Monitoring Period",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "measure": "Change in Total Periodontal Claims During the Monitoring Period",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "measure": "Change in Periodontal Surgery Claims",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "measure": "Change in Relationship of Risk Category & Tooth Loss Rate With Systemic Disease History on Questionnaire.",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "measure": "Change in Evaluation for Dental Caries and Oral Cancer Within the Risk Categories",
+          "timeFrame": "10 and 15 years"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* Study may include all participants who are 34-55 years old in 1992 (48-68 years old in 2010) and who have at least a 15-year dental claim history with Delta Dental.\n\nExclusion Criteria:\n\n* Organ transplant recipients are excluded.",
+      "healthyVolunteers": true,
+      "sex": "ALL",
+      "minimumAge": "34 Years",
+      "maximumAge": "55 Years",
+      "stdAges": [
+        "ADULT"
+      ],
+      "studyPopulation": "Study may include all participants who are 34-55 years old in 1992 (48-68 years old in 2010) and who have at least a 15-year dental claim history with Delta Dental.",
+      "samplingMethod": "PROBABILITY_SAMPLE"
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "William V Giannobile, DDS, DMedSc",
+          "affiliation": "University of Michigan",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Michigan Center for Oral Health Research",
+          "city": "Ann Arbor",
+          "state": "Michigan",
+          "zip": "48106",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.27756,
+            "lon": -83.74088
+          }
+        }
+      ]
+    },
+    "referencesModule": {
+      "references": [
+        {
+          "pmid": "23752171",
+          "type": "RESULT",
+          "citation": "Giannobile WV, Braun TM, Caplis AK, Doucette-Stamm L, Duff GW, Kornman KS. Patient stratification for preventive care in dentistry. J Dent Res. 2013 Aug;92(8):694-701. doi: 10.1177/0022034513492336. Epub 2013 Jun 10."
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "recruitmentDetails": "From 25,452 individuals meeting inclusion criteria, 9,927 (0.39 of eligible) consented to participate, and 5,117(0.515 of consented) returned completed questionnaires and were successfully genotyped.",
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Low Risk Experimental Group",
+          "description": "1 visit - Low Risk 732 evaluable subjects\n\n- Low Risk Experimental Group = 1 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "id": "FG001",
+          "title": "Low Risk Control Group",
+          "description": "2 visits - Low Risk 1,668 evaluable subjects\n\n- Low risk Control Group = 2 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "id": "FG002",
+          "title": "High Risk Experimental Group",
+          "description": "1 visit - High Risk 852 evaluable subjects\n\nHigh Risk Experimental Group = 1 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        },
+        {
+          "id": "FG003",
+          "title": "High Risk Control Group",
+          "description": "2 visits - High Risk 1,847 evaluable subjects\n\nHigh Risk Control Group = 2 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "732"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "1686"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "852"
+                },
+                {
+                  "groupId": "FG003",
+                  "numSubjects": "1847"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "732"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "1686"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "852"
+                },
+                {
+                  "groupId": "FG003",
+                  "numSubjects": "1847"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG002",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG003",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "populationDescription": "See Giannobile et al 2013 manuscript included",
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Low Risk Experimental Group",
+          "description": "1 visit - Low Risk\n\n\\~1200 subjects\n\n- Low Risk Experimental Group = 1 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "id": "BG001",
+          "title": "Low Risk Control Group",
+          "description": "2 visits - Low Risk\n\n\\~1200 subjects\n\n- Low risk Control Group = 2 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+        },
+        {
+          "id": "BG002",
+          "title": "High Risk Experimental Group",
+          "description": "1 visit - High Risk\n\n\\~800 subjects High Risk Experimental Group = 1 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        },
+        {
+          "id": "BG003",
+          "title": "High Risk Control Group",
+          "description": "2 visits - High Risk\n\n\\~800 subjects High Risk Control Group = 2 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+        },
+        {
+          "id": "BG004",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "732"
+            },
+            {
+              "groupId": "BG001",
+              "value": "1686"
+            },
+            {
+              "groupId": "BG002",
+              "value": "852"
+            },
+            {
+              "groupId": "BG003",
+              "value": "1847"
+            },
+            {
+              "groupId": "BG004",
+              "value": "5117"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Customized",
+          "description": "The participants analyzed had to be within this age range during the year 2010.",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": ">34 and < 55 years",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "732"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1686"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "852"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "1847"
+                    },
+                    {
+                      "groupId": "BG004",
+                      "value": "5117"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "461"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1130"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "537"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "1238"
+                    },
+                    {
+                      "groupId": "BG004",
+                      "value": "3366"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "271"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "556"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "315"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "609"
+                    },
+                    {
+                      "groupId": "BG004",
+                      "value": "1751"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "732"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1686"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "852"
+                    },
+                    {
+                      "groupId": "BG003",
+                      "value": "1847"
+                    },
+                    {
+                      "groupId": "BG004",
+                      "value": "5117"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Percentage of Participants With Tooth Loss Over 16 Year Period",
+          "description": "Tooth loss rate over 16 years was calculated as the cumulative percentage of participants with tooth loss over 16 years.",
+          "reportingStatus": "POSTED",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "percentage of participants",
+          "timeFrame": "16 years",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Low Risk Experimental Group",
+              "description": "1 visit - Low Risk\n\n\\~1200 subjects\n\n- Low Risk Experimental Group = 1 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+            },
+            {
+              "id": "OG001",
+              "title": "Low Risk Control Group",
+              "description": "2 visits - Low Risk\n\n\\~1200 subjects\n\n- Low risk Control Group = 2 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)"
+            },
+            {
+              "id": "OG002",
+              "title": "High Risk Experimental Group",
+              "description": "1 visit - High Risk\n\n\\~800 subjects High Risk Experimental Group = 1 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+            },
+            {
+              "id": "OG003",
+              "title": "High Risk Control Group",
+              "description": "2 visits - High Risk\n\n\\~800 subjects High Risk Control Group = 2 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "732"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "1686"
+                },
+                {
+                  "groupId": "OG002",
+                  "value": "852"
+                },
+                {
+                  "groupId": "OG003",
+                  "value": "1847"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "16.4"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "13.8"
+                    },
+                    {
+                      "groupId": "OG002",
+                      "value": "22.1"
+                    },
+                    {
+                      "groupId": "OG003",
+                      "value": "16.9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Change in Total Dental Claims During Monitoring Period",
+          "reportingStatus": "NOT_POSTED",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Change in Total Periodontal Claims During the Monitoring Period",
+          "reportingStatus": "NOT_POSTED",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Change in Periodontal Surgery Claims",
+          "reportingStatus": "NOT_POSTED",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Change in Relationship of Risk Category & Tooth Loss Rate With Systemic Disease History on Questionnaire.",
+          "reportingStatus": "NOT_POSTED",
+          "timeFrame": "10 and 15 years"
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Change in Evaluation for Dental Caries and Oral Cancer Within the Risk Categories",
+          "reportingStatus": "NOT_POSTED",
+          "timeFrame": "10 and 15 years"
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "0",
+      "description": "This is an survey research study with the patient collection of their own biological specimen and the filling out of a survey to release their payer data (non-interventional).",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Low Risk Experimental Group",
+          "description": "1 visit - Low Risk\n\n\\~1200 subjects\n\n- Low Risk Experimental Group = 1 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 732,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 732
+        },
+        {
+          "id": "EG001",
+          "title": "Low Risk Control Group",
+          "description": "2 visits - Low Risk\n\n\\~1200 subjects\n\n- Low risk Control Group = 2 visit intervention, no history of periodontitis, non-smoker, non-diabetic, IL-1 genotype (-)",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 1686,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 1686
+        },
+        {
+          "id": "EG002",
+          "title": "High Risk Experimental Group",
+          "description": "1 visit - High Risk\n\n\\~800 subjects High Risk Experimental Group = 1 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 852,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 852
+        },
+        {
+          "id": "EG003",
+          "title": "High Risk Control Group",
+          "description": "2 visits - High Risk\n\n\\~800 subjects High Risk Control Group = 2 visit intervention, one or more of the following risk factors: history of periodontitis, smoker or diabetic, IL-1 genotype (+)",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 1847,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 1847
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictiveAgreement": false
+      },
+      "pointOfContact": {
+        "title": "William Giannobile, Principal Investigator",
+        "organization": "University of Michigan",
+        "email": "wgiannob@umich.edu",
+        "phone": "734-764-1562"
+      }
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D010518",
+          "term": "Periodontitis"
+        },
+        {
+          "id": "D010510",
+          "term": "Periodontal Diseases"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D009059",
+          "term": "Mouth Diseases"
+        },
+        {
+          "id": "D009057",
+          "term": "Stomatognathic Diseases"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M13419",
+          "name": "Periodontal Diseases",
+          "asFound": "Periodontal Diseases",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M13427",
+          "name": "Periodontitis",
+          "asFound": "Periodontitis",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M12019",
+          "name": "Mouth Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M12017",
+          "name": "Stomatognathic Diseases",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BC07",
+          "name": "Mouth and Tooth Diseases"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

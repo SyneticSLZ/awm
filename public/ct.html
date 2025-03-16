@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trials Explorer v2</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom styling -->
+    <style>
+        /* Add custom CSS here */
+        .loading {
+            @apply animate-pulse;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* For styling the scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+        
+        .toggle-checkbox:checked {
+            @apply right-0 border-green-400;
+            right: 0;
+            border-color: #68D391;
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            @apply bg-green-400;
+            background-color: #68D391;
+        }
+        
+        .tab-active {
+            @apply bg-indigo-700 text-white;
+        }
+        
+        .comparison-chart-container {
+            height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- App Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-indigo-700 text-white shadow-md">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                        <h1 class="text-2xl font-bold">Clinical Trials Explorer v2</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button id="toggleFiltersBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            Filters
+                        </button>
+                        
+                        <button id="toggleLogsBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Logs
+                        </button>
+                        
+                        <button id="toggleStatsBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Statistics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-6">
+            <!-- Search Section -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Search Clinical Trials</h2>
+                    
+                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="searchInput" 
+                                    class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                                    placeholder="Search by keyword, condition, drug..."
+                                >
+                                <div class="absolute left-3 top-2.5 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-56">
+                            <select 
+                                id="searchType" 
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="term">General Search</option>
+                                <option value="cond">By Condition</option>
+                                <option value="intr">By Intervention/Drug</option>
+                                <option value="spons">By Sponsor</option>
+                                <option value="locn">By Location</option>
+                                <option value="id">By NCT ID</option>
+                                <option value="patient">By Patient Data</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <button 
+                                id="searchBtn" 
+                                class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-6 py-2 transition duration-200"
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs for advanced search options -->
+                    <div class="flex mb-4">
+                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300 tab-active" data-tab="basicSearch">Basic Search</button>
+                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="advancedSearch">Advanced Search</button>
+                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="compareSearch">Compare Studies</button>
+                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="patientSearch">Patient Outcomes</button>
+                    </div>
+                    
+                    <!-- Basic Search Filters Panel -->
+                    <div id="basicSearch" class="tab-content">
+                        <div id="filtersPanel" class="border-t border-gray-200 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="phaseFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Phase</label>
+                                    <select id="phaseFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">All Phases</option>
+                                        <option value="Phase 1">Phase 1</option>
+                                        <option value="Phase 2">Phase 2</option>
+                                        <option value="Phase 3">Phase 3</option>
+                                        <option value="Phase 4">Phase 4</option>
+                                        <option value="Early Phase 1">Early Phase 1</option>
+                                        <option value="Not Applicable">Not Applicable</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Status</label>
+                                    <select id="statusFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">All Statuses</option>
+                                        <option value="RECRUITING">Recruiting</option>
+                                        <option value="COMPLETED">Completed</option>
+                                        <option value="ACTIVE_NOT_RECRUITING">Active, not recruiting</option>
+                                        <option value="NOT_YET_RECRUITING">Not yet recruiting</option>
+                                        <option value="TERMINATED">Terminated</option>
+                                        <option value="WITHDRAWN">Withdrawn</option>
+                                        <option value="SUSPENDED">Suspended</option>
+                                        <option value="UNKNOWN">Unknown</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="pageSizeFilter" class="block text-sm font-medium text-gray-700 mb-1">Results Per Page</label>
+                                    <select id="pageSizeFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="10">10</option>
+                                        <option value="20" selected>20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="sortFilter" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                                    <select id="sortFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="@relevance">Relevance</option>
+                                        <option value="LastUpdatePostDate:desc">Last Updated (newest first)</option>
+                                        <option value="EnrollmentCount:desc">Enrollment (highest first)</option>
+                                        <option value="StartDate:desc">Start Date (newest first)</option>
+                                        <option value="CompletionDate:desc">Completion Date (newest first)</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="hasResultsFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Results</label>
+                                    <select id="hasResultsFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">All Studies</option>
+                                        <option value="true">With Results</option>
+                                        <option value="false">Without Results</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center mt-6">
+                                    <label class="flex items-center cursor-pointer">
+                                        <div class="relative">
+                                            <input type="checkbox" id="countTotalFilter" class="toggle-checkbox sr-only" checked />
+                                            <div class="toggle-label block w-12 h-6 rounded-full bg-gray-300 transition"></div>
+                                            <div class="toggle-checkbox absolute inset-y-0 left-0 w-6 h-6 rounded-full bg-white border-2 border-gray-300 transition"></div>
+                                        </div>
+                                        <div class="ml-3 text-sm font-medium text-gray-700">Include Total Count</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Search Tab -->
+                    <div id="advancedSearch" class="tab-content hidden">
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="mb-4">
+                                <label for="advancedQueryInput" class="block text-sm font-medium text-gray-700 mb-1">Advanced Query</label>
+                                <textarea 
+                                    id="advancedQueryInput" 
+                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500" 
+                                    rows="3"
+                                    placeholder="Example: AREA[StartDate]2022 AND AREA[MinimumAge]RANGE[MIN, 16 years] AND AREA[MaximumAge]RANGE[16 years, MAX]"
+                                ></textarea>
+                            </div>
+                            
+                            <div class="bg-gray-100 p-4 rounded-md mb-4">
+                                <h3 class="text-sm font-medium text-gray-700 mb-2">Advanced Query Examples</h3>
+                                <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                                    <li>Search by date range: <span class="text-indigo-600 cursor-pointer example-query">AREA[StartDate]RANGE[2021-01-01, 2022-12-31]</span></li>
+                                    <li>Search by age: <span class="text-indigo-600 cursor-pointer example-query">AREA[MinimumAge]RANGE[65 years, MAX]</span></li>
+                                    <li>Search by enrollment: <span class="text-indigo-600 cursor-pointer example-query">AREA[EnrollmentCount]RANGE[1000, MAX]</span></li>
+                                    <li>Studies with results: <span class="text-indigo-600 cursor-pointer example-query">AREA[HasResults]true</span></li>
+                                    <li>Multiple criteria: <span class="text-indigo-600 cursor-pointer example-query">AREA[Phase]Phase 3 AND AREA[HasResults]true</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="fieldsFilter" class="block text-sm font-medium text-gray-700 mb-1">Fields to Include</label>
+                                    <select id="fieldsFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500" multiple size="5">
+                                        <option value="NCTId,BriefTitle,OverallStatus" selected>Basic Info</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,Phase,InterventionName,Condition">Interventions & Conditions</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,BriefSummary,DetailedDescription">With Descriptions</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,StartDate,PrimaryCompletionDate,CompletionDate">With Dates</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,EnrollmentCount,Phase,StudyType">Study Design</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,protocolSection.eligibilityModule">Eligibility Criteria</option>
+                                        <option value="NCTId,BriefTitle,OverallStatus,protocolSection,derivedSection,hasResults">All Data (Large Response)</option>
+                                    </select>
+                                    <div class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compare Studies Tab -->
+                    <div id="compareSearch" class="tab-content hidden">
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="compareCondition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+                                    <input 
+                                        type="text" 
+                                        id="compareCondition" 
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="e.g., cancer, diabetes"
+                                    >
+                                </div>
+                                
+                                <div>
+                                    <label for="compareIntervention" class="block text-sm font-medium text-gray-700 mb-1">Intervention/Drug</label>
+                                    <input 
+                                        type="text" 
+                                        id="compareIntervention" 
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="e.g., aspirin, vaccine"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label for="comparePhase" class="block text-sm font-medium text-gray-700 mb-1">Phase</label>
+                                    <select id="comparePhase" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">All Phases</option>
+                                        <option value="Phase 1">Phase 1</option>
+                                        <option value="Phase 2">Phase 2</option>
+                                        <option value="Phase 3">Phase 3</option>
+                                        <option value="Phase 4">Phase 4</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="compareStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                    <select id="compareStatus" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="COMPLETED">Completed</option>
+                                        <option value="">All Statuses</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center mt-6">
+                                    <button 
+                                        id="generateComparisonBtn" 
+                                        class="w-full bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 transition"
+                                    >
+                                        Generate Comparison
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="comparisonChartSection" class="mt-4 hidden">
+                                <h3 class="text-lg font-medium mb-2">Comparison Results</h3>
+                                <div class="comparison-chart-container">
+                                    <canvas id="comparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Patient Outcomes Tab -->
+                    <div id="patientSearch" class="tab-content hidden">
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label for="outcomeCondition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+                                    <input 
+                                        type="text" 
+                                        id="outcomeCondition" 
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="e.g., cancer, diabetes"
+                                    >
+                                </div>
+                                
+                                <div>
+                                    <label for="outcomeIntervention" class="block text-sm font-medium text-gray-700 mb-1">Intervention/Drug</label>
+                                    <input 
+                                        type="text" 
+                                        id="outcomeIntervention" 
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="e.g., aspirin, vaccine"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end mb-4">
+                                <button 
+                                    id="analyzeOutcomesBtn" 
+                                    class="bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 transition"
+                                >
+                                    Analyze Patient Outcomes
+                                </button>
+                            </div>
+                            
+                            <div id="outcomeAnalysisSection" class="mt-4 hidden">
+                                <div class="bg-white rounded-lg shadow p-4">
+                                    <h3 class="text-lg font-medium mb-4">Patient Outcome Analysis</h3>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h4 class="font-medium mb-2">Success Rate Statistics</h4>
+                                            <div id="successRateStats" class="bg-gray-50 p-4 rounded"></div>
+                                        </div>
+                                        
+                                        <div>
+                                            <h4 class="font-medium mb-2">Enrollment Distribution</h4>
+                                            <canvas id="enrollmentChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- FDA Data Integration Section (add this to index.html) -->
+<section id="fdaDataSection" class="mb-8 hidden">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex justify-between items-start mb-4">
+        <h2 class="text-xl font-semibold">FDA Data Explorer</h2>
+        <div class="flex space-x-2">
+          <input 
+            type="text" 
+            id="selectedDrugInput" 
+            class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            placeholder="Enter drug name"
+          >
+          <button 
+            id="fetchCompleteDataBtn"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-3 py-1 transition"
+          >
+            Fetch Data
+          </button>
+        </div>
+      </div>
+      
+      <!-- Loading Indicator -->
+      <div id="fdaDataLoading" class="hidden mb-4">
+        <div class="flex justify-center items-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </div>
+      
+      <!-- Error Message -->
+      <div id="fdaDataError" class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+      
+      <!-- FDA Data Content -->
+      <div id="fdaDataContent">
+        <!-- Individual Data Sections -->
+        <div class="space-y-8">
+          <!-- Drug Info Section -->
+          <div id="drugInfoSection" class="mb-6"></div>
+          
+          <!-- Tabs for different data categories -->
+          <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="FDA Data Categories">
+              <button class="border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('regulatory')">
+                Regulatory Information
+              </button>
+              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('clinical')">
+                Clinical Information
+              </button>
+              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('compliance')">
+                Compliance & Patents
+              </button>
+            </nav>
+          </div>
+          
+          <!-- Regulatory Tab Content -->
+          <div id="regulatoryTab" class="tab-content space-y-6">
+            <!-- FDA Guidance Section -->
+            <div id="fdaGuidanceSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">FDA Guidance Documents</h3>
+                <button 
+                  id="fetchGuidanceBtn"
+                  class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Refresh Guidance
+                </button>
+              </div>
+              <div id="guidanceLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+              </div>
+              <div id="guidanceContent"></div>
+            </div>
+            
+            <!-- FDA Approval Section -->
+            <div id="fdaApprovalSection" class="mb-6"></div>
+          </div>
+          
+          <!-- Clinical Tab Content -->
+          <div id="clinicalTab" class="tab-content hidden space-y-6">
+            <!-- Trials Summary Section -->
+            <div id="trialsSummarySection" class="mb-6"></div>
+            
+            <!-- DailyMed Label Section -->
+            <div id="dailyMedSection" class="mb-6"></div>
+            
+            <!-- Publications Section -->
+            <div id="publicationsSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Scientific Publications</h3>
+                <button 
+                  id="fetchPublicationsBtn"
+                  class="bg-green-600 hover:bg-green-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Publications
+                </button>
+              </div>
+              <div id="publicationsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                </div>
+              </div>
+              <div id="publicationsContent"></div>
+            </div>
+            
+            <!-- Treatment Effect Section -->
+            <div id="treatmentEffectSection" class="mb-6"></div>
+          </div>
+          
+          <!-- Compliance Tab Content -->
+          <div id="complianceTab" class="tab-content hidden space-y-6">
+            <!-- Warning Letters Section -->
+            <div id="warningLettersSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">FDA Warning Letters</h3>
+                <button 
+                  id="fetchWarningsBtn"
+                  class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Warnings
+                </button>
+              </div>
+              <div id="warningsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+                </div>
+              </div>
+              <div id="warningsContent"></div>
+            </div>
+            
+            <!-- Orange Book Section -->
+            <div id="orangeBookSection" class="mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Orange Book Patent Information</h3>
+                <button 
+                  id="fetchPatentsBtn"
+                  class="bg-yellow-600 hover:bg-yellow-700 text-white rounded-md px-3 py-1 text-sm transition"
+                >
+                  Fetch Patents
+                </button>
+              </div>
+              <div id="patentsLoading" class="hidden">
+                <div class="flex justify-center items-center py-4">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+                </div>
+              </div>
+              <div id="patentsContent"></div>
+            </div>
+          </div>
+          
+          <!-- Similar Drugs Section -->
+          <div id="similarDrugsSection" class="mb-6"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Tab Switching Script -->
+  <!-- <script>
+    function showDataTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+      });
+      
+      // Show the selected tab
+      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+      
+      // Update tab button styles
+      document.querySelectorAll('nav button').forEach(button => {
+        button.classList.remove('border-indigo-500', 'text-indigo-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      // Highlight the active tab button
+      const activeButton = Array.from(document.querySelectorAll('nav button')).find(
+        button => button.textContent.trim().toLowerCase().includes(tabName)
+      );
+      
+      if (activeButton) {
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        activeButton.classList.add('border-indigo-500', 'text-indigo-600');
+      }
+    }
+  </script> -->
+            <!-- Results Section -->
+            <section class="mb-8">
+                <div id="resultsContainer" class="bg-white rounded-lg shadow-md p-6 hidden">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                        <h2 class="text-xl font-semibold">Results</h2>
+                        <div id="resultStats" class="text-sm text-gray-600"></div>
+                    </div>
+                    
+                    <div id="resultsTable" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr id="resultsTableHeader">
+                                    <!-- Dynamically generated headers will go here -->
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Results will go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="hidden">
+                        <div class="flex justify-center items-center py-8">
+                            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- No Results Message -->
+                    <div id="noResultsMessage" class="hidden">
+                        <div class="flex flex-col items-center justify-center py-8 text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-lg">No results found for your search criteria.</p>
+                            <p class="text-sm mt-1">Try adjusting your search terms or filters.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="paginationContainer" class="mt-6 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="paginationTotal">0</span> results
+                            </p>
+                        </div>
+                        <div class="flex-1 flex justify-end">
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button id="prevPageBtn" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div id="paginationPages" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                                </div>
+                                <button id="nextPageBtn" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- FDA Comparison and Protocol Analysis Section -->
+<section id="fdaComparisonSection" class="mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-4">FDA Drug Comparison & Protocol Analysis</h2>
+      
+      <p class="text-gray-600 mb-4">
+        Compare similar drugs, analyze protocols, and understand FDA precedent for patient numbers and trial design.
+        This helps predict requirements for new drug development based on similar approved drugs.
+      </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Primary Drug Selection -->
+        <div>
+          <label for="primaryDrugInput" class="block text-sm font-medium text-gray-700 mb-1">Primary Drug</label>
+          <div class="flex">
+            <input 
+              type="text" 
+              id="primaryDrugInput" 
+              class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              placeholder="e.g., olanzapine, risperidone"
+            >
+            <button 
+              id="drugCompareBtn"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-md px-4 py-2 transition"
+            >
+              Compare
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Enter a drug name to analyze its clinical trials and protocols</p>
+        </div>
+        
+        <!-- Additional Drug Selection -->
+        <div>
+          <label for="additionalDrugInput" class="block text-sm font-medium text-gray-700 mb-1">Add Comparison Drug</label>
+          <div class="flex">
+            <input 
+            type="text" 
+            id="additionalDrugInput" 
+            class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            placeholder="e.g., quetiapine, aripiprazole"
+          >
+          <button 
+            id="addComparisonDrugBtn"
+            class="bg-green-600 hover:bg-green-700 text-white rounded-r-md px-4 py-2 transition"
+          >
+            Add
+          </button>
+        </div>
+        <div id="comparisonDrugsList" class="mt-2 text-sm"></div>
+      </div>
+    </div>
+    
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button 
+        id="protocolAnalysisBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 transition"
+      >
+        Analyze Protocols
+      </button>
+      
+      <button 
+        id="variabilityAnalysisBtn"
+        class="bg-purple-600 hover:bg-purple-700 text-white rounded-md px-4 py-2 transition"
+      >
+        Analyze Variability & Treatment Effect
+      </button>
+    </div>
+    
+    <!-- Comparison Results Section -->
+    <div id="comparisonResults" class="hidden">
+      <!-- Loading Indicator -->
+      <div id="comparisonLoading" class="hidden mb-4">
+        <div class="flex justify-center items-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </div>
+      
+      <!-- Error Message -->
+      <div id="comparisonError" class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+      
+      <!-- Comparison Content -->
+      <div id="comparisonContent">
+        <h3 class="text-lg font-semibold mb-3">Comparison Results for <span id="primaryDrugName">Drug</span></h3>
+        
+        <!-- Drug Summary Card -->
+        <div id="drugSummaryCard" class="mb-6"></div>
+        
+        <!-- FDA Guidance Section -->
+        <div id="fdaGuidanceSection" class="mb-6 hidden"></div>
+        
+        <!-- Patient Number Comparison Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+            <h4 class="text-md font-medium mb-3">Patient Numbers Comparison</h4>
+            <canvas id="patientNumberComparisonChart" height="250"></canvas>
+          </div>
+          
+          <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+            <h4 class="text-md font-medium mb-3">Treatment Effects & Variability</h4>
+            <canvas id="treatmentEffectsComparisonChart" height="250"></canvas>
+          </div>
+        </div>
+        
+        <!-- Protocol Comparison -->
+        <div class="mb-6">
+          <h4 class="text-lg font-medium mb-3">Protocol Comparison</h4>
+          <div class="overflow-x-auto">
+            <div id="protocolComparisonTable"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Protocol Analysis Section -->
+    <div id="protocolAnalysisSection" class="hidden mt-8">
+      <h3 class="text-lg font-semibold mb-4">Protocol Analysis</h3>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <h4 class="text-md font-medium mb-3">Study Design Distribution</h4>
+          <canvas id="studyDesignChart" height="250"></canvas>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+          <h4 class="text-md font-medium mb-3">Patient Distribution by Phase</h4>
+          <canvas id="patientsByPhaseChart" height="250"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
+        <h4 class="text-md font-medium mb-3">Study Timeline</h4>
+        <canvas id="timelineChart" height="200"></canvas>
+      </div>
+      
+      <div class="mb-6">
+        <h4 class="text-lg font-medium mb-3">Protocol Details</h4>
+        <div class="overflow-x-auto">
+          <div id="protocolDetailsTable"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Variability Analysis Section -->
+    <div id="variabilityAnalysisSection" class="hidden mt-8">
+      <h3 class="text-lg font-semibold mb-4">Variability & Treatment Effect Analysis</h3>
+      
+      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
+        <h4 class="text-md font-medium mb-3">Response Distribution: Placebo vs. Treatment</h4>
+        <canvas id="bellCurveChart" height="250"></canvas>
+        <div id="bellCurveAnnotation"></div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
+        <div id="patientEstimationTable"></div>
+      </div>
+      
+      <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+        <h4 class="font-medium text-gray-700 mb-2">Understanding Patient Number Requirements</h4>
+        <p class="text-sm text-gray-600 mb-2">
+          Two primary factors determine how many patients are needed for a clinical trial:
+        </p>
+        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-2">
+          <li><strong>Treatment Effect Size:</strong> The difference between treatment and placebo responses. Larger effects require fewer patients.</li>
+          <li><strong>Variability:</strong> How much responses vary within each group. Higher variability requires more patients.</li>
+        </ol>
+        <p class="text-sm text-gray-600">
+          Statistical power calculations use these factors to determine the minimum number of patients needed to demonstrate a statistically significant effect with confidence.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+            <!-- Study Details Section (hidden by default) -->
+            <section id="studyDetailsSection" class="mb-8 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-xl font-semibold">Study Details</h2>
+                        <button id="closeStudyDetailsBtn" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="studyDetailsContent">
+                        <!-- Study details will be inserted here -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Statistics Section (hidden by default) -->
+            <section id="statisticsSection" class="mb-8 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Clinical Trials Statistics</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium mb-3">Study Status Distribution</h3>
+                            <canvas id="statusChart" height="250"></canvas>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium mb-3">Phase Distribution</h3>
+                            <canvas id="phaseChart" height="250"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-lg font-medium mb-3">Enrollment Statistics</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-gray-50 p-4 rounded">
+                                <h4 class="text-sm font-medium text-gray-500">Total Studies</h4>
+                                <p id="totalStudiesCount" class="text-2xl font-bold">-</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded">
+                                <h4 class="text-sm font-medium text-gray-500">Avg. Enrollment</h4>
+                                <p id="avgEnrollment" class="text-2xl font-bold">-</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded">
+                                <h4 class="text-sm font-medium text-gray-500">Studies with Results</h4>
+                                <p id="studiesWithResults" class="text-2xl font-bold">-</p>
+                            </div>
+                        </div>
+                        <canvas id="enrollmentDistChart" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Logs Section (hidden by default) -->
+            <section id="logsSection" class="mb-8 hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-xl font-semibold">API Request Logs</h2>
+                        <button id="clearLogsBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">
+                            Clear Logs
+                        </button>
+                    </div>
+                    
+                    <div id="logsContainer" class="bg-gray-100 p-4 rounded-md h-64 overflow-y-auto font-mono text-sm">
+                        <div class="text-gray-500 italic">No logs yet. Make a request to see logs.</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- API Documentation Section -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">API Documentation</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-lg font-medium mb-2">Available Endpoints</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endpoint</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parameters</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/studies/search</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Search studies with various parameters</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                <code class="text-xs bg-gray-100 rounded p-1">query</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">condition</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">intervention</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">status</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">page</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">pageSize</code>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/studies/:nctId</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get specific study details</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                <code class="text-xs bg-gray-100 rounded p-1">fields</code>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/metadata</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get data model metadata</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">None</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/stats/field-values</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get field values statistics</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                <code class="text-xs bg-gray-100 rounded p-1">types</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">fields</code>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/analysis/success-rates</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get success rates and comparison data</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">
+                                                <code class="text-xs bg-gray-100 rounded p-1">condition</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">intervention</code>,
+                                                <code class="text-xs bg-gray-100 rounded p-1">phase</code>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-medium mb-2">Example Usage</h3>
+                            <div class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
+                                <pre><code>// Search for studies related to COVID-19
+fetch('/api/studies/search?condition=covid-19&page=1&pageSize=20')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-6">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p>&copy; 2025 Clinical Trials Explorer v2</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm">
+                            Data provided by <a href="https://clinicaltrials.gov/api/v2/" class="text-indigo-300 hover:text-indigo-200" target="_blank">ClinicalTrials.gov API v2</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Main JavaScript -->
+    <script src="app.js"></script>
+    <script src="fda.js"></script>
+    <script src="newintegration.js"></script>
+    <script>
+        // fda-bridge.js - Bridge between mock and real FDA data integration
+
+// Ensure all necessary objects are initialized
+window.fdaDataState = window.fdaDataState || {
+    selectedDrug: null,
+    similarDrugs: [],
+    drugDetails: null,
+    cache: {}
+};
+
+window.fdaComparisonState = window.fdaComparisonState || {
+    selectedDrug: null,
+    comparisonDrugs: [],
+    loadingComparison: false
+};
+
+// Add the showDataTab function that's referenced in HTML
+function showDataTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Show the selected tab
+    document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+    
+    // Update tab button styles
+    document.querySelectorAll('nav button').forEach(button => {
+        button.classList.remove('border-indigo-500', 'text-indigo-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Highlight the active tab button
+    const activeButton = Array.from(document.querySelectorAll('nav button')).find(
+        button => button.textContent.trim().toLowerCase().includes(tabName)
+    );
+    
+    if (activeButton) {
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        activeButton.classList.add('border-indigo-500', 'text-indigo-600');
+    }
+}
+
+// Add the toggleSectionContent function that's used in the FDA data display
+function toggleSectionContent(link, sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.toggle('hidden');
+        link.textContent = section.classList.contains('hidden') ? 'Show more' : 'Show less';
+    }
+}
+
+// Make functions globally available
+window.showDataTab = showDataTab;
+window.toggleSectionContent = toggleSectionContent;
+
+// Safe initialization function that checks for element existence
+function safeInit() {
+    console.log("FDA Bridge: Initializing FDA modules safely...");
+    
+    // Initialize FDA Data Integration module if elements exist
+    if (document.getElementById('fdaDataSection') || document.getElementById('fetchCompleteDataBtn')) {
+        console.log("FDA Bridge: Initializing FDA Data Integration module");
+        if (typeof initFDADataModule === 'function') {
+            initFDADataModule();
+        } else {
+            console.error("FDA Bridge: initFDADataModule function not found!");
+        }
+    }
+    
+    // Initialize FDA Comparison module if elements exist
+    if (document.getElementById('fdaComparisonSection') || document.getElementById('drugCompareBtn')) {
+        console.log("FDA Bridge: Initializing FDA Comparison module");
+        if (typeof initFDAComparisonModule === 'function') {
+            initFDAComparisonModule();
+        } else {
+            console.error("FDA Bridge: initFDAComparisonModule function not found!");
+        }
+    }
+}
+
+// Run initialization after DOM is fully loaded
+document.addEventListener('DOMContentLoaded', safeInit);
+    </script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT05113771",
+      "orgStudyIdInfo": {
+        "id": "DB104-01"
+      },
+      "organization": {
+        "fullName": "Denovo Biopharma LLC",
+        "class": "INDUSTRY"
+      },
+      "briefTitle": "A Biomarker-Guided, Randomized, Double-Blind, Placebo-Controlled Efficacy and Safety Study of Liafensine in Patients With Treatment-Resistant Depression",
+      "officialTitle": "A Biomarker-Guided, Randomized, Double-Blind, Placebo-Controlled Efficacy and Safety Study of Liafensine in Patients With Treatment-Resistant Depression",
+      "acronym": "ENLIGHTEN"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2024-07",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2022-06-29",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2024-02-06",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2024-03-04",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2021-10-29",
+      "studyFirstSubmitQcDate": "2021-10-29",
+      "studyFirstPostDateStruct": {
+        "date": "2021-11-09",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2024-07-05",
+      "lastUpdatePostDateStruct": {
+        "date": "2024-07-08",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Denovo Biopharma LLC",
+        "class": "INDUSTRY"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": true,
+      "isFdaRegulatedDrug": true,
+      "isFdaRegulatedDevice": false,
+      "isUsExport": true
+    },
+    "descriptionModule": {
+      "briefSummary": "This study will be conducted as a randomized, double-blind, placebo-controlled, multi-center Phase 2b study. Approximately 180 subjects with treatment resistant depression who meet all eligibility criteria will be enrolled."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Treatment Resistant Depression"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "DOUBLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "INVESTIGATOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 197,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Liafensine 1mg",
+          "type": "EXPERIMENTAL",
+          "interventionNames": [
+            "Drug: Liafensine"
+          ]
+        },
+        {
+          "label": "Liafensine 2mg",
+          "type": "EXPERIMENTAL",
+          "interventionNames": [
+            "Drug: Liafensine"
+          ]
+        },
+        {
+          "label": "Placebo",
+          "type": "PLACEBO_COMPARATOR",
+          "interventionNames": [
+            "Drug: Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "Liafensine",
+          "description": "Liafensine",
+          "armGroupLabels": [
+            "Liafensine 1mg",
+            "Liafensine 2mg"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Placebo",
+          "description": "Placebo",
+          "armGroupLabels": [
+            "Placebo"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Change in MADRS Total Score",
+          "timeFrame": "Baseline to Day 42"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n1. Provide signed informed consent which includes pharmacogenomic (PGx) testing.\n2. Have a diagnosis of MDD without psychotic features, according to the Diagnostic and Statistical Manual of Mental Disorders, 5th Edition (DSM-5) criteria, based on clinical assessment and confirmed by the Mini International Neuropsychiatric Interview (MINI).\n3. Have a history of TRD within the past 5 years as documented by the Massachusetts General Hospital (MGH) Antidepressant Treatment Response Questionnaire (ATRQ) (5-year version). That is, within the past 5 years study participants must have had a clinically meaningful inadequate response (estimated \\< 50% improvement per Investigator/patient consensus and documented by the Investigator) to at least two treatment courses with antidepressant regimens. These must involve at least two different pharmacologic treatment classes\\* and have been given at accepted therapeutic doses for an adequate duration (at least 6 weeks). One of these treatment failures must have occurred within the current episode.\n\n   \\*Note: Non-pharmacological treatment (eg, cognitive behavioral therapy, electroconvulsive therapy, repetitive transcranial magnetic stimulation, vagus nerve stimulation, acupuncture) are not counted as treatment regimen.\n4. To be eligible, patients must have DGM4 genotype results obtained from the designated Clinical Laboratory Improvement Amendments (CLIA) lab, and all eligible DGM4-positive patients and about 20% DGM4-negative patients will be randomly included by an IRT system in order to achieve the appropriate randomization ratio of DGM4-positive vs negative patients.\n5. Pregnancy conception limitations\n\n   * Female patients must be postmenopausal or surgically sterile or, if of childbearing potential and the partner is not vasectomized (6 months minimum), must agree to use a medically acceptable form of contraception from the time of signing the informed consent form (ICF) through at least 60 days following the last administration of study drug. If only the barrier method is used, a double barrier must be employed. Postmenopausal women must have had ≥ 24 months of spontaneous amenorrhea. Surgically sterile women are defined as those who have had a hysterectomy, bilateral ovariectomy, or bilateral tubal ligation. All women of childbearing potential must have a negative pregnancy test result before administration of study drug.\n   * Male patients must be biologically incapable of having children (eg, vasectomized) or must agree to use the above forms of birth control for themselves and their partner from the time of signing the informed consent form through at least 120 days following the last administration of study drug.\n6. Be fluent in the local language.\n7. Male or female aged 18 to 70, inclusive, at time of enrollment.\n8. Have a HAMD-17 total score ≥ 21 at screening.\n9. Be willing to discontinue the use of antidepressant drugs (including over-the-counter medications to treat depression \\[eg, St John's Wort\\]) at least 5 half-lives (or at least 1 week for herbal or other over-the-counter medications for depression) prior to baseline (Day -1). For fluoxetine, a washout period of at least 3 weeks for ≤ 20 mg/day and at least 4 weeks for \\> 20 mg/day is required.\n\nExclusion Criteria:\n\n1. Prior participation in a study with liafensine\n2. Used any investigational drug product, device, or biologic within 6 months or five half-lives (whichever is longer) prior to baseline (Day -1).\n3. A positive pregnancy test result or currently breastfeeding.\n4. Clinically significant illness (including chronic, persistent, or acute infection), medical/surgical procedure, or trauma within 30 days prior to screening or between screening and baseline (Day 1) as determined by the investigator.\n5. A history or presence of a clinically significant hepatic, renal, gastrointestinal, cardiovascular, endocrine, respiratory, immunologic, hematologic, dermatologic, or neurologic abnormality, or any other condition, that in the investigator's opinion, represent potential risk to the patient's safety, full participation in the study, or affect the absorption, distribution, metabolism, or excretion of liafensine.\n6. Presence of autoimmune hepatitis, primary sclerosing cholangitis, untreated hepatitis C, active hepatitis B, or any other uncontrolled or unstable liver disease according to local guidance.\n7. Uncontrolled human immunodeficiency virus (HIV) infection according to local guidance.\n8. Uncontrolled abnormal thyroid function according to local guidance.\n9. One or more clinical laboratory evaluations are outside the reference range, at screening, that are in the investigator's opinion, of potential risk to the patient's safety.\n10. Has at the Screening Visit:\n\n    * Alanine aminotransferase (ALT) or aspartate aminotransferase (AST) levels \\> 1.5x the upper limit of normal (ULN) at screening.\n    * Total bilirubin (TBL) \\> 2 mg/dL (34.2 μmol/L) at screening, unless there is an explained indirect hyperbilirubinemia, eg, Gilbert's syndrome.\n    * Alkaline phosphatase (ALP) \\> 1.5x the ULN at screening. Note: Laboratory tests can be repeated to see if values return to normal range, but any such laboratory abnormality must be resolved by the Baseline Visit (Day -1).\n11. Clinically significant vital sign abnormality at screening. This includes, but is not limited to, the following, in the supine (after at least 5 min rest) and standing (after 1 min and 3 min standing): systolic blood pressure ≥ 140 mmHg; diastolic blood pressure ≥ 90 mmHg; or heart rate \\< 50 or \\> 90 beats per minute. If the initial blood pressure is ≥ 140/90 mmHg, the lowest value from up to 3 additional attempts, which also must not be ≥ 140/90 mmHg, should be used. Patients with symptomatic orthostatic hypotension, at the discretion of investigator, will be excluded.\n12. Corrected QT interval measurement according to the Fridericia rule (QTcF) \\> 450 msec for men and \\> 470 msec for women during controlled rest at screening, or history of long-QT syndrome.\n13. ECGs containing any of the following readings:\n\n    * Left bundle branch block\n    * Right bundle branch block with QRS duration \\> 140 ms\n    * Intraventricular conduction defect with QRS duration \\> 140 ms\n    * Long QT syndrome\n14. History of seizure, other than childhood febrile seizures.\n15. History of clinically significant head trauma, including closed head injury with loss of consciousness, that is, in the opinion of the investigator, likely to affect central nervous system function.\n16. History of clinically significant symptomatic orthostatic hypotension (ie, postural syncope).\n17. History of narrow angle glaucoma.\n18. History of cancer within 2 years prior to screening or between screening and baseline (Day -1), except for non-metastatic basal and/or squamous cell carcinoma of the skin.\n19. Use of prescription or nonprescription medications for attention-deficit hyperactivity disorder (ADHD), narcolepsy, or cognitive enhancement (eg, methylphenidate, atomoxetine, modafinil, ginkgo biloba, and huperzine A) within 30 days prior to screening or between screening and baseline (Day -1).\n20. Regular consumption of (eg, more days than not) excessive quantities of xanthine-containing beverages (eg, more than five cups of coffee or the equivalent per day) within 30 days prior to screening or between screening and baseline (Day -1).\n21. Urine drug screen (UDS) positive for a drug of abuse, with the exception of cannabis in countries where it is legally available (see Table 3 for list of drugs of abuse). Where legal, prior use of cannabis is permitted provided the patient agrees to abstain from smoking or ingesting cannabis or cannabis products during the study.\n22. Use of potent inducers of CYP3A4 (eg, rifampin, rifabutin, phenytoin, carbamazepine, or phenobarbital) within 2 weeks prior to baseline (Day-1).\n23. Current diagnosis or history of a psychotic disorder, MDD with psychotic features, manic or hypomanic episode of bipolar or related disorders.\n24. Current diagnosis of anxiety disorder (if primary), post-traumatic stress disorder, obsessive compulsive disorder (if primary), intellectual disability (DSM-5 diagnostic code 319), borderline personality disorder, antisocial personality disorder, histrionic personality disorder, or narcissistic personality disorder according to the DSM-5 criteria, or any other psychiatric or neurologic disorder or symptom due to a general medical condition, that, in the judgement of the investigator, could pose undue risk to the patient or compromise the study.\n25. Hospitalized or discharged from psychiatric ward within 8 weeks prior to the screening visit and planned hospitalization for any condition(s) during the study.\n26. Moderate or severe alcohol use disorder or other substance use disorder (except nicotine or caffeine), within 6 months prior to screening, according to the DSM-5 criteria.\n27. Significant risk of suicide determined by:\n\n    1. Acute suicidality as evidenced by answering \"yes\" to Question 5 (\"In the Past Year\") on the C-SSRS, indicating active suicidal ideation with specific plan and intent for suicide, at screening, or baseline (Day -1); or\n    2. History of suicidal behavior as indicated by a \"yes\" response on the Suicidal Behavior section of the C-SSRS (\"In the past year\") or\n    3. A score ≥ 5 on Item 10 (suicidal thoughts) of the MADRS at screening or baseline (Day -1); or\n    4. Has attempted suicide within 6 months prior to the initial screening visit.\n28. Previous allogenic bone marrow transplant.\n29. Received non-leukocyte-depleted whole blood transfusion within 4 months prior to PGx testing at Screening.\n30. Currently employed by the sponsor or by a clinical trial site participating in this study, or a first-degree relative of an employee of the sponsor or of an employee at a participating clinical trial site.",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "maximumAge": "70 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "locations": [
+        {
+          "facility": "University of Alabama at Birmingham",
+          "city": "Huntsville",
+          "state": "Alabama",
+          "zip": "35801",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.7304,
+            "lon": -86.58594
+          }
+        },
+        {
+          "facility": "Alea Research",
+          "city": "Phoenix",
+          "state": "Arizona",
+          "zip": "85012",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.44838,
+            "lon": -112.07404
+          }
+        },
+        {
+          "facility": "Collaborative Neuroschience Research, LLC",
+          "city": "Garden Grove",
+          "state": "California",
+          "zip": "92845",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.77391,
+            "lon": -117.94145
+          }
+        },
+        {
+          "facility": "Behavioral Research Specialists, LLC",
+          "city": "Glendale",
+          "state": "California",
+          "zip": "91206",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.14251,
+            "lon": -118.25508
+          }
+        },
+        {
+          "facility": "Sunwise Clinical Research, LLC.",
+          "city": "Lafayette",
+          "state": "California",
+          "zip": "94549",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 37.88576,
+            "lon": -122.11802
+          }
+        },
+        {
+          "facility": "Excell Research",
+          "city": "Oceanside",
+          "state": "California",
+          "zip": "92056",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.19587,
+            "lon": -117.37948
+          }
+        },
+        {
+          "facility": "Anderson Clinical Reseach",
+          "city": "Redlands",
+          "state": "California",
+          "zip": "92374",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.05557,
+            "lon": -117.18254
+          }
+        },
+        {
+          "facility": "Schuster Medical Research Institute",
+          "city": "Sherman Oaks",
+          "state": "California",
+          "zip": "91403",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.15112,
+            "lon": -118.44925
+          }
+        },
+        {
+          "facility": "Collaborative Neuroscience Research, LLC",
+          "city": "Torrance",
+          "state": "California",
+          "zip": "90502",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.83585,
+            "lon": -118.34063
+          }
+        },
+        {
+          "facility": "Pacific Clinical Research Management Group",
+          "city": "Upland",
+          "state": "California",
+          "zip": "91786",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 34.09751,
+            "lon": -117.64839
+          }
+        },
+        {
+          "facility": "Clinical Research of Brandon, LLC",
+          "city": "Brandon",
+          "state": "Florida",
+          "zip": "33511",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 27.9378,
+            "lon": -82.28592
+          }
+        },
+        {
+          "facility": "Access Research Institute",
+          "city": "Brooksville",
+          "state": "Florida",
+          "zip": "34613",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 28.55554,
+            "lon": -82.38991
+          }
+        },
+        {
+          "facility": "The Medicine Medical Research",
+          "city": "Hollywood",
+          "state": "Florida",
+          "zip": "33121",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 26.0112,
+            "lon": -80.14949
+          }
+        },
+        {
+          "facility": "Nuovida Research Center",
+          "city": "Miami",
+          "state": "Florida",
+          "zip": "33145",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 25.77427,
+            "lon": -80.19366
+          }
+        },
+        {
+          "facility": "SG Research, LLC",
+          "city": "Miami",
+          "state": "Florida",
+          "zip": "33145",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 25.77427,
+            "lon": -80.19366
+          }
+        },
+        {
+          "facility": "Aqualane Clinical Research",
+          "city": "Naples",
+          "state": "Florida",
+          "zip": "34105",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 26.14234,
+            "lon": -81.79596
+          }
+        },
+        {
+          "facility": "Clinical Neuroscience Solutions, Inc.",
+          "city": "Orlando",
+          "state": "Florida",
+          "zip": "32801",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 28.53834,
+            "lon": -81.37924
+          }
+        },
+        {
+          "facility": "CenExel Atlanta Center for Medical Research",
+          "city": "Atlanta",
+          "state": "Georgia",
+          "zip": "30331",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.749,
+            "lon": -84.38798
+          }
+        },
+        {
+          "facility": "Psych Atlanta, PC",
+          "city": "Marietta",
+          "state": "Georgia",
+          "zip": "30060",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 33.9526,
+            "lon": -84.54993
+          }
+        },
+        {
+          "facility": "Revive Research Institute, Inc",
+          "city": "Elgin",
+          "state": "Illinois",
+          "zip": "60123",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.03725,
+            "lon": -88.28119
+          }
+        },
+        {
+          "facility": "Ascension Via Christi Research, a division of Ascension Via Christi Hospitals Wichita, Inc.",
+          "city": "Wichita",
+          "state": "Kansas",
+          "zip": "67214",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 37.69224,
+            "lon": -97.33754
+          }
+        },
+        {
+          "facility": "Pharmasite Research, Inc.",
+          "city": "Baltimore",
+          "state": "Maryland",
+          "zip": "21208",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.29038,
+            "lon": -76.61219
+          }
+        },
+        {
+          "facility": "CBH Health LLC",
+          "city": "Gaithersburg",
+          "state": "Maryland",
+          "zip": "20877",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.14344,
+            "lon": -77.20137
+          }
+        },
+        {
+          "facility": "Boston Clinical Trials & Medical Research",
+          "city": "Boston",
+          "state": "Massachusetts",
+          "zip": "02131",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.35843,
+            "lon": -71.05977
+          }
+        },
+        {
+          "facility": "Neurobehavioral Medicine Group",
+          "city": "Bloomfield",
+          "state": "Michigan",
+          "zip": "48302",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 42.53781,
+            "lon": -83.23299
+          }
+        },
+        {
+          "facility": "Alivation Research, LLC",
+          "city": "Lincoln",
+          "state": "Nebraska",
+          "zip": "68526",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.8,
+            "lon": -96.66696
+          }
+        },
+        {
+          "facility": "Altea Research Institute, Las Vegas",
+          "city": "Las Vegas",
+          "state": "Nevada",
+          "zip": "89102",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 36.17497,
+            "lon": -115.13722
+          }
+        },
+        {
+          "facility": "Hassman Research Institute",
+          "city": "Marlton",
+          "state": "New Jersey",
+          "zip": "08053",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.89122,
+            "lon": -74.92183
+          }
+        },
+        {
+          "facility": "Global Medical Institutes, LLC",
+          "city": "Princeton",
+          "state": "New Jersey",
+          "zip": "08510",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.34872,
+            "lon": -74.65905
+          }
+        },
+        {
+          "facility": "Global Medical Institutes, LLC",
+          "city": "Princeton",
+          "state": "New Jersey",
+          "zip": "08540",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.34872,
+            "lon": -74.65905
+          }
+        },
+        {
+          "facility": "Bio Behavior Health",
+          "city": "Toms River",
+          "state": "New Jersey",
+          "zip": "08755",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.95373,
+            "lon": -74.19792
+          }
+        },
+        {
+          "facility": "IMA Clinical Research",
+          "city": "Albuquerque",
+          "state": "New Mexico",
+          "zip": "87109",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 35.08449,
+            "lon": -106.65114
+          }
+        },
+        {
+          "facility": "Zucker Hillside Hospital",
+          "city": "Glen Oaks",
+          "state": "New York",
+          "zip": "11004",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.74705,
+            "lon": -73.71152
+          }
+        },
+        {
+          "facility": "The Ohio State University Department of Psychiatry",
+          "city": "Columbus",
+          "state": "Ohio",
+          "zip": "43210",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 39.96118,
+            "lon": -82.99879
+          }
+        },
+        {
+          "facility": "Lehigh Center for Clinical Research, LLC",
+          "city": "Allentown",
+          "state": "Pennsylvania",
+          "zip": "18104",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 40.60843,
+            "lon": -75.49018
+          }
+        },
+        {
+          "facility": "Global Medical Institutes, LLC",
+          "city": "Moosic",
+          "state": "Pennsylvania",
+          "zip": "18507",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 41.35341,
+            "lon": -75.73825
+          }
+        },
+        {
+          "facility": "FutureSearch Trials of Dallas",
+          "city": "Dallas",
+          "state": "Texas",
+          "zip": "75231",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.78306,
+            "lon": -96.80667
+          }
+        },
+        {
+          "facility": "InSite Clinical Research",
+          "city": "DeSoto",
+          "state": "Texas",
+          "zip": "75115",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.58986,
+            "lon": -96.85695
+          }
+        },
+        {
+          "facility": "North Texas Clinical Trials",
+          "city": "Fort Worth",
+          "state": "Texas",
+          "zip": "76014",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 32.72541,
+            "lon": -97.32085
+          }
+        },
+        {
+          "facility": "University of Texas Medical School at Houston",
+          "city": "Houston",
+          "state": "Texas",
+          "zip": "77054",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 29.76328,
+            "lon": -95.36327
+          }
+        },
+        {
+          "facility": "Core Clinical Research",
+          "city": "Everett",
+          "state": "Washington",
+          "zip": "98201",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 47.97898,
+            "lon": -122.20208
+          }
+        },
+        {
+          "facility": "OCT Research ULC",
+          "city": "Kelowna",
+          "state": "British Columbia",
+          "zip": "V1Y 1Z9",
+          "country": "Canada",
+          "geoPoint": {
+            "lat": 49.88307,
+            "lon": -119.48568
+          }
+        },
+        {
+          "facility": "AMNDX Inc.",
+          "city": "Markham",
+          "state": "Ontario",
+          "zip": "L3R 1A3",
+          "country": "Canada",
+          "geoPoint": {
+            "lat": 43.86682,
+            "lon": -79.2663
+          }
+        },
+        {
+          "facility": "St. Michael's Hospital",
+          "city": "Toronto",
+          "state": "Ontario",
+          "zip": "M5B1M4",
+          "country": "Canada",
+          "geoPoint": {
+            "lat": 43.70011,
+            "lon": -79.4163
+          }
+        },
+        {
+          "facility": "CAMH-Russell Street Site 250 College Street",
+          "city": "Toronto",
+          "state": "Ontario",
+          "zip": "M5T 1R8",
+          "country": "Canada",
+          "geoPoint": {
+            "lat": 43.70011,
+            "lon": -79.4163
+          }
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO"
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D061218",
+          "term": "Depressive Disorder, Treatment-Resistant"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M29783",
+          "name": "Depressive Disorder, Treatment-Resistant",
+          "asFound": "Treatment Resistant Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    }
+  },
+  "hasResults": false
+}

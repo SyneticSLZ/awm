@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Image Extractor to Grok API</title>
+    <style>
+        #images, #apiResponse { margin-top: 20px; }
+        canvas { border: 1px solid #ccc; margin: 5px; }
+        #apiResponse { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Upload a PDF to Extract Images and Summarize with Grok API</h1>
+    <input type="file" id="pdfInput" accept=".pdf" />
+    <div id="images"></div>
+    <div id="apiResponse"></div>
+
+    <!-- Load pdf.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+        // Grok API configuration with provided mock details
+        const GROK_API_KEY = 'q2dqVZZgIN7RcBlnGlja2KS52sXSxeEKJxGM7K5Q29s0h3nX5JDXdIjr6rx4PpYshPti6iZAQYxs32J4';
+        const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
+
+        async function sendImagesToGrokAPI(images) {
+            const payload = {
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a test assistant tasked with summarizing images extracted from a PDF."
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            { type: "text", text: "Summarize the content of these images extracted from a PDF." },
+                            ...images.map(img => ({ type: "image_url", image_url: { url: img } }))
+                        ]
+                    }
+                ],
+                model: "grok-2-latest",
+                stream: false,
+                temperature: 0
+            };
+
+            try {
+                const response = await fetch(GROK_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer xai-${GROK_API_KEY}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+                const result = await response.json();
+                document.getElementById('apiResponse').innerHTML = '<h2>Grok API Summary:</h2>' + JSON.stringify(result, null, 2);
+            } catch (error) {
+                console.error('Grok API Error:', error);
+                document.getElementById('apiResponse').innerHTML = 'Error sending to Grok API: ' + error.message;
+            }
+        }
+
+        document.getElementById('pdfInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                alert('Please upload a valid PDF file.');
+                return;
+            }
+
+            const imagesDiv = document.getElementById('images');
+            const apiResponseDiv = document.getElementById('apiResponse');
+            imagesDiv.innerHTML = 'Processing...';
+            apiResponseDiv.innerHTML = '';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                const imageDataArray = [];
+                const numPages = pdf.numPages;
+
+                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+
+                    // Render page to canvas and get image
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    const imgData = canvas.toDataURL('image/png');
+                    imageDataArray.push(imgData);
+
+                    // Display image
+                    const img = document.createElement('img');
+                    img.src = imgData;
+                    img.alt = `Page ${pageNum} Render`;
+                    img.style.maxWidth = '300px';
+                    imagesDiv.appendChild(img);
+                }
+
+                imagesDiv.innerHTML = ''; // Clear "Processing..." after images are loaded
+                imagesDiv.append(...imageDataArray.map((data, i) => {
+                    const img = document.createElement('img');
+                    img.src = data;
+                    img.alt = `Page ${i + 1} Render`;
+                    img.style.maxWidth = '300px';
+                    return img;
+                }));
+
+                // Send images to Grok API
+                await sendImagesToGrokAPI(imageDataArray);
+
+            } catch (error) {
+                console.error('Error processing PDF:', error);
+                imagesDiv.innerHTML = 'Error processing PDF: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

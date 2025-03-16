@@ -1,0 +1,1112 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT05320432",
+      "orgStudyIdInfo": {
+        "id": "62478"
+      },
+      "organization": {
+        "fullName": "Stanford University",
+        "class": "OTHER"
+      },
+      "briefTitle": "Transcutaneous Electrical Nerve Stimulation for Pain Control During First-trimester Abortion",
+      "officialTitle": "Transcutaneous Electrical Nerve Stimulation for Pain Control During First Trimester Abortion: a Blinded Randomized Controlled Trial",
+      "acronym": "TENS 2 0"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2025-02",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2023-01-20",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2024-03-21",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2024-03-21",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2022-04-01",
+      "studyFirstSubmitQcDate": "2022-04-01",
+      "studyFirstPostDateStruct": {
+        "date": "2022-04-11",
+        "type": "ACTUAL"
+      },
+      "resultsFirstSubmitDate": "2025-02-03",
+      "resultsFirstSubmitQcDate": "2025-02-03",
+      "resultsFirstPostDateStruct": {
+        "date": "2025-02-25",
+        "type": "ESTIMATED"
+      },
+      "lastUpdateSubmitDate": "2025-02-03",
+      "lastUpdatePostDateStruct": {
+        "date": "2025-02-25",
+        "type": "ESTIMATED"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Stanford University",
+        "class": "OTHER"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": false,
+      "isFdaRegulatedDrug": false,
+      "isFdaRegulatedDevice": true,
+      "isUsExport": false
+    },
+    "descriptionModule": {
+      "briefSummary": "First-trimester abortion aspiration procedures are painful and sedation is typically provided. It is unsafe to drive after sedation due to the prolonged motor delay from some anesthetic agents. Without a known escort, most clinics do not allow patients to use public transportation, taxis, or rideshare services. Arranging a ride may be harder for those seeking abortion care than other surgical procedures given privacy concerns and the need to travel far distances. Additionally, some people have medical reasons that makes sedation in an outpatient abortion clinic unsafe. As abortion restrictions increase and more people need to travel far distances to access care, it is important to investigate non-pharmacologic pain control options.\n\nTranscutaneous electrical nerve stimulation (TENS) delivers a low-level electrical current through the skin. By activating the descending inhibitory systems in the central nervous system, these pulses of electrical current reduce sensitivity to pain. TENS has been shown to be effective in decreasing pain with menstrual cramps and during medication abortion, and it was found to be non-inferior to IV sedation for first-trimester procedural abortion. However, it remains unclear if TENS is better than ibuprofen and local anesthesia via paracervical block alone.\n\nThe overarching goal of this research is to identify an inexpensive, non-pharmacologic, alternative pain control strategy for those with a medical or social contraindication to IV sedation. The specific aim of this project is to evaluate the efficacy of TENS to prevent pain during first-trimester procedural abortion. To achieve this objective, a blinded, randomized superiority trial comparing the use of TENS to sham for management of pain during first-trimester aspiration abortion is proposed. This research is significant because the validation of a non-pharmacologic pain management technique would decrease barriers to accessing abortion care.",
+      "detailedDescription": "Abortion is common: one in four individuals will seek this care during their reproductive lifetime. Most abortions occur in the first trimester and nearly all - greater than 95% - occur in the outpatient clinic setting. Uterine aspiration is painful; most patients desire additional analgesia beyond local anesthesia. However, not every patient is a candidate for office sedation since multiple medical conditions are a contraindication and patients must have a ride home. The prolonged motor delay from some anesthetic agents makes driving after sedation unsafe. Without a known escort to monitor for surgical and anesthetic complications as recommended by the American Society of Anesthesia, most clinics do not allow patients to use public transportation, taxis, or rideshare services. Arranging a ride may be harder for those seeking abortion care than other surgical procedures given privacy concerns and the need to travel far distances. As abortion restrictions increase and more people need to travel far distances to access care, it is important to investigate non-pharmacologic pain control options. Transcutaneous electrical nerve stimulation (TENS) delivers an electrical current through the skin to activate the descending inhibitory systems in the central nervous system, effectively reducing sensitivity to pain. A previous trial comparing TENS to IV sedation found similar postoperative pain scores with a significantly shorter recovery time in the TENS group; however, this study did not evaluate or report intraoperative pain scores. It was found in a randomized controlled trial comparing TENS to IV sedation (in conjunction with local anesthesia) for first-trimester surgical abortion and that TENS had non-inferior pain scores to IV sedation and was considered an acceptable modality for pain control among participants. Through this proposed double blinded randomized controlled trial, it is hoped to demonstrate that TENS is a superior, non-invasive alternative pain control option for people undergoing surgical abortion in the first trimester who otherwise are not eligible for or decline IV sedation. Ultimately, the hope is to identify an inexpensive, alternative, non-pharmacologic pain control strategy for those with a medical or social contraindication to IV sedation in an effort to decrease barriers to accessing abortion care."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Abortion in First Trimester",
+        "Pain"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "NA"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "SUPPORTIVE_CARE",
+        "maskingInfo": {
+          "masking": "TRIPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "CARE_PROVIDER",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 70,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Transcutaneous electrical nerve stimulation (TENS)",
+          "type": "EXPERIMENTAL",
+          "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).",
+          "interventionNames": [
+            "Device: Transcutaneous electrical nerve stimulation (TENS)"
+          ]
+        },
+        {
+          "label": "Sham",
+          "type": "SHAM_COMPARATOR",
+          "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.",
+          "interventionNames": [
+            "Device: Sham"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DEVICE",
+          "name": "Transcutaneous electrical nerve stimulation (TENS)",
+          "description": "A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system.",
+          "armGroupLabels": [
+            "Transcutaneous electrical nerve stimulation (TENS)"
+          ]
+        },
+        {
+          "type": "DEVICE",
+          "name": "Sham",
+          "description": "No current applied through pads.",
+          "armGroupLabels": [
+            "Sham"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Pain During Cervical Dilation",
+          "description": "Pain with manual cervical dilation, assessed by visual analog scale (VAS, 0-100mm; 0 being \"no pain\" and 100 being \"worst pain imaginable\")",
+          "timeFrame": "Intra-operative, collected during procedure (up to 30 seconds)"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Pain During Procedure",
+          "description": "Pain during aspiration assessed by visual analog scale (VAS, 0-100mm; 0 being \"no pain\" and 100 being \"worst pain imaginable\")",
+          "timeFrame": "Intra-operative, collected during procedure (up to 30 seconds)"
+        },
+        {
+          "measure": "Overall Experience",
+          "description": "Patient experience assessed by visual analog scale (VAS, 0-100mm; 0 being \"worst experience possible\" and 100 being \"best experience possible\")",
+          "timeFrame": "Post-operative, collected following procedure (up to 20 minutes)"
+        },
+        {
+          "measure": "Procedure Time",
+          "timeFrame": "up to 20 minutes"
+        },
+        {
+          "measure": "Provider Perceived Ease of Procedure",
+          "description": "Provider experience assessed by visual analog scale (VAS, 0-100mm; 0 being \"easiest to use\" and 100 being \"most difficult to use\")",
+          "timeFrame": "Post-operative, collected after procedure (up to 30 seconds)"
+        },
+        {
+          "measure": "Time Spent in Recovery",
+          "timeFrame": "up to 1 hour"
+        },
+        {
+          "measure": "Number of Participants Who Correctly Identified Whether They Received TENS or Sham",
+          "description": "This outcome is to measure the participant's perceived group allocation.",
+          "timeFrame": "Post-operative, collected after procedure (up to 30 seconds)"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion Criteria:\n\n* 18 years old or older\n* English- or Spanish-fluency\n* \\<12 weeks gestation\n* Presenting for aspiration abortion\n\nExclusion Criteria:\n\n* Planned use of oral or IV sedation\n* Contraindications to office-based procedure as determined by attending physician\n* Fetal demise\n* Requiring pre-procedure use of misoprostol\n* Contraindication to TENS units use (pacemaker or epilepsy)",
+      "healthyVolunteers": false,
+      "sex": "FEMALE",
+      "genderBased": true,
+      "minimumAge": "18 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "locations": [
+        {
+          "facility": "Stanford University",
+          "city": "Palo Alto",
+          "state": "California",
+          "zip": "94305",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 37.44188,
+            "lon": -122.14302
+          }
+        }
+      ]
+    },
+    "ipdSharingStatementModule": {
+      "ipdSharing": "NO"
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+          "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+        },
+        {
+          "id": "FG001",
+          "title": "Sham",
+          "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "35"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "35"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "35"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "33"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            }
+          ],
+          "dropWithdraws": [
+            {
+              "type": "Withdrawal by Subject",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+          "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+        },
+        {
+          "id": "BG001",
+          "title": "Sham",
+          "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+        },
+        {
+          "id": "BG002",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "35"
+            },
+            {
+              "groupId": "BG001",
+              "value": "35"
+            },
+            {
+              "groupId": "BG002",
+              "value": "70"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "30.6",
+                      "spread": "6.5"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "29.9",
+                      "spread": "7.7"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "30.2",
+                      "spread": "7.1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "70"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "American Indian or Alaska Native",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "title": "Asian",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "9"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "13"
+                    }
+                  ]
+                },
+                {
+                  "title": "Native Hawaiian or Other Pacific Islander",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Black or African American",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "4"
+                    }
+                  ]
+                },
+                {
+                  "title": "White",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "17"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "20"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "37"
+                    }
+                  ]
+                },
+                {
+                  "title": "More than one race",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "5"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "5"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "6"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "9"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "35"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "70"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Nulliparous",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "11"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "14"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "25"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Pain During Cervical Dilation",
+          "description": "Pain with manual cervical dilation, assessed by visual analog scale (VAS, 0-100mm; 0 being \"no pain\" and 100 being \"worst pain imaginable\")",
+          "populationDescription": "Two excluded from sham as did not complete procedure.",
+          "reportingStatus": "POSTED",
+          "paramType": "MEDIAN",
+          "dispersionType": "Full Range",
+          "unitOfMeasure": "millimeters on VAS",
+          "timeFrame": "Intra-operative, collected during procedure (up to 30 seconds)",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "44",
+                      "lowerLimit": "0",
+                      "upperLimit": "88"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "50",
+                      "lowerLimit": "0",
+                      "upperLimit": "96"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Pain During Procedure",
+          "description": "Pain during aspiration assessed by visual analog scale (VAS, 0-100mm; 0 being \"no pain\" and 100 being \"worst pain imaginable\")",
+          "populationDescription": "Two participants excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "MEDIAN",
+          "dispersionType": "Full Range",
+          "unitOfMeasure": "millimeters on VAS",
+          "timeFrame": "Intra-operative, collected during procedure (up to 30 seconds)",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "44",
+                      "lowerLimit": "0",
+                      "upperLimit": "100"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "56",
+                      "lowerLimit": "3",
+                      "upperLimit": "100"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Overall Experience",
+          "description": "Patient experience assessed by visual analog scale (VAS, 0-100mm; 0 being \"worst experience possible\" and 100 being \"best experience possible\")",
+          "populationDescription": "Two excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "MEDIAN",
+          "dispersionType": "Full Range",
+          "unitOfMeasure": "millimeters on VAS",
+          "timeFrame": "Post-operative, collected following procedure (up to 20 minutes)",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "75",
+                      "lowerLimit": "6",
+                      "upperLimit": "100"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "62",
+                      "lowerLimit": "0",
+                      "upperLimit": "100"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Procedure Time",
+          "populationDescription": "Two excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "minutes",
+          "timeFrame": "up to 20 minutes",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "7.3",
+                      "spread": "2.9"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "8.4",
+                      "spread": "4.1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Provider Perceived Ease of Procedure",
+          "description": "Provider experience assessed by visual analog scale (VAS, 0-100mm; 0 being \"easiest to use\" and 100 being \"most difficult to use\")",
+          "populationDescription": "Two excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "MEDIAN",
+          "dispersionType": "Full Range",
+          "unitOfMeasure": "score on a scale",
+          "timeFrame": "Post-operative, collected after procedure (up to 30 seconds)",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "16",
+                      "lowerLimit": "2",
+                      "upperLimit": "62"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "15",
+                      "lowerLimit": "0",
+                      "upperLimit": "72"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Time Spent in Recovery",
+          "populationDescription": "Two excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "MEAN",
+          "dispersionType": "Standard Deviation",
+          "unitOfMeasure": "minutes",
+          "timeFrame": "up to 1 hour",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "25.4",
+                      "spread": "8.8"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "24.0",
+                      "spread": "10.8"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Number of Participants Who Correctly Identified Whether They Received TENS or Sham",
+          "description": "This outcome is to measure the participant's perceived group allocation.",
+          "populationDescription": "Two participants excluded from sham - did not complete procedure",
+          "reportingStatus": "POSTED",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "timeFrame": "Post-operative, collected after procedure (up to 30 seconds)",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+              "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system."
+            },
+            {
+              "id": "OG001",
+              "title": "Sham",
+              "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "35"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "33"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "32"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "21"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "0",
+      "timeFrame": "2 weeks post-procedure",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Transcutaneous Electrical Nerve Stimulation (TENS)",
+          "description": "Prior to the procedure, the patient will have two sets of two self-adhesive electrodes placed parallel to the spinal cord at the T10-L1 and S2-S4 levels for TENS administration. For participants randomized to the experimental group, the non-blinded study coordinator will turn on the TENS unit 5 minutes prior to the procedure and monitor stimulating frequency level (80-100 Hz and pulse duration of 400 microseconds; intensity or frequency will be monitored to be administered to a non-painful level).\n\nTranscutaneous electrical nerve stimulation (TENS): A low-level electrical current through the skin activates the descending inhibitory systems in the central nervous system.",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 35,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 35,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 35
+        },
+        {
+          "id": "EG001",
+          "title": "Sham",
+          "description": "For the participants randomized to sham, the same placement of electrodes will occur, but the unit will not be delivering electrical stimulation.\n\nSham: No current applied through pads.",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 35,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 35,
+          "otherNumAffected": 0,
+          "otherNumAtRisk": 35
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "certainAgreement": {
+        "piSponsorEmployee": true
+      },
+      "pointOfContact": {
+        "title": "Principal Investigator",
+        "organization": "Stanford University",
+        "email": "gynresearch@stanford.edu",
+        "phone": "650-497-5175"
+      }
+    }
+  },
+  "documentSection": {
+    "largeDocumentModule": {
+      "largeDocs": [
+        {
+          "typeAbbrev": "Prot_SAP",
+          "hasProtocol": true,
+          "hasSap": true,
+          "hasIcf": false,
+          "label": "Study Protocol and Statistical Analysis Plan",
+          "date": "2022-07-01",
+          "uploadDate": "2025-01-28T20:01",
+          "filename": "Prot_SAP_000.pdf",
+          "size": 87990
+        }
+      ]
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "browseLeaves": [
+        {
+          "id": "M13066",
+          "name": "Pain",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BC23",
+          "name": "Symptoms and General Pathology"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "browseLeaves": [
+        {
+          "id": "M7992",
+          "name": "Epinephrine",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M30371",
+          "name": "Racepinephrine",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M211043",
+          "name": "Epinephryl borate",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "VaCoAg",
+          "name": "Vasoconstrictor Agents"
+        },
+        {
+          "abbrev": "Resp",
+          "name": "Respiratory System Agents"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

@@ -1,0 +1,993 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT00472576",
+      "orgStudyIdInfo": {
+        "id": "070152"
+      },
+      "secondaryIdInfos": [
+        {
+          "id": "07-M-0152",
+          "type": "OTHER",
+          "domain": "National Institutes of Health"
+        }
+      ],
+      "organization": {
+        "fullName": "National Institutes of Health Clinical Center (CC)",
+        "class": "NIH"
+      },
+      "briefTitle": "Antidepressant Effects of NR2B in Major Depression",
+      "officialTitle": "An Investigation of the Antidepressant Effects of the Selective NR2B Antagonist MK-0657 in Major Depression"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2012-07",
+      "overallStatus": "COMPLETED",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2007-05"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2009-08",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2009-08",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2007-05-10",
+      "studyFirstSubmitQcDate": "2007-05-10",
+      "studyFirstPostDateStruct": {
+        "date": "2007-05-11",
+        "type": "ESTIMATED"
+      },
+      "resultsFirstSubmitDate": "2011-03-14",
+      "resultsFirstSubmitQcDate": "2011-03-14",
+      "resultsFirstPostDateStruct": {
+        "date": "2011-04-07",
+        "type": "ESTIMATED"
+      },
+      "lastUpdateSubmitDate": "2012-07-19",
+      "lastUpdatePostDateStruct": {
+        "date": "2012-08-03",
+        "type": "ESTIMATED"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "PRINCIPAL_INVESTIGATOR",
+        "investigatorFullName": "Carlos Zarate, M.D.",
+        "investigatorTitle": "Chief of Experimental Therapeutics and Pathophysiology Branch of NIMH, DIRP",
+        "investigatorAffiliation": "National Institutes of Health Clinical Center (CC)"
+      },
+      "leadSponsor": {
+        "name": "National Institute of Mental Health (NIMH)",
+        "class": "NIH"
+      }
+    },
+    "oversightModule": {
+      "oversightHasDmc": false
+    },
+    "descriptionModule": {
+      "briefSummary": "Purpose : This study will determine whether MK-0657, a selective NR2B Antagonist, can quickly improve symptoms of depressed mood, psychomotor retardation, poor motivation and reduced enjoyment of things in patients with major depression.\n\nMK-0657 decreases the activity of a brain receptor called NMDA, which the chemical glutamate binds to, possibly inducing a rapid antidepressant response. People between 18 and 55 years of age who have major depression of at least 4 weeks' duration and have not been helped by two antidepressants approved for major depression may be eligible for this study. Women who are able to have children are excluded. Participants are admitted to the NIH Clinical Center for two study phases, as follows. Phase I (1 to 2 weeks): Patients are tapered off their current medications. Phase II (7 weeks): Patients are randomly assigned to take either MK-0657 or placebo (look-alike capsules with no active ingredient) by mouth for 12 days. At some point during the second part this phase, patients who had been taking MK-0657 are switched over to placebo and those who had been taking placebo are switched to MK-0657. Participants undergo the following procedures during the study:Physical examination twice (at the beginning and at the end of the study) Electrocardiogram (ECG) four times Blood tests about six times Rating scales up to 28 times to assess the effects of MK-0657 on mood and thinking Blood pressure measurements three times a day.\n\nStudy examines the effectiveness of a new medication, targeting a system called glutamate, will improve depression when compared with placebo.",
+      "detailedDescription": "Even though there are many antidepressant drugs for clinical use, clinical trials indicate that 30% to 40% of patients with major depression fail to respond to first-line antidepressant treatments despite adequate dosage, duration, and compliance. Furthermore, these medications may take weeks to months to achieve their full effects and in the meantime, patients continue to suffer from their symptoms and be at risk of self-harm as well as harm to their personal and professional lives. Thus, there is a clear need to develop novel and improved therapeutics for treatment-resistant major depression that have a rapid onset of action. Recent preclinical studies suggest that antidepressants may exert delayed indirect effects on the glutamatergic system, specifically on the NMDA receptor complex. A recent study by our group found that a single intravenous dose of the non-competitive NMDA antagonist ketamine produced a rapid, robust and relatively sustained antidepressant effect in patients with treatment-resistant major depression. Together, these data suggest that the NMDA receptor may play an important role in the mechanism of antidepressant action. Unfortunately, ketamine's psychotomimetic effects preclude its use as a chronic antidepressant; these side effects probably are a result of ketamine's effects on multiple NMDA subunits. Thus, studying selective NMDA subunit antagonists in depression is a reasonable next step. The NR2B subunit stands as a prime candidate to test in depression. Preclinical data by our group indicates that the NR2B subunit is involved in the mechanism of antidepressant action as indicated by changes in phosphorylation of serine residues in the learned helplessness model of depression and with chronic treatment with imipramine. In addition, we found that the NR2B antagonist R0 25-6981 has antidepressant-like properties in the forced swim test. We propose to examine whether the selective NR2B antagonist (MK-0657) produces rapid antidepressant effects in patients with treatment-resistant major depression but without causing psychotomimetic effects.\n\nMale and female patients, ages 18 to 55 years, with a diagnosis of major depression (without psychotic features), will be recruited for this study. This study consists of the double-blind crossover administration of either the NR2B antagonist MK-0657 (4-8 mg/day) or placebo.\n\nThe specific aim of this study is to assess the efficacy of 12 days of a selective NR2B antagonist (MK-0657, 4-8 mg/day given orally) compared with placebo in improving overall depressive symptomatology in patients with treatment-resistant major depression.\n\nOur primary hypothesis is that subjects with treatment-resistant major depression who are randomized to a selective NR2B antagonist (MK-0657) will have a more rapid and superior response compared to when they are randomized to placebo. This is a proof of concept and treatment study.\n\nApproximately, 27 subjects will be randomized; the accrual ceiling for this protocol is 60 subjects."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Major Depression"
+      ],
+      "keywords": [
+        "NMDA Receptor",
+        "Depression Treatment",
+        "Unipolar Depression",
+        "Treatment Resistant",
+        "Glutamatergic",
+        "Depression",
+        "Major Depression"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE1"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "CROSSOVER",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "QUADRUPLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "CARE_PROVIDER",
+            "INVESTIGATOR",
+            "OUTCOMES_ASSESSOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 5,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Placebo then MK-0657",
+          "type": "EXPERIMENTAL",
+          "description": "Double-blind crossover administration of placebo then MK-0657 (4-8 mg/day)",
+          "interventionNames": [
+            "Drug: MK-0657",
+            "Drug: Placebo"
+          ]
+        },
+        {
+          "label": "MK-0657 then Placebo",
+          "type": "EXPERIMENTAL",
+          "description": "Double-blind crossover administration of MK-0657 (4-8 mg/day) then placebo",
+          "interventionNames": [
+            "Drug: MK-0657",
+            "Drug: Placebo"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DRUG",
+          "name": "MK-0657",
+          "description": "Daily double-blind administration of the NR2B antagonist MK-0657 (4-8 mg/day)",
+          "armGroupLabels": [
+            "MK-0657 then Placebo",
+            "Placebo then MK-0657"
+          ],
+          "otherNames": [
+            "NR2B antagonist"
+          ]
+        },
+        {
+          "type": "DRUG",
+          "name": "Placebo",
+          "description": "Daily double-blind administration of placebo",
+          "armGroupLabels": [
+            "MK-0657 then Placebo",
+            "Placebo then MK-0657"
+          ],
+          "otherNames": [
+            "Inactive drug"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Montgomery-Asberg Depression Rating Scale (MADRS)",
+          "description": "The Montgomery-Asberg Depression Rating Scale (MADRS) measures the severity of depression where smaller scores indicate less depression and higher scores suggest more severe depression. Possible scores for this 10 item version range from 0 to 60. Generally, a score of 18 or greater is used to indicate a substantial depression level. The measure at the end of the study is the primary outcome.",
+          "timeFrame": "Measured daily for 12 days, where the endpoint is the primary outcome"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Hamilton Depression Rating Scale (HDRS)",
+          "description": "The Hamilton Depression Rating Scale (HDRS) measures the severity of depression where smaller scores indicate less depression and higher scores suggest more severe depression. Possible scores for this 17 item version range from 0 to 52. Generally, a score of 18 or greater is used to indicate a substantial depression level. The measure at the end of the study is primary.",
+          "timeFrame": "Measured daily for 12 days, where the endpoint is primary"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "INCLUSION CRITERIA:\n\n1. Male or female (not of reproductive potential, unable to conceive) subjects, 18 to 55 years of age. A female patient not of reproductive potential is defined as one who: a) has reached menopause with: i) no menses for the past 3 or more years OR ii) no menses for greater than 1 year but less than 3 years with confirmation of FSH levels elevated into the postmenopausal range; or b) has undergone hysterectomy, bilateral oophorectomy, or bilateral tubal ligation.\n2. Each subject must have a level of understanding sufficient to agree to all required tests and examinations and sign an informed consent document.\n3. Subjects must fulfill DSM-IV criteria for Major Depression (296.3) without psychotic features, based on clinical assessment and confirmed by a structured diagnostic interview, SCID-P.\n4. Subjects must have an initial score of at least 22 on the MADRS at screen and at baseline of study phase II.\n5. Current or past history of lack of response to two adequate antidepressant trials (may be from the same chemical class) operationally defined using the Antidepressant Treatment History Form (ATHF). If subjects have only failed to respond to one adequate antidepressant trial by history, they will be permitted to receive a prospective trial of a standard antidepressant. Subjects who fail to respond to this prospective trial will meet criteria for treatment-resistance and be eligible to randomize. Subjects responding to the prospective trial will be ineligible to randomize. (A CORE representative will be present when the subject is informed as to the decision to randomize or not).\n6. Current major depressive episode of at least 4 weeks duration.\n\nEXCLUSION CRITERIA:\n\n1. Current or past history of bipolar disorder, psychotic features or a diagnosis of Schizophrenia or any other psychotic disorder as defined in the DSM-IV.\n2. Subjects with a history of DSM-IV drug or alcohol dependency or abuse (including for nicotine and caffeine) within the preceding 3 months.\n3. Subjects with a diagnosis of Obsessive Compulsive Disorder or Posttraumatic Stress Disorder as defined in the DSM-IV.\n4. Subjects with a diagnosis of Borderline or Antisocial Personality disorder. Other Axis II disorders do not qualify one for exclusion from the study.\n5. Serious, unstable illnesses including hepatic, renal, gastroenterologic, respiratory, cardiovascular (including ischemic heart disease), endocrinologic, neurologic, immunologic, or hematologic disease.\n6. Patient has a history of any cardiovascular disease, including myocardial infarction, cardiac arrhythmias or conduction abnormalities, cerebrovascular accident, transient ischemic attack (TIA), or peripheral vascular disease.\n7. Patient has systolic blood pressure of less than 90 mm Hg or greater than 135 mm Hg at the screen visit or has orthostatic hypotension at the screen visit (greater than or equal to 20 mm Hg decline in systolic blood pressure compared with previous supine systolic blood pressure plus orthostatic symptoms within 3 minutes after standing).\n8. Clinically significant abnormal laboratory test or electrocardiogram.\n9. Subjects with uncorrected hypothyroidism or hyperthyroidism.\n10. Subjects with one or more seizures without a clear and resolved etiology.\n11. Previous lack of antidepressant response to ketamine or hypersensitivity to ketamine or amantadine.\n12. Treatment with fluoxetine within 5 weeks prior to study phase I.\n13. Treatment with any other concomitant medication not allowed 7 days (14 days for MAOIs) prior to study phase II.\n14. Treatment with clozapine or ECT within 2 months prior to study phase II.\n15. MADRS greater than 4 on item 10 (suicidal ideation).\n\nNo structured psychotherapy will be permitted during the study.",
+      "healthyVolunteers": false,
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "maximumAge": "55 Years",
+      "stdAges": [
+        "ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "Carlos A Zarate, MD",
+          "affiliation": "Experimental Therapeutics and Pathophysiology Branch, DIRP, NIMH",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "National Institutes of Health Clinical Center, 9000 Rockville Pike",
+          "city": "Bethesda",
+          "state": "Maryland",
+          "zip": "20892",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 38.98067,
+            "lon": -77.10026
+          }
+        }
+      ]
+    },
+    "referencesModule": {
+      "references": [
+        {
+          "pmid": "4899510",
+          "type": "BACKGROUND",
+          "citation": "Aitken RC. Measurement of feelings using visual analogue scales. Proc R Soc Med. 1969 Oct;62(10):989-93. doi: 10.1177/003591576906201005. No abstract available."
+        },
+        {
+          "pmid": "10073475",
+          "type": "BACKGROUND",
+          "citation": "Adamec RE, Burton P, Shallow T, Budgell J. Unilateral block of NMDA receptors in the amygdala prevents predator stress-induced lasting increases in anxiety-like behavior and unconditioned startle--effective hemisphere depends on the behavior. Physiol Behav. 1999 Jan 1-15;65(4-5):739-51. doi: 10.1016/s0031-9384(98)00225-x."
+        },
+        {
+          "pmid": "8067982",
+          "type": "BACKGROUND",
+          "citation": "Aguado L, San Antonio A, Perez L, del Valle R, Gomez J. Effects of the NMDA receptor antagonist ketamine on flavor memory: conditioned aversion, latent inhibition, and habituation of neophobia. Behav Neural Biol. 1994 May;61(3):271-81. doi: 10.1016/s0163-1047(05)80010-x."
+        },
+        {
+          "pmid": "22722512",
+          "type": "DERIVED",
+          "citation": "Ibrahim L, Diaz Granados N, Jolkovsky L, Brutsche N, Luckenbaugh DA, Herring WJ, Potter WZ, Zarate CA Jr. A Randomized, placebo-controlled, crossover pilot trial of the oral selective NR2B antagonist MK-0657 in patients with treatment-resistant major depressive disorder. J Clin Psychopharmacol. 2012 Aug;32(4):551-7. doi: 10.1097/JCP.0b013e31825d70d6."
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "preAssignmentDetails": "24 patients were screened, 19 subjects were excluded as they did not meet criteria (total n=13) or refused to participate (n=6).",
+      "recruitmentDetails": "Patients were recruited to participate at the Clinical Center on the campus of the National Institutes of Health in Bethesda, Maryland.",
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Placebo Then MK-0657",
+          "description": "Patients receive placebo for 12 days, have no treatment for 14 days, then receive 4-8 mg of MK-0657 for 12 days."
+        },
+        {
+          "id": "FG001",
+          "title": "MK-0657 Then Placebo",
+          "description": "Patients receive 4-8 mg of MK-0657 for 12 days, have no treatment for 14 days, then receive placebo for 12 days."
+        }
+      ],
+      "periods": [
+        {
+          "title": "First Intervention",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "3"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "3"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Second Intervention",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "3"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "2"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "3"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Placebo Then MK-0657",
+          "description": "Patients receive placebo for 12 days, have no treatment for 14 days, then receive 4-8 mg of MK-0657 for 12 days."
+        },
+        {
+          "id": "BG001",
+          "title": "MK-0657 Then Placebo",
+          "description": "Patients receive 4-8 mg of MK-0657 for 12 days, have no treatment for 14 days, then receive placebo for 12 days."
+        },
+        {
+          "id": "BG002",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "2"
+            },
+            {
+              "groupId": "BG001",
+              "value": "3"
+            },
+            {
+              "groupId": "BG002",
+              "value": "5"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Categorical",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "<=18 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Between 18 and 65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "5"
+                    }
+                  ]
+                },
+                {
+                  "title": ">=65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Age Continuous",
+          "paramType": "MEAN",
+          "dispersionType": "STANDARD_DEVIATION",
+          "unitOfMeasure": "years",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "55",
+                      "spread": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "36",
+                      "spread": "12"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "43",
+                      "spread": "13"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "NUMBER",
+          "unitOfMeasure": "participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "SECONDARY",
+          "title": "Hamilton Depression Rating Scale (HDRS)",
+          "description": "The Hamilton Depression Rating Scale (HDRS) measures the severity of depression where smaller scores indicate less depression and higher scores suggest more severe depression. Possible scores for this 17 item version range from 0 to 52. Generally, a score of 18 or greater is used to indicate a substantial depression level. The measure at the end of the study is primary.",
+          "populationDescription": "The number of participants includes all patients who received at least one rating after taking even a single dose of either active drug or placebo.",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "Score on a scale",
+          "timeFrame": "Measured daily for 12 days, where the endpoint is primary",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Placebo",
+              "description": "Patients receive 4 to 8 mg of an inactive equivalent of MK-0657 for 12 days."
+            },
+            {
+              "id": "OG001",
+              "title": "MK-0657",
+              "description": "Patients receive 4 to 8 mg of MK-0657 for 12 days."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "5"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "15.671",
+                      "spread": "1.319"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "13.380",
+                      "spread": "1.319"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "groupDescription": "A linear mixed model with restricted maximum likelihood estimation was used to examine the effects of treatment (MK-0657 and placebo) over time (treatment day) with the baseline of each phase as a covariate. A main effect for phase of study was also included. Schwarz's Bayesian criteria was used to determine the best fitting variance-covariance structure which was an autoregressive moving average model. Bonferroni adjusted simple effects tests were used to evaluate significant effects.",
+              "testedNonInferiority": false,
+              "nonInferiorityType": "SUPERIORITY_OR_OTHER",
+              "pValue": ".001",
+              "statisticalMethod": "Mixed Models Analysis",
+              "paramType": "Mean Difference (Final Values)",
+              "paramValue": "2.291",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "0.911",
+              "ciUpperLimit": "3.671",
+              "dispersionType": "STANDARD_ERROR_OF_MEAN",
+              "dispersionValue": "0.693",
+              "estimateComment": "Mean differences reflect groups differences at end point."
+            }
+          ]
+        },
+        {
+          "type": "PRIMARY",
+          "title": "Montgomery-Asberg Depression Rating Scale (MADRS)",
+          "description": "The Montgomery-Asberg Depression Rating Scale (MADRS) measures the severity of depression where smaller scores indicate less depression and higher scores suggest more severe depression. Possible scores for this 10 item version range from 0 to 60. Generally, a score of 18 or greater is used to indicate a substantial depression level. The measure at the end of the study is the primary outcome.",
+          "populationDescription": "The number of participants includes all patients who received at least one rating after taking even a single dose of either active drug or placebo.",
+          "reportingStatus": "POSTED",
+          "paramType": "LEAST_SQUARES_MEAN",
+          "dispersionType": "Standard Error",
+          "unitOfMeasure": "Score on a scale",
+          "timeFrame": "Measured daily for 12 days, where the endpoint is the primary outcome",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Placebo",
+              "description": "Patients receive 4 to 8 mg of an inactive equivalent of MK-0657 for 12 days."
+            },
+            {
+              "id": "OG001",
+              "title": "MK-0657",
+              "description": "Patients receive 4 to 8 mg of MK-0657 for 12 days."
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "5"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "5"
+                }
+              ]
+            }
+          ],
+          "classes": [
+            {
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "OG000",
+                      "value": "22.519",
+                      "spread": "2.091"
+                    },
+                    {
+                      "groupId": "OG001",
+                      "value": "23.633",
+                      "spread": "2.091"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "analyses": [
+            {
+              "groupIds": [
+                "OG000",
+                "OG001"
+              ],
+              "groupDescription": "A linear mixed model with restricted maximum likelihood estimation was used to examine the effects of treatment (MK-0657 and placebo) over time (treatment day) with the baseline of each phase as a covariate. A main effect for phase of study was also included. Schwarz's Bayesian criteria was used to determine the best fitting variance-covariance structure which was an autoregressive moving average model. Bonferroni adjusted simple effects tests were used to evaluate significant effects.",
+              "testedNonInferiority": false,
+              "nonInferiorityType": "SUPERIORITY_OR_OTHER",
+              "pValue": ".272",
+              "pValueComment": "This test is a comparison of the MK-0657 condition to the placebo condition.",
+              "statisticalMethod": "Mixed Models Analysis",
+              "paramType": "Mean Difference (Final Values)",
+              "paramValue": "-2.040",
+              "ciPctValue": "95",
+              "ciNumSides": "TWO_SIDED",
+              "ciLowerLimit": "-6.981",
+              "ciUpperLimit": "2.901",
+              "dispersionType": "STANDARD_ERROR_OF_MEAN",
+              "dispersionValue": "2.479",
+              "estimateComment": "The primary outcome of interest is whether the groups differ at the end of the study, so the means represent values at that point in time."
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "5",
+      "timeFrame": "Data were examined for the full length of the study from pre-study washout through completion of the second intervention, a total of 59 days.",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Placebo",
+          "description": "Patients receive 4 to 8 mg of an inactive equivalent of MK-0657 for 12 days.",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 5,
+          "otherNumAffected": 4,
+          "otherNumAtRisk": 5
+        },
+        {
+          "id": "EG001",
+          "title": "MK-0657",
+          "description": "Patients receive 4 to 8 mg of MK-0657 for 12 days.",
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 5,
+          "otherNumAffected": 3,
+          "otherNumAtRisk": 5
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "Decreased Libido",
+          "organSystem": "Reproductive system and breast disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 3,
+              "numAffected": 3,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 3,
+              "numAffected": 3,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Muscle, bone, or joint pain",
+          "organSystem": "Musculoskeletal and connective tissue disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Tiredness/Fatigue",
+          "organSystem": "Psychiatric disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 2,
+              "numAffected": 2,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Difficulty falling asleep",
+          "organSystem": "Psychiatric disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 2,
+              "numAffected": 2,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 2,
+              "numAffected": 2,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Interrupted Sleep",
+          "organSystem": "Psychiatric disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 3,
+              "numAffected": 3,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Early morning awakening",
+          "organSystem": "Psychiatric disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 0,
+              "numAffected": 0,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            }
+          ]
+        },
+        {
+          "term": "Depression",
+          "organSystem": "Psychiatric disorders",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numEvents": 1,
+              "numAffected": 1,
+              "numAtRisk": 5
+            },
+            {
+              "groupId": "EG001",
+              "numEvents": 2,
+              "numAffected": 2,
+              "numAtRisk": 5
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "limitationsAndCaveats": {
+        "description": "The study was ended early due to recruitment problems."
+      },
+      "certainAgreement": {
+        "piSponsorEmployee": false,
+        "restrictiveAgreement": false
+      },
+      "pointOfContact": {
+        "title": "Dr. Carlos Zarate",
+        "organization": "Experimental Therapeutics and Pathophysiology Branch, DIRP, NIMH",
+        "email": "zaratec@mail.nih.gov",
+        "phone": "301-451-0861"
+      }
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D003863",
+          "term": "Depression"
+        },
+        {
+          "id": "D003866",
+          "term": "Depressive Disorder"
+        },
+        {
+          "id": "D003865",
+          "term": "Depressive Disorder, Major"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D001526",
+          "term": "Behavioral Symptoms"
+        },
+        {
+          "id": "D019964",
+          "term": "Mood Disorders"
+        },
+        {
+          "id": "D001523",
+          "term": "Mental Disorders"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M7058",
+          "name": "Depression",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7061",
+          "name": "Depressive Disorder",
+          "asFound": "Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M7060",
+          "name": "Depressive Disorder, Major",
+          "asFound": "Major Depression",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M4818",
+          "name": "Behavioral Symptoms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M21835",
+          "name": "Mood Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M4815",
+          "name": "Mental Disorders",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14473",
+          "name": "Psychotic Disorders",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BXM",
+          "name": "Behaviors and Mental Disorders"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "browseLeaves": [
+        {
+          "id": "M4247",
+          "name": "Antidepressive Agents",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "PsychDr",
+          "name": "Psychotropic Drugs"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

@@ -1,0 +1,1316 @@
+{
+  "protocolSection": {
+    "identificationModule": {
+      "nctId": "NCT01126879",
+      "orgStudyIdInfo": {
+        "id": "NCI 09U2"
+      },
+      "secondaryIdInfos": [
+        {
+          "id": "NCI-2010-00941"
+        },
+        {
+          "id": "STU00019487",
+          "type": "OTHER",
+          "domain": "Northwestern University IRB"
+        },
+        {
+          "id": "P50CA090386",
+          "type": "NIH",
+          "link": "https://reporter.nih.gov/quickSearch/P50CA090386"
+        }
+      ],
+      "organization": {
+        "fullName": "Northwestern University",
+        "class": "OTHER"
+      },
+      "briefTitle": "Genistein in Treating Patients With Prostate Cancer",
+      "officialTitle": "Phase 2 Trial of Genistein in Men With Circulating Prostate Cancer Cells"
+    },
+    "statusModule": {
+      "statusVerifiedDate": "2019-04",
+      "overallStatus": "TERMINATED",
+      "whyStopped": "Closed due to low accrual",
+      "expandedAccessInfo": {
+        "hasExpandedAccess": false
+      },
+      "startDateStruct": {
+        "date": "2011-02-03",
+        "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+        "date": "2013-05-09",
+        "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+        "date": "2013-12-28",
+        "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2010-05-18",
+      "studyFirstSubmitQcDate": "2010-05-18",
+      "studyFirstPostDateStruct": {
+        "date": "2010-05-20",
+        "type": "ESTIMATED"
+      },
+      "resultsFirstSubmitDate": "2019-05-01",
+      "resultsFirstSubmitQcDate": "2019-06-24",
+      "resultsFirstPostDateStruct": {
+        "date": "2019-07-02",
+        "type": "ACTUAL"
+      },
+      "lastUpdateSubmitDate": "2019-08-27",
+      "lastUpdatePostDateStruct": {
+        "date": "2019-09-10",
+        "type": "ACTUAL"
+      }
+    },
+    "sponsorCollaboratorsModule": {
+      "responsibleParty": {
+        "type": "SPONSOR"
+      },
+      "leadSponsor": {
+        "name": "Northwestern University",
+        "class": "OTHER"
+      },
+      "collaborators": [
+        {
+          "name": "National Cancer Institute (NCI)",
+          "class": "NIH"
+        }
+      ]
+    },
+    "oversightModule": {
+      "oversightHasDmc": true,
+      "isFdaRegulatedDrug": true,
+      "isFdaRegulatedDevice": false
+    },
+    "descriptionModule": {
+      "briefSummary": "RATIONALE: Genistein may stop the growth of tumor cells by blocking some of the enzymes needed for cell growth.\n\nPURPOSE: This randomized phase II trial is studying how well genistein works in treating patients with prostate cancer.",
+      "detailedDescription": "PRIMARY OBJECTIVES:\n\nI. Determine whether genistein treatment will decrease the number of circulating prostate cells (CPCs) in the peripheral blood as measured by qRT-PCR for PSA performed on RNA extracted from peripheral blood mononuclear cells (PBMNCs).\n\nSECONDARY OBJECTIVES:\n\nI. Determine the natural history of circulating prostate cells (CPCs) in a cohort of subjects prior to and post radical prostatectomy.\n\nII. Compare the measurement of PSA between three separate methods: in CPCs by qRT-PCR, in serum by the standard clinical chemistry assay (i.e., ELISA), and in plasma and serum by the nano-PSA assay.\n\nIII. Measure the effect of genistein on gene and protein expression in prostate tissue by qRT-PCR and immunohistochemistry, respectively, for the following genes and their respective protein products: HSP27, MMP-2, ALK-2, BASP1, and HCF2.\n\nOUTLINE:\n\nPatients are randomized to 1 of 2 treatment arms.\n\nARM I: Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nARM II: Patients receive oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nAll patients undergo radical prostatectomy at least 2 weeks, but not more than 3 months following the start of therapy.\n\nAfter completion of study treatment, patients are followed at 1, 6, and 12 months."
+    },
+    "conditionsModule": {
+      "conditions": [
+        "Adenocarcinoma of the Prostate",
+        "Recurrent Prostate Cancer",
+        "Stage I Prostate Cancer",
+        "Stage II Prostate Cancer",
+        "Stage III Prostate Cancer"
+      ]
+    },
+    "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+        "PHASE2"
+      ],
+      "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+          "masking": "DOUBLE",
+          "whoMasked": [
+            "PARTICIPANT",
+            "INVESTIGATOR"
+          ]
+        }
+      },
+      "enrollmentInfo": {
+        "count": 12,
+        "type": "ACTUAL"
+      }
+    },
+    "armsInterventionsModule": {
+      "armGroups": [
+        {
+          "label": "Arm I",
+          "type": "EXPERIMENTAL",
+          "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.",
+          "interventionNames": [
+            "Dietary Supplement: genistein",
+            "Procedure: therapeutic conventional surgery"
+          ]
+        },
+        {
+          "label": "Arm II",
+          "type": "PLACEBO_COMPARATOR",
+          "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.",
+          "interventionNames": [
+            "Other: placebo",
+            "Procedure: therapeutic conventional surgery"
+          ]
+        }
+      ],
+      "interventions": [
+        {
+          "type": "DIETARY_SUPPLEMENT",
+          "name": "genistein",
+          "description": "Given orally",
+          "armGroupLabels": [
+            "Arm I"
+          ],
+          "otherNames": [
+            "CI 75610",
+            "Genestein",
+            "genisteol",
+            "genisterin",
+            "prunetol",
+            "sophoricol"
+          ]
+        },
+        {
+          "type": "OTHER",
+          "name": "placebo",
+          "description": "Given orally",
+          "armGroupLabels": [
+            "Arm II"
+          ],
+          "otherNames": [
+            "PLCB"
+          ]
+        },
+        {
+          "type": "PROCEDURE",
+          "name": "therapeutic conventional surgery",
+          "description": "Radical prostatectomy for treatment of prostate cancer",
+          "armGroupLabels": [
+            "Arm I",
+            "Arm II"
+          ]
+        }
+      ]
+    },
+    "outcomesModule": {
+      "primaryOutcomes": [
+        {
+          "measure": "Number of Circulating Prostate Cells (CPCs) in the Blood as Determined by qRT-PCR for PSA on RNA Extracted From PBMNCs",
+          "description": "Blood will be collected to analyze the number of CPC's at screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery.",
+          "timeFrame": "At screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery"
+        }
+      ],
+      "secondaryOutcomes": [
+        {
+          "measure": "Natural History of Circulating Prostate Cells (CPCs) in a Cohort of Subjects Prior to and Post Radical Prostatectomy",
+          "description": "Blood will be drawn to analyze the natural history of circulating prostate cells (CPCs) in a cohort of subjects at baseline and 1 and 12 months after surgery.",
+          "timeFrame": "At baseline, 1 and 12 months after surgery"
+        },
+        {
+          "measure": "Measure the Effect of Genistein on Select Gene and Protein Expressions in Prostate Tissue",
+          "description": "At baseline and time of surgery, tissue will be collected to measure the effect of genistein on select gene and protein expressions in prostate tissue.",
+          "timeFrame": "At baseline and at time of surgery"
+        },
+        {
+          "measure": "Measurement of PSA in Serum and Plasma by Nanotechnology",
+          "description": "Blood will be collected to measure PSA in serum and plasma by nanotechnology at screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery.",
+          "timeFrame": "At screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery"
+        }
+      ]
+    },
+    "eligibilityModule": {
+      "eligibilityCriteria": "Inclusion\n\n* Participants must have a pathologic diagnosis of prostate cancer within the past 6 months, have clinical stage T1-3 disease, PSA \\>= 10, Gleason score \\>= 8, and have elected to undergo radical prostatectomy; those found to have detectable circulating prostate cancer cells in the blood as detected by qRT-PCR for PSA will be eligible to proceed onto the treatment phase of the protocol; pathology slides used for diagnosis will be submitted to the SPORE tissue pathology core for review\n* ECOG performance status 0-1\n* Hemoglobin \\> 9.0gm/dl\n* Platelets \\>= 100 K/uL\n* ANC \\> 1000/uL\n* AST (SGOT)/ALT (SGPT) \\< 3X upper limit of normal\n* Creatinine \\< 2.0 mg/dl\n* Total bilirubin \\< 2 mg/dl (Note: Subjects with a higher level of bilirubin due to a familial defect in bilirubin metabolism will be considered on an individual basis)\n* Participants must agree not to take soy supplements\n* Ability to understand and the willingness to sign a written informed consent document\n* Willingness to take study agent for at least 2 weeks prior to radical prostatectomy\n\nExclusion\n\n* History of venous thrombosis within past year\n* Participants must not be receiving active therapy for neoplastic disorders (including hormone or radiation therapy for prostate cancer)\n* Participants may not be receiving any other investigational agents\n* Known soy intolerance\n* Medical conditions that, in the opinion of the investigators, would jeopardize either the patient or the integrity of the data obtained",
+      "healthyVolunteers": false,
+      "sex": "MALE",
+      "minimumAge": "18 Years",
+      "stdAges": [
+        "ADULT",
+        "OLDER_ADULT"
+      ]
+    },
+    "contactsLocationsModule": {
+      "overallOfficials": [
+        {
+          "name": "William Catalona",
+          "affiliation": "Northwestern University",
+          "role": "PRINCIPAL_INVESTIGATOR"
+        }
+      ],
+      "locations": [
+        {
+          "facility": "Northwestern University",
+          "city": "Chicago",
+          "state": "Illinois",
+          "zip": "60611",
+          "country": "United States",
+          "geoPoint": {
+            "lat": 41.85003,
+            "lon": -87.65005
+          }
+        }
+      ]
+    }
+  },
+  "resultsSection": {
+    "participantFlowModule": {
+      "preAssignmentDetails": "Patients entered the study and were treated in a double blinded fashion with a ration of 2:1 Genistein:Placebo. Unblinding occured if it was medically necessary otherwise blinding was maintained until the time of data review.",
+      "recruitmentDetails": "The study opened on October 21, 2010 with an accrual goal of 30 patients with firs the patient enrolled March 3, 2011. The study was designed as a randomized blinded drug/placebo study but was amended to a single arm drug study and accrual reduced to 18. Study closed permanently on May 28, 2014 due to low accrual with 12 patients treated on study.",
+      "groups": [
+        {
+          "id": "FG000",
+          "title": "Arm I - Genistein",
+          "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+        },
+        {
+          "id": "FG001",
+          "title": "Arm II - Placebo",
+          "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+        }
+      ],
+      "periods": [
+        {
+          "title": "Overall Study",
+          "milestones": [
+            {
+              "type": "STARTED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "8"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "4"
+                }
+              ]
+            },
+            {
+              "type": "Started 3 Months of Genistein/Placebo",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "8"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "4"
+                }
+              ]
+            },
+            {
+              "type": "Prostatectomy or Radiation",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "8"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "4"
+                }
+              ]
+            },
+            {
+              "type": "Completed 3 Months Genistein/Placebo",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "4"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            },
+            {
+              "type": "COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "3"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            },
+            {
+              "type": "NOT COMPLETED",
+              "achievements": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "5"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "2"
+                }
+              ]
+            }
+          ],
+          "dropWithdraws": [
+            {
+              "type": "Progressive Disease",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "3"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "1"
+                }
+              ]
+            },
+            {
+              "type": "Withdrawal by Subject",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "1"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            },
+            {
+              "type": "Adverse Event",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "0"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "1"
+                }
+              ]
+            },
+            {
+              "type": "Physician Decision",
+              "reasons": [
+                {
+                  "groupId": "FG000",
+                  "numSubjects": "1"
+                },
+                {
+                  "groupId": "FG001",
+                  "numSubjects": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "baselineCharacteristicsModule": {
+      "groups": [
+        {
+          "id": "BG000",
+          "title": "Arm I - Genistein",
+          "description": "Patients receive oral genistein or placebo once daily for 3 months beginning at least 2 weeks prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+        },
+        {
+          "id": "BG001",
+          "title": "Arm II - Placebo",
+          "description": "Patients receive oral genistein or placebo once daily for 3 months beginning at least 2 weeks prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+        },
+        {
+          "id": "BG002",
+          "title": "Total",
+          "description": "Total of all reporting groups"
+        }
+      ],
+      "denoms": [
+        {
+          "units": "Participants",
+          "counts": [
+            {
+              "groupId": "BG000",
+              "value": "8"
+            },
+            {
+              "groupId": "BG001",
+              "value": "4"
+            },
+            {
+              "groupId": "BG002",
+              "value": "12"
+            }
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "title": "Age, Categorical",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "<=18 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Between 18 and 65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "5"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "7"
+                    }
+                  ]
+                },
+                {
+                  "title": ">=65 years",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "2"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Sex: Female, Male",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Female",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Male",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "12"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Ethnicity (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "Hispanic or Latino",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "1"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "1"
+                    }
+                  ]
+                },
+                {
+                  "title": "Not Hispanic or Latino",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "3"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "11"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Race (NIH/OMB)",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "categories": [
+                {
+                  "title": "American Indian or Alaska Native",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Asian",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Native Hawaiian or Other Pacific Islander",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Black or African American",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "White",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "12"
+                    }
+                  ]
+                },
+                {
+                  "title": "More than one race",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                },
+                {
+                  "title": "Unknown or Not Reported",
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "0"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Region of Enrollment",
+          "paramType": "COUNT_OF_PARTICIPANTS",
+          "unitOfMeasure": "Participants",
+          "classes": [
+            {
+              "title": "United States",
+              "categories": [
+                {
+                  "measurements": [
+                    {
+                      "groupId": "BG000",
+                      "value": "8"
+                    },
+                    {
+                      "groupId": "BG001",
+                      "value": "4"
+                    },
+                    {
+                      "groupId": "BG002",
+                      "value": "12"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+        {
+          "type": "PRIMARY",
+          "title": "Number of Circulating Prostate Cells (CPCs) in the Blood as Determined by qRT-PCR for PSA on RNA Extracted From PBMNCs",
+          "description": "Blood will be collected to analyze the number of CPC's at screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery.",
+          "populationDescription": "Data was not collected for analysis of this endpoint due to the study closing before the accrual goal was met.",
+          "reportingStatus": "POSTED",
+          "timeFrame": "At screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Arm I - Genistein",
+              "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            },
+            {
+              "id": "OG001",
+              "title": "Arm II - Placebo",
+              "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "0"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Natural History of Circulating Prostate Cells (CPCs) in a Cohort of Subjects Prior to and Post Radical Prostatectomy",
+          "description": "Blood will be drawn to analyze the natural history of circulating prostate cells (CPCs) in a cohort of subjects at baseline and 1 and 12 months after surgery.",
+          "populationDescription": "Data was not collected for analysis of this endpoint due to the study closing before the accrual goal was met.",
+          "reportingStatus": "POSTED",
+          "timeFrame": "At baseline, 1 and 12 months after surgery",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Arm I - Genistein",
+              "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            },
+            {
+              "id": "OG001",
+              "title": "Arm II - Placebo",
+              "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "0"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Measure the Effect of Genistein on Select Gene and Protein Expressions in Prostate Tissue",
+          "description": "At baseline and time of surgery, tissue will be collected to measure the effect of genistein on select gene and protein expressions in prostate tissue.",
+          "populationDescription": "Data was not collected for analysis of this endpoint due to the study closing before the accrual goal was met.",
+          "reportingStatus": "POSTED",
+          "timeFrame": "At baseline and at time of surgery",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Arm I - Genistein",
+              "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            },
+            {
+              "id": "OG001",
+              "title": "Arm II - Placebo",
+              "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "0"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "0"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "SECONDARY",
+          "title": "Measurement of PSA in Serum and Plasma by Nanotechnology",
+          "description": "Blood will be collected to measure PSA in serum and plasma by nanotechnology at screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery.",
+          "populationDescription": "Data was not collected for analysis of this endpoint due to the study closing before the accrual goal was met.",
+          "reportingStatus": "POSTED",
+          "timeFrame": "At screening, after 1-month of treatment, at surgery and at 1 and 12 months after surgery",
+          "groups": [
+            {
+              "id": "OG000",
+              "title": "Arm I - Genistein",
+              "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            },
+            {
+              "id": "OG001",
+              "title": "Arm II - Placebo",
+              "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer"
+            }
+          ],
+          "denoms": [
+            {
+              "units": "Participants",
+              "counts": [
+                {
+                  "groupId": "OG000",
+                  "value": "0"
+                },
+                {
+                  "groupId": "OG001",
+                  "value": "0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "adverseEventsModule": {
+      "frequencyThreshold": "0",
+      "timeFrame": "Adverse Events assessed at the following timepoints for the study: at the start of treatment, at surgery or radiation, at clinic visits occurring 1-3 months post-surgery, or post-initiation of radiation therapy, or at 3 months for those not undergoing surgery or radiation, as well as at a 4 month telephone contact.",
+      "description": "Adverse events were collected by patient reports",
+      "eventGroups": [
+        {
+          "id": "EG000",
+          "title": "Arm I - Genistein",
+          "description": "Patients receive oral genistein once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nGenistein: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 8,
+          "seriousNumAffected": 1,
+          "seriousNumAtRisk": 8,
+          "otherNumAffected": 2,
+          "otherNumAtRisk": 8
+        },
+        {
+          "id": "EG001",
+          "title": "Arm II - Placebo",
+          "description": "Patients receive an oral placebo once daily for 3 months beginning at least 1 month prior to radical prostatectomy.\n\nPlacebo: Given orally\n\nTherapeutic conventional surgery: Radical prostatectomy for treatment of prostate cancer",
+          "deathsNumAffected": 0,
+          "deathsNumAtRisk": 4,
+          "seriousNumAffected": 0,
+          "seriousNumAtRisk": 4,
+          "otherNumAffected": 1,
+          "otherNumAtRisk": 4
+        }
+      ],
+      "seriousEvents": [
+        {
+          "term": "Atrial Fibrillation",
+          "organSystem": "Cardiac disorders",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 4
+            }
+          ]
+        }
+      ],
+      "otherEvents": [
+        {
+          "term": "Pain in Extremity",
+          "organSystem": "Musculoskeletal and connective tissue disorders",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 4
+            }
+          ]
+        },
+        {
+          "term": "Dizziness",
+          "organSystem": "Nervous system disorders",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 4
+            }
+          ]
+        },
+        {
+          "term": "Large pimple",
+          "organSystem": "Skin and subcutaneous tissue disorders",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 0,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 1,
+              "numAtRisk": 4
+            }
+          ]
+        },
+        {
+          "term": "Emergency right inguinal repair",
+          "organSystem": "Surgical and medical procedures",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 4
+            }
+          ]
+        },
+        {
+          "term": "Atrial Fibrillation",
+          "organSystem": "Cardiac disorders",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 4
+            }
+          ]
+        },
+        {
+          "term": "INR Increased",
+          "organSystem": "Investigations",
+          "sourceVocabulary": "CTCAE (3.0)",
+          "assessmentType": "SYSTEMATIC_ASSESSMENT",
+          "stats": [
+            {
+              "groupId": "EG000",
+              "numAffected": 1,
+              "numAtRisk": 8
+            },
+            {
+              "groupId": "EG001",
+              "numAffected": 0,
+              "numAtRisk": 4
+            }
+          ]
+        }
+      ]
+    },
+    "moreInfoModule": {
+      "limitationsAndCaveats": {
+        "description": "The study was closed by an internal safety and data monitoring committee due to slow accrual of the study."
+      },
+      "certainAgreement": {
+        "piSponsorEmployee": true
+      },
+      "pointOfContact": {
+        "title": "William Catalona, MD",
+        "organization": "Northwestern University",
+        "email": "WCatalona@nm.org",
+        "phone": "312-695-1301"
+      }
+    }
+  },
+  "derivedSection": {
+    "miscInfoModule": {
+      "versionHolder": "2025-03-13"
+    },
+    "conditionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D011471",
+          "term": "Prostatic Neoplasms"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D005834",
+          "term": "Genital Neoplasms, Male"
+        },
+        {
+          "id": "D014565",
+          "term": "Urogenital Neoplasms"
+        },
+        {
+          "id": "D009371",
+          "term": "Neoplasms by Site"
+        },
+        {
+          "id": "D009369",
+          "term": "Neoplasms"
+        },
+        {
+          "id": "D005832",
+          "term": "Genital Diseases, Male"
+        },
+        {
+          "id": "D000091662",
+          "term": "Genital Diseases"
+        },
+        {
+          "id": "D000091642",
+          "term": "Urogenital Diseases"
+        },
+        {
+          "id": "D011469",
+          "term": "Prostatic Diseases"
+        },
+        {
+          "id": "D052801",
+          "term": "Male Urogenital Diseases"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M14335",
+          "name": "Prostatic Neoplasms",
+          "asFound": "Prostate Cancer",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M14850",
+          "name": "Recurrence",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M3585",
+          "name": "Adenocarcinoma",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M8946",
+          "name": "Genital Neoplasms, Male",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M17315",
+          "name": "Urogenital Neoplasms",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M2876",
+          "name": "Genital Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M8944",
+          "name": "Genital Diseases, Male",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M2875",
+          "name": "Urogenital Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M14333",
+          "name": "Prostatic Diseases",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M27095",
+          "name": "Male Urogenital Diseases",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "BC04",
+          "name": "Neoplasms"
+        },
+        {
+          "abbrev": "BXS",
+          "name": "Urinary Tract, Sexual Organs, and Pregnancy Conditions"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Conditions"
+        },
+        {
+          "abbrev": "BC23",
+          "name": "Symptoms and General Pathology"
+        }
+      ]
+    },
+    "interventionBrowseModule": {
+      "meshes": [
+        {
+          "id": "D019833",
+          "term": "Genistein"
+        }
+      ],
+      "ancestors": [
+        {
+          "id": "D016588",
+          "term": "Anticarcinogenic Agents"
+        },
+        {
+          "id": "D020011",
+          "term": "Protective Agents"
+        },
+        {
+          "id": "D045505",
+          "term": "Physiological Effects of Drugs"
+        },
+        {
+          "id": "D000970",
+          "term": "Antineoplastic Agents"
+        },
+        {
+          "id": "D047428",
+          "term": "Protein Kinase Inhibitors"
+        },
+        {
+          "id": "D004791",
+          "term": "Enzyme Inhibitors"
+        },
+        {
+          "id": "D045504",
+          "term": "Molecular Mechanisms of Pharmacological Action"
+        },
+        {
+          "id": "D048789",
+          "term": "Phytoestrogens"
+        },
+        {
+          "id": "D004968",
+          "term": "Estrogens, Non-Steroidal"
+        },
+        {
+          "id": "D004967",
+          "term": "Estrogens"
+        },
+        {
+          "id": "D006728",
+          "term": "Hormones"
+        },
+        {
+          "id": "D006730",
+          "term": "Hormones, Hormone Substitutes, and Hormone Antagonists"
+        }
+      ],
+      "browseLeaves": [
+        {
+          "id": "M21721",
+          "name": "Genistein",
+          "asFound": "Ferric Carboxymaltose",
+          "relevance": "HIGH"
+        },
+        {
+          "id": "M21869",
+          "name": "Protective Agents",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M25820",
+          "name": "Protein Kinase Inhibitors",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M7951",
+          "name": "Enzyme Inhibitors",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M25995",
+          "name": "Phytoestrogens",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M8116",
+          "name": "Estrogens",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M9789",
+          "name": "Hormones",
+          "relevance": "LOW"
+        },
+        {
+          "id": "M9788",
+          "name": "Hormone Antagonists",
+          "relevance": "LOW"
+        }
+      ],
+      "browseBranches": [
+        {
+          "abbrev": "ANeo",
+          "name": "Antineoplastic Agents"
+        },
+        {
+          "abbrev": "All",
+          "name": "All Drugs and Chemicals"
+        }
+      ]
+    }
+  },
+  "hasResults": true
+}

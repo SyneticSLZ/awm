@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trials Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.study-chip {
+    transition: all 0.3s ease;
+}
+.study-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* Add some spacing to improve mobile view */
+@media (max-width: 768px) {
+    .grid {
+        row-gap: 2rem;
+    }
+    
+    h1 {
+        font-size: 1.875rem; /* 3xl */
+    }
+    
+    h2 {
+        font-size: 1.5rem; /* 2xl */
+    }
+    
+    h3 {
+        font-size: 1.25rem; /* xl */
+    }
+}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">Clinical Trials Explorer</h1>
+            <p class="text-lg text-indigo-600">Discover and compare medical research studies</p>
+        </header>
+
+        <!-- Search and Compare Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+            <h2 class="text-2xl font-semibold text-indigo-700 mb-4">Find Studies</h2>
+            
+            <div class="mb-6">
+                <label for="studyId" class="block text-gray-700 mb-2 font-medium">Enter a Clinical Trial ID:</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="studyId" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Enter NCT ID (e.g., NCT05414422)">
+                    <button id="searchBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                        Search
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Try examples: NCT05414422 (R-ketamine for depression), NCT03327545 (antidepressant study), or NCT04339738 (COVID-19 trial)</p>
+            </div>
+
+            <div id="studyList" class="mb-6">
+                <h3 class="text-xl font-medium text-indigo-700 mb-3">My Studies</h3>
+                <div id="studyChips" class="flex flex-wrap gap-2">
+                    <!-- Study chips will appear here -->
+                    <div class="text-gray-500 italic">No studies added yet</div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex gap-3">
+                <button id="compareBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none hidden">
+                    Compare Studies
+                </button>
+                <button id="clearBtn" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50 hidden">
+                    Clear All Studies
+                </button>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div id="errorAlert" class="bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-lg shadow mb-6 hidden">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p id="errorMessage" class="text-sm">Error message will appear here</p>
+                </div>
+                <button class="close-alert ml-auto">
+                    <svg class="h-5 w-5 text-rose-500 hover:text-rose-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingSection" class="loading bg-white rounded-xl shadow-lg p-8 flex flex-col items-center justify-center mb-8 hidden">
+            <div class="spinner mb-4"></div>
+            <p class="text-indigo-600 font-medium">Loading study data...</p>
+            <p class="text-gray-500 text-sm mt-2">This may take a few moments</p>
+        </div>
+
+        <!-- Main Content Section -->
+        <div id="mainContent" class="hidden">
+            <!-- Study Overview -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+                <h2 id="studyTitle" class="text-2xl font-semibold text-indigo-700 mb-4">Study Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-medium text-indigo-600 mb-3">What's the study about?</h3>
+                        <p id="studyDescription" class="text-gray-700 leading-relaxed">Loading...</p>
+                        
+                        <div class="mt-6">
+                            <h4 class="font-medium text-indigo-600 mb-2">Who participated?</h4>
+                            <div class="bg-indigo-50 p-4 rounded-lg mt-2 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-500 mr-3" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                </svg>
+                                <span id="participantCount" class="text-xl font-semibold text-indigo-700">-- people</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-medium text-indigo-600 mb-3">Key Facts</h3>
+                        <ul class="space-y-4 bg-gray-50 p-4 rounded-lg">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-3 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                </svg>
+                                <div>
+                                    <span class="font-medium text-gray-900">When:</span>
+                                    <span id="studyDates" class="text-gray-700 ml-1">Loading...</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-3 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <div>
+                                    <span class="font-medium text-gray-900">Status:</span>
+                                    <span id="studyStatus" class="text-gray-700 ml-1">Loading...</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-3 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd" />
+                                </svg>
+                                <div>
+                                    <span class="font-medium text-gray-900">What they tested:</span>
+                                    <span id="studyIntervention" class="text-gray-700 ml-1">Loading...</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-3 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                                </svg>
+                                <div>
+                                    <span class="font-medium text-gray-900">Phase:</span>
+                                    <span id="studyPhase" class="text-gray-700 ml-1">Loading...</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="mb-6">
+                <div class="sm:hidden">
+                    <label for="tabs" class="sr-only">Select a tab</label>
+                    <select id="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="results-content">Results</option>
+                        <option value="people-content">People</option>
+                        <option value="safety-content">Side Effects</option>
+                    </select>
+                </div>
+                <div class="hidden sm:block">
+                    <nav class="flex space-x-4 bg-white p-2 rounded-lg shadow" aria-label="Tabs">
+                        <button class="tab-btn active px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 bg-indigo-100 text-indigo-700" id="results-tab" data-target="results-content">
+                            Results
+                        </button>
+                        <button class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 text-gray-500 hover:text-gray-700 hover:bg-gray-50" id="people-tab" data-target="people-content">
+                            People
+                        </button>
+                        <button class="tab-btn px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 text-gray-500 hover:text-gray-700 hover:bg-gray-50" id="safety-tab" data-target="safety-content">
+                            Side Effects
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-contents">
+                <!-- Results Tab -->
+                <div id="results-content" class="tab-content active">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Primary Result -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Main Results</h3>
+                            <p id="primaryOutcomeDescription" class="mb-6 text-gray-700 leading-relaxed">Loading...</p>
+                            <div class="chart-container">
+                                <canvas id="primaryOutcomeChart"></canvas>
+                            </div>
+                            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                <p id="primaryOutcomeInterpretation" class="text-gray-600 text-sm leading-relaxed">Loading...</p>
+                            </div>
+                        </div>
+
+                        <!-- Primary Outcome Over Time -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">How Many People Got Better?</h3>
+                            <div class="chart-container">
+                                <canvas id="responsesOverTimeChart"></canvas>
+                            </div>
+                            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                <p id="responseRateInterpretation" class="text-gray-600 text-sm leading-relaxed">Loading...</p>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Results -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 lg:col-span-2">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Other Important Results</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium text-indigo-600 mb-3">How Long Did Benefits Last?</h4>
+                                    <div class="chart-container">
+                                        <canvas id="scoresOverTimeChart"></canvas>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-indigo-600 mb-3">Did It Help Anxiety Too?</h4>
+                                    <div class="chart-container">
+                                        <canvas id="anxietyScoresChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- People Tab -->
+                <div id="people-content" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Age & Gender -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Who Participated?</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium text-indigo-600 mb-3">Age</h4>
+                                    <div class="h-48">
+                                        <canvas id="ageDistributionChart"></canvas>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-indigo-600 mb-3">Gender</h4>
+                                    <div class="h-48">
+                                        <canvas id="genderDistributionChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                <p id="demographicsInterpretation" class="text-gray-600 text-sm leading-relaxed">Loading...</p>
+                            </div>
+                        </div>
+
+                        <!-- Region -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Where Was the Study Done?</h3>
+                            <div class="chart-container">
+                                <canvas id="regionDistributionChart"></canvas>
+                            </div>
+                            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                <p id="regionInterpretation" class="text-gray-600 text-sm leading-relaxed">Loading...</p>
+                            </div>
+                        </div>
+
+                        <!-- Starting Scores -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 lg:col-span-2">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">How Were People Feeling at the Start?</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium text-indigo-600 mb-3">Depression Levels</h4>
+                                    <div class="chart-container">
+                                        <canvas id="baselineScoresChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <p id="baselineInterpretation" class="text-gray-700 leading-relaxed">
+                                            Loading...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Safety Tab -->
+                <div id="safety-content" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Overall Safety -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Were There Side Effects?</h3>
+                            <div class="chart-container">
+                                <canvas id="overallSafetyChart"></canvas>
+                            </div>
+                            <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                                <p id="safetyInterpretation" class="text-gray-600 text-sm leading-relaxed">Loading...</p>
+                            </div>
+                        </div>
+
+                        <!-- Common Side Effects -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">Most Common Side Effects</h3>
+                            <div class="chart-container">
+                                <canvas id="commonSideEffectsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Side Effects Table -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 lg:col-span-2">
+                            <h3 class="text-xl font-medium text-indigo-700 mb-4">All Side Effects</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Side Effect</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Body System</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider" id="group1-header">Group 1</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider" id="group2-header">Group 2</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider" id="group3-header">Group 3</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sideEffectsTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- Side effects data will be populated here -->
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Comparison Section (for when multiple studies are selected) -->
+            <div id="comparisonContent" class="hidden mt-8">
+                <h2 class="text-2xl font-semibold text-indigo-700 mb-6">Study Comparison</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Basic Info Comparison -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 lg:col-span-2">
+                        <h3 class="text-xl font-medium text-indigo-700 mb-4">Study Basics</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Study ID</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Title</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">People</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Started</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Finished</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparisonTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Comparison data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Results Comparison -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                        <h3 class="text-xl font-medium text-indigo-700 mb-4">Results Comparison</h3>
+                        <div class="chart-container">
+                            <canvas id="resultsComparisonChart"></canvas>
+                        </div>
+                        <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                            <p id="resultsComparisonInterpretation" class="text-gray-600 text-sm leading-relaxed">
+                                This chart shows how the primary outcomes compare across studies. Negative values typically indicate improvement.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Demographics Comparison -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                        <h3 class="text-xl font-medium text-indigo-700 mb-4">Demographics Comparison</h3>
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <h4 class="font-medium text-indigo-600 mb-3">Age & Gender Comparison</h4>
+                                <div class="chart-container">
+                                    <canvas id="demographicsComparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safety Comparison -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 lg:col-span-2">
+                        <h3 class="text-xl font-medium text-indigo-700 mb-4">Safety Comparison</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-medium text-indigo-600 mb-3">Side Effect Rates</h4>
+                                <div class="chart-container">
+                                    <canvas id="safetyComparisonChart"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-indigo-600 mb-3">Most Common Side Effects</h4>
+                                <div class="chart-container">
+                                    <canvas id="commonSideEffectsComparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+let activeStudies = []; // Stores loaded studies
+let chartInstances = {}; // Store chart instances for updating
+const API_BASE_URL = 'https://api.example.com'; // Replace with your actual API base URL
+
+// Sample data for multiple studies (for demo purposes)
+const SAMPLE_STUDIES = {
+    'NCT05414422': {
+        nctId: "NCT05414422",
+        title: "Study of R-ketamine in Treatment Resistant Depression",
+        briefSummary: "This study tested if a medicine called PCN-101 (R-ketamine) could help people with depression that didn't get better with other treatments. Researchers compared two different doses of the medicine against a fake medicine (placebo) to see if it would improve depression symptoms.",
+        status: "Completed",
+        startDate: "February 2022",
+        completionDate: "November 2022",
+        participants: 102,
+        intervention: "PCN-101 (R-ketamine) at 30mg and 60mg doses",
+        phaseLabel: "Phase 2",
+        groups: [
+            {
+                label: "PCN-101 30mg",
+                description: "Low dose medicine"
+            },
+            {
+                label: "PCN-101 60mg",
+                description: "High dose medicine"
+            },
+            {
+                label: "Placebo",
+                description: "Sugar pill (no medicine)"
+            }
+        ],
+        primaryOutcome: {
+            measure: "Change in MADRS depression score after 24 hours",
+            description: "The main goal was to see if depression scores improved 24 hours after taking the medicine. Lower scores mean less depression.",
+            results: [
+                {
+                    group: "PCN-101 30mg",
+                    value: -13.7,
+                    error: 1.75
+                },
+                {
+                    group: "PCN-101 60mg",
+                    value: -15.3,
+                    error: 1.69
+                },
+                {
+                    group: "Placebo",
+                    value: -13.7,
+                    error: 1.76
+                }
+            ]
+        },
+        responseRates: {
+            description: "Percentage of people whose depression improved by at least 50%",
+            timepoints: ["24 hours", "7 days", "14 days"],
+            results: [
+                {
+                    group: "PCN-101 30mg",
+                    values: [19/33*100, 9/30*100, 5/31*100]
+                },
+                {
+                    group: "PCN-101 60mg",
+                    values: [16/35*100, 12/35*100, 12/35*100]
+                },
+                {
+                    group: "Placebo",
+                    values: [16/33*100, 9/31*100, 7/31*100]
+                }
+            ]
+        },
+        scoresOverTime: {
+            description: "Depression scores over time (lower is better)",
+            timepoints: ["Baseline", "24 hours", "7 days", "14 days"],
+            results: [
+                {
+                    group: "PCN-101 30mg",
+                    values: [29.5, 15.8, 20.9, 23.4]
+                },
+                {
+                    group: "PCN-101 60mg",
+                    values: [29.7, 14.4, 20.4, 21.0]
+                },
+                {
+                    group: "Placebo",
+                    values: [29.9, 16.2, 20.5, 21.8]
+                }
+            ]
+        },
+        anxietyScores: {
+            description: "Anxiety scores over time (lower is better)",
+            timepoints: ["Baseline", "24 hours", "7 days", "14 days"],
+            results: [
+                {
+                    group: "PCN-101 30mg",
+                    values: [0, -6.5, -5.8, -3.7]
+                },
+                {
+                    group: "PCN-101 60mg",
+                    values: [0, -7.5, -5.8, -4.3]
+                },
+                {
+                    group: "Placebo",
+                    values: [0, -7.4, -5.8, -5.3]
+                }
+            ]
+        },
+        demographics: {
+            age: {
+                groups: ["PCN-101 30mg", "PCN-101 60mg", "Placebo"],
+                means: [47.2, 43.3, 44.3],
+                sds: [11.36, 12.28, 11.44]
+            },
+            gender: {
+                labels: ["Female", "Male"],
+                counts: [61, 40]
+            },
+            regions: {
+                labels: ["United States", "Europe"],
+                counts: [27, 74]
+            }
+        },
+        baselineScores: {
+            madrs: {
+                groups: ["PCN-101 30mg", "PCN-101 60mg", "Placebo"],
+                means: [29.5, 29.7, 29.9],
+                sds: [4.74, 4.45, 5.44]
+            },
+            hamd: {
+                groups: ["PCN-101 30mg", "PCN-101 60mg", "Placebo"],
+                means: [24.8, 24.1, 24.5],
+                sds: [3.06, 3.09, 4.79]
+            }
+        },
+        safety: {
+            overallRates: {
+                groups: ["PCN-101 30mg", "PCN-101 60mg", "Placebo"],
+                rates: [11/33*100, 19/35*100, 18/34*100],
+                counts: [11, 19, 18],
+                totals: [33, 35, 34]
+            },
+            commonEvents: {
+                events: ["Sleepiness", "Dizziness", "Headache", "Feeling Unreal"],
+                data: [
+                    {
+                        group: "PCN-101 30mg",
+                        rates: [4/33*100, 2/33*100, 3/33*100, 4/33*100]
+                    },
+                    {
+                        group: "PCN-101 60mg",
+                        rates: [4/35*100, 7/35*100, 2/35*100, 3/35*100]
+                    },
+                    {
+                        group: "Placebo",
+                        rates: [9/34*100, 5/34*100, 3/34*100, 4/34*100]
+                    }
+                ]
+            },
+            allEvents: [
+                {
+                    event: "Sleepiness",
+                    system: "Nervous system",
+                    rates: [4/33*100, 4/35*100, 9/34*100],
+                    counts: [4, 4, 9]
+                },
+                {
+                    event: "Dizziness",
+                    system: "Nervous system",
+                    rates: [2/33*100, 7/35*100, 5/34*100],
+                    counts: [2, 7, 5]
+                },
+                {
+                    event: "Headache",
+                    system: "Nervous system",
+                    rates: [3/33*100, 2/35*100, 3/34*100],
+                    counts: [3, 2, 3]
+                },
+                {
+                    event: "Feeling Unreal",
+                    system: "Mental health",
+                    rates: [4/33*100, 3/35*100, 4/34*100],
+                    counts: [4, 3, 4]
+                },
+                {
+                    event: "Nausea",
+                    system: "Stomach/Digestion",
+                    rates: [0, 3/35*100, 1/34*100],
+                    counts: [0, 3, 1]
+                },
+                {
+                    event: "Feeling Drunk",
+                    system: "General feeling",
+                    rates: [0, 2/35*100, 0],
+                    counts: [0, 2, 0]
+                }
+            ]
+        }
+    },
+    'NCT03327545': {
+        nctId: "NCT03327545",
+        title: "Study of Escitalopram in Major Depression",
+        briefSummary: "This study tested if escitalopram (a common antidepressant) could help people with major depression. The study compared the medicine to a placebo to see if it helped improve depression symptoms.",
+        status: "Completed",
+        startDate: "January 2018",
+        completionDate: "December 2019",
+        participants: 156,
+        intervention: "Escitalopram 10-20mg daily",
+        phaseLabel: "Phase 3",
+        groups: [
+            {
+                label: "Escitalopram",
+                description: "Active medication"
+            },
+            {
+                label: "Placebo",
+                description: "Sugar pill (no medicine)"
+            }
+        ],
+        primaryOutcome: {
+            measure: "Change in MADRS depression score after 8 weeks",
+            description: "The main goal was to see if depression scores improved after 8 weeks of treatment. Lower scores mean less depression.",
+            results: [
+                {
+                    group: "Escitalopram",
+                    value: -14.8,
+                    error: 1.2
+                },
+                {
+                    group: "Placebo",
+                    value: -9.3,
+                    error: 1.3
+                }
+            ]
+        },
+        responseRates: {
+            description: "Percentage of people whose depression improved by at least 50%",
+            timepoints: ["4 weeks", "8 weeks", "12 weeks"],
+            results: [
+                {
+                    group: "Escitalopram",
+                    values: [34, 58, 64]
+                },
+                {
+                    group: "Placebo",
+                    values: [26, 35, 38]
+                }
+            ]
+        },
+        scoresOverTime: {
+            description: "Depression scores over time (lower is better)",
+            timepoints: ["Baseline", "4 weeks", "8 weeks", "12 weeks"],
+            results: [
+                {
+                    group: "Escitalopram",
+                    values: [28.5, 18.7, 13.7, 12.1]
+                },
+                {
+                    group: "Placebo",
+                    values: [28.9, 21.5, 19.6, 18.2]
+                }
+            ]
+        },
+        anxietyScores: {
+            description: "Anxiety scores over time (lower is better)",
+            timepoints: ["Baseline", "4 weeks", "8 weeks", "12 weeks"],
+            results: [
+                {
+                    group: "Escitalopram",
+                    values: [0, -5.6, -9.7, -10.5]
+                },
+                {
+                    group: "Placebo",
+                    values: [0, -3.2, -4.6, -4.9]
+                }
+            ]
+        },
+        demographics: {
+            age: {
+                groups: ["Escitalopram", "Placebo"],
+                means: [41.5, 42.2],
+                sds: [12.5, 11.8]
+            },
+            gender: {
+                labels: ["Female", "Male"],
+                counts: [94, 62]
+            },
+            regions: {
+                labels: ["North America", "Europe", "Asia"],
+                counts: [85, 48, 23]
+            }
+        },
+        baselineScores: {
+            madrs: {
+                groups: ["Escitalopram", "Placebo"],
+                means: [28.5, 28.9],
+                sds: [3.8, 4.1]
+            },
+            hamd: {
+                groups: ["Escitalopram", "Placebo"],
+                means: [24.2, 23.9],
+                sds: [3.2, 3.4]
+            }
+        },
+        safety: {
+            overallRates: {
+                groups: ["Escitalopram", "Placebo"],
+                rates: [72, 43],
+                counts: [56, 34],
+                totals: [78, 78]
+            },
+            commonEvents: {
+                events: ["Nausea", "Headache", "Insomnia", "Drowsiness"],
+                data: [
+                    {
+                        group: "Escitalopram",
+                        rates: [26, 18, 15, 22]
+                    },
+                    {
+                        group: "Placebo",
+                        rates: [9, 15, 8, 7]
+                    }
+                ]
+            },
+            allEvents: [
+                {
+                    event: "Nausea",
+                    system: "Digestive",
+                    rates: [26, 9],
+                    counts: [20, 7]
+                },
+                {
+                    event: "Headache",
+                    system: "Nervous system",
+                    rates: [18, 15],
+                    counts: [14, 12]
+                },
+                {
+                    event: "Insomnia",
+                    system: "Sleep disorders",
+                    rates: [15, 8],
+                    counts: [12, 6]
+                },
+                {
+                    event: "Drowsiness",
+                    system: "Nervous system",
+                    rates: [22, 7],
+                    counts: [17, 5]
+                },
+                {
+                    event: "Dry Mouth",
+                    system: "Digestive",
+                    rates: [11, 6],
+                    counts: [9, 5]
+                },
+                {
+                    event: "Dizziness",
+                    system: "Nervous system",
+                    rates: [12, 5],
+                    counts: [9, 4]
+                }
+            ]
+        }
+    },
+    'NCT04339738': {
+        nctId: "NCT04339738",
+        title: "Study of Remdesivir for COVID-19",
+        briefSummary: "This study tested if remdesivir, an antiviral medication, could help people hospitalized with COVID-19. The study compared the medicine to a placebo to see if it helped patients recover faster and reduce symptoms.",
+        status: "Completed",
+        startDate: "March 2020",
+        completionDate: "October 2020",
+        participants: 1062,
+        intervention: "Remdesivir intravenous infusion",
+        phaseLabel: "Phase 3",
+        groups: [
+            {
+                label: "Remdesivir",
+                description: "Active medication"
+            },
+            {
+                label: "Placebo",
+                description: "Inactive infusion"
+            }
+        ],
+        primaryOutcome: {
+            measure: "Time to recovery",
+            description: "The main goal was to see how quickly patients recovered, measured in days. Lower numbers mean faster recovery.",
+            results: [
+                {
+                    group: "Remdesivir",
+                    value: 10,
+                    error: 0.4
+                },
+                {
+                    group: "Placebo",
+                    value: 15,
+                    error: 0.7
+                }
+            ]
+        },
+        responseRates: {
+            description: "Percentage of people who improved by clinical category",
+            timepoints: ["Day 7", "Day 14", "Day 28"],
+            results: [
+                {
+                    group: "Remdesivir",
+                    values: [46, 69, 84]
+                },
+                {
+                    group: "Placebo",
+                    values: [35, 56, 77]
+                }
+            ]
+        },
+        scoresOverTime: {
+            description: "Clinical status scores over time (lower is better)",
+            timepoints: ["Baseline", "Day 7", "Day 14", "Day 28"],
+            results: [
+                {
+                    group: "Remdesivir",
+                    values: [5.8, 3.2, 2.1, 1.5]
+                },
+                {
+                    group: "Placebo",
+                    values: [5.9, 4.1, 2.8, 1.8]
+                }
+            ]
+        },
+        anxietyScores: {
+            description: "Respiratory scores over time (higher is better)",
+            timepoints: ["Baseline", "Day 7", "Day 14", "Day 28"],
+            results: [
+                {
+                    group: "Remdesivir",
+                    values: [0, 2.5, 3.8, 4.2]
+                },
+                {
+                    group: "Placebo",
+                    values: [0, 1.7, 2.9, 3.8]
+                }
+            ]
+        },
+        demographics: {
+            age: {
+                groups: ["Remdesivir", "Placebo"],
+                means: [58.9, 59.2],
+                sds: [14.6, 15.0]
+            },
+            gender: {
+                labels: ["Female", "Male"],
+                counts: [426, 636]
+            },
+            regions: {
+                labels: ["North America", "Europe", "Asia", "Other"],
+                counts: [484, 305, 213, 60]
+            }
+        },
+        baselineScores: {
+            madrs: {
+                groups: ["Remdesivir", "Placebo"],
+                means: [5.8, 5.9],
+                sds: [0.8, 0.7]
+            },
+            hamd: {
+                groups: ["Remdesivir", "Placebo"],
+                means: [0, 0],
+                sds: [0, 0]
+            }
+        },
+        safety: {
+            overallRates: {
+                groups: ["Remdesivir", "Placebo"],
+                rates: [41, 46],
+                counts: [218, 244],
+                totals: [532, 530]
+            },
+            commonEvents: {
+                events: ["Nausea", "Liver Enzyme Increase", "Headache", "Rash"],
+                data: [
+                    {
+                        group: "Remdesivir",
+                        rates: [9, 12, 5, 6]
+                    },
+                    {
+                        group: "Placebo",
+                        rates: [6, 8, 3, 4]
+                    }
+                ]
+            },
+            allEvents: [
+                {
+                    event: "Nausea",
+                    system: "Digestive",
+                    rates: [9, 6],
+                    counts: [48, 32]
+                },
+                {
+                    event: "Liver Enzyme Increase",
+                    system: "Hepatic",
+                    rates: [12, 8],
+                    counts: [64, 42]
+                },
+                {
+                    event: "Headache",
+                    system: "Nervous system",
+                    rates: [5, 3],
+                    counts: [27, 16]
+                },
+                {
+                    event: "Rash",
+                    system: "Skin",
+                    rates: [6, 4],
+                    counts: [32, 21]
+                },
+                {
+                    event: "Kidney Issues",
+                    system: "Renal",
+                    rates: [4, 3],
+                    counts: [21, 16]
+                }
+            ]
+        }
+    }
+};
+
+// DOM Elements
+const searchBtn = document.getElementById('searchBtn');
+const studyIdInput = document.getElementById('studyId');
+const studyChips = document.getElementById('studyChips');
+const compareBtn = document.getElementById('compareBtn');
+const clearBtn = document.getElementById('clearBtn');
+const errorAlert = document.getElementById('errorAlert');
+const errorMessage = document.getElementById('errorMessage');
+const loadingSection = document.getElementById('loadingSection');
+const mainContent = document.getElementById('mainContent');
+const comparisonContent = document.getElementById('comparisonContent');
+const tabsSelect = document.getElementById('tabs');
+
+// Event Listeners - Initialize after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality for desktop
+    document.querySelectorAll('.tab-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-100', 'text-indigo-700');
+                btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+            });
+            
+            // Add active class to clicked tab
+            button.classList.add('active', 'bg-indigo-100', 'text-indigo-700');
+            button.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show the corresponding tab content
+            document.getElementById(button.dataset.target).classList.add('active');
+            
+            // Update mobile select if it exists
+            if (tabsSelect) {
+                tabsSelect.value = button.dataset.target;
+            }
+        });
+    });
+
+    // Tab functionality for mobile
+    if (tabsSelect) {
+        tabsSelect.addEventListener('change', (e) => {
+            const targetId = e.target.value;
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            document.getElementById(targetId).classList.add('active');
+            
+            // Update desktop tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.target === targetId) {
+                    btn.classList.add('active', 'bg-indigo-100', 'text-indigo-700');
+                    btn.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+                } else {
+                    btn.classList.remove('active', 'bg-indigo-100', 'text-indigo-700');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
+                }
+            });
+        });
+    }
+
+    // Close alert button
+    document.querySelector('.close-alert').addEventListener('click', () => {
+        errorAlert.classList.add('hidden');
+    });
+
+    // Search button click handler
+    searchBtn.addEventListener('click', fetchStudy);
+
+    // Enter key in input box
+    studyIdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            fetchStudy();
+        }
+    });
+
+    // Compare button click handler
+    compareBtn.addEventListener('click', compareStudies);
+
+    // Clear button click handler
+    clearBtn.addEventListener('click', clearAllStudies);
+
+    // If the page had a URL parameter for a study ID, load it automatically
+    const urlParams = new URLSearchParams(window.location.search);
+    const studyId = urlParams.get('study');
+    
+    if (studyId) {
+        studyIdInput.value = studyId;
+        fetchStudy();
+    }
+});
+
+// Function to fetch study data
+async function fetchStudy() {
+    const studyId = studyIdInput.value.trim().toUpperCase();
+    
+    // Basic validation
+    if (!studyId) {
+        showError("Please enter a valid study ID");
+        return;
+    }
+    
+    if (activeStudies.some(study => study.nctId === studyId)) {
+        showError("This study is already loaded");
+        return;
+    }
+    
+    // Show loading
+    loadingSection.classList.remove('hidden');
+    mainContent.classList.add('hidden');
+    comparisonContent.classList.add('hidden');
+    errorAlert.classList.add('hidden');
+    
+    try {
+        // In a real app, this would be a fetch to your backend API
+        // For demo, we'll use our sample data or simulate an API call
+        let studyData;
+        
+        if (SAMPLE_STUDIES[studyId]) {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Use sample data
+            studyData = SAMPLE_STUDIES[studyId];
+        } else {
+            // Simulate real API call to your backend
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // This would be a real fetch in a production app
+            // const response = await fetch(`${API_BASE_URL}/api/studies/${studyId}`);
+            // if (!response.ok) throw new Error(`Study not found: ${studyId}`);
+            // const data = await response.json();
+            // studyData = processApiData(data); // Process and normalize API data
+            
+            // For demo, throw error for non-sample studies
+            throw new Error(`Study not found: ${studyId}. Try one of these example IDs: NCT05414422, NCT03327545, or NCT04339738`);
+        }
+        
+        // Add to active studies
+        activeStudies.push({
+            nctId: studyId,
+            data: studyData
+        });
+        
+        // Update the UI
+        updateStudyChips();
+        
+        // Display data if this is the first study
+        if (activeStudies.length === 1) {
+            displayStudyData(studyData);
+            mainContent.classList.remove('hidden');
+            comparisonContent.classList.add('hidden');
+        } else {
+            // Enable compare button if multiple studies
+            compareBtn.classList.remove('hidden', 'disabled:opacity-50', 'disabled:cursor-not-allowed');
+            compareBtn.disabled = false;
+            
+            // Keep displaying the current view (either single study or comparison)
+            if (comparisonContent.classList.contains('hidden')) {
+                mainContent.classList.remove('hidden');
+            } else {
+                // Update comparison if already in comparison view
+                compareStudies();
+            }
+        }
+        
+        // Show clear button
+        clearBtn.classList.remove('hidden');
+        
+        // Clear input
+        studyIdInput.value = '';
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        loadingSection.classList.add('hidden');
+    }
+}
+
+// Function to show error message
+function showError(message) {
+    errorMessage.textContent = message;
+    errorAlert.classList.remove('hidden');
+}
+
+// Function to update the study chips display
+function updateStudyChips() {
+    studyChips.innerHTML = '';
+    
+    if (activeStudies.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'text-gray-500 italic';
+        emptyMessage.textContent = 'No studies added yet';
+        studyChips.appendChild(emptyMessage);
+        return;
+    }
+    
+    activeStudies.forEach(study => {
+        const chip = document.createElement('div');
+        chip.className = 'study-chip bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full flex items-center shadow-sm';
+        chip.innerHTML = `
+            <span class="font-medium">${study.nctId}</span>
+            <button class="ml-2 text-indigo-600 hover:text-indigo-800 focus:outline-none" data-nctid="${study.nctId}" aria-label="Remove study">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+        
+        // Add click handler for removing study
+        chip.querySelector('button').addEventListener('click', (e) => {
+            const nctId = e.currentTarget.dataset.nctid;
+            removeStudy(nctId);
+        });
+        
+        studyChips.appendChild(chip);
+    });
+    
+    // Update compare button state
+    if (activeStudies.length >= 2) {
+        compareBtn.classList.remove('hidden');
+        compareBtn.disabled = false;
+    } else {
+        compareBtn.classList.add('hidden');
+        compareBtn.disabled = true;
+    }
+}
+
+// Function to remove a study
+function removeStudy(nctId) {
+    activeStudies = activeStudies.filter(study => study.nctId !== nctId);
+    updateStudyChips();
+    
+    if (activeStudies.length === 0) {
+        // Hide content if no studies
+        mainContent.classList.add('hidden');
+        comparisonContent.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+    } else if (activeStudies.length === 1) {
+        // Show single study view if only one left
+        displayStudyData(activeStudies[0].data);
+        comparisonContent.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+    } else {
+        // Update comparison if still multiple studies
+        compareStudies();
+    }
+}
+
+// Function to clear all studies
+function clearAllStudies() {
+    activeStudies = [];
+    updateStudyChips();
+    mainContent.classList.add('hidden');
+    comparisonContent.classList.add('hidden');
+    clearBtn.classList.add('hidden');
+}
+
+// Function to display study data
+function displayStudyData(data) {
+    // Show the content area
+    mainContent.classList.remove('hidden');
+    comparisonContent.classList.add('hidden');
+    
+    // Update basic study info
+    document.getElementById('studyTitle').textContent = data.title;
+    document.getElementById('studyDescription').textContent = data.briefSummary;
+    document.getElementById('participantCount').textContent = `${data.participants.toLocaleString()} people`;
+    document.getElementById('studyDates').textContent = `${data.startDate} to ${data.completionDate}`;
+    document.getElementById('studyStatus').textContent = data.status;
+    document.getElementById('studyIntervention').textContent = data.intervention;
+    document.getElementById('studyPhase').textContent = data.phaseLabel;
+    
+    // Update column headers in the side effects table
+    updateGroupHeaders(data.groups);
+    
+    // Update primary outcome description
+    document.getElementById('primaryOutcomeDescription').textContent = data.primaryOutcome.description;
+    
+    // Add interpretations based on the study type
+    updateInterpretations(data);
+    
+    // Create or update charts
+    createCharts(data);
+    
+    // Create or update charts
+    createCharts(data);
+    
+    // Update side effects table
+    updateSideEffectsTable(data);
+}
+
+// Add study-specific interpretations
+function updateInterpretations(data) {
+    // Default interpretations
+    let primaryOutcomeText = "";
+    let responseRateText = "";
+    let demographicsText = "";
+    let regionText = "";
+    let baselineText = "";
+    let safetyText = "";
+    
+    // Determine study type and customize interpretations
+    if (data.nctId === "NCT05414422") {
+        // Depression study with R-ketamine
+        primaryOutcomeText = "Both doses of the medicine and the placebo showed improvement in depression scores. The higher dose (60mg) seemed to work a little better than the lower dose or placebo, but the difference wasn't big enough to be sure it wasn't just chance.";
+        responseRateText = "At 24 hours, about half the people in each group felt at least 50% better. After 2 weeks, more people in the 60mg group still felt better compared to the other groups.";
+        demographicsText = "Most people in the study were in their 40s. There were more women (61) than men (40) who participated.";
+        regionText = "Most of the study was done in Europe (74 people), with some participants from the United States (27 people).";
+        baselineText = "When the study started, people in all three groups had similar levels of depression. Their average scores on the depression scale (MADRS) were around 30, which means moderately severe depression.";
+        safetyText = "Side effects were reported in 33% of people taking the low dose, 54% of people taking the high dose, and 53% of people taking the placebo. The most common side effects were sleepiness, dizziness, headache, and feeling disconnected from reality.";
+    } else if (data.nctId === "NCT03327545") {
+        // Depression study with escitalopram
+        primaryOutcomeText = "The medicine (escitalopram) showed significantly better improvement in depression scores compared to placebo after 8 weeks of treatment. This suggests the medicine was effective at reducing depression symptoms.";
+        responseRateText = "By week 8, 58% of people taking escitalopram had at least a 50% improvement in symptoms, compared to only 35% of those taking placebo. The medicine group continued to improve through week 12.";
+        demographicsText = "The average age of participants was around 42 years. More women (94) than men (62) participated in the study.";
+        regionText = "Most participants were from North America (85), followed by Europe (48) and Asia (23).";
+        baselineText = "At the start of the study, both groups had similar depression severity with average MADRS scores around 29, indicating moderately severe depression.";
+        safetyText = "Side effects were more common with escitalopram (72% of participants) than with placebo (43%). The most common side effects were nausea, drowsiness, headache, and insomnia.";
+    } else if (data.nctId === "NCT04339738") {
+        // COVID-19 study with remdesivir
+        primaryOutcomeText = "Patients who received remdesivir recovered in 10 days on average, compared to 15 days for those who received placebo. This 5-day difference suggests the medicine helped speed up recovery from COVID-19.";
+        responseRateText = "By day 14, 69% of patients taking remdesivir showed clinical improvement, compared to 56% of those on placebo. By day 28, the difference was smaller but still favored remdesivir (84% vs 77%).";
+        demographicsText = "The average age of participants was around 59 years, reflecting the higher risk of severe COVID-19 in older adults. More men (636) than women (426) participated in the study.";
+        regionText = "Participants came from North America (484), Europe (305), Asia (213), and other regions (60), making this a global study.";
+        baselineText = "At the start of the study, patients in both groups had similar severity of COVID-19 illness, with average clinical status scores around 5.8-5.9, indicating they needed supplemental oxygen.";
+        safetyText = "Side effects occurred in 41% of patients receiving remdesivir and 46% of those receiving placebo. Common side effects specific to remdesivir included liver enzyme increases and nausea.";
+    } else {
+        // Generic interpretations for other studies
+        primaryOutcomeText = "The chart shows the primary outcome results for each group in the study. Lower values typically indicate better outcomes in many medical studies.";
+        responseRateText = "This chart shows the percentage of participants who responded to treatment at different time points across the study groups.";
+        demographicsText = `The average age of participants was around ${data.demographics.age.means[0]} years. There were ${data.demographics.gender.counts[0]} female and ${data.demographics.gender.counts[1]} male participants.`;
+        regionText = "The chart shows the geographic distribution of participants in the study.";
+        baselineText = "At the beginning of the study, participants in all groups had similar baseline characteristics.";
+        safetyText = "The chart shows the percentage of participants who experienced any side effects during the study period.";
+    }
+    
+    // Update interpretation elements
+    document.getElementById('primaryOutcomeInterpretation').textContent = primaryOutcomeText;
+    document.getElementById('responseRateInterpretation').textContent = responseRateText;
+    document.getElementById('demographicsInterpretation').textContent = demographicsText;
+    document.getElementById('regionInterpretation').textContent = regionText;
+    document.getElementById('baselineInterpretation').textContent = baselineText;
+    document.getElementById('safetyInterpretation').textContent = safetyText;
+}
+
+// Update group headers in the side effects table
+function updateGroupHeaders(groups) {
+    const headers = document.querySelectorAll('#group1-header, #group2-header, #group3-header');
+    
+    // Hide all headers first
+    headers.forEach(header => header.classList.add('hidden'));
+    
+    // Show and update headers based on available groups
+    groups.forEach((group, index) => {
+        if (index < headers.length) {
+            const header = headers[index];
+            header.textContent = group.label;
+            header.classList.remove('hidden');
+        }
+    });
+}
+    </script>
+</body>
+</html>
