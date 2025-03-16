@@ -2636,3 +2636,8 @@
 ::1 - - [16/Mar/2025:13:04:21 +0000] "GET /api/studies/NCT03149991?timestamp=1742130261617 HTTP/1.1" 200 110646 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [16/Mar/2025:13:04:21 +0000] "GET /api/studies/NCT04599855?timestamp=1742130261647 HTTP/1.1" 200 69520 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [16/Mar/2025:13:04:21 +0000] "GET /api/studies/NCT04504175?timestamp=1742130261677 HTTP/1.1" 200 20985 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:13:11:55 +0000] "GET / HTTP/1.1" 200 365365 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:13:11:55 +0000] "GET /favicon.ico HTTP/1.1" 200 365365 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:13:12:01 +0000] "GET /api/fda/drug/ketamine HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:13:12:01 +0000] "GET /api/fda/orangebook/search?q=ketamine HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [16/Mar/2025:13:12:02 +0000] "GET /api/fda/dailymed/ketamine HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"

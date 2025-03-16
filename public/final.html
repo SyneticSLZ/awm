@@ -6366,23 +6366,27 @@ const TrialDashboard = (function() {
     };
 
     function init(containerId = 'trial-dashboard') {
-        const container = document.getElementById(containerId);
-        if (!container) {
-            console.error(`Container with ID "${containerId}" not found.`);
-            return null;
-        }
-        
-        // Set container to full width
-        container.classList.add('w-full', 'max-w-full');
-        container.innerHTML = '';
-        container.style.display = 'none';
-        
-        // Add custom stylesheet
-        addCustomStyles();
-        
-        dashboardInitialized = true;
-        return container;
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID "${containerId}" not found.`);
+        return null;
     }
+    
+    // Set container to full width
+    container.classList.add('w-full', 'max-w-full');
+    container.innerHTML = '';
+    container.style.display = 'none';
+    
+    // Add custom stylesheet
+    addCustomStyles();
+    
+    dashboardInitialized = true;
+    
+    // Add export button after dashboard is created
+    setTimeout(addExportButton, 500);
+    
+    return container;
+}
     
     function addCustomStyles() {
         const styleId = 'trial-dashboard-styles';
@@ -6461,119 +6465,154 @@ const TrialDashboard = (function() {
     }
 
     function createDashboardStructure(containerId = 'trial-dashboard') {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = `
+        <!-- Dashboard header and summary metrics -->
+        <div class="dashboard-header w-full p-6 mb-6 rounded-lg">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Clinical Trials Dashboard</h1>
+                    <p class="text-gray-600">Comprehensive analysis of trial outcomes and metrics</p>
+                </div>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <div class="bg-white rounded-full shadow-sm px-4 py-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span class="font-medium text-gray-700" id="trials-count">Analyzing trials...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="summary-metrics">
+                <!-- Summary metrics will be inserted here -->
+            </div>
+        </div>
         
-        container.innerHTML = `
-            <div class="dashboard-header w-full p-6 mb-6 rounded-lg">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-800">Clinical Trials Dashboard</h1>
-                        <p class="text-gray-600">Comprehensive analysis of trial outcomes and metrics</p>
-                    </div>
-                    <div class="flex items-center mt-4 md:mt-0">
-                        <div class="bg-white rounded-full shadow-sm px-4 py-2 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span class="font-medium text-gray-700" id="trials-count">Analyzing trials...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="summary-metrics">
-                    <!-- Summary metrics will be inserted here -->
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white p-5 rounded-lg shadow trial-card">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Success Scores Distribution</h2>
-                        <div class="tooltip">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="tooltip-text">Score based on effect size, response rates, and trial outcomes</span>
-                        </div>
-                    </div>
-                    <div class="h-72"><canvas id="successScoresChart"></canvas></div>
-                </div>
-                <div class="bg-white p-5 rounded-lg shadow trial-card">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Trial Phase Distribution</h2>
-                        <div class="tooltip">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="tooltip-text">Distribution of trials by clinical phase</span>
-                        </div>
-                    </div>
-                    <div class="h-72"><canvas id="phaseDistributionChart"></canvas></div>
-                </div>
-                <div class="bg-white p-5 rounded-lg shadow trial-card">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Trial Status Overview</h2>
-                        <div class="tooltip">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="tooltip-text">Current status of all trials in the dataset</span>
-                        </div>
-                    </div>
-                    <div class="h-72"><canvas id="statusDistributionChart"></canvas></div>
-                </div>
-                <div class="bg-white p-5 rounded-lg shadow trial-card">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Effect Size Analysis</h2>
-                        <div class="tooltip">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="tooltip-text">Cohen's d effect sizes across trials with available data</span>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-500 mb-3" id="effect-size-desc">Analyzing effect sizes across trials...</p>
-                    <div class="h-64"><canvas id="effectSizeChart"></canvas></div>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-lg shadow trial-card mb-6">
+        <!-- Success score charts (binomial and distribution) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Key Insights & Conclusions</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">Success Scores Distribution</h2>
                     <div class="tooltip">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="tooltip-text">Summary of findings from all analyzed trials</span>
+                        <span class="tooltip-text">Binomial distribution of success scores across trials</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <ul class="space-y-3" id="conclusions-list">
-                            <li class="flex items-start">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Analyzing trial data...</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div id="response-remission-chart-container" class="h-64">
-                        <canvas id="responseRemissionChart"></canvas>
-                    </div>
-                </div>
+                <div class="h-72"><canvas id="successScoresChart"></canvas></div>
             </div>
-            
             <div class="bg-white p-5 rounded-lg shadow trial-card">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Trial Details</h2>
-                    <div class="flex items-center">
-                        <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <h2 class="text-lg font-semibold text-gray-800">Success Score Normal Distribution</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Probability distribution of success scores with mean and standard deviation</span>
                     </div>
                 </div>
-                <div class="overflow-x-auto" id="trials-table-container">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div class="h-72"><canvas id="successDistributionChart"></canvas></div>
+            </div>
+        </div>
+        
+        <!-- Phase and status charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Trial Phase Distribution</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Distribution of trials by clinical phase</span>
+                    </div>
+                </div>
+                <div class="h-72"><canvas id="phaseDistributionChart"></canvas></div>
+            </div>
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Trial Status Overview</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Current status of all trials in the dataset</span>
+                    </div>
+                </div>
+                <div class="h-72"><canvas id="statusDistributionChart"></canvas></div>
+            </div>
+        </div>
+        
+        <!-- Effect size and response/remission -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Effect Size Analysis</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Cohen's d effect sizes across trials with available data</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500 mb-3" id="effect-size-desc">Analyzing effect sizes across trials...</p>
+                <div class="h-64"><canvas id="effectSizeChart"></canvas></div>
+            </div>
+            <div class="bg-white p-5 rounded-lg shadow trial-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Response & Remission Rates</h2>
+                    <div class="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="tooltip-text">Average difference in response and remission rates between treatment and control groups</span>
+                    </div>
+                </div>
+                <div class="h-64" id="response-remission-chart-container">
+                    <canvas id="responseRemissionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conclusions section -->
+        <div class="bg-white p-5 rounded-lg shadow trial-card mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">Key Insights & Conclusions</h2>
+                <div class="tooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="tooltip-text">Summary of findings from all analyzed trials</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div>
+                    <ul class="space-y-3" id="conclusions-list">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Analyzing trial data...</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trials table -->
+        <div class="bg-white p-5 rounded-lg shadow trial-card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">Trial Details</h2>
+                <div class="flex items-center">
+                    <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+            <div class="overflow-x-auto" id="trials-table-container">
+                <table class="min-w-full divide-y divide-gray-200">
+                   <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
@@ -6589,76 +6628,189 @@ const TrialDashboard = (function() {
                     </table>
                 </div>
             </div>
-        `;
-        
-        // Add search functionality
-        const searchInput = document.getElementById('trial-search');
-        if (searchInput) {
-            searchInput.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#trial-summary-body tr');
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+        </div>
+    `;
+    
+    // Add search functionality
+    const searchInput = document.getElementById('trial-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#trial-summary-body tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             });
+        });
+    }
+}
+
+// Helper function to get distribution curve data for a given mean and standard deviation
+function getNormalDistributionPoints(mean, stdDev, min, max, step) {
+    const points = [];
+    for (let x = min; x <= max; x += step) {
+        // Normal distribution formula
+        const y = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * 
+                  Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+        points.push({x, y});
+    }
+    return points;
+}
+
+// Helper function to compare different trial groups by success score
+function compareTrialGroups(trialSummaries) {
+    // Group trials by phase
+    const phaseGroups = {};
+    trialSummaries.forEach(summary => {
+        const phase = summary.phase || 'UNKNOWN';
+        if (!phaseGroups[phase]) {
+            phaseGroups[phase] = [];
         }
+        phaseGroups[phase].push(summary.successScore);
+    });
+    
+    // Calculate mean and std dev for each phase
+    const phaseStats = {};
+    Object.keys(phaseGroups).forEach(phase => {
+        const scores = phaseGroups[phase];
+        const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+        const stdDev = Math.sqrt(variance);
+        phaseStats[phase] = { mean, stdDev, count: scores.length };
+    });
+    
+    return phaseStats;
+}
+
+// Function to export the dashboard data to CSV
+function exportDashboardData() {
+    if (!window.globalSuccessData) {
+        console.error('No data available to export');
+        return;
+    }
+    
+    const data = window.globalSuccessData.trials;
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // Add headers
+    csvContent += "Trial ID,Title,Phase,Status,Success Score,Effect Size\n";
+    
+    // Add rows
+    data.forEach(trial => {
+        csvContent += `${trial.id},"${trial.title.replace(/"/g, '""')}",${trial.phase || 'N/A'},${trial.status || 'N/A'},${trial.score},${trial.effectSize || 'N/A'}\n`;
+    });
+    
+    // Create download link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "clinical_trials_dashboard_data.csv");
+    document.body.appendChild(link);
+    
+    // Trigger download
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+}
+
+// Add export button to dashboard
+function addExportButton() {
+    const header = document.querySelector('.dashboard-header > div');
+    if (!header) return;
+    
+    const exportButton = document.createElement('button');
+    exportButton.className = 'ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50';
+    exportButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Export Data
+    `;
+    exportButton.addEventListener('click', exportDashboardData);
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'ml-auto';
+    buttonContainer.appendChild(exportButton);
+    
+    header.appendChild(buttonContainer);
+}
+
+
+
+
+function loadData(data) {
+    const container = document.getElementById('trial-dashboard');
+    if (!container) {
+        console.error('Container "trial-dashboard" not found');
+        return false;
     }
 
-    function loadData(data) {
-        const container = document.getElementById('trial-dashboard');
-        if (!container) {
-            console.error('Container "trial-dashboard" not found');
-            return false;
-        }
-
-        if (!data || (Array.isArray(data) && data.length === 0)) {
-            console.error('No data provided or empty array');
-            container.style.display = 'none';
-            return false;
-        }
-
-        if (!dashboardInitialized) {
-            init('trial-dashboard');
-        }
-
-        try {
-            allTrialsData = data;
-            container.style.display = 'block';
-            createDashboardStructure('trial-dashboard');
-
-            // Process all trials and calculate success metrics
-            const trialSummaries = processAllTrials(data);
-            
-            // Update trials count
-            document.getElementById('trials-count').textContent = `${trialSummaries.length} Trials Analyzed`;
-            
-            // Populate summary metrics
-            populateSummaryMetrics(trialSummaries);
-            
-            // Populate trials table
-            populateSummaryTable(trialSummaries);
-            
-            // Generate charts
-            generateSummaryCharts(trialSummaries);
-            
-            // Generate conclusions
-            generateSummaryConclusions(trialSummaries);
-
-            return true;
-        } catch (error) {
-            console.error('Error processing data:', error);
-            container.style.display = 'none';
-            showError('Error processing data: ' + error.message);
-            return false;
-        }
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+        console.error('No data provided or empty array');
+        container.style.display = 'none';
+        return false;
     }
 
+    if (!dashboardInitialized) {
+        init('trial-dashboard');
+    }
+
+    try {
+        // Store the data globally
+        allTrialsData = data;
+        
+        // Display the container
+        container.style.display = 'block';
+        
+        // Create dashboard structure
+        createDashboardStructure('trial-dashboard');
+
+        // Process all trials and calculate success metrics
+        const trialSummaries = processAllTrials(data);
+        
+        // Store success scores in global variable for external access
+        window.globalSuccessData = {
+            scores: trialSummaries.map(summary => summary.successScore),
+            mean: trialSummaries.reduce((sum, summary) => sum + summary.successScore, 0) / trialSummaries.length,
+            trials: trialSummaries.map(summary => ({ 
+                id: summary.nctId,
+                title: summary.title, 
+                score: summary.successScore,
+                phase: summary.phase,
+                status: summary.status,
+                effectSize: summary.effectSize
+            }))
+        };
+        
+        // Update trials count
+        document.getElementById('trials-count').textContent = `${trialSummaries.length} Trials Analyzed`;
+        
+        // Populate summary metrics
+        populateSummaryMetrics(trialSummaries);
+        
+        // Populate trials table
+        populateSummaryTable(trialSummaries);
+        
+        // Generate charts
+        generateSummaryCharts(trialSummaries);
+        
+        // Generate conclusions
+        generateSummaryConclusions(trialSummaries);
+
+        return true;
+    } catch (error) {
+        console.error('Error processing data:', error);
+        container.style.display = 'none';
+        showError('Error processing data: ' + error.message);
+        return false;
+    }
+}
     function showError(message) {
         const container = document.getElementById('trial-dashboard');
         if (!container) return;
@@ -7005,287 +7157,478 @@ const TrialDashboard = (function() {
         });
     }
 
+    // Helper function to calculate percentage of values in normal distribution between two points
+function calculatePercentageInRange(mean, stdDev, start, end) {
+    // Calculate the probability using cumulative distribution function (CDF)
+    function normCDF(x) {
+        const t = 1 / (1 + 0.2316419 * Math.abs(x));
+        const d = 0.3989423 * Math.exp(-x * x / 2);
+        const prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+        return x > 0 ? 1 - prob : prob;
+    }
+    
+    const zStart = (start - mean) / stdDev;
+    const zEnd = (end - mean) / stdDev;
+    
+    return (normCDF(zEnd) - normCDF(zStart)) * 100;
+}
+
     function generateSummaryCharts(trialSummaries) {
-        // Success Scores Chart
-        const successScoresData = {
-            labels: trialSummaries.map(summary => summary.nctId),
-            datasets: [{
-                label: 'Success Score',
-                data: trialSummaries.map(summary => summary.successScore),
-                backgroundColor: trialSummaries.map(summary => getScoreColor(summary.successScore)),
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 1,
-                borderRadius: 4,
-                maxBarThickness: 35
-            }]
+    // Store success scores in a global variable
+    window.globalSuccessScores = trialSummaries.map(summary => summary.successScore);
+    
+    // Group success scores for binomial chart
+    const bins = [
+        {min: 0, max: 10, label: '0-10'},
+        {min: 11, max: 20, label: '11-20'},
+        {min: 21, max: 30, label: '21-30'},
+        {min: 31, max: 40, label: '31-40'},
+        {min: 41, max: 50, label: '41-50'},
+        {min: 51, max: 60, label: '51-60'},
+        {min: 61, max: 70, label: '61-70'},
+        {min: 71, max: 80, label: '71-80'},
+        {min: 81, max: 90, label: '81-90'},
+        {min: 91, max: 100, label: '91-100'}
+    ];
+    
+    // Count trials in each bin
+    const binCounts = bins.map(bin => {
+        return {
+            ...bin,
+            count: trialSummaries.filter(summary => 
+                summary.successScore >= bin.min && 
+                summary.successScore <= bin.max
+            ).length
         };
-        const successScoresConfig = {
-            type: 'bar',
-            data: successScoresData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        max: 100, 
-                        title: { 
-                            display: true, 
-                            text: 'Success Score (0-100)',
-                            font: {
-                                weight: 'bold'
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+    });
+    
+    // 1. Success Scores Binomial Distribution Chart
+    const successScoresData = {
+        labels: binCounts.map(bin => bin.label),
+        datasets: [{
+            label: 'Number of Trials',
+            data: binCounts.map(bin => bin.count),
+            backgroundColor: binCounts.map(bin => {
+                const midpoint = (bin.min + bin.max) / 2;
+                if (midpoint >= 70) return 'rgba(16, 185, 129, 0.8)'; 
+                if (midpoint >= 50) return 'rgba(59, 130, 246, 0.8)'; 
+                if (midpoint >= 30) return 'rgba(245, 158, 11, 0.8)'; 
+                return 'rgba(239, 68, 68, 0.8)';
+            }),
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            borderWidth: 1,
+            borderRadius: 4,
+            maxBarThickness: 50
+        }]
+    };
+    
+    const successScoresConfig = {
+        type: 'bar',
+        data: successScoresData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    title: { 
+                        display: true, 
+                        text: 'Number of Trials',
+                        font: { weight: 'bold' }
                     },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Trial ID',
-                            font: {
-                                weight: 'bold'
-                            }
-                        },
-                        ticks: {
-                            autoSkip: true,
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
-                    }
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
                 },
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                const index = tooltipItems[0].dataIndex;
-                                return trialSummaries[index].title;
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        createOrUpdateChart('successScoresChart', 'bar', successScoresConfig);
-
-
-        
-        // Phase Distribution Chart
-        const phaseCounts = {};
-        trialSummaries.forEach(summary => {
-            const phase = summary.phase || 'Not Specified';
-            phaseCounts[phase] = (phaseCounts[phase] || 0) + 1;
-        });
-        const phaseData = {
-            labels: Object.keys(phaseCounts),
-            datasets: [{
-                label: 'Number of Trials',
-                data: Object.values(phaseCounts),
-                backgroundColor: COLORS.effect.slice(0, Object.keys(phaseCounts).length),
-                borderWidth: 1,
-                borderColor: '#fff'
-            }]
-        };
-        const phaseConfig = {
-            type: 'doughnut',
-            data: phaseData,
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        };
-        createOrUpdateChart('phaseDistributionChart', 'doughnut', phaseConfig);
-
-        // Status Distribution Chart
-        const statusCounts = {};
-        trialSummaries.forEach(summary => {
-            const status = summary.status || 'UNKNOWN';
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
-        const statusColors = Object.keys(statusCounts).map(status => getStatusBadgeColor(status));
-        const statusData = {
-            labels: Object.keys(statusCounts),
-            datasets: [{
-                label: 'Number of Trials',
-                data: Object.values(statusCounts),
-                backgroundColor: statusColors,
-                borderWidth: 1,
-                borderColor: '#fff'
-            }]
-        };
-        const statusConfig = {
-            type: 'doughnut',
-            data: statusData,
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        };
-        createOrUpdateChart('statusDistributionChart', 'doughnut', statusConfig);
-
-        // Effect Size Chart
-        const effectSizes = trialSummaries.filter(summary => summary.effectSize !== null);
-        effectSizes.sort((a, b) => b.effectSize - a.effectSize);
-        const topEffectSizes = effectSizes.slice(0, 10); // Show top 10 for better readability
-        
-        const effectSizeData = {
-            labels: topEffectSizes.map(summary => summary.nctId),
-            datasets: [{
-                label: 'Effect Size (Cohen\'s d)',
-                data: topEffectSizes.map(summary => summary.effectSize),
-                backgroundColor: function(context) {
-                    const value = context.raw;
-                    if (value >= 0.8) return 'rgba(16, 185, 129, 0.8)'; // Large effect
-                    if (value >= 0.5) return 'rgba(59, 130, 246, 0.8)'; // Medium effect
-                    return 'rgba(249, 115, 22, 0.8)'; // Small effect
-                },
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 1,
-                borderRadius: 4,
-                maxBarThickness: 35
-            }]
-        };
-        const effectSizeConfig = {
-            type: 'bar',
-            data: effectSizeData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: { 
-                    x: { 
-                        beginAtZero: true, 
-                        title: { 
-                            display: true, 
-                            text: 'Effect Size (Cohen\'s d)',
-                            font: {
-                                weight: 'bold'
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
-                    }
-                },
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                const index = tooltipItems[0].dataIndex;
-                                return topEffectSizes[index].title;
-                            },
-                            label: function(context) {
-                                const value = context.raw;
-                                return `Effect Size: ${value.toFixed(2)} (${getEffectSizeDescription(value)})`;
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        createOrUpdateChart('effectSizeChart', 'bar', effectSizeConfig);
-
-        document.getElementById('effect-size-desc').textContent = effectSizes.length > 0 
-            ? `Average effect size: ${trialSummaries.avgEffectSize.toFixed(2)} (${getEffectSizeDescription(trialSummaries.avgEffectSize)})`
-            : 'No effect size data available.';
-            
-        // Response & Remission Chart
-        const responseData = {
-            labels: ['Response Rate', 'Remission Rate'],
-            datasets: [{
-                label: 'Average Difference (%)',
-                data: [
-                    trialSummaries.avgResponseDiff !== null ? trialSummaries.avgResponseDiff : 0,
-                    trialSummaries.avgRemissionDiff !== null ? trialSummaries.avgRemissionDiff : 0
-                ],
-                backgroundColor: [COLORS.experimental.primary, COLORS.control.primary],
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        };
-        const responseConfig = {
-            type: 'bar',
-            data: responseData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { 
-                        title: { 
-                            display: true, 
-                            text: 'Average Difference (%)',
-                            font: {
-                                weight: 'bold'
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
-                    }
-                },
-                plugins: { 
-                    legend: { display: false },
+                x: {
                     title: {
                         display: true,
-                        text: 'Treatment vs Control Difference',
-                        font: {
-                            weight: 'bold'
+                        text: 'Success Score Range',
+                        font: { weight: 'bold' }
+                    }
+                }
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return `Success Score: ${tooltipItems[0].label}`;
+                        },
+                        label: function(context) {
+                            return `${context.raw} trials (${((context.raw / trialSummaries.length) * 100).toFixed(1)}%)`;
                         }
                     }
                 }
             }
-        };
-        createOrUpdateChart('responseRemissionChart', 'bar', responseConfig);
-    }
+        }
+    };
+    createOrUpdateChart('successScoresChart', 'bar', successScoresConfig);
 
+    // 2. Success Score Distribution Curve (Normal Distribution)
+    // Calculate mean and standard deviation for success scores
+    const scores = trialSummaries.map(summary => summary.successScore);
+    const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+    const stdDev = Math.sqrt(variance);
+    
+    // Create normal distribution data points
+    const normalDistPoints = [];
+    const step = 1;
+    for (let x = 0; x <= 100; x += step) {
+        const y = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * 
+                  Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+        normalDistPoints.push({x, y});
+    }
+    
+    // Calculate high, medium, low success bounds for shading
+    const highSuccessBound = 70;
+    const mediumSuccessBound = 50;
+    const lowSuccessBound = 30;
+    
+    // Get points for different regions
+    const highSuccessPoints = normalDistPoints.filter(p => p.x >= highSuccessBound);
+    const mediumSuccessPoints = normalDistPoints.filter(p => p.x >= mediumSuccessBound && p.x < highSuccessBound);
+    const lowSuccessPoints = normalDistPoints.filter(p => p.x >= lowSuccessBound && p.x < mediumSuccessBound);
+    const veryLowSuccessPoints = normalDistPoints.filter(p => p.x < lowSuccessBound);
+    
+    // Define colors for different sections
+    const highColor = 'rgba(16, 185, 129, 0.3)'; // Green
+    const mediumColor = 'rgba(59, 130, 246, 0.3)'; // Blue
+    const lowColor = 'rgba(245, 158, 11, 0.3)'; // Orange
+    const veryLowColor = 'rgba(239, 68, 68, 0.3)'; // Red
+    
+    // Create chart config
+    const distributionConfig = {
+        type: 'line',
+        data: {
+            datasets: [
+                // Main curve
+                {
+                    label: `All Trials (μ=${mean.toFixed(1)}, σ=${stdDev.toFixed(1)})`,
+                    data: normalDistPoints,
+                    borderColor: 'rgba(75, 85, 99, 1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                },
+                // Shaded regions
+                {
+                    label: 'High Success (70-100)',
+                    data: highSuccessPoints,
+                    borderColor: 'rgba(16, 185, 129, 0.8)',
+                    backgroundColor: highColor,
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Medium Success (50-69)',
+                    data: mediumSuccessPoints,
+                    borderColor: 'rgba(59, 130, 246, 0.8)',
+                    backgroundColor: mediumColor,
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Low Success (30-49)',
+                    data: lowSuccessPoints,
+                    borderColor: 'rgba(245, 158, 11, 0.8)',
+                    backgroundColor: lowColor,
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Very Low Success (0-29)',
+                    data: veryLowSuccessPoints,
+                    borderColor: 'rgba(239, 68, 68, 0.8)',
+                    backgroundColor: veryLowColor,
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.4
+                },
+                // Vertical lines for mean
+                {
+                    label: 'Mean',
+                    data: [
+                        {x: mean, y: 0},
+                        {x: mean, y: (1 / (stdDev * Math.sqrt(2 * Math.PI)))}
+                    ],
+                    borderColor: 'rgba(0, 0, 0, 0.8)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'Success Score',
+                        font: { weight: 'bold' }
+                    },
+                    min: 0,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Probability Density',
+                        font: { weight: 'bold' }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const datasetLabel = context.dataset.label || '';
+                            const x = context.parsed.x;
+                            const y = context.parsed.y;
+                            if (datasetLabel === 'Mean') {
+                                return `Mean score: ${x.toFixed(1)}`;
+                            }
+                            const percentage = calculatePercentageInRange(
+                                mean, stdDev, Math.floor(x), Math.ceil(x)
+                            );
+                            return `Score ${x.toFixed(0)}: ${(y * 100).toFixed(3)}% density (${percentage.toFixed(1)}% of trials)`;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    createOrUpdateChart('successDistributionChart', 'line', distributionConfig);
+    
+    // 3. Phase Distribution Chart
+    const phaseCounts = {};
+    trialSummaries.forEach(summary => {
+        const phase = summary.phase || 'Not Specified';
+        phaseCounts[phase] = (phaseCounts[phase] || 0) + 1;
+    });
+    const phaseData = {
+        labels: Object.keys(phaseCounts),
+        datasets: [{
+            label: 'Number of Trials',
+            data: Object.values(phaseCounts),
+            backgroundColor: COLORS.effect.slice(0, Object.keys(phaseCounts).length),
+            borderWidth: 1,
+            borderColor: '#fff'
+        }]
+    };
+    const phaseConfig = {
+        type: 'doughnut',
+        data: phaseData,
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    };
+    createOrUpdateChart('phaseDistributionChart', 'doughnut', phaseConfig);
+
+    // 4. Status Distribution Chart
+    const statusCounts = {};
+    trialSummaries.forEach(summary => {
+        const status = summary.status || 'UNKNOWN';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+    const statusColors = Object.keys(statusCounts).map(status => getStatusBadgeColor(status));
+    const statusData = {
+        labels: Object.keys(statusCounts),
+        datasets: [{
+            label: 'Number of Trials',
+            data: Object.values(statusCounts),
+            backgroundColor: statusColors,
+            borderWidth: 1,
+            borderColor: '#fff'
+        }]
+    };
+    const statusConfig = {
+        type: 'doughnut',
+        data: statusData,
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    };
+    createOrUpdateChart('statusDistributionChart', 'doughnut', statusConfig);
+
+    // 5. Effect Size Chart
+    const effectSizes = trialSummaries.filter(summary => summary.effectSize !== null);
+    effectSizes.sort((a, b) => b.effectSize - a.effectSize);
+    const topEffectSizes = effectSizes.slice(0, 10); // Show top 10 for better readability
+    
+    const effectSizeData = {
+        labels: topEffectSizes.map(summary => summary.nctId),
+        datasets: [{
+            label: 'Effect Size (Cohen\'s d)',
+            data: topEffectSizes.map(summary => summary.effectSize),
+            backgroundColor: function(context) {
+                const value = context.raw;
+                if (value >= 0.8) return 'rgba(16, 185, 129, 0.8)'; // Large effect
+                if (value >= 0.5) return 'rgba(59, 130, 246, 0.8)'; // Medium effect
+                return 'rgba(249, 115, 22, 0.8)'; // Small effect
+            },
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            borderWidth: 1,
+            borderRadius: 4,
+            maxBarThickness: 35
+        }]
+    };
+    const effectSizeConfig = {
+        type: 'bar',
+        data: effectSizeData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: { 
+                x: { 
+                    beginAtZero: true, 
+                    title: { 
+                        display: true, 
+                        text: 'Effect Size (Cohen\'s d)',
+                        font: { weight: 'bold' }
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                }
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const index = tooltipItems[0].dataIndex;
+                            return topEffectSizes[index].title;
+                        },
+                        label: function(context) {
+                            const value = context.raw;
+                            return `Effect Size: ${value.toFixed(2)} (${getEffectSizeDescription(value)})`;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    createOrUpdateChart('effectSizeChart', 'bar', effectSizeConfig);
+
+    document.getElementById('effect-size-desc').textContent = effectSizes.length > 0 
+        ? `Average effect size: ${trialSummaries.avgEffectSize.toFixed(2)} (${getEffectSizeDescription(trialSummaries.avgEffectSize)})`
+        : 'No effect size data available.';
+        
+    // 6. Response & Remission Chart
+    const responseData = {
+        labels: ['Response Rate', 'Remission Rate'],
+        datasets: [{
+            label: 'Average Difference (%)',
+            data: [
+                trialSummaries.avgResponseDiff !== null ? trialSummaries.avgResponseDiff : 0,
+                trialSummaries.avgRemissionDiff !== null ? trialSummaries.avgRemissionDiff : 0
+            ],
+            backgroundColor: [COLORS.experimental.primary, COLORS.control.primary],
+            borderColor: 'rgba(255, 255, 255, 0.5)',
+            borderWidth: 1,
+            borderRadius: 4
+        }]
+    };
+    const responseConfig = {
+        type: 'bar',
+        data: responseData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { 
+                y: { 
+                    title: { 
+                        display: true, 
+                        text: 'Average Difference (%)',
+                        font: { weight: 'bold' }
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                }
+            },
+            plugins: { 
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Treatment vs Control Difference',
+                    font: { weight: 'bold' }
+                }
+            }
+        }
+    };
+    createOrUpdateChart('responseRemissionChart', 'bar', responseConfig);
+}
     function generateSummaryConclusions(trialSummaries) {
         const conclusionsList = document.getElementById('conclusions-list');
         if (!conclusionsList) return;
