@@ -576,7 +576,7 @@ function fetchStudyDetails(nctId) {
             if (!data.success) {
                 throw new Error('API request was not successful');
             }
-            
+            console.log(data.data)
             displayStudyDetails(data.data);
         })
         .catch(error => {
@@ -589,177 +589,7 @@ function fetchStudyDetails(nctId) {
 }
 
 // Display full study details
-// function displayStudyDetails(study) {
-//     elements.resultsContainer.classList.add('hidden');
-//     elements.studyDetailsSection.classList.remove('hidden');
-    
-//     if (!study || !study.protocolSection) {
-//         elements.studyDetailsContent.innerHTML = '<div class="text-red-500">Error: Study details not found.</div>';
-//         return;
-//     }
-    
-//     // Access specific modules directly from the v2 API structure
-//     const identification = study.protocolSection.identificationModule || {};
-//     const status = study.protocolSection.statusModule || {};
-//     const design = study.protocolSection.designModule || {};
-//     const description = study.protocolSection.descriptionModule || {};
-//     const sponsors = study.protocolSection.sponsorCollaboratorsModule || {};
-//     const conditions = study.protocolSection.conditionsModule || {};
-//     const arms = study.protocolSection.armsInterventionsModule || {};
-//     const eligibility = study.protocolSection.eligibilityModule || {};
-//     const locations = study.protocolSection.contactsLocationsModule || {};
-//     const outcomes = study.protocolSection.outcomesModule || {};
-    
-//     // Build the HTML content for study details
-//     let html = `
-//         <div class="mb-6">
-//             <h3 class="text-2xl font-semibold mb-2">${identification.briefTitle || 'No Title Available'}</h3>
-//             <p class="text-gray-600">${identification.nctId || 'No NCT ID'}</p>
-//             ${study.hasResults ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Has Results</span>' : ''}
-//         </div>
-        
-//         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-//             <div>
-//                 <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Study Information</h4>
-//                 <dl class="space-y-2">
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Status</dt>
-//                         <dd class="mt-1">${status.overallStatus || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Phase</dt>
-//                         <dd class="mt-1">${getPhaseDisplay(design) || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Study Type</dt>
-//                         <dd class="mt-1">${design.studyType || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Start Date</dt>
-//                         <dd class="mt-1">${getDateDisplay(status.startDateStruct) || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Completion Date</dt>
-//                         <dd class="mt-1">${getDateDisplay(status.completionDateStruct) || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Enrollment</dt>
-//                         <dd class="mt-1">${getEnrollmentDisplay(design) || 'Not Specified'}</dd>
-//                     </div>
-//                 </dl>
-//             </div>
-            
-//             <div>
-//                 <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Sponsor & Collaborators</h4>
-//                 <dl class="space-y-2">
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Lead Sponsor</dt>
-//                         <dd class="mt-1">${sponsors.leadSponsor?.name || 'Not Specified'}</dd>
-//                     </div>
-//                     <div>
-//                         <dt class="text-sm font-medium text-gray-500">Collaborators</dt>
-//                         <dd class="mt-1">${getCollaborators(sponsors) || 'None'}</dd>
-//                     </div>
-//                 </dl>
-//             </div>
-//         </div>
-        
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Description</h4>
-//             <div class="prose max-w-none">
-//                 <p>${description.briefSummary || 'No summary available.'}</p>
-                
-//                 ${description.detailedDescription ? 
-//                     `<h5 class="text-md font-medium mt-4 mb-2">Detailed Description</h5>
-//                     <p>${description.detailedDescription}</p>` : ''}
-//             </div>
-//         </div>
-        
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Conditions & Interventions</h4>
-            
-//             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-//                 <div>
-//                     <h5 class="text-md font-medium mb-2">Conditions</h5>
-//                     <ul class="list-disc list-inside space-y-1">
-//                         ${getConditionsList(conditions) || '<li>None specified</li>'}
-//                     </ul>
-//                 </div>
-                
-//                 <div>
-//                     <h5 class="text-md font-medium mb-2">Interventions</h5>
-//                     <ul class="list-disc list-inside space-y-1">
-//                         ${getInterventionsList(arms) || '<li>None specified</li>'}
-//                     </ul>
-//                 </div>
-//             </div>
-//         </div>
-        
-//         ${eligibility ? `
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Eligibility</h4>
-            
-//             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-//                 <div>
-//                     <h5 class="text-md font-medium mb-2">Criteria</h5>
-//                     <div class="text-sm whitespace-pre-line bg-gray-50 p-3 rounded">${eligibility.eligibilityCriteria || 'No criteria specified.'}</div>
-//                 </div>
-                
-//                 <div>
-//                     <h5 class="text-md font-medium mb-2">Demographics</h5>
-//                     <dl class="space-y-2">
-//                         <div>
-//                             <dt class="text-sm font-medium text-gray-500">Gender</dt>
-//                             <dd class="mt-1">${eligibility.sex || 'Not Specified'}</dd>
-//                         </div>
-//                         <div>
-//                             <dt class="text-sm font-medium text-gray-500">Minimum Age</dt>
-//                             <dd class="mt-1">${eligibility.minimumAge || 'Not Specified'}</dd>
-//                         </div>
-//                         <div>
-//                             <dt class="text-sm font-medium text-gray-500">Maximum Age</dt>
-//                             <dd class="mt-1">${eligibility.maximumAge || 'Not Specified'}</dd>
-//                         </div>
-//                         <div>
-//                             <dt class="text-sm font-medium text-gray-500">Healthy Volunteers</dt>
-//                             <dd class="mt-1">${eligibility.healthyVolunteers || 'Not Specified'}</dd>
-//                         </div>
-//                     </dl>
-//                 </div>
-//             </div>
-//         </div>` : ''}
-        
-//         ${outcomes ? `
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Outcome Measures</h4>
-            
-//             <div class="space-y-4">
-//                 ${getOutcomesList(outcomes) || '<p>No outcome measures specified.</p>'}
-//             </div>
-//         </div>` : ''}
-        
-//         ${locations ? `
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Locations</h4>
-            
-//             <div class="grid grid-cols-1 gap-4">
-//                 ${getLocationsList(locations) || '<p>No locations specified.</p>'}
-//             </div>
-//         </div>` : ''}
-        
-//         <div class="mt-6">
-//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">More Information</h4>
-            
-//             <div class="flex flex-col space-y-2">
-//                 <a href="https://clinicaltrials.gov/study/${identification.nctId}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
-//                     View on ClinicalTrials.gov
-//                 </a>
-//             </div>
-//         </div>
-//     `;
-    
-//     elements.studyDetailsContent.innerHTML = html;
-// }
+
 
 function displayStudyDetails(study) {
     elements.resultsContainer.classList.add('hidden');
@@ -774,13 +604,12 @@ function displayStudyDetails(study) {
         return;
     }
 
-   
-
-    
     // Access specific modules directly from the v2 API structure
     const identification = study.protocolSection.identificationModule || {};
     const status = study.protocolSection.statusModule || {};
     const design = study.protocolSection.designModule || {};
+    const enrollment = design.enrollmentInfo.count
+    console.log(enrollment)
     const description = study.protocolSection.descriptionModule || {};
     const sponsors = study.protocolSection.sponsorCollaboratorsModule || {};
     const conditions = study.protocolSection.conditionsModule || {};
@@ -824,7 +653,7 @@ function displayStudyDetails(study) {
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Enrollment</dt>
-                        <dd class="mt-1">${getEnrollmentDisplay(design) || 'Not Specified'}</dd>
+                        <dd class="mt-1">${ enrollment || 'Not Specified'}</dd>
                     </div>
                 </dl>
             </div>
@@ -961,6 +790,589 @@ setTimeout(() => {
 //     initializeOutcomeCharts(results);
 // }
 }
+
+// function displayStudyDetails(study) {
+//     console.log('tudy');
+    
+//     // Extract data from study object
+//     const identification = study.protocolSection?.identificationModule || {};
+//     const design = study.protocolSection?.designModule || {};
+//     const description = study.protocolSection?.descriptionModule || {};
+//     const arms = study.protocolSection?.armsInterventionsModule?.armGroups || [];
+//     const eligibility = study.protocolSection?.eligibilityModule || {};
+//     const outcomes = study.resultsSection?.outcomeMeasuresModule?.outcomeMeasures || [];
+//     const status = study.protocolSection?.statusModule || {};
+//     const contact = study.protocolSection?.contactsLocationsModule || {};
+    
+//     // Calculate key metrics
+//     const primaryOutcomes = outcomes.filter(outcome => outcome.type === "PRIMARY");
+//     const secondaryOutcomes = outcomes.filter(outcome => outcome.type === "SECONDARY");
+    
+//     // Get enrollment numbers
+//     const actualEnrollment = status.whyStopped ? "Stopped Early" : status.statusVerifiedDate ? "Active" : "Unknown";
+//     const enrollmentCount = eligibility.expectedEnrollment || "N/A";
+    
+//     // Calculate success metrics if available
+//     const successScore = calculateSuccessScore(study);
+//     const effectSize = calculateEffectSize(primaryOutcomes);
+    
+//     // Check if study is related to TRD
+//     const title = identification.briefTitle?.toLowerCase() || '';
+//     const officialTitle = identification.officialTitle?.toLowerCase() || '';
+//     const briefSummary = description.briefSummary?.toLowerCase() || '';
+//     const detailedDescription = description.detailedDescription?.toLowerCase() || '';
+    
+//     const trdTerms = [
+//         'treatment-resistant depression', 
+//         'treatment resistant depression',
+//         'trd',
+//         'refractory depression',
+//         'treatment-refractory depression'
+//     ];
+    
+//     const isTRDSpecific = trdTerms.some(term => 
+//         title.includes(term) || 
+//         officialTitle.includes(term) || 
+//         briefSummary.includes(term) || 
+//         detailedDescription.includes(term)
+//     );
+    
+//     // Get study dates
+//     const startDate = status.startDateStruct ? formatDate(status.startDateStruct) : 'N/A';
+//     const completionDate = status.completionDateStruct ? formatDate(status.completionDateStruct) : 'N/A';
+//     const lastUpdateDate = status.statusVerifiedDate || 'N/A';
+    
+//     // Generate HTML
+//     elements.studyDetailContent.innerHTML = `
+//         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+//             <!-- Header with key information -->
+//             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
+//                 <div class="flex justify-between items-start">
+//                     <div>
+//                         <h2 class="text-2xl font-bold text-gray-800 mb-2">${identification.briefTitle || 'Untitled Study'}</h2>
+//                         <div class="flex flex-wrap gap-2 mb-3">
+//                             <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+//                                 NCT ID: ${identification.nctId || 'N/A'}
+//                             </span>
+//                             <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full border border-blue-200 shadow-sm">
+//                                 Phase: ${formatPhase(design.phases?.[0] || 'N/A')}
+//                             </span>
+//                             <span class="${getStatusBadgeClass(status.overallStatus)}">
+//                                 Status: ${status.overallStatus || 'N/A'}
+//                             </span>
+//                             ${isTRDSpecific ? '<span class="bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full border border-purple-200 shadow-sm">TRD-Specific</span>' : ''}
+//                         </div>
+//                         <p class="text-gray-600">Sponsor: ${identification.organization?.fullName || 'N/A'}</p>
+//                     </div>
+//                     <div class="flex space-x-2">
+//                         <button id="copyStudyData" class="flex items-center text-sm bg-white text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md border border-gray-200 shadow-sm transition duration-200">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-4M16 5h2a2 2 0 012 2v4M21 14H11" />
+//                             </svg>
+//                             Copy Data
+//                         </button>
+//                         <button id="exportPdf" class="flex items-center text-sm bg-white text-green-600 hover:bg-green-50 px-3 py-2 rounded-md border border-gray-200 shadow-sm transition duration-200">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+//                             </svg>
+//                             Export
+//                         </button>
+//                     </div>
+//                 </div>
+//             </div>
+            
+//             <!-- Key Metrics -->
+//             <div class="p-6 bg-white">
+//                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+//                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-center shadow-sm">
+//                         <div class="bg-blue-100 p-3 rounded-full mr-4">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+//                             </svg>
+//                         </div>
+//                         <div>
+//                             <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Patients Enrolled</p>
+//                             <p class="text-2xl font-bold text-gray-800">${enrollmentCount}</p>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="bg-green-50 p-4 rounded-lg border border-green-100 flex items-center shadow-sm">
+//                         <div class="bg-green-100 p-3 rounded-full mr-4">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+//                             </svg>
+//                         </div>
+//                         <div>
+//                             <p class="text-xs font-medium text-green-600 uppercase tracking-wide">Success Score</p>
+//                             <p class="text-2xl font-bold text-gray-800">${successScore ? successScore.toFixed(1) + '/100' : 'N/A'}</p>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="bg-purple-50 p-4 rounded-lg border border-purple-100 flex items-center shadow-sm">
+//                         <div class="bg-purple-100 p-3 rounded-full mr-4">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+//                             </svg>
+//                         </div>
+//                         <div>
+//                             <p class="text-xs font-medium text-purple-600 uppercase tracking-wide">Effect Size</p>
+//                             <p class="text-2xl font-bold text-gray-800">${effectSize ? effectSize.toFixed(2) : 'N/A'}</p>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="bg-amber-50 p-4 rounded-lg border border-amber-100 flex items-center shadow-sm">
+//                         <div class="bg-amber-100 p-3 rounded-full mr-4">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                             </svg>
+//                         </div>
+//                         <div>
+//                             <p class="text-xs font-medium text-amber-600 uppercase tracking-wide">Timeline</p>
+//                             <p class="text-sm font-semibold text-gray-800">${startDate} - ${completionDate}</p>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Study Design & Enrollment -->
+//                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+//                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+//                         <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+//                             <h3 class="text-lg font-semibold text-gray-800">Study Design</h3>
+//                         </div>
+//                         <div class="p-4 space-y-3">
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Study Type:</span>
+//                                 <span class="font-medium text-gray-800">${design.studyType || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Allocation:</span>
+//                                 <span class="font-medium text-gray-800">${design.designInfo?.allocation || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Intervention Model:</span>
+//                                 <span class="font-medium text-gray-800">${design.designInfo?.interventionModel || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Masking:</span>
+//                                 <span class="font-medium text-gray-800">${design.designInfo?.maskingInfo?.masking || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Primary Purpose:</span>
+//                                 <span class="font-medium text-gray-800">${design.designInfo?.primaryPurpose || 'N/A'}</span>
+//                             </div>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+//                         <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+//                             <h3 class="text-lg font-semibold text-gray-800">Patient Information</h3>
+//                         </div>
+//                         <div class="p-4 space-y-3">
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Enrollment:</span>
+//                                 <span class="font-medium text-gray-800 text-lg">${enrollmentCount} patients</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Sex:</span>
+//                                 <span class="font-medium text-gray-800">${eligibility.sex || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Age Range:</span>
+//                                 <span class="font-medium text-gray-800">${eligibility.minimumAge || 'N/A'} - ${eligibility.maximumAge || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Healthy Volunteers:</span>
+//                                 <span class="font-medium text-gray-800">${eligibility.healthyVolunteers || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between">
+//                                 <span class="text-gray-600">Status:</span>
+//                                 <span class="font-medium text-gray-800">${actualEnrollment}</span>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Brief Summary -->
+//                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+//                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+//                         <h3 class="text-lg font-semibold text-gray-800">Brief Summary</h3>
+//                     </div>
+//                     <div class="p-4">
+//                         <p class="text-gray-700 leading-relaxed">${description.briefSummary || 'No summary available.'}</p>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Arms and Interventions -->
+//                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+//                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+//                         <h3 class="text-lg font-semibold text-gray-800">Arms and Interventions</h3>
+//                         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+//                             ${arms.length} ${arms.length === 1 ? 'Arm' : 'Arms'}
+//                         </span>
+//                     </div>
+//                     <div class="p-4">
+//                         ${arms.length > 0 ? 
+//                             `<div class="grid grid-cols-1 gap-4">
+//                                 ${arms.map((arm, index) => `
+//                                     <div class="bg-gray-50 p-4 rounded-lg ${index % 2 === 0 ? 'bg-opacity-50' : 'bg-opacity-80'}">
+//                                         <div class="flex items-center mb-2">
+//                                             <span class="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-800 rounded-full mr-3 font-bold text-sm">${index + 1}</span>
+//                                             <h4 class="font-medium text-gray-900">${arm.label} <span class="text-gray-500 text-sm">(${arm.type})</span></h4>
+//                                         </div>
+//                                         <p class="text-gray-600 text-sm ml-11">${arm.description || 'No description available.'}</p>
+//                                     </div>
+//                                 `).join('')}
+//                             </div>` : 
+//                             '<p class="italic text-gray-500">No arms or interventions information available.</p>'
+//                         }
+//                     </div>
+//                 </div>
+                
+//                 <!-- Outcome Measurements -->
+//                 <div id="outcomeVisuals" class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+//                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+//                         <h3 class="text-lg font-semibold text-gray-800">Outcome Measurements</h3>
+//                     </div>
+                    
+//                     ${outcomes.length > 0 ? 
+//                         `<div class="p-4 space-y-6">
+//                             ${primaryOutcomes.length > 0 ? 
+//                                 `<div>
+//                                     <div class="flex items-center mb-4">
+//                                         <div class="w-2 h-6 bg-blue-600 rounded-r mr-2"></div>
+//                                         <h4 class="text-lg font-medium text-gray-800">Primary Outcomes</h4>
+//                                     </div>
+//                                     <div class="space-y-4">
+//                                         ${primaryOutcomes.map((outcome, idx) => `
+//                                             <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+//                                                 <h5 class="font-medium text-gray-900 mb-2">${outcome.title}</h5>
+//                                                 <p class="text-gray-700 mb-2">${outcome.description || 'No description available.'}</p>
+//                                                 <p class="text-sm text-gray-600 mb-3">
+//                                                     <span class="font-medium">Time Frame:</span> ${outcome.timeFrame || 'Not specified'}
+//                                                 </p>
+//                                                 <div class="h-64 mt-3 bg-white p-2 rounded border border-gray-200">
+//                                                     <canvas id="outcome_${identification.nctId}_${idx}" class="w-full h-full"></canvas>
+//                                                 </div>
+//                                                 ${getAnalysisData(outcome)}
+//                                             </div>
+//                                         `).join('')}
+//                                     </div>
+//                                 </div>` : 
+//                                 ''}
+                            
+//                             ${secondaryOutcomes.length > 0 ? 
+//                                 `<div>
+//                                     <div class="flex items-center mb-4">
+//                                         <div class="w-2 h-6 bg-green-600 rounded-r mr-2"></div>
+//                                         <h4 class="text-lg font-medium text-gray-800">Secondary Outcomes</h4>
+//                                     </div>
+//                                     <div class="space-y-4">
+//                                         ${secondaryOutcomes.map((outcome, idx) => `
+//                                             <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+//                                                 <h5 class="font-medium text-gray-900 mb-2">${outcome.title}</h5>
+//                                                 <p class="text-gray-700 mb-2">${outcome.description || 'No description available.'}</p>
+//                                                 <p class="text-sm text-gray-600 mb-3">
+//                                                     <span class="font-medium">Time Frame:</span> ${outcome.timeFrame || 'Not specified'}
+//                                                 </p>
+//                                                 <div class="h-64 mt-3 bg-white p-2 rounded border border-gray-200">
+//                                                     <canvas id="outcome_secondary_${identification.nctId}_${idx}" class="w-full h-full"></canvas>
+//                                                 </div>
+//                                                 ${getAnalysisData(outcome)}
+//                                             </div>
+//                                         `).join('')}
+//                                     </div>
+//                                 </div>` : 
+//                                 ''}
+//                         </div>` : 
+//                         '<div class="p-6"><p class="italic text-gray-500">No outcome measurements available.</p></div>'
+//                     }
+//                 </div>
+                
+//                 <!-- Contact Information -->
+//                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+//                     <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+//                         <h3 class="text-lg font-semibold text-gray-800">Contact Information</h3>
+//                     </div>
+//                     <div class="p-4">
+//                         ${contact.centralContacts?.length > 0 ? 
+//                             `<div class="space-y-4">
+//                                 ${contact.centralContacts.map(person => `
+//                                     <div class="flex items-start">
+//                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+//                                         </svg>
+//                                         <div>
+//                                             <p class="font-medium text-gray-800">${person.name || 'N/A'}</p>
+//                                             <p class="text-sm text-gray-600">${person.role || 'N/A'}</p>
+//                                             <p class="text-sm text-gray-600">${person.phone || 'N/A'}</p>
+//                                             <p class="text-sm text-gray-600">${person.email || 'N/A'}</p>
+//                                         </div>
+//                                     </div>
+//                                 `).join('')}
+//                             </div>` : 
+//                             '<p class="italic text-gray-500">No contact information available.</p>'
+//                         }
+//                     </div>
+//                 </div>
+                
+//                 <!-- Action buttons at the bottom -->
+//                 <div class="flex justify-center space-x-4 mt-6">
+//                     <a href="https://clinicaltrials.gov/study/${identification.nctId}" target="_blank" class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition duration-200">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//                         </svg>
+//                         View on ClinicalTrials.gov
+//                     </a>
+//                     <button id="viewFdaData" class="flex items-center justify-center px-4 py-2 bg-amber-600 text-white rounded-md shadow hover:bg-amber-700 transition duration-200">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//                         </svg>
+//                         View FDA Data
+//                     </button>
+//                     <button id="viewSuccessMetrics" class="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition duration-200">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+//                         </svg>
+//                         Success Metrics
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+    
+//     // Create outcome charts after content is added to DOM
+//     setTimeout(() => {
+//         createOutcomeCharts(study);
+        
+//         // Add event listener for copy button
+//         const copyButton = document.getElementById('copyStudyData');
+//         if (copyButton) {
+//             copyButton.addEventListener('click', () => {
+//                 copyTrialDataToClipboard(identification.nctId);
+//             });
+//         }
+        
+//         // Add event listener for PDF export button
+//         const exportPdfButton = document.getElementById('exportPdf');
+//         if (exportPdfButton) {
+//             exportPdfButton.addEventListener('click', () => {
+//                 exportStudyAsPdf(study);
+//             });
+//         }
+        
+//         // Add event listener for view FDA data button
+//         const viewFdaButton = document.getElementById('viewFdaData');
+//         if (viewFdaButton) {
+//             viewFdaButton.addEventListener('click', () => {
+//                 // Scroll to FDA data section
+//                 elements.fdaDataSection.scrollIntoView({ behavior: 'smooth' });
+//             });
+//         }
+        
+//         // Add event listener for success metrics button
+//         const viewSuccessMetricsButton = document.getElementById('viewSuccessMetrics');
+//         if (viewSuccessMetricsButton) {
+//             viewSuccessMetricsButton.addEventListener('click', () => {
+//                 showSuccessMetricsModal(study);
+//             });
+//         }
+//     }, 100);
+// }
+
+// Helper function to format date objects
+function formatDate(dateStruct) {
+    if (!dateStruct) return 'N/A';
+    
+    let result = '';
+    if (dateStruct.month) result += dateStruct.month + '/';
+    else result += 'XX/';
+    
+    if (dateStruct.day) result += dateStruct.day + '/';
+    else result += 'XX/';
+    
+    if (dateStruct.year) result += dateStruct.year;
+    else result += 'XXXX';
+    
+    return result;
+}
+
+// Helper function to get CSS class for status badge
+function getStatusBadgeClass(status) {
+    if (!status) return 'bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full border border-gray-200 shadow-sm';
+    
+    status = status.toLowerCase();
+    
+    if (status.includes('complete')) {
+        return 'bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full border border-green-200 shadow-sm';
+    } else if (status.includes('recruit')) {
+        return 'bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full border border-blue-200 shadow-sm';
+    } else if (status.includes('active') || status.includes('enroll')) {
+        return 'bg-amber-100 text-amber-800 text-sm font-medium px-3 py-1 rounded-full border border-amber-200 shadow-sm';
+    } else if (status.includes('termin') || status.includes('withdr') || status.includes('suspend')) {
+        return 'bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full border border-red-200 shadow-sm';
+    } else {
+        return 'bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full border border-gray-200 shadow-sm';
+    }
+}
+
+// Helper function to calculate success score
+function calculateSuccessScore(study) {
+    const outcomes = study.resultsSection?.outcomeMeasuresModule?.outcomeMeasures || [];
+    const status = study.protocolSection?.statusModule?.overallStatus || '';
+    const phase = study.protocolSection?.designModule?.phases?.[0] || '';
+    
+    // Base score calculation
+    let score = 0;
+    
+    // Score based on status
+    if (status.toLowerCase().includes('complete')) {
+        score += 50;
+    } else if (status.toLowerCase().includes('active') || status.toLowerCase().includes('recruit')) {
+        score += 30;
+    } else if (status.toLowerCase().includes('termin') || status.toLowerCase().includes('suspend')) {
+        score += 10;
+    }
+    
+    // Score based on phase
+    if (phase.toLowerCase().includes('phase 4') || phase.toLowerCase().includes('phase4')) {
+        score += 30;
+    } else if (phase.toLowerCase().includes('phase 3') || phase.toLowerCase().includes('phase3')) {
+        score += 25;
+    } else if (phase.toLowerCase().includes('phase 2') || phase.toLowerCase().includes('phase2')) {
+        score += 15;
+    } else if (phase.toLowerCase().includes('phase 1') || phase.toLowerCase().includes('phase1')) {
+        score += 5;
+    }
+    
+    // Score based on outcome metrics
+    const primaryOutcomes = outcomes.filter(outcome => outcome.type === "PRIMARY");
+    
+    if (primaryOutcomes.length > 0) {
+        const effectSize = calculateEffectSize(primaryOutcomes);
+        if (effectSize) {
+            if (effectSize >= 1.5) score += 20;
+            else if (effectSize >= 1.0) score += 15;
+            else if (effectSize >= 0.8) score += 10;
+            else if (effectSize >= 0.5) score += 5;
+            else if (effectSize >= 0.2) score += 2;
+        }
+    }
+    
+    return Math.min(score, 100);
+}
+
+// Helper function to calculate effect size
+function calculateEffectSize(primaryOutcomes) {
+    if (!primaryOutcomes || primaryOutcomes.length === 0) return null;
+    
+    // Try to find an outcome with measurements
+    const outcomeWithMeasurements = primaryOutcomes.find(outcome => 
+        outcome.measurements && outcome.measurements.length >= 2);
+    
+    if (!outcomeWithMeasurements) return null;
+    
+    // Filter for control and experimental groups
+    const controlMeasurements = outcomeWithMeasurements.measurements.filter(m => m.isControlGroup);
+    const expMeasurements = outcomeWithMeasurements.measurements.filter(m => !m.isControlGroup);
+    
+    if (controlMeasurements.length === 0 || expMeasurements.length === 0) return null;
+    
+    // Calculate means
+    const controlMean = controlMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / controlMeasurements.length;
+    const expMean = expMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / expMeasurements.length;
+    
+    // Get standard error or estimate standard deviation
+    const controlSD = controlMeasurements[0].standardDeviation || 
+                     (controlMeasurements[0].standardError ? 
+                     controlMeasurements[0].standardError * Math.sqrt(controlMeasurements.length) : null);
+    
+    const expSD = expMeasurements[0].standardDeviation || 
+                 (expMeasurements[0].standardError ? 
+                 expMeasurements[0].standardError * Math.sqrt(expMeasurements.length) : null);
+    
+    // If we don't have SDs, use a reasonable estimate based on the measure
+    const estimatedSD = controlSD || expSD || 
+                        (outcomeWithMeasurements.title.toLowerCase().includes('ham-d') ? 8.0 : 
+                        outcomeWithMeasurements.title.toLowerCase().includes('madrs') ? 10.0 : 
+                        outcomeWithMeasurements.title.toLowerCase().includes('connectivity') ? 0.1 : 8.0);
+    
+    // Calculate Cohen's d
+    const cohensD = Math.abs(expMean - controlMean) / estimatedSD;
+    
+    return cohensD;
+}
+
+// Helper function to extract analysis data from outcome
+function getAnalysisData(outcome) {
+    if (!outcome.measurements || outcome.measurements.length < 2) {
+        return '<p class="text-sm text-gray-500 italic mt-2">No statistical analysis available</p>';
+    }
+    
+    const controlMeasurements = outcome.measurements.filter(m => m.isControlGroup);
+    const expMeasurements = outcome.measurements.filter(m => !m.isControlGroup);
+    
+    if (controlMeasurements.length === 0 || expMeasurements.length === 0) {
+        return '<p class="text-sm text-gray-500 italic mt-2">No comparison data available</p>';
+    }
+    
+    // Calculate means
+    const controlMean = controlMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / controlMeasurements.length;
+    const expMean = expMeasurements.reduce((sum, m) => sum + (m.value || 0), 0) / expMeasurements.length;
+    
+    // Calculate difference
+    const difference = expMean - controlMean;
+    const percentChange = (difference / controlMean) * 100;
+    
+    // Get p-value if available
+    const pValue = outcome.analyses?.[0]?.pValue || outcome.pValue || null;
+    
+    // Determine if statistically significant
+    const isSignificant = pValue !== null && pValue < 0.05;
+    
+    return `
+        <div class="mt-3 border-t border-gray-200 pt-3">
+            <h6 class="font-medium text-gray-700 mb-2">Statistical Analysis</h6>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div class="bg-white p-2 rounded border border-gray-200">
+                    <p class="text-xs text-gray-500">Control Group</p>
+                    <p class="text-lg font-semibold">${controlMean.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500">${controlMeasurements[0]?.unit || 'points'}</p>
+                </div>
+                <div class="bg-white p-2 rounded border border-gray-200">
+                    <p class="text-xs text-gray-500">Treatment Group</p>
+                    <p class="text-lg font-semibold">${expMean.toFixed(2)}</p>
+                    <p class="text-xs text-gray-500">${expMeasurements[0]?.unit || 'points'}</p>
+                </div>
+                <div class="bg-white p-2 rounded border border-gray-200">
+                    <p class="text-xs text-gray-500">Difference</p>
+                    <p class="text-lg font-semibold ${difference < 0 ? 'text-red-600' : difference > 0 ? 'text-green-600' : 'text-gray-600'}">
+                        ${difference > 0 ? '+' : ''}${difference.toFixed(2)} (${percentChange.toFixed(1)}%)
+                    </p>
+                    ${pValue ? `<p class="text-xs ${isSignificant ? 'text-green-600 font-semibold' : 'text-gray-500'}">
+                                    p = ${pValue < 0.001 ? '<0.001' : pValue.toFixed(3)} ${isSignificant ? '✓' : ''}
+                                </p>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to format phase for display
+function formatPhase(phase) {
+    if (!phase) return 'N/A';
+    
+    phase = phase.toUpperCase();
+    
+    if (phase === 'PHASE1') return 'Phase 1';
+    if (phase === 'PHASE2') return 'Phase 2';
+    if (phase === 'PHASE3') return 'Phase 3';
+    if (phase === 'PHASE4') return 'Phase 4';
+    if (phase === 'PHASE1/PHASE2') return 'Phase 1/2';
+    if (phase === 'PHASE2/PHASE3') return 'Phase 2/3';
+    
+    return phase;
+}
+
 
 // Helper function to initialize outcome charts
 // Update getResultsCharts to pass group info correctly

@@ -5336,6 +5336,7 @@ async function handleSearch() {
                 const nctId = study.protocolSection.identificationModule.nctId;
                 
                 fetchStudyDetails(nctId).then(details => {
+                    console.log("d", details)
                     if (details) {
                         appState.studyDetails[nctId] = details;
                     }
