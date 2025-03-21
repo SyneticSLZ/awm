@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trials Outcomes Visualization</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            max-width: 1200px;
+            height: 600px;
+            margin: 0 auto;
+        }
+        .chart-container {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+        .trial-charts {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">Clinical Trials Outcomes Visualization</h1>
+
+        <!-- File Upload Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Upload Clinical Trial JSON Files</h2>
+            <input type="file" id="jsonFiles" multiple accept=".json" class="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"/>
+            <button id="processFiles" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Process Files</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="mb-8 hidden">
+            <h2 class="text-2xl font-semibold mb-4">Trial Results</h2>
+            <div id="trialResults" class="space-y-6"></div>
+        </div>
+
+        <!-- Overall Success Rate Chart -->
+        <div id="chartSection" class="mb-8 hidden">
+            <h2 class="text-2xl font-semibold mb-4">Overall Success Rates Comparison</h2>
+            <div class="chart-container">
+                <canvas id="successRateChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trialsData = [];
+        let successRateChart;
+        let trialCharts = {};
+
+        // Function to calculate success rates based on trial data structure
+        function calculateSuccessRates(trialId, outcomes) {
+            let successRates = [];
+            let overallSuccess = 0;
+            let outcomeCount = 0;
+
+            const hasData = outcomes.some(outcome => 
+                outcome.classes?.some(cls => 
+                    cls.categories?.some(cat => 
+                        cat.measurements?.some(m => m.value !== undefined && m.value !== null && m.value !== "")
+                    )
+                )
+            );
+
+            if (!hasData) {
+                return { successRates: [{ name: 'No measurable data available', value: 0 }], overallSuccessRate: 0, hasData: false, outcomeData: {} };
+            }
+
+            let outcomeData = {};
+            outcomes.forEach(outcome => {
+                if (outcome.type === 'PRIMARY' || outcome.type === 'SECONDARY') {
+                    const measure = outcome.title;
+                    const groups = outcome.groups || [];
+                    outcomeData[measure] = { groups: [], values: [], paramType: outcome.paramType };
+
+                    if (outcome.paramType === 'NUMBER' && outcome.classes?.[0]?.categories?.[0]?.measurements) {
+                        const measurements = outcome.classes[0].categories[0].measurements;
+                        groups.forEach((group, idx) => {
+                            const value = parseFloat(measurements[idx]?.value) || 0;
+                            successRates.push({ name: `${measure} (${group.title})`, value: value.toFixed(2) });
+                            outcomeData[measure].groups.push(group.title);
+                            outcomeData[measure].values.push(value);
+                            overallSuccess += value;
+                            outcomeCount++;
+                        });
+                    } else if (outcome.paramType === 'MEAN' && outcome.classes?.length > 1) {
+                        const baselineClass = outcome.classes.find(cls => cls.title?.toLowerCase().includes('baseline'));
+                        const followUpClass = outcome.classes.find(cls => cls.title?.toLowerCase().includes('6-month') || cls.title?.toLowerCase().includes('months'));
+                        if (baselineClass && followUpClass) {
+                            const baselineMeasurements = baselineClass.categories[0].measurements;
+                            const followUpMeasurements = followUpClass.categories[0].measurements;
+                            groups.forEach((group, idx) => {
+                                const baseline = parseFloat(baselineMeasurements[idx]?.value) || 0;
+                                const followUp = parseFloat(followUpMeasurements[idx]?.value) || 0;
+                                const change = followUp - baseline;
+                                let successRate;
+                                let maxScore = 100;
+
+                                if (measure.includes('Sexual Violence Victimization')) {
+                                    maxScore = measure.includes('SOTS') ? 135 : 63;
+                                    successRate = (-change / maxScore) * 100;
+                                } else if (measure.includes('Alcohol Protective Behaviors') || measure.includes('Bystander Behavior')) {
+                                    maxScore = measure.includes('Bystander Behavior') ? 60 : 75;
+                                    successRate = (change / maxScore) * 100;
+                                } else if (measure.includes('Dating Risk Behaviors') || measure.includes('Binge Drinking') || measure.includes('Average Number of Alcoholic Drinks')) {
+                                    maxScore = 75;
+                                    successRate = (-change / maxScore) * 100;
+                                } else {
+                                    successRate = (change / 100) * 100;
+                                }
+
+                                successRates.push({ name: `${measure} (${group.title})`, value: successRate.toFixed(2) });
+                                outcomeData[measure].groups.push(group.title);
+                                outcomeData[measure].values.push(successRate);
+                                overallSuccess += successRate;
+                                outcomeCount++;
+                            });
+                        }
+                    } else if (outcome.paramType === 'LEAST_SQUARES_MEAN' && outcome.classes?.length > 0) {
+                        const measurements = outcome.classes[0].categories[0].measurements;
+                        groups.forEach((group, idx) => {
+                            const value = parseFloat(measurements[idx]?.value) || 0;
+                            let successRate = (value / 60) * 100;
+                            successRates.push({ name: `${measure} (${group.title})`, value: successRate.toFixed(2) });
+                            outcomeData[measure].groups.push(group.title);
+                            outcomeData[measure].values.push(successRate);
+                            overallSuccess += successRate;
+                            outcomeCount++;
+                        });
+                    } else if (outcome.paramType === 'COUNT_OF_PARTICIPANTS' && outcome.classes?.length > 0) {
+                        outcome.classes.forEach(cls => {
+                            const measurements = cls.categories[0].measurements;
+                            const denom = cls.denoms?.[0]?.counts.find(d => d.groupId === measurements[0].groupId)?.value || 0;
+                            groups.forEach((group, idx) => {
+                                const value = parseInt(measurements[idx]?.value) || 0;
+                                const successRate = (denom > 0) ? (value / denom) * 100 : 0;
+                                successRates.push({ name: `${measure} at ${cls.title} (${group.title})`, value: successRate.toFixed(2) });
+                                outcomeData[measure] = outcomeData[measure] || { groups: [], values: [], paramType: outcome.paramType };
+                                outcomeData[measure].groups.push(`${group.title} at ${cls.title}`);
+                                outcomeData[measure].values.push(successRate);
+                                overallSuccess += successRate;
+                                outcomeCount++;
+                            });
+                        });
+                    }
+                }
+            });
+
+            const overallSuccessRate = outcomeCount > 0 ? (overallSuccess / outcomeCount).toFixed(2) : 0;
+            return { successRates, overallSuccessRate, hasData: true, outcomeData };
+        }
+
+        // Function to display trial results and charts
+        function displayTrialResults(trialData) {
+            const trialResultsDiv = document.getElementById('trialResults');
+            const trialDiv = document.createElement('div');
+            trialDiv.className = 'bg-white p-6 rounded-lg shadow';
+
+            const trialTitle = document.createElement('h3');
+            trialTitle.className = 'text-xl font-medium mb-2';
+            trialTitle.textContent = `Trial: ${trialData.id}`;
+            trialDiv.appendChild(trialTitle);
+
+            const outcomesList = document.createElement('ul');
+            outcomesList.className = 'list-disc pl-6 space-y-2';
+            trialData.successRates.forEach(rate => {
+                const li = document.createElement('li');
+                li.textContent = rate.name + (rate.value !== undefined ? `: ${rate.value}%` : '');
+                outcomesList.appendChild(li);
+            });
+
+            if (!trialData.hasData) {
+                const noteLi = document.createElement('li');
+                noteLi.className = 'text-red-600 font-semibold mt-2';
+                noteLi.textContent = 'Note: No measurable outcome data available due to early study termination or insufficient accrual.';
+                outcomesList.appendChild(noteLi);
+            } else {
+                const overallLi = document.createElement('li');
+                overallLi.className = 'font-semibold mt-2';
+                overallLi.textContent = `Overall Success Rate: ${trialData.overallSuccessRate}%`;
+                outcomesList.appendChild(overallLi);
+
+                // Generate charts for each outcome
+                const chartsDiv = document.createElement('div');
+                chartsDiv.className = 'trial-charts';
+                for (const [measure, data] of Object.entries(trialData.outcomeData)) {
+                    const chartCanvas = document.createElement('canvas');
+                    chartCanvas.id = `${trialData.id}-${measure.replace(/\s+/g, '-')}`;
+                    chartsDiv.appendChild(chartCanvas);
+                    createOutcomeChart(trialData.id, measure, data);
+                }
+                trialDiv.appendChild(chartsDiv);
+            }
+
+            trialResultsDiv.appendChild(trialDiv);
+        }
+
+        // Function to create outcome-specific charts
+        function createOutcomeChart(trialId, measure, data) {
+            const ctx = document.getElementById(`${trialId}-${measure.replace(/\s+/g, '-')}`).getContext('2d');
+            let chart;
+
+            if (data.paramType === 'COUNT_OF_PARTICIPANTS') {
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.groups,
+                        datasets: [{
+                            label: measure,
+                            data: data.values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Percentage (%)' }
+                            }
+                        },
+                        plugins: { legend: { display: true } },
+                        maintainAspectRatio: false
+                    }
+                });
+            } else if (data.paramType === 'MEAN' || data.paramType === 'LEAST_SQUARES_MEAN') {
+                // Simulate a distribution curve based on mean data (simplified)
+                const xValues = [];
+                for (let x = -50; x <= 50; x += 1) {
+                    xValues.push(x);
+                }
+                const mean = data.values.reduce((a, b) => a + b, 0) / data.values.length;
+                const stdDev = Math.sqrt(data.values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.values.length);
+                const curveData = xValues.map(x => {
+                    return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) * 100;
+                });
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            label: `${measure} Distribution`,
+                            data: curveData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: true,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: { title: { display: true, text: 'Value' } },
+                            y: { title: { display: true, text: 'Density (%)' } }
+                        },
+                        plugins: { legend: { display: true } },
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            trialCharts[`${trialId}-${measure}`] = chart;
+        }
+
+        // Function to update the success rate chart
+        function updateSuccessRateChart() {
+            const ctx = document.getElementById('successRateChart').getContext('2d');
+            const labels = trialsData.map(trial => trial.id);
+            const data = trialsData.map(trial => trial.hasData ? trial.overallSuccessRate : null);
+
+            if (successRateChart) {
+                successRateChart.destroy();
+            }
+
+            successRateChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Overall Success Rate (%)',
+                        data: data,
+                        backgroundColor: labels.map((_, i) => `hsl(${i * 360 / labels.length}, 70%, 50%)`),
+                        borderColor: labels.map((_, i) => `hsl(${i * 360 / labels.length}, 70%, 40%)`),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            min: -100,
+                            title: { display: true, text: 'Success Rate (%)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw !== null ? context.raw + '%' : 'No data'}`;
+                                }
+                            }
+                        }
+                    },
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Event listener for file processing
+        document.getElementById('processFiles').addEventListener('click', () => {
+            const files = document.getElementById('jsonFiles').files;
+            if (files.length === 0) {
+                alert('Please upload at least one JSON file.');
+                return;
+            }
+
+            if (files.length > 30) {
+                alert('Please upload no more than 30 files.');
+                return;
+            }
+
+            trialsData = [];
+            document.getElementById('trialResults').innerHTML = '';
+            for (let key in trialCharts) {
+                if (trialCharts[key]) trialCharts[key].destroy();
+            }
+            trialCharts = {};
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        const trialId = jsonData.protocolSection?.identificationModule?.nctId || `Trial_${index}`;
+                        const outcomes = jsonData.resultsSection?.outcomeMeasuresModule?.outcomeMeasures || [];
+
+                        const { successRates, overallSuccessRate, hasData, outcomeData } = calculateSuccessRates(trialId, outcomes);
+
+                        const trialData = { id: trialId, successRates, overallSuccessRate, hasData, outcomeData };
+                        trialsData.push(trialData);
+                        displayTrialResults(trialData);
+
+                        if (trialsData.length === files.length) {
+                            document.getElementById('resultsSection').classList.remove('hidden');
+                            document.getElementById('chartSection').classList.remove('hidden');
+                            updateSuccessRateChart();
+                        }
+                    } catch (error) {
+                        alert(`Error processing file ${file.name}: ${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3890,72 +3890,1210 @@ async function displayFdaSubmissions(fdaData, drugName) {
   // Initial render
   renderCurrentPage();
 }
-// Function to display Orange Book data
+
+
+// function displayOrangeBookData(data) {
+//     console.log(data)
+//   // Count total entries
+//   const totalProducts = data.total.products || 0;
+  
+//   // Update counter
+//   elements.orangeBookCount.textContent = `${totalProducts} entries`;
+  
+//   if (totalProducts === 0) {
+//     elements.orangeBookData.innerHTML = `
+//       <div class="text-center p-4 rounded bg-gray-50">
+//         <p class="text-sm text-gray-700">No Orange Book entries found</p>
+//       </div>
+//     `;
+//     return;
+//   }
+  
+//   // Create HTML for the products
+//   let html = `
+//     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+//       <div class="flex justify-end p-2 bg-gray-50">
+//         <button id="expandAllBtn" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+//           Expand All
+//         </button>
+//       </div>
+//       <div class="divide-y divide-gray-200">
+//   `;
+  
+//   // Add product cards (limit to 20 for performance)
+//   const productsToShow = Math.min(data.results.products.length, 20);
+  
+//   for (let i = 0; i < productsToShow; i++) {
+//     const product = data.results.products[i];
+//     const hasPatents = product.related_patents && product.related_patents.length > 0;
+//     const hasExclusivity = product.related_exclusivity && product.related_exclusivity.length > 0;
+    
+//     html += `
+//       <div class="product-card bg-white overflow-hidden" data-product-id="${product.Appl_No}-${product.Product_No}">
+//         <!-- Product Header -->
+//         <div class="flex justify-between items-center p-4 cursor-pointer product-header" 
+//              onclick="toggleProductDetails('${product.Appl_No}-${product.Product_No}')">
+//           <div>
+//             <h3 class="text-lg font-medium text-gray-900">${product.Trade_Name || 'Unnamed Product'}</h3>
+//             <div class="text-sm text-gray-500">
+//               ${product.Ingredient || 'N/A'} | ${product.Strength || 'N/A'} | ${product.DF_Route || product["DF;Route"] || 'N/A'}
+//             </div>
+//           </div>
+//           <div class="flex items-center">
+//             <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+//               ${product.Appl_Type || ''}-${product.Appl_No || ''}
+//             </span>
+//             <svg class="toggle-icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+//             </svg>
+//           </div>
+//         </div>
+        
+//         <!-- Product Details (hidden by default) -->
+//         <div class="product-details hidden p-4 border-t border-gray-200 bg-gray-50" id="details-${product.Appl_No}-${product.Product_No}">
+//           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <!-- Product Information -->
+//             <div class="bg-white p-3 rounded shadow-sm">
+//               <h4 class="font-medium text-gray-700 mb-2">Product Information</h4>
+//               <table class="w-full text-sm">
+//                 <tbody>
+//                   <tr>
+//                     <td class="py-1 pr-2 text-gray-500">Applicant</td>
+//                     <td class="py-1">${product.Applicant_Full_Name || product.Applicant || 'N/A'}</td>
+//                   </tr>
+//                   <tr>
+//                     <td class="py-1 pr-2 text-gray-500">Approval Date</td>
+//                     <td class="py-1">${product.Approval_Date || 'N/A'}</td>
+//                   </tr>
+//                   <tr>
+//                     <td class="py-1 pr-2 text-gray-500">Type</td>
+//                     <td class="py-1">${product.Type || 'N/A'}</td>
+//                   </tr>
+//                   <tr>
+//                     <td class="py-1 pr-2 text-gray-500">RLD/RS</td>
+//                     <td class="py-1">
+//                       ${product.RLD === 'Yes' ? '<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">RLD</span>' : ''}
+//                       ${product.RS === 'Yes' ? '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs ml-1">RS</span>' : ''}
+//                     </td>
+//                   </tr>
+//                   <tr>
+//                     <td class="py-1 pr-2 text-gray-500">TE Code</td>
+//                     <td class="py-1">${product.TE_Code || 'N/A'}</td>
+//                   </tr>
+//                 </tbody>
+//               </table>
+//             </div>
+            
+//             <!-- Links & Resources -->
+//             <div class="bg-white p-3 rounded shadow-sm">
+//               <h4 class="font-medium text-gray-700 mb-2">Links & Resources</h4>
+//               <div class="space-y-2">
+//                 <a href="https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=${product.Appl_Type}&Appl_No=${product.Appl_No}" 
+//                    target="_blank" 
+//                    class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+//                   View on FDA Orange Book
+//                 </a>
+//                 <a href="https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${encodeURIComponent(product.Ingredient)}" 
+//                    target="_blank" 
+//                    class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+//                   Search on DailyMed
+//                 </a>
+//                 <a href="https://www.drugs.com/search.php?searchterm=${encodeURIComponent(product.Trade_Name || product.Ingredient)}" 
+//                    target="_blank" 
+//                    class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+//                   Search on Drugs.com
+//                 </a>
+//               </div>
+//             </div>
+//           </div>
+          
+//           <!-- Related Patents Section -->
+//           ${hasPatents ? `
+//             <div class="mt-4">
+//               <h4 class="font-medium text-gray-700 mb-2">Patents (${product.related_patents.length})</h4>
+//               <div class="overflow-x-auto bg-white rounded shadow-sm">
+//                 <table class="min-w-full divide-y divide-gray-200">
+//                   <thead class="bg-gray-50">
+//                     <tr>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Sub/Prod</th>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
+//                     </tr>
+//                   </thead>
+//                   <tbody class="divide-y divide-gray-200">
+//                     ${product.related_patents.map(patent => `
+//                       <tr class="hover:bg-gray-50">
+//                         <td class="px-3 py-2 text-sm">
+//                           <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
+//                              target="_blank" 
+//                              class="text-blue-600 hover:underline">${patent.Patent_No}</a>
+//                         </td>
+//                         <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+//                         <td class="px-3 py-2 text-sm">
+//                           ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs">DS</span>' : ''}
+//                           ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs ml-1">DP</span>' : ''}
+//                         </td>
+//                         <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
+//                       </tr>
+//                     `).join('')}
+//                   </tbody>
+//                 </table>
+//               </div>
+//             </div>
+//           ` : ''}
+          
+//           <!-- Related Exclusivity Section -->
+//           ${hasExclusivity ? `
+//             <div class="mt-4">
+//               <h4 class="font-medium text-gray-700 mb-2">Exclusivity (${product.related_exclusivity.length})</h4>
+//               <div class="overflow-x-auto bg-white rounded shadow-sm">
+//                 <table class="min-w-full divide-y divide-gray-200">
+//                   <thead class="bg-gray-50">
+//                     <tr>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+//                       <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+//                     </tr>
+//                   </thead>
+//                   <tbody class="divide-y divide-gray-200">
+//                     ${product.related_exclusivity.map(exclusivity => `
+//                       <tr class="hover:bg-gray-50">
+//                         <td class="px-3 py-2 text-sm font-medium">
+//                           <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+//                             ${exclusivity.Exclusivity_Code || 'N/A'}
+//                           </span>
+//                         </td>
+//                         <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+//                       </tr>
+//                     `).join('')}
+//                   </tbody>
+//                 </table>
+//               </div>
+//             </div>
+//           ` : ''}
+//         </div>
+//       </div>
+//     `;
+//   }
+  
+//   html += `
+//       </div>
+//     </div>
+//   `;
+  
+//   // If there are more results than shown, add a note
+//   if (data.results.products.length > 20) {
+//     html += `
+//       <div class="text-xs text-gray-500 mt-2 text-right">
+//         Showing 20 of ${data.results.products.length} entries
+//       </div>
+//     `;
+//   }
+  
+//   elements.orangeBookData.innerHTML = html;
+  
+//   // Add event listener for the Expand All button
+//   document.getElementById('expandAllBtn').addEventListener('click', function() {
+//     const allDetails = document.querySelectorAll('.product-details');
+//     const isAnyHidden = Array.from(allDetails).some(el => el.classList.contains('hidden'));
+    
+//     if (isAnyHidden) {
+//       // Expand all
+//       allDetails.forEach(el => el.classList.remove('hidden'));
+//       this.textContent = 'Collapse All';
+      
+//       // Rotate all toggle icons
+//       document.querySelectorAll('.toggle-icon').forEach(icon => {
+//         icon.style.transform = 'rotate(180deg)';
+//       });
+//     } else {
+//       // Collapse all
+//       allDetails.forEach(el => el.classList.add('hidden'));
+//       this.textContent = 'Expand All';
+      
+//       // Reset all toggle icons
+//       document.querySelectorAll('.toggle-icon').forEach(icon => {
+//         icon.style.transform = 'rotate(0deg)';
+//       });
+//     }
+//   });
+// }
+
+// // Function to toggle product details
+// function toggleProductDetails(productId) {
+//   const detailsElement = document.getElementById(`details-${productId}`);
+//   const headerElement = detailsElement.previousElementSibling;
+//   const iconElement = headerElement.querySelector('.toggle-icon');
+  
+//   if (detailsElement.classList.contains('hidden')) {
+//     detailsElement.classList.remove('hidden');
+//     iconElement.style.transform = 'rotate(180deg)';
+//   } else {
+//     detailsElement.classList.add('hidden');
+//     iconElement.style.transform = 'rotate(0deg)';
+//   }
+// }
+
+// // Add this function to your code to handle searching
+// function searchOrangeBook(query) {
+//   if (!query.trim()) {
+//     elements.orangeBookData.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">Please enter a search term</p>
+//       </div>
+//     `;
+//     elements.orangeBookCount.textContent = '0 entries';
+//     return;
+//   }
+  
+//   // Show loading state
+//   elements.orangeBookData.innerHTML = `
+//     <div class="text-center p-4">
+//       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+//       <p class="mt-2 text-sm text-gray-700">Searching...</p>
+//     </div>
+//   `;
+  
+//   // Make the API request
+//   fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}`)
+//     .then(response => {
+//       if (!response.ok) throw new Error('Network response was not ok');
+//       return response.json();
+//     })
+//     .then(data => {
+//       displayOrangeBookData(data);
+//     })
+//     .catch(error => {
+//       console.error('Error fetching Orange Book data:', error);
+//       elements.orangeBookData.innerHTML = `
+//         <div class="text-center p-4">
+//           <p class="text-sm text-red-600">Error: ${error.message}</p>
+//         </div>
+//       `;
+//       elements.orangeBookCount.textContent = '0 entries';
+//     });
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to display DailyMed data
+
 function displayOrangeBookData(data) {
-  // Count total entries
+  // Count total entries across all categories
   const totalProducts = data.total.products || 0;
+  const totalPatents = data.total.patents || 0;
+  const totalExclusivity = data.total.exclusivity || 0;
   
-  // Update counter
-  elements.orangeBookCount.textContent = `${totalProducts} entries`;
+  // Update counter to show all categories
+  elements.orangeBookCount.textContent = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity Records`;
   
-  if (totalProducts === 0) {
+  if (totalProducts === 0 && totalPatents === 0 && totalExclusivity === 0) {
     elements.orangeBookData.innerHTML = `
-      <div class="text-center p-4">
+      <div class="text-center p-4 rounded bg-gray-50">
         <p class="text-sm text-gray-700">No Orange Book entries found</p>
       </div>
     `;
     return;
   }
   
-  // Create a table for Orange Book products
+  // Create tab navigation 
   let html = `
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-      <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Trade Name</th>
-        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Approval_Date
-</th>
-        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Strength</th>
-      </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-  `;
-  
-  // Add rows for each product (limit to 10 for performance)
-  const productsToShow = Math.min(data.results.products.length, 10);
-  for (let i = 0; i < productsToShow; i++) {
-    const product = data.results.products[i];
-    console.log("o", product)
-    html += `
-        <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 text-sm font-medium text-gray-700">${product.Trade_Name || 'N/A'}</td>
-          <td class="px-6 py-4 text-sm text-gray-600">${product.Approval_Date
-            || 'N/A'}</td>
-          <td class="px-6 py-4 text-sm text-gray-600">${product.Strength || 'N/A'}</td>
-        </tr>
-    `;
+    <div class="mb-4 border-b border-gray-200">
+        <style>
+            /* Orange Book Specific Styles */
+
+/* Tab Navigation */
+.tab-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Product Card Styles */
+.product-card {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.product-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.product-header {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.product-header:hover {
+  background-color: #f9fafb;
+}
+
+.product-details {
+  transition: max-height 0.3s ease-out, opacity 0.2s ease-in-out;
+}
+
+/* Toggle Icon Animation */
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Related Tabs Within Product */
+.related-tab {
+  transition: all 0.2s ease-in-out;
+}
+
+.related-tab:focus {
+  outline: none;
+}
+
+.related-pane {
+  display: none;
+}
+
+.related-pane.active {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.badge-blue {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-green {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-purple {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.badge-yellow {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-red {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Animation for loading spinners */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Table hover effects */
+tr.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+/* Link styles */
+a.text-blue-600 {
+  text-decoration: none;
+}
+
+a.text-blue-600:hover {
+  text-decoration: underline;
+}
+
+/* Custom scrollbar for tables */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Modal styles */
+.modal-container {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
   
-  html += `
-        </tbody>
-      </table>
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  
+  .tab-content {
+    display: block !important;
+  }
+  
+  .tab-pane {
+    display: block !important;
+    page-break-after: always;
+  }
+  
+  .product-details {
+    display: block !important;
+  }
+}
+  </style>
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+        <li class="mr-2" role="presentation">
+          <button class="tab-button inline-block p-4 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
+                  id="products-tab" 
+                  data-tab="products-content"
+                  aria-selected="true">
+            Products (${totalProducts})
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="patents-tab" 
+                  data-tab="patents-content"
+                  aria-selected="false">
+            Patents (${totalPatents})
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="exclusivity-tab" 
+                  data-tab="exclusivity-content"
+                  aria-selected="false">
+            Exclusivity (${totalExclusivity})
+          </button>
+        </li>
+      </ul>
     </div>
+    
+    <div class="tab-content">
+      <!-- Products Tab Content -->
+      <div id="products-content" class="tab-pane active">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <div class="flex justify-between p-2 bg-gray-50">
+            <div class="flex items-center">
+              <span class="text-xs text-gray-500">Toggle view:</span>
+              <button id="cardsViewBtn" class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                Cards
+              </button>
+              <button id="tableViewBtn" class="ml-2 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded">
+                Table
+              </button>
+            </div>
+            <button id="expandAllBtn" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+              Expand All
+            </button>
+          </div>
+          
+          <!-- Card View (default) -->
+          <div id="cards-view" class="divide-y divide-gray-200">
   `;
   
-  // If there are more results than shown, add a note
-  if (data.results.products.length > 10) {
+  // Add product cards (limit to 20 for performance)
+  const productsToShow = Math.min(data.results.products.length, 20);
+  
+  for (let i = 0; i < productsToShow; i++) {
+    const product = data.results.products[i];
+    const hasPatents = product.related_patents && product.related_patents.length > 0;
+    const hasExclusivity = product.related_exclusivity && product.related_exclusivity.length > 0;
+    
     html += `
-      <div class="text-xs text-gray-500 mt-2 text-right">
-        Showing 10 of ${data.results.products.length} entries
+      <div class="product-card bg-white overflow-hidden" data-product-id="${product.Appl_No}-${product.Product_No}">
+        <!-- Product Header -->
+        <div class="flex justify-between items-center p-4 cursor-pointer product-header" 
+             onclick="toggleProductDetails('${product.Appl_No}-${product.Product_No}')">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">${product.Trade_Name || 'Unnamed Product'}</h3>
+            <div class="text-sm text-gray-500">
+              ${product.Ingredient || 'N/A'} | ${product.Strength || 'N/A'} | ${product.DF_Route || product["DF;Route"] || 'N/A'}
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+              ${product.Appl_Type || ''}-${product.Appl_No || ''}
+            </span>
+            <svg class="toggle-icon w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+        
+        <!-- Product Details (hidden by default) -->
+        <div class="product-details hidden p-4 border-t border-gray-200 bg-gray-50" id="details-${product.Appl_No}-${product.Product_No}">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Product Information -->
+            <div class="bg-white p-3 rounded shadow-sm">
+              <h4 class="font-medium text-gray-700 mb-2">Product Information</h4>
+              <table class="w-full text-sm">
+                <tbody>
+                  <tr>
+                    <td class="py-1 pr-2 text-gray-500">Applicant</td>
+                    <td class="py-1">${product.Applicant_Full_Name || product.Applicant || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 pr-2 text-gray-500">Approval Date</td>
+                    <td class="py-1">${product.Approval_Date || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 pr-2 text-gray-500">Type</td>
+                    <td class="py-1">${product.Type || 'N/A'}</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 pr-2 text-gray-500">RLD/RS</td>
+                    <td class="py-1">
+                      ${product.RLD === 'Yes' ? '<span class="badge badge-green">RLD</span>' : ''}
+                      ${product.RS === 'Yes' ? '<span class="badge badge-purple ml-1">RS</span>' : ''}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 pr-2 text-gray-500">TE Code</td>
+                    <td class="py-1">${product.TE_Code || 'N/A'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Links & Resources -->
+            <div class="bg-white p-3 rounded shadow-sm">
+              <h4 class="font-medium text-gray-700 mb-2">Links & Resources</h4>
+              <div class="space-y-2">
+                <a href="https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=${product.Appl_Type}&Appl_No=${product.Appl_No}" 
+                   target="_blank" 
+                   class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+                  View on FDA Orange Book
+                </a>
+                <a href="https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${encodeURIComponent(product.Ingredient)}" 
+                   target="_blank" 
+                   class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+                  Search on DailyMed
+                </a>
+                <a href="https://www.drugs.com/search.php?searchterm=${encodeURIComponent(product.Trade_Name || product.Ingredient)}" 
+                   target="_blank" 
+                   class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-700 p-2 rounded text-sm transition">
+                  Search on Drugs.com
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Related Data Tabs -->
+          <div class="mt-4">
+            <div class="border-b border-gray-200">
+              <ul class="flex flex-wrap -mb-px text-xs font-medium text-center">
+                <li class="mr-2">
+                  <button class="related-tab inline-block p-2 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
+                          onclick="switchRelatedTab(this, 'related-info-${product.Appl_No}-${product.Product_No}')">
+                    Product Info
+                  </button>
+                </li>
+                <li class="mr-2">
+                  <button class="related-tab inline-block p-2 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchRelatedTab(this, 'related-patents-${product.Appl_No}-${product.Product_No}')">
+                    Patents ${hasPatents ? `(${product.related_patents.length})` : '(0)'}
+                  </button>
+                </li>
+                <li>
+                  <button class="related-tab inline-block p-2 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchRelatedTab(this, 'related-exclusivity-${product.Appl_No}-${product.Product_No}')">
+                    Exclusivity ${hasExclusivity ? `(${product.related_exclusivity.length})` : '(0)'}
+                  </button>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Related Content -->
+            <div class="related-content">
+              <!-- Product Info Tab (active by default, we keep it empty as it's already shown above) -->
+              <div id="related-info-${product.Appl_No}-${product.Product_No}" class="related-pane active mt-3">
+                <!-- Already shown above, keep this empty or add additional info -->
+              </div>
+              
+              <!-- Patents Tab -->
+              <div id="related-patents-${product.Appl_No}-${product.Product_No}" class="related-pane hidden mt-3">
+                ${hasPatents ? `
+                  <div class="overflow-x-auto bg-white rounded shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patent No</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Expiration</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug Sub/Prod</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Use Code</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-200">
+                        ${product.related_patents.map(patent => `
+                          <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 text-sm">
+                              <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
+                                 target="_blank" 
+                                 class="text-blue-600 hover:underline">${patent.Patent_No}</a>
+                            </td>
+                            <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+                            <td class="px-3 py-2 text-sm">
+                              ${patent.Drug_Substance_Flag === 'Y' ? '<span class="badge badge-blue">DS</span>' : ''}
+                              ${patent.Drug_Product_Flag === 'Y' ? '<span class="badge badge-green ml-1">DP</span>' : ''}
+                            </td>
+                            <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : '<p class="text-sm text-gray-500">No patents found for this product.</p>'}
+              </div>
+              
+              <!-- Exclusivity Tab -->
+              <div id="related-exclusivity-${product.Appl_No}-${product.Product_No}" class="related-pane hidden mt-3">
+                ${hasExclusivity ? `
+                  <div class="overflow-x-auto bg-white rounded shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-200">
+                        ${product.related_exclusivity.map(exclusivity => `
+                          <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 text-sm font-medium">
+                              <span class="badge badge-yellow">
+                                ${exclusivity.Exclusivity_Code || 'N/A'}
+                              </span>
+                            </td>
+                            <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : '<p class="text-sm text-gray-500">No exclusivity records found for this product.</p>'}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
   
+  html += `
+          </div>
+          
+          <!-- Table View (hidden by default) -->
+          <div id="table-view" class="hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trade Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ingredient</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Relations</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                ${data.results.products.slice(0, 20).map(product => `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${product.Trade_Name || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${product.Ingredient || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${product.Strength || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${product.Appl_Type || ''}-${product.Appl_No || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${product.Approval_Date || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      ${product.related_patents && product.related_patents.length ? 
+                        `<span class="badge badge-blue mr-1">Patents: ${product.related_patents.length}</span>` : ''}
+                      ${product.related_exclusivity && product.related_exclusivity.length ? 
+                        `<span class="badge badge-yellow">Exclusivity: ${product.related_exclusivity.length}</span>` : ''}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Patents Tab Content -->
+      <div id="patents-content" class="tab-pane hidden">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patent No</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiration</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug Sub/Prod</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Use Code</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Related Product</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${data.results.patents.slice(0, 20).map(patent => {
+                // Find related product information if available
+                const relatedProduct = data.results.products.find(p => 
+                  p.Appl_Type === patent.Appl_Type && 
+                  p.Appl_No === patent.Appl_No && 
+                  p.Product_No === patent.Product_No
+                );
+                
+                return `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium text-blue-600 hover:underline">
+                      <a href="https://patents.google.com/patent/US${patent.Patent_No}" target="_blank">${patent.Patent_No}</a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${patent.Appl_Type || ''}-${patent.Appl_No || ''}-${patent.Product_No || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      ${patent.Drug_Substance_Flag === 'Y' ? '<span class="badge badge-blue">DS</span>' : ''}
+                      ${patent.Drug_Product_Flag === 'Y' ? '<span class="badge badge-green ml-1">DP</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${patent.Patent_Use_Code || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      ${relatedProduct ? 
+                        `<span class="font-medium">${relatedProduct.Trade_Name || 'Unnamed Product'}</span><br>
+                         <span class="text-xs">${relatedProduct.Ingredient || 'N/A'}</span>` : 
+                        'No related product found'}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${data.results.patents.length > 20 ? `
+          <div class="text-xs text-gray-500 mt-2 text-right">
+            Showing 20 of ${data.results.patents.length} entries
+          </div>
+        ` : ''}
+      </div>
+      
+      <!-- Exclusivity Tab Content -->
+      <div id="exclusivity-content" class="tab-pane hidden">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Related Product</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${data.results.exclusivity.slice(0, 20).map(exclusivity => {
+                // Find related product information if available
+                const relatedProduct = data.results.products.find(p => 
+                  p.Appl_Type === exclusivity.Appl_Type && 
+                  p.Appl_No === exclusivity.Appl_No && 
+                  p.Product_No === exclusivity.Product_No
+                );
+                
+                return `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium">
+                      <span class="badge badge-yellow">${exclusivity.Exclusivity_Code || 'N/A'}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${exclusivity.Appl_Type || ''}-${exclusivity.Appl_No || ''}-${exclusivity.Product_No || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      ${relatedProduct ? 
+                        `<span class="font-medium">${relatedProduct.Trade_Name || 'Unnamed Product'}</span><br>
+                         <span class="text-xs">${relatedProduct.Ingredient || 'N/A'}</span>` : 
+                        'No related product found'}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${data.results.exclusivity.length > 20 ? `
+          <div class="text-xs text-gray-500 mt-2 text-right">
+            Showing 20 of ${data.results.exclusivity.length} entries
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  
   elements.orangeBookData.innerHTML = html;
+  
+  // Add event listeners to tabs
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const tabId = this.getAttribute('data-tab');
+      
+      // Hide all tab panes
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.add('hidden');
+        pane.classList.remove('active');
+      });
+      
+      // Deactivate all tab buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      
+      // Activate the clicked tab
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(tabId).classList.add('active');
+      
+      // Activate the clicked tab button
+      this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+      this.classList.add('border-blue-500', 'text-blue-600');
+      this.setAttribute('aria-selected', 'true');
+    });
+  });
+  
+  // Add event listeners for view toggling in Products tab
+  document.getElementById('cardsViewBtn')?.addEventListener('click', function() {
+    document.getElementById('cards-view').classList.remove('hidden');
+    document.getElementById('table-view').classList.add('hidden');
+    this.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+    this.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+    document.getElementById('tableViewBtn').classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+    document.getElementById('tableViewBtn').classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+  });
+  
+  document.getElementById('tableViewBtn')?.addEventListener('click', function() {
+    document.getElementById('table-view').classList.remove('hidden');
+    document.getElementById('cards-view').classList.add('hidden');
+    this.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+    this.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+    document.getElementById('cardsViewBtn').classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+    document.getElementById('cardsViewBtn').classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+  });
+  
+  // Add event listener for expand all button
+  document.getElementById('expandAllBtn')?.addEventListener('click', function() {
+    const allDetails = document.querySelectorAll('.product-details');
+    const isAnyHidden = Array.from(allDetails).some(el => el.classList.contains('hidden'));
+    
+    if (isAnyHidden) {
+      // Expand all
+      allDetails.forEach(el => el.classList.remove('hidden'));
+      this.textContent = 'Collapse All';
+      
+      // Rotate all toggle icons
+      document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.style.transform = 'rotate(180deg)';
+      });
+    } else {
+      // Collapse all
+      allDetails.forEach(el => el.classList.add('hidden'));
+      this.textContent = 'Expand All';
+      
+      // Reset all toggle icons
+      document.querySelectorAll('.toggle-icon').forEach(icon => {
+        icon.style.transform = 'rotate(0deg)';
+      });
+    }
+  });
 }
 
-// Function to display DailyMed data
+// Function to toggle product details
+function toggleProductDetails(productId) {
+  const detailsElement = document.getElementById(`details-${productId}`);
+  const headerElement = detailsElement.previousElementSibling;
+  const iconElement = headerElement.querySelector('.toggle-icon');
+  
+  if (detailsElement.classList.contains('hidden')) {
+    detailsElement.classList.remove('hidden');
+    iconElement.style.transform = 'rotate(180deg)';
+  } else {
+    detailsElement.classList.add('hidden');
+    iconElement.style.transform = 'rotate(0deg)';
+  }
+}
+
+// Function to switch related tabs within a product card
+function switchRelatedTab(tabButton, contentId) {
+  // Get parent container for scoping
+  const productCard = tabButton.closest('.product-card');
+  
+  // Deactivate all tabs in this product card
+  productCard.querySelectorAll('.related-tab').forEach(btn => {
+    btn.classList.remove('border-blue-500', 'text-blue-600');
+    btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+  });
+  
+  // Activate the clicked tab
+  tabButton.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+  tabButton.classList.add('border-blue-500', 'text-blue-600');
+  
+// Hide all related content panes in this product card
+productCard.querySelectorAll('.related-pane').forEach(pane => {
+    pane.classList.add('hidden');
+    pane.classList.remove('active');
+  });
+  
+  // Show the target content
+  const contentElement = document.getElementById(contentId);
+  contentElement.classList.remove('hidden');
+  contentElement.classList.add('active');
+}
+
+// Function to handle Orange Book searching
+function searchOrangeBook(query) {
+  if (!query.trim()) {
+    elements.orangeBookData.innerHTML = `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">Please enter a search term</p>
+      </div>
+    `;
+    elements.orangeBookCount.textContent = '0 entries';
+    return;
+  }
+  
+  // Show loading state
+  elements.orangeBookData.innerHTML = `
+    <div class="text-center p-4">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+      <p class="mt-2 text-sm text-gray-700">Searching...</p>
+    </div>
+  `;
+  
+  // Make the API request
+  fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}`)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      displayOrangeBookData(data);
+    })
+    .catch(error => {
+      console.error('Error fetching Orange Book data:', error);
+      elements.orangeBookData.innerHTML = `
+        <div class="text-center p-4">
+          <p class="text-sm text-red-600">Error: ${error.message}</p>
+        </div>
+      `;
+      elements.orangeBookCount.textContent = '0 entries';
+    });
+}
+
+// Export code reference tables (useful for understanding exclusivity/patent codes)
+function exportCodeReference() {
+  // Create reference data for exclusivity codes
+  const exclusivityCodes = {
+    "ODE": "Orphan Drug Exclusivity",
+    "NCE": "New Chemical Entity Exclusivity",
+    "NDF": "New Dosage Form Exclusivity",
+    "NPE": "New Patient Population Exclusivity",
+    "POA": "Pediatric Exclusivity",
+    "PED": "Pediatric Exclusivity",
+    "CSP": "Competitive Generic Therapy Exclusivity",
+    "CRP": "GAIN Exclusivity",
+    "EBE": "Biologics Exclusivity",
+    "RTO": "Reference Product Exclusivity",
+    "D-183": "3-Year Exclusivity",
+    "D-193": "3-Year Exclusivity (Extended)",
+    "BLA": "Biologics License Application Exclusivity"
+  };
+  
+  // Create reference data for patent use codes
+  const patentUseCodes = {
+    "U-141": "Method of treating disease",
+    "U-233": "Drug delivery mechanism",
+    "U-510": "Method of use",
+    "U-986": "Pharmaceutical composition",
+    "U-1490": "Process of manufacturing",
+    "U-1574": "Treatment regimen"
+  };
+  
+  let referenceHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Exclusivity Codes -->
+      <div class="bg-white rounded shadow-sm p-4">
+        <h3 class="font-medium text-gray-800 mb-3">Exclusivity Codes</h3>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            ${Object.entries(exclusivityCodes).map(([code, desc]) => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-3 py-2 text-sm font-medium">
+                  <span class="badge badge-yellow">${code}</span>
+                </td>
+                <td class="px-3 py-2 text-sm">${desc}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Patent Use Codes -->
+      <div class="bg-white rounded shadow-sm p-4">
+        <h3 class="font-medium text-gray-800 mb-3">Patent Use Codes</h3>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            ${Object.entries(patentUseCodes).map(([code, desc]) => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-3 py-2 text-sm font-medium">
+                  <span class="badge badge-blue">${code}</span>
+                </td>
+                <td class="px-3 py-2 text-sm">${desc}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  // Create and show modal with the reference data
+  const modalContainer = document.createElement('div');
+  modalContainer.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modalContainer.id = 'referenceModal';
+  
+  modalContainer.innerHTML = `
+    <div class="bg-white rounded-lg p-6 max-w-4xl max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Orange Book Reference Codes</h2>
+        <button id="closeReferenceModal" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      ${referenceHTML}
+    </div>
+  `;
+  
+  document.body.appendChild(modalContainer);
+  
+  // Add event listener to close the modal
+  document.getElementById('closeReferenceModal').addEventListener('click', function() {
+    document.body.removeChild(modalContainer);
+  });
+  
+  // Close modal when clicking outside
+  modalContainer.addEventListener('click', function(event) {
+    if (event.target === modalContainer) {
+      document.body.removeChild(modalContainer);
+    }
+  });
+}
+
+// Function to show details for a specific application
+function showApplicationDetails(applType, applNo, productNo) {
+  // Construct the query to find the exact match
+  const query = `${applType}-${applNo}-${productNo}`;
+  
+  // Show loading state
+  elements.orangeBookData.innerHTML = `
+    <div class="text-center p-4">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+      <p class="mt-2 text-sm text-gray-700">Fetching application details...</p>
+    </div>
+  `;
+  
+  // Search using the specific application identifier
+  searchOrangeBook(query);
+}
+
+// Initialize event listeners when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listener for the search form if it exists
+  const searchForm = document.getElementById('orangeBookSearchForm');
+  if (searchForm) {
+    searchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const query = document.getElementById('orangeBookSearchInput').value;
+      searchOrangeBook(query);
+    });
+  }
+  
+  // Add listener for reference code button if it exists
+  const referenceButton = document.getElementById('showReferenceCodesBtn');
+  if (referenceButton) {
+    referenceButton.addEventListener('click', exportCodeReference);
+  }
+});
+
+
 function displayDailyMedData(data) {
   const labelInfo = data.label_info || [];
   
