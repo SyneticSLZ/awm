@@ -104,6 +104,298 @@
         </div>
 
         <section id="fdaDataSection" class="hidden mb-6">
+            <style>
+                /* FDA Data Section Styles */
+.fda-tab-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.fda-tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.fda-tab-pane {
+  display: none;
+}
+
+.fda-tab-pane.active {
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* FDA Card Styles */
+.product-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Timeline Styling */
+.timeline-dot {
+  position: absolute;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e5e7eb;
+}
+
+/* Animation effects */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Card hover effects */
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-blue {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-green {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-yellow {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badge-red {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.badge-purple {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+/* Custom scrollbar for overflow content */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+/* Table styling */
+.table-compact th,
+.table-compact td {
+  padding: 0.5rem 0.75rem;
+}
+
+.table-hover tr:hover {
+  background-color: #f9fafb;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #f9fafb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .responsive-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .mobile-card {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    padding: 1rem;
+  }
+  
+  .mobile-card-label {
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  
+  .mobile-card-value {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Chart container styles */
+#adverse-events-chart {
+  height: 300px; /* Fixed height to ensure chart is visible */
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+/* Bar chart specific styles */
+.chart-bar {
+  transition: all 0.3s ease;
+  background-color: #3b82f6;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  width: 100%;
+  max-width: 30px;
+  margin: 0 auto;
+}
+
+.chart-bar:hover {
+  background-color: #2563eb;
+  transform: scaleY(1.05);
+  transform-origin: bottom;
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+
+.chart-bar-value {
+  font-size: 0.75rem;
+  color: #4b5563;
+  position: absolute;
+  top: -20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chart-bar-container:hover .chart-bar-value {
+  opacity: 1;
+}
+
+.chart-bar-label {
+  font-size: 0.75rem;
+  color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+  text-align: center;
+  transform: rotate(-45deg);
+  transform-origin: right top;
+  position: absolute;
+  bottom: -24px;
+  right: 50%;
+}
+
+/* Grid lines */
+.chart-grid-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.chart-y-axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.chart-y-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* Make sure chart is responsive */
+@media (max-width: 640px) {
+  #adverse-events-chart {
+    height: 240px;
+    min-height: 240px;
+    padding: 12px;
+  }
+  
+  .chart-bar-label {
+    max-width: 60px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Animation for chart loading */
+@keyframes barGrow {
+  from { height: 0; }
+  to { height: var(--bar-height); }
+}
+
+.animate-bar {
+  animation: barGrow 1s ease-out forwards;
+  height: 0;
+}
+            </style>
             <div class="bg-white rounded-lg shadow-md p-6">
               <h2 class="text-xl font-semibold mb-4">FDA Regulatory Information</h2>
               
@@ -3665,6 +3957,231 @@ function createPhasePerformanceChart(outcomes) {
     
 // Function to initialize FDA data section
 // Function to initialize FDA data section
+// function initFdaDataSection() {
+//   // Show the section
+//   showSection(elements.fdaDataSection, true);
+  
+//   // Initialize counters
+//   elements.fdaDocCount.textContent = "0 documents";
+//   elements.orangeBookCount.textContent = "0 entries";
+//   elements.dailyMedCount.textContent = "0 entries";
+//   elements.warningLettersCount.textContent = "0 letters";
+// }
+
+// // Function to display FDA data when available
+// async function displayFdaData(drugName) {
+//   // Initialize the FDA data section
+//   initFdaDataSection();
+  
+//   // Show loading state
+//   const loadingTemplate = `
+//     <div class="flex justify-center items-center py-8">
+//       <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       <span class="ml-2 text-gray-600">Loading FDA data...</span>
+//     </div>
+//   `;
+  
+//   elements.fdaDocuments.innerHTML = loadingTemplate;
+//   elements.orangeBookData.innerHTML = loadingTemplate;
+//   elements.dailyMedData.innerHTML = loadingTemplate;
+  
+//   try {
+//     // Fetch FDA drug data
+//     const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
+//     const fdaData = await fdaResponse.json();
+    
+//     if (fdaResponse.ok && !fdaData.error) {
+//       await displayFdaSubmissions(fdaData, drugName);
+//     } else {
+//       elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA submissions data");
+//     }
+    
+//     // Fetch Orange Book data
+//     const orangeBookResponse = await fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
+//     const orangeBookData = await orangeBookResponse.json();
+    
+//     if (orangeBookResponse.ok && !orangeBookData.error) {
+//       displayOrangeBookData(orangeBookData);
+//     } else {
+//       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+//     }
+    
+//     // Fetch DailyMed data
+//     const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
+//     const dailyMedData = await dailyMedResponse.json();
+    
+//     if (dailyMedResponse.ok && !dailyMedData.error) {
+//       displayDailyMedData(dailyMedData);
+//     } else {
+//       elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//     }
+    
+//   } catch (error) {
+//     console.error("Error fetching FDA data:", error);
+//     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+//   }
+// }
+
+// // Helper function to create error messages
+// function createErrorMessage(message) {
+//   return `
+//     <div class="flex justify-center items-center py-8 text-red-500">
+//       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//       </svg>
+//       <span>${message}</span>
+//     </div>
+//   `;
+// }
+
+// // Function to display FDA submissions
+// async function displayFdaSubmissions(fdaData, drugName) {
+//   // Check if FDA data is empty
+//   if (Object.keys(fdaData).length === 0) {
+//     elements.fdaDocuments.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No FDA submissions found for "${drugName}"</p>
+//       </div>
+//     `;
+//     elements.fdaDocCount.textContent = "0 documents";
+//     return;
+//   }
+  
+//   // Collect all products into a flat array for easier pagination
+//   let allProducts = [];
+//   Object.entries(fdaData).forEach(([brandName, strengths]) => {
+//     Object.entries(strengths).forEach(([strength, products]) => {
+//       products.forEach(product => {
+//         allProducts.push({
+//           ...product,
+//           strength
+//         });
+//       });
+//     });
+//   });
+  
+//   // Count total entries for the counter
+//   const totalEntries = allProducts.length;
+  
+//   // Update the counter
+//   elements.fdaDocCount.textContent = `${totalEntries} submissions`;
+  
+//   // Pagination settings
+//   const itemsPerPage = 10;
+//   const totalPages = Math.ceil(totalEntries / itemsPerPage);
+//   let currentPage = 1;
+  
+//   // Function to render products for the current page
+//   function renderCurrentPage() {
+//     const startIndex = (currentPage - 1) * itemsPerPage;
+//     const endIndex = Math.min(startIndex + itemsPerPage, totalEntries);
+//     const productsToShow = allProducts.slice(startIndex, endIndex);
+    
+//     // Create HTML for FDA submissions
+//     let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
+    
+//     // Iterate through each product for the current page
+//     for (const product of productsToShow) {
+//       // Create a card for each product
+//       html += `
+//         <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
+//           <div class="p-3">
+//             <div class="flex justify-between items-start">
+//               <div class="truncate pr-2">
+//                 <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
+//                 <p class="text-xs text-gray-600">${product.strength}</p>
+//               </div>
+//               <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+//                 ${product.applicationNumber}
+//               </span>
+//             </div>
+            
+//             <div class="mt-2 text-xs">
+//               <p><span class="font-medium">Approved:</span> ${product.approvalDate}</p>
+//               <p class="truncate"><span class="font-medium">Manufacturer:</span> ${product.manufacturerName || product.sponsorName}</p>
+//               <p class="truncate"><span class="font-medium">Form:</span> ${product.dosageForm}</p>
+//             </div>
+            
+//             <div class="mt-2 flex justify-end">
+//               <button
+//                 class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn"
+//                 data-application="${product.applicationNumber}"
+//                 data-brand="${product.brandName}"
+//                 data-ingredient="${product.activeIngredients?.[0]?.name || drugName}"
+//               >
+//                 Details
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       `;
+//     }
+    
+//     html += `</div>`;
+    
+//     // Add pagination controls
+//     if (totalPages > 1) {
+//       html += `
+//         <div class="mt-6 flex justify-center">
+//           <nav class="flex items-center">
+//             <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded-l ${currentPage === 1 ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'bg-white hover:bg-gray-50 text-gray-700'}" ${currentPage === 1 ? 'disabled' : ''}>
+//               Previous
+//             </button>
+            
+//             <div class="px-4 py-1 border-t border-b border-gray-300 bg-white text-sm">
+//               Page ${currentPage} of ${totalPages}
+//             </div>
+            
+//             <button id="next-page" class="px-3 py-1 border border-gray-300 rounded-r ${currentPage === totalPages ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'bg-white hover:bg-gray-50 text-gray-700'}" ${currentPage === totalPages ? 'disabled' : ''}>
+//               Next
+//             </button>
+//           </nav>
+//         </div>
+//       `;
+//     }
+    
+//     elements.fdaDocuments.innerHTML = html;
+    
+//     // Add event listeners to the "View Details" buttons
+//     document.querySelectorAll('.view-details-btn').forEach(button => {
+//       button.addEventListener('click', function() {
+//         const applicationNumber = this.getAttribute('data-application');
+//         const brandName = this.getAttribute('data-brand');
+//         const ingredient = this.getAttribute('data-ingredient');
+//         openDetailsModal(applicationNumber, brandName, ingredient);
+//       });
+//     });
+    
+//     // Add event listeners to pagination buttons
+//     if (totalPages > 1) {
+//       document.getElementById('prev-page')?.addEventListener('click', function() {
+//         if (currentPage > 1) {
+//           currentPage--;
+//           renderCurrentPage();
+//           // Scroll to top of results
+//           elements.fdaDocuments.scrollIntoView({ behavior: 'smooth' });
+//         }
+//       });
+      
+//       document.getElementById('next-page')?.addEventListener('click', function() {
+//         if (currentPage < totalPages) {
+//           currentPage++;
+//           renderCurrentPage();
+//           // Scroll to top of results
+//           elements.fdaDocuments.scrollIntoView({ behavior: 'smooth' });
+//         }
+//       });
+//     }
+//   }
+  
+//   // Initial render
+//   renderCurrentPage();
+// }
 function initFdaDataSection() {
   // Show the section
   showSection(elements.fdaDataSection, true);
@@ -3697,17 +4214,18 @@ async function displayFdaData(drugName) {
   elements.dailyMedData.innerHTML = loadingTemplate;
   
   try {
-    // Fetch FDA drug data
+    // Fetch comprehensive FDA drug data
     const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
     const fdaData = await fdaResponse.json();
     
     if (fdaResponse.ok && !fdaData.error) {
-      await displayFdaSubmissions(fdaData, drugName);
+      // Display the comprehensive FDA data
+      displayComprehensiveFdaData(fdaData, drugName);
     } else {
-      elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA submissions data");
+      elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
     }
     
-    // Fetch Orange Book data
+    // Continue with existing Orange Book and DailyMed fetches
     const orangeBookResponse = await fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
     const orangeBookData = await orangeBookResponse.json();
     
@@ -3717,7 +4235,6 @@ async function displayFdaData(drugName) {
       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
     }
     
-    // Fetch DailyMed data
     const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
     const dailyMedData = await dailyMedResponse.json();
     
@@ -3747,55 +4264,107 @@ function createErrorMessage(message) {
   `;
 }
 
-// Function to display FDA submissions
-async function displayFdaSubmissions(fdaData, drugName) {
-  // Check if FDA data is empty
-  if (Object.keys(fdaData).length === 0) {
+// New function to display comprehensive FDA data
+function displayComprehensiveFdaData(fdaData, drugName) {
+  // Check if we have valid data
+  if (!fdaData || (!fdaData.raw && !fdaData.categorized) || (Object.keys(fdaData.categorized).length === 0 && (!fdaData.raw.combinedResults || fdaData.raw.combinedResults.length === 0))) {
     elements.fdaDocuments.innerHTML = `
       <div class="text-center p-4">
-        <p class="text-sm text-gray-700">No FDA submissions found for "${drugName}"</p>
+        <p class="text-sm text-gray-700">No FDA data found for "${drugName}"</p>
       </div>
     `;
     elements.fdaDocCount.textContent = "0 documents";
     return;
   }
   
-  // Collect all products into a flat array for easier pagination
-  let allProducts = [];
-  Object.entries(fdaData).forEach(([brandName, strengths]) => {
-    Object.entries(strengths).forEach(([strength, products]) => {
-      products.forEach(product => {
-        allProducts.push({
-          ...product,
-          strength
+  // Extract endpoint data
+  const endpointsData = fdaData.raw?.endpoints || {};
+  
+  // Count total entries for the counter
+  const totalDocuments = 
+    (endpointsData.drugsFda?.count || 0) + 
+    (endpointsData.label?.count || 0) + 
+    (endpointsData.ndc?.count || 0) + 
+    (endpointsData.enforcement?.count || 0) + 
+    (endpointsData.event?.count || 0);
+  
+  // Update the counter
+  elements.fdaDocCount.textContent = `${totalDocuments} documents`;
+  
+  // Create HTML for the FDA data
+  let html = `
+    <div class="mb-4 border-b border-gray-200">
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+        <li class="mr-2" role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
+                  id="applications-tab" 
+                  data-tab="applications-content"
+                  aria-selected="true">
+            Drug Applications (${endpointsData.drugsFda?.count || 0})
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="label-tab" 
+                  data-tab="label-content"
+                  aria-selected="false">
+            Labeling (${endpointsData.label?.count || 0})
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ndc-tab" 
+                  data-tab="ndc-content"
+                  aria-selected="false">
+            NDC (${endpointsData.ndc?.count || 0})
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="events-tab" 
+                  data-tab="events-content"
+                  aria-selected="false">
+            Adverse Events (${endpointsData.event?.count || 0})
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="enforcement-tab" 
+                  data-tab="enforcement-content"
+                  aria-selected="false">
+            Enforcement (${endpointsData.enforcement?.count || 0})
+          </button>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="tab-content">
+  `;
+  
+  // Add Applications Tab Content
+  html += `
+    <div id="applications-content" class="fda-tab-pane active">
+  `;
+  
+  // Process categorized drug application data
+  if (Object.keys(fdaData.categorized).length > 0) {
+    // Collect all products into a flat array for easier pagination
+    let allProducts = [];
+    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+      Object.entries(strengths).forEach(([strength, products]) => {
+        products.forEach(product => {
+          allProducts.push({
+            ...product,
+            strength
+          });
         });
       });
     });
-  });
-  
-  // Count total entries for the counter
-  const totalEntries = allProducts.length;
-  
-  // Update the counter
-  elements.fdaDocCount.textContent = `${totalEntries} submissions`;
-  
-  // Pagination settings
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(totalEntries / itemsPerPage);
-  let currentPage = 1;
-  
-  // Function to render products for the current page
-  function renderCurrentPage() {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, totalEntries);
-    const productsToShow = allProducts.slice(startIndex, endIndex);
     
-    // Create HTML for FDA submissions
-    let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
+    // Add products grid
+    html += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
     
-    // Iterate through each product for the current page
-    for (const product of productsToShow) {
-      // Create a card for each product
+    for (const product of allProducts.slice(0, 9)) { // Show top 9 products
       html += `
         <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
           <div class="p-3">
@@ -3832,65 +4401,1551 @@ async function displayFdaSubmissions(fdaData, drugName) {
     
     html += `</div>`;
     
-    // Add pagination controls
-    if (totalPages > 1) {
+    // Add "Show All" button if there are more than 9 products
+    if (allProducts.length > 9) {
       html += `
-        <div class="mt-6 flex justify-center">
-          <nav class="flex items-center">
-            <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded-l ${currentPage === 1 ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'bg-white hover:bg-gray-50 text-gray-700'}" ${currentPage === 1 ? 'disabled' : ''}>
-              Previous
-            </button>
-            
-            <div class="px-4 py-1 border-t border-b border-gray-300 bg-white text-sm">
-              Page ${currentPage} of ${totalPages}
-            </div>
-            
-            <button id="next-page" class="px-3 py-1 border border-gray-300 rounded-r ${currentPage === totalPages ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'bg-white hover:bg-gray-50 text-gray-700'}" ${currentPage === totalPages ? 'disabled' : ''}>
-              Next
-            </button>
-          </nav>
+        <div class="mt-4 text-center">
+          <button id="view-all-applications" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+            View All ${allProducts.length} Applications
+          </button>
         </div>
       `;
     }
+  } else {
+    html += `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  
+  // Add Labeling Tab Content
+  html += `
+    <div id="label-content" class="fda-tab-pane hidden">
+  `;
+  
+  const labelData = endpointsData.label?.data || [];
+  if (labelData.length > 0) {
+    html += `<div class="space-y-4">`;
     
-    elements.fdaDocuments.innerHTML = html;
+    labelData.slice(0, 3).forEach(label => {
+      const brandName = label.openfda?.brand_name?.[0] || 'Unknown Brand';
+      const genericName = label.openfda?.generic_name?.[0] || 'Unknown Generic';
+      const manufacturerName = label.openfda?.manufacturer_name?.[0] || 'Unknown Manufacturer';
+      
+      html += `
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          <div class="p-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-medium text-gray-900">${brandName}</h3>
+              <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                ${genericName}
+              </span>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">Manufacturer: ${manufacturerName}</p>
+          </div>
+          
+          <div class="p-4">
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-1">Indications and Usage:</h4>
+              <div class="text-sm text-gray-600 max-h-24 overflow-y-auto p-2 bg-gray-50 rounded">
+                ${label.indications_and_usage?.[0] || 'Not provided'}
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-1">Dosage Forms and Strengths:</h4>
+                <div class="text-sm text-gray-600 max-h-20 overflow-y-auto p-2 bg-gray-50 rounded">
+                  ${label.dosage_forms_and_strengths?.[0] || 'Not provided'}
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-1">Route of Administration:</h4>
+                <div class="text-sm text-gray-600 max-h-20 overflow-y-auto p-2 bg-gray-50 rounded">
+                  ${label.openfda?.route?.[0] || 'Not provided'}
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              class="mt-4 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-sm hover:bg-blue-100 transition view-label-btn" 
+              data-index="${labelData.indexOf(label)}">
+              View Full Label Details
+            </button>
+          </div>
+        </div>
+      `;
+    });
     
-    // Add event listeners to the "View Details" buttons
-    document.querySelectorAll('.view-details-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const applicationNumber = this.getAttribute('data-application');
-        const brandName = this.getAttribute('data-brand');
-        const ingredient = this.getAttribute('data-ingredient');
-        openDetailsModal(applicationNumber, brandName, ingredient);
+    html += `</div>`;
+    
+    // Add "Show All" button if there are more than 3 labels
+    if (labelData.length > 3) {
+      html += `
+        <div class="mt-4 text-center">
+          <button id="view-all-labels" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+            View All ${labelData.length} Labels
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    html += `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No labeling information found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  
+  // Add NDC Tab Content
+  html += `
+    <div id="ndc-content" class="fda-tab-pane hidden">
+  `;
+  
+  const ndcData = endpointsData.ndc?.data || [];
+  if (ndcData.length > 0) {
+    html += `
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NDC</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Labeler</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+    `;
+    
+    ndcData.forEach(ndc => {
+      html += `
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div>
+                <div class="text-sm font-medium text-gray-900">${ndc.brand_name || ndc.generic_name || 'Unknown'}</div>
+                <div class="text-sm text-gray-500">${ndc.generic_name || ''}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ndc.product_ndc || 'N/A'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ndc.dosage_form || 'N/A'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ndc.route?.[0] || 'N/A'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ndc.labeler_name || 'N/A'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 view-ndc-btn" data-index="${ndcData.indexOf(ndc)}">Details</button>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No NDC information found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+
+  // Add Adverse Events Tab Content
+  html += `
+  <div id="events-content" class="fda-tab-pane hidden">
+`;
+
+const eventData = endpointsData.event?.data || [];
+if (eventData.length > 0) {
+  // Create a summary chart of adverse event types with fixed height
+  html += `
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+      <div id="adverse-events-chart" style="height: 300px; min-height: 300px;"></div>
+    </div>
+  `;
+  
+  // Add a list of recent adverse events
+  html += `
+    <h3 class="text-lg font-medium text-gray-900 mb-2">Recent Reports</h3>
+    <div class="space-y-3">
+  `;
+  
+  eventData.slice(0, 5).forEach(event => {
+    const reportDate = event.receiptdate || 'Unknown Date';
+    const seriousness = event.serious ? 'Serious' : 'Non-serious';
+    
+    // Find the relevant drug in the report
+    const drugReports = event.patient?.drug || [];
+    const drugInfo = drugReports.find(drug => 
+      drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+      drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+      (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
+    ) || drugReports[0] || {};
+    
+    // Get reactions
+    const reactions = event.patient?.reaction || [];
+    const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ');
+    
+    html += `
+      <div class="bg-white border border-gray-200 rounded-md p-3 hover:shadow-sm transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <h4 class="text-sm font-medium text-gray-900">
+              ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Drug'}
+            </h4>
+            <p class="text-xs text-gray-500">Report Date: ${formatDate(reportDate)}</p>
+          </div>
+          <span class="px-2 py-0.5 text-xs rounded-full ${event.serious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+            ${seriousness}
+          </span>
+        </div>
+        
+        <div class="mt-2">
+          <h5 class="text-xs font-medium text-gray-700">Reported Reactions:</h5>
+          <p class="text-xs text-gray-600 mt-1">${reactionsList || 'None reported'}</p>
+        </div>
+        
+        <button 
+          class="mt-2 text-xs text-blue-600 hover:text-blue-800 view-event-btn" 
+          data-index="${eventData.indexOf(event)}">
+          View Full Report
+        </button>
+      </div>
+    `;
+  });
+  
+  html += `</div>`;
+  
+  // Add "Show All" button if there are more than 5 events
+  if (eventData.length > 5) {
+    html += `
+      <div class="mt-4 text-center">
+        <button id="view-all-events" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+          View All ${eventData.length} Adverse Event Reports
+        </button>
+      </div>
+    `;
+  }
+} else {
+  html += `
+    <div class="text-center p-4">
+      <p class="text-sm text-gray-700">No adverse event information found for "${drugName}"</p>
+    </div>
+  `;
+}
+
+html += `</div>`;
+
+  
+  // Add Enforcement Tab Content
+  html += `
+    <div id="enforcement-content" class="fda-tab-pane hidden">
+  `;
+  
+  const enforcementData = endpointsData.enforcement?.data || [];
+  if (enforcementData.length > 0) {
+    // Create a timeline of enforcement actions
+    html += `
+      <div class="mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Enforcement Timeline</h3>
+        <div class="relative">
+          <div class="absolute h-full w-0.5 bg-gray-200 left-6 top-0"></div>
+          <div class="space-y-6 relative">
+    `;
+    
+    enforcementData.forEach(report => {
+      const date = report.recall_initiation_date || 'Unknown Date';
+      const reason = report.reason_for_recall || 'Not specified';
+      const status = report.status || 'Unknown Status';
+      const classification = report.classification || 'Unknown Classification';
+      
+      // Determine the severity badge color based on classification
+      let classificationColor = 'bg-gray-100 text-gray-800';
+      if (classification.includes('Class I')) {
+        classificationColor = 'bg-red-100 text-red-800';
+      } else if (classification.includes('Class II')) {
+        classificationColor = 'bg-yellow-100 text-yellow-800';
+      } else if (classification.includes('Class III')) {
+        classificationColor = 'bg-green-100 text-green-800';
+      }
+      
+      html += `
+        <div class="pl-12 relative">
+          <div class="absolute rounded-full w-6 h-6 flex items-center justify-center bg-blue-500 text-white left-3 top-0 -ml-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          
+          <div class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs text-gray-500">${formatDate(date)}</span>
+                <h4 class="text-sm font-medium text-gray-900 mt-0.5">${report.product_description || 'Unknown Product'}</h4>
+              </div>
+              <span class="px-2 py-0.5 text-xs rounded-full ${classificationColor}">
+                ${classification}
+              </span>
+            </div>
+            
+            <div class="mt-2">
+              <div class="text-xs">
+                <span class="font-medium">Reason:</span> ${truncateText(reason, 100)}
+              </div>
+              <div class="text-xs mt-1">
+                <span class="font-medium">Status:</span> ${status}
+              </div>
+              <div class="text-xs mt-1">
+                <span class="font-medium">Recall Number:</span> ${report.recall_number || 'N/A'}
+              </div>
+            </div>
+            
+            <button 
+              class="mt-2 text-xs text-blue-600 hover:text-blue-800 view-enforcement-btn" 
+              data-index="${enforcementData.indexOf(report)}">
+              View Details
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No enforcement actions found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  
+  // Close main tab content div
+  html += `</div>`;
+  
+  // Add the HTML to the page
+  elements.fdaDocuments.innerHTML = html;
+  
+  // Initialize tab switching
+  document.querySelectorAll('.fda-tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const tabId = this.getAttribute('data-tab');
+      
+      // Hide all tab panes
+      document.querySelectorAll('.fda-tab-pane').forEach(pane => {
+        pane.classList.add('hidden');
+        pane.classList.remove('active');
+      });
+      
+      // Deactivate all tab buttons
+      document.querySelectorAll('.fda-tab-button').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      
+      // Activate the clicked tab
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(tabId).classList.add('active');
+      
+      // Activate the clicked tab button
+      this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+      this.classList.add('border-blue-500', 'text-blue-600');
+      this.setAttribute('aria-selected', 'true');
+      
+// If it's the adverse events tab, initialize the chart with the updated function
+    if (tabId === 'events-content' && document.getElementById('adverse-events-chart')) {
+      // Use the fixed chart implementation
+      initializeAdverseEventsChart(endpointsData.event?.data || []);
+    }
+  });
+});
+  
+  // Add event listeners for "View Details" buttons
+  document.querySelectorAll('.view-details-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const applicationNumber = this.getAttribute('data-application');
+      const brandName = this.getAttribute('data-brand');
+      const ingredient = this.getAttribute('data-ingredient');
+      openDetailsModal(applicationNumber, brandName, ingredient);
+    });
+  });
+  
+  // Add event listeners for "View Label Details" buttons
+  document.querySelectorAll('.view-label-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      const labelData = endpointsData.label?.data || [];
+      if (labelData[index]) {
+        openLabelModal(labelData[index]);
+      }
+    });
+  });
+  
+  // Add event listeners for NDC details buttons
+// Add event listeners for NDC details buttons (continued)
+document.querySelectorAll('.view-ndc-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      const ndcData = endpointsData.ndc?.data || [];
+      if (ndcData[index]) {
+        openNdcModal(ndcData[index]);
+      }
+    });
+  });
+  
+  // Add event listeners for adverse event details buttons
+  document.querySelectorAll('.view-event-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      const eventData = endpointsData.event?.data || [];
+      if (eventData[index]) {
+        openAdverseEventModal(eventData[index]);
+      }
+    });
+  });
+  
+  // Add event listeners for enforcement details buttons
+  document.querySelectorAll('.view-enforcement-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const index = parseInt(this.getAttribute('data-index'));
+      const enforcementData = endpointsData.enforcement?.data || [];
+      if (enforcementData[index]) {
+        openEnforcementModal(enforcementData[index]);
+      }
+    });
+  });
+  
+  // Add event listeners for "View All" buttons
+  document.getElementById('view-all-applications')?.addEventListener('click', function() {
+    openAllApplicationsModal(fdaData.categorized, drugName);
+  });
+  
+  document.getElementById('view-all-labels')?.addEventListener('click', function() {
+    openAllLabelsModal(endpointsData.label?.data || []);
+  });
+  
+  document.getElementById('view-all-events')?.addEventListener('click', function() {
+    openAllEventsModal(endpointsData.event?.data || [], drugName);
+  });
+  
+  // Initialize adverse events chart if data exists
+  if (endpointsData.event?.data && endpointsData.event.data.length > 0 && document.getElementById('adverse-events-chart')) {
+    // We'll initialize the chart when the tab is clicked
+  }
+}
+
+// Function to initialize adverse events chart
+// Function to initialize adverse events chart with proper heights
+function initializeAdverseEventsChart(eventData) {
+  if (!eventData || eventData.length === 0 || !document.getElementById('adverse-events-chart')) {
+    return;
+  }
+  
+  // Count the types of reactions
+  const reactionCounts = {};
+  
+  eventData.forEach(event => {
+    const reactions = event.patient?.reaction || [];
+    
+    reactions.forEach(reaction => {
+      const reactionName = reaction.reactionmeddrapt || 'Unknown';
+      if (!reactionCounts[reactionName]) {
+        reactionCounts[reactionName] = 0;
+      }
+      reactionCounts[reactionName]++;
+    });
+  });
+  
+  // Sort and take top 10 reactions
+  const sortedReactions = Object.entries(reactionCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  
+  // Prepare chart data
+  const labels = sortedReactions.map(([name]) => name);
+  const counts = sortedReactions.map(([, count]) => count);
+  
+  // Calculate the maximum count for scaling
+  const maxCount = Math.max(...counts);
+  
+  // Create a proper bar chart with specific heights
+  let chartHtml = `
+    <div class="flex flex-col h-full">
+      <h4 class="text-sm font-medium text-gray-700 mb-4">Top 10 Reported Reactions</h4>
+      <div class="flex-1 flex flex-col">
+  `;
+  
+  // Create chart container with grid for bars
+  chartHtml += `
+    <div class="flex-1 relative">
+      <!-- Y-axis labels -->
+      <div class="absolute left-0 top-0 bottom-0 w-10 flex flex-col justify-between text-xs text-gray-500 pr-2">
+        <div>${maxCount}</div>
+        <div>${Math.round(maxCount * 0.75)}</div>
+        <div>${Math.round(maxCount * 0.5)}</div>
+        <div>${Math.round(maxCount * 0.25)}</div>
+        <div>0</div>
+      </div>
+      
+      <!-- Grid lines -->
+      <div class="absolute left-10 right-0 top-0 bottom-0">
+        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 0%"></div>
+        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 25%"></div>
+        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 50%"></div>
+        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 75%"></div>
+        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 100%"></div>
+      </div>
+      
+      <!-- Bars -->
+      <div class="absolute left-12 right-2 top-0 bottom-8 flex items-end justify-around">
+  `;
+  
+  // Add each bar
+  for (let i = 0; i < labels.length; i++) {
+    const percentage = (counts[i] / maxCount) * 100;
+    
+    chartHtml += `
+      <div class="flex flex-col items-center group" style="height: 100%;">
+        <div class="text-xs text-gray-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          ${counts[i]}
+        </div>
+        <div class="w-12 bg-blue-500 rounded-t transition-all hover:bg-blue-600" 
+             style="height: ${percentage}%; min-height: 4px;"></div>
+      </div>
+    `;
+  }
+  
+  // Close bars container
+  chartHtml += `
+      </div>
+      
+      <!-- X-axis labels -->
+      <div class="absolute left-12 right-2 bottom-0 h-8 flex justify-around">
+  `;
+  
+  // Add X-axis labels
+  for (let i = 0; i < labels.length; i++) {
+    chartHtml += `
+      <div class="text-xs text-gray-600 transform -rotate-45 origin-top-left overflow-hidden whitespace-nowrap w-12 truncate" 
+           title="${labels[i]}">
+        ${truncateText(labels[i], 15)}
+      </div>
+    `;
+  }
+  
+  // Close X-axis container and rest of the chart
+  chartHtml += `
+      </div>
+    </div>
+  </div>
+</div>
+  `;
+  
+  document.getElementById('adverse-events-chart').innerHTML = chartHtml;
+}
+
+// Alternative implementation using HTML Canvas for more precise control
+function initializeAdverseEventsCanvasChart(eventData) {
+  if (!eventData || eventData.length === 0) {
+    return;
+  }
+  
+  const chartContainer = document.getElementById('adverse-events-chart');
+  if (!chartContainer) return;
+  
+  // Clear previous content
+  chartContainer.innerHTML = '';
+  
+  // Create canvas element
+  const canvas = document.createElement('canvas');
+  canvas.id = 'adverse-events-canvas';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  chartContainer.appendChild(canvas);
+  
+  // Add title above the chart
+  const titleDiv = document.createElement('div');
+  titleDiv.className = 'text-sm font-medium text-gray-700 mb-2';
+  titleDiv.textContent = 'Top 10 Reported Reactions';
+  chartContainer.insertBefore(titleDiv, canvas);
+  
+  // Count reactions
+  const reactionCounts = {};
+  eventData.forEach(event => {
+    const reactions = event.patient?.reaction || [];
+    reactions.forEach(reaction => {
+      const name = reaction.reactionmeddrapt || 'Unknown';
+      reactionCounts[name] = (reactionCounts[name] || 0) + 1;
+    });
+  });
+  
+  // Sort and get top 10
+  const sortedReactions = Object.entries(reactionCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+  
+  // Prepare data for chart
+  const labels = sortedReactions.map(([name]) => name);
+  const data = sortedReactions.map(([, count]) => count);
+  
+  // Check if Chart.js is available - if not, load it
+  if (typeof Chart === 'undefined') {
+    // If Chart.js isn't available, create a simple visual instead
+    createSimpleBarChart(chartContainer, labels, data);
+    return;
+  }
+  
+  // Create Chart.js chart
+  new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Reported Reactions',
+        data: data,
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Count'
+          }
+        },
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            }
+          }
+        },
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+}
+
+// Fallback simple bar chart if Chart.js is not available
+function createSimpleBarChart(container, labels, data) {
+  const maxValue = Math.max(...data);
+  
+  // Add chart container
+  const chartDiv = document.createElement('div');
+  chartDiv.className = 'flex h-64 items-end space-x-2 pt-5 mt-2';
+  
+  // Create bars
+  labels.forEach((label, i) => {
+    const height = (data[i] / maxValue) * 100;
+    
+    const barContainer = document.createElement('div');
+    barContainer.className = 'flex flex-col items-center flex-1';
+    
+    const valueLabel = document.createElement('div');
+    valueLabel.className = 'text-xs text-gray-600 mb-1';
+    valueLabel.textContent = data[i];
+    
+    const bar = document.createElement('div');
+    bar.className = 'w-full bg-blue-500 rounded-t hover:bg-blue-600 transition';
+    bar.style.height = `${height}%`;
+    bar.style.minHeight = '4px';
+    
+    const nameLabel = document.createElement('div');
+    nameLabel.className = 'text-xs text-gray-600 mt-1 truncate w-full text-center';
+    nameLabel.textContent = truncateText(label, 10);
+    nameLabel.title = label;
+    
+    barContainer.appendChild(valueLabel);
+    barContainer.appendChild(bar);
+    barContainer.appendChild(nameLabel);
+    chartDiv.appendChild(barContainer);
+  });
+  
+  container.appendChild(chartDiv);
+}
+
+// Helper function to truncate text
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+// Modal Functions
+function openDetailsModal(applicationNumber, brandName, ingredient) {
+  // Create a modal to show detailed application information
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">${brandName} Details</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-semibold">${brandName}</h3>
+            <p class="text-gray-600">Application: ${applicationNumber}</p>
+          </div>
+          <div class="flex space-x-2">
+            <a href="https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${applicationNumber.replace(/[^0-9]/g, '')}" 
+              target="_blank" 
+              class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition">
+              FDA Database
+            </a>
+            <a href="https://dailymed.nlm.nih.gov/dailymed/search.cfm?query=${encodeURIComponent(ingredient)}" 
+              target="_blank" 
+              class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition">
+              DailyMed
+            </a>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <div class="bg-gray-50 p-4 rounded-lg flex flex-col space-y-3">
+            <div class="text-center">
+              <p class="text-sm text-gray-600">Loading application details...</p>
+              <div class="mt-2 inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent, async () => {
+    // Load application details
+    try {
+      const response = await fetch(`/api/fda/application/${applicationNumber}`);
+      const data = await response.json();
+      
+      // Update the modal with the fetched data
+      // This would be implemented based on your API response structure
+    } catch (error) {
+      console.error("Error fetching application details:", error);
+    }
+  });
+}
+
+function openLabelModal(labelData) {
+  // Construct the modal content
+  const brandName = labelData.openfda?.brand_name?.[0] || 'Unknown Brand';
+  const genericName = labelData.openfda?.generic_name?.[0] || 'Unknown Generic';
+  
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">${brandName} - Drug Label</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h3 class="text-lg font-semibold">${brandName}</h3>
+            <p class="text-gray-600">${genericName}</p>
+            <p class="text-sm text-gray-500">Manufacturer: ${labelData.openfda?.manufacturer_name?.[0] || 'Unknown'}</p>
+          </div>
+          
+          <div>
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              ${labelData.effective_time ? formatDate(labelData.effective_time) : 'Unknown Date'}
+            </span>
+          </div>
+        </div>
+        
+        <div class="space-y-6">
+          <!-- Indications and Usage -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-md font-medium text-gray-800 mb-2">Indications and Usage</h4>
+            <div class="text-sm text-gray-600">
+              ${labelData.indications_and_usage?.[0] || 'Not provided'}
+            </div>
+          </div>
+          
+          <!-- Dosage and Administration -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-md font-medium text-gray-800 mb-2">Dosage and Administration</h4>
+            <div class="text-sm text-gray-600">
+              ${labelData.dosage_and_administration?.[0] || 'Not provided'}
+            </div>
+          </div>
+          
+          <!-- Warnings -->
+          ${labelData.boxed_warning ? `
+            <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+              <h4 class="text-md font-medium text-red-800 mb-2">Boxed Warning</h4>
+              <div class="text-sm text-red-700">
+                ${labelData.boxed_warning[0] || 'Not provided'}
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="bg-yellow-50 p-4 rounded-lg">
+            <h4 class="text-md font-medium text-yellow-800 mb-2">Warnings and Precautions</h4>
+            <div class="text-sm text-yellow-700">
+              ${labelData.warnings?.[0] || labelData.warnings_and_precautions?.[0] || 'Not provided'}
+            </div>
+          </div>
+          
+          <!-- Adverse Reactions -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-md font-medium text-gray-800 mb-2">Adverse Reactions</h4>
+            <div class="text-sm text-gray-600">
+              ${labelData.adverse_reactions?.[0] || 'Not provided'}
+            </div>
+          </div>
+          
+          <!-- More sections can be added as needed -->
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-gray-200 flex justify-end">
+        <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition mr-2">
+          Close
+        </button>
+        ${labelData.openfda?.spl_id ? `
+          <a href="https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${labelData.openfda.spl_id[0]}" 
+            target="_blank" 
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            View on DailyMed
+          </a>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent);
+}
+
+function openNdcModal(ndcData) {
+  const productName = ndcData.brand_name || ndcData.generic_name || 'Unknown Product';
+  
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">NDC Product Details</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-semibold">${productName}</h3>
+            <p class="text-gray-600">NDC: ${ndcData.product_ndc || 'Unknown'}</p>
+          </div>
+          <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+            ${ndcData.product_type || 'Unknown Type'}
+          </span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-1">Product Details</h4>
+            <div class="bg-gray-50 p-3 rounded">
+              <p class="text-sm"><span class="font-medium">Generic Name:</span> ${ndcData.generic_name || 'N/A'}</p>
+              <p class="text-sm"><span class="font-medium">Dosage Form:</span> ${ndcData.dosage_form || 'N/A'}</p>
+              <p class="text-sm"><span class="font-medium">Route:</span> ${ndcData.route?.join(', ') || 'N/A'}</p>
+              <p class="text-sm"><span class="font-medium">Labeler:</span> ${ndcData.labeler_name || 'N/A'}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-1">Packaging</h4>
+            <div class="bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+              ${ndcData.packaging ? ndcData.packaging.map(pkg => `
+                <div class="mb-2 pb-2 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+                  <p class="text-sm"><span class="font-medium">Package NDC:</span> ${pkg.package_ndc || 'N/A'}</p>
+                  <p class="text-sm"><span class="font-medium">Description:</span> ${pkg.description || 'N/A'}</p>
+                </div>
+              `).join('') : '<p class="text-sm text-gray-500">No packaging information available</p>'}
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <h4 class="text-sm font-medium text-gray-700 mb-1">Active Ingredients</h4>
+          <div class="bg-gray-50 p-3 rounded">
+            ${ndcData.active_ingredients ? ndcData.active_ingredients.map(ing => `
+              <div class="mb-2 last:mb-0">
+                <p class="text-sm"><span class="font-medium">Name:</span> ${ing.name || 'N/A'}</p>
+                <p class="text-sm"><span class="font-medium">Strength:</span> ${ing.strength || 'N/A'}</p>
+              </div>
+            `).join('') : '<p class="text-sm text-gray-500">No active ingredient information available</p>'}
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition mr-2">
+            Close
+          </button>
+          <a href="https://www.accessdata.fda.gov/scripts/cder/ndc/dsp_searchresult.cfm" 
+            target="_blank" 
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            FDA NDC Directory
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent);
+}
+
+function openAdverseEventModal(eventData) {
+  // Find the drug info
+  const drugReports = eventData.patient?.drug || [];
+  const drugInfo = drugReports[0] || {};
+  const drugName = drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Drug';
+  
+  // Get reactions
+  const reactions = eventData.patient?.reaction || [];
+  
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">Adverse Event Report</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h3 class="text-lg font-semibold">${drugName}</h3>
+            <p class="text-sm text-gray-500">
+              Report Date: ${formatDate(eventData.receiptdate)}
+              <span class="ml-2 px-2 py-0.5 text-xs rounded-full ${eventData.serious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                ${eventData.serious ? 'Serious' : 'Non-serious'}
+              </span>
+            </p>
+          </div>
+          <div>
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              Report #${eventData.safetyreportid || 'Unknown'}
+            </span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h4 class="text-md font-medium text-gray-800 mb-2">Reactions</h4>
+            <div class="bg-gray-50 p-4 rounded-lg max-h-60 overflow-y-auto">
+              ${reactions.length > 0 ? `
+                <ul class="list-disc pl-5 space-y-2">
+                  ${reactions.map(reaction => `
+                    <li class="text-sm">
+                      <span class="font-medium">${reaction.reactionmeddrapt || 'Unknown reaction'}</span>
+                      ${reaction.reactionoutcome ? `<span class="text-xs text-gray-500 ml-1">(Outcome: ${reaction.reactionoutcome})</span>` : ''}
+                    </li>
+                  `).join('')}
+                </ul>
+              ` : '<p class="text-sm text-gray-500">No reactions reported</p>'}
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-md font-medium text-gray-800 mb-2">Patient Information</h4>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm mb-2"><span class="font-medium">Age:</span> ${eventData.patient?.patientonsetage ? `${eventData.patient.patientonsetage} ${eventData.patient.patientonsetageunit || 'years'}` : 'Not reported'}</p>
+              <p class="text-sm mb-2"><span class="font-medium">Sex:</span> ${eventData.patient?.patientsex === 1 ? 'Male' : eventData.patient?.patientsex === 2 ? 'Female' : 'Not reported'}</p>
+              <p class="text-sm mb-2"><span class="font-medium">Weight:</span> ${eventData.patient?.patientweight ? `${eventData.patient.patientweight} kg` : 'Not reported'}</p>
+              <p class="text-sm"><span class="font-medium">Country:</span> ${eventData.primarysource?.reportercountry || 'Not reported'}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <h4 class="text-md font-medium text-gray-800 mb-2">Drug Information</h4>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Drug</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Indication</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  ${drugReports.map(drug => `
+                    <tr>
+                      <td class="px-3 py-2 text-sm text-gray-500">${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown'}</td>
+                      <td class="px-3 py-2 text-sm text-gray-500">${drug.drugcharacterization === 1 ? 'Suspect' : drug.drugcharacterization === 2 ? 'Concomitant' : 'Unknown'}</td>
+                      <td class="px-3 py-2 text-sm text-gray-500">${drug.drugdosagetext || 'Not reported'}</td>
+                      <td class="px-3 py-2 text-sm text-gray-500">${drug.drugadministrationroute || 'Not reported'}</td>
+                      <td class="px-3 py-2 text-sm text-gray-500">${drug.drugindication || 'Not reported'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent);
+}
+
+function openEnforcementModal(reportData) {
+  const productDescription = reportData.product_description || 'Unknown Product';
+  const reason = reportData.reason_for_recall || 'Not specified';
+  
+  // Determine the severity badge color based on classification
+  let classificationColor = 'bg-gray-100 text-gray-800';
+  const classification = reportData.classification || 'Unknown Classification';
+  
+  if (classification.includes('Class I')) {
+    classificationColor = 'bg-red-100 text-red-800';
+  } else if (classification.includes('Class II')) {
+    classificationColor = 'bg-yellow-100 text-yellow-800';
+  } else if (classification.includes('Class III')) {
+    classificationColor = 'bg-green-100 text-green-800';
+  }
+  
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">Enforcement Report</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="mb-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-lg font-semibold">${productDescription}</h3>
+              <p class="text-sm text-gray-600">Recall #${reportData.recall_number || 'Unknown'}</p>
+            </div>
+            <div>
+              <span class="px-3 py-1 text-sm rounded-full ${classificationColor}">
+                ${classification}
+              </span>
+            </div>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Report Date: ${formatDate(reportData.recall_initiation_date)}</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-1">Recall Details</h4>
+            <div class="bg-gray-50 p-3 rounded">
+              <p class="text-sm mb-2"><span class="font-medium">Status:</span> ${reportData.status || 'Unknown'}</p>
+              <p class="text-sm mb-2"><span class="font-medium">Distribution:</span> ${reportData.distribution_pattern || 'Unknown'}</p>
+              <p class="text-sm mb-2"><span class="font-medium">Quantity:</span> ${reportData.product_quantity || 'Unknown'}</p>
+              <p class="text-sm"><span class="font-medium">Recalling Firm:</span> ${reportData.recalling_firm || 'Unknown'}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-1">Product Information</h4>
+            <div class="bg-gray-50 p-3 rounded">
+              <p class="text-sm mb-2"><span class="font-medium">Code Info:</span> ${reportData.code_info || 'None provided'}</p>
+              <p class="text-sm"><span class="font-medium">Product Type:</span> ${reportData.product_type || 'Unknown'}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <h4 class="text-sm font-medium text-gray-700 mb-1">Reason for Recall</h4>
+          <div class="bg-gray-50 p-3 rounded">
+            <p class="text-sm">${reason}</p>
+          </div>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-xs text-gray-500">
+              Event ID: ${reportData.event_id || 'Unknown'}
+            </span>
+          </div>
+          <div>
+            <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition mr-2">
+              Close
+            </button>
+            <a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts" 
+              target="_blank" 
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+              FDA Recalls
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent);
+}
+
+// "View All" modal functions
+// "View All" modal functions
+function openAllApplicationsModal(categorizedData, drugName) {
+  // Collect all products into a flat array
+  let allProducts = [];
+  Object.entries(categorizedData).forEach(([brandName, strengths]) => {
+    Object.entries(strengths).forEach(([strength, products]) => {
+      products.forEach(product => {
+        allProducts.push({
+          ...product,
+          strength
+        });
+      });
+    });
+  });
+  
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">All Drug Applications for ${drugName}</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <div class="mb-4">
+          <input type="text" id="application-search" placeholder="Search applications..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200" id="applications-table">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manufacturer</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${allProducts.map(product => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.brandName}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.applicationNumber}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.strength}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.manufacturerName || product.sponsorName}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.approvalDate}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.dosageForm}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${product.marketingStatus === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                      ${product.marketingStatus || 'Unknown'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-gray-200 flex justify-end">
+        <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent, () => {
+    // Add search functionality
+    const searchInput = document.getElementById('application-search');
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#applications-table tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+  });
+}
+
+function openAllLabelsModal(labelData) {
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">All Drug Labels</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <div class="mb-4">
+          <input type="text" id="label-search" placeholder="Search labels..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6" id="labels-container">
+          ${labelData.map((label, index) => {
+            const brandName = label.openfda?.brand_name?.[0] || 'Unknown Brand';
+            const genericName = label.openfda?.generic_name?.[0] || 'Unknown Generic';
+            const manufacturerName = label.openfda?.manufacturer_name?.[0] || 'Unknown Manufacturer';
+            
+            return `
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden label-card">
+                <div class="p-4 border-b border-gray-200 bg-gray-50">
+                  <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">${brandName}</h3>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      ${genericName}
+                    </span>
+                  </div>
+                  <p class="mt-1 text-sm text-gray-600">Manufacturer: ${manufacturerName}</p>
+                </div>
+                
+                <div class="p-4">
+                  <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Indications and Usage:</h4>
+                    <div class="text-sm text-gray-600 max-h-20 overflow-y-auto p-2 bg-gray-50 rounded truncate">
+                      ${label.indications_and_usage?.[0] || 'Not provided'}
+                    </div>
+                  </div>
+                  
+                  <button 
+                    class="mt-2 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-sm hover:bg-blue-100 transition view-label-btn" 
+                    data-index="${index}">
+                    View Full Label Details
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-gray-200 flex justify-end">
+        <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent, () => {
+    // Add search functionality
+    const searchInput = document.getElementById('label-search');
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const cards = document.querySelectorAll('#labels-container .label-card');
+      
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(searchTerm) ? '' : 'none';
       });
     });
     
-    // Add event listeners to pagination buttons
-    if (totalPages > 1) {
-      document.getElementById('prev-page')?.addEventListener('click', function() {
-        if (currentPage > 1) {
-          currentPage--;
-          renderCurrentPage();
-          // Scroll to top of results
-          elements.fdaDocuments.scrollIntoView({ behavior: 'smooth' });
+    // Add event listeners to view label details buttons
+    document.querySelectorAll('.view-label-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const index = parseInt(this.getAttribute('data-index'));
+        if (labelData[index]) {
+          // Close the current modal
+          closeCurrentModal();
+          // Open the label detail modal
+          setTimeout(() => {
+            openLabelModal(labelData[index]);
+          }, 300);
         }
       });
-      
-      document.getElementById('next-page')?.addEventListener('click', function() {
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderCurrentPage();
-          // Scroll to top of results
-          elements.fdaDocuments.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    }
-  }
-  
-  // Initial render
-  renderCurrentPage();
+    });
+  });
 }
 
+function openAllEventsModal(eventData, drugName) {
+  const modalContent = `
+    <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">All Adverse Events for ${drugName}</h2>
+        <button class="close-modal text-gray-400 hover:text-gray-600">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <div class="mb-4">
+          <input type="text" id="event-search" placeholder="Search events..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200" id="events-table">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reactions</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              ${eventData.map((event, index) => {
+                const reportDate = event.receiptdate || 'Unknown Date';
+                const isSerious = event.serious ? true : false;
+                
+                // Find the relevant drug in the report
+                const drugReports = event.patient?.drug || [];
+                const drugInfo = drugReports.find(drug => 
+                  drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+                  drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+                  (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
+                ) || drugReports[0] || {};
+                
+                // Get reactions
+                const reactions = event.patient?.reaction || [];
+                const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown').slice(0, 3).join(', ');
+                
+                // Patient info
+                const patientAge = event.patient?.patientonsetage ? 
+                  `${event.patient.patientonsetage} ${event.patient.patientonsetageunit || 'years'}` : 'Unknown';
+                const patientSex = event.patient?.patientsex === 1 ? 'Male' : 
+                  event.patient?.patientsex === 2 ? 'Female' : 'Unknown';
+                
+                return `
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(reportDate)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${isSerious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${isSerious ? 'Serious' : 'Non-serious'}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                      <div class="max-w-xs truncate" title="${reactions.map(r => r.reactionmeddrapt || 'Unknown').join(', ')}">
+                        ${reactionsList}${reactions.length > 3 ? '...' : ''}
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      ${patientAge}, ${patientSex}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button class="text-blue-600 hover:text-blue-900 view-event-btn" data-index="${index}">Details</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-gray-200 flex justify-end">
+        <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  showModal(modalContent, () => {
+    // Add search functionality
+    const searchInput = document.getElementById('event-search');
+    searchInput.addEventListener('keyup', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#events-table tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+    
+    // Add event listeners to view event details buttons
+    document.querySelectorAll('.view-event-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const index = parseInt(this.getAttribute('data-index'));
+        if (eventData[index]) {
+          // Close the current modal
+          closeCurrentModal();
+          // Open the event detail modal
+          setTimeout(() => {
+            openAdverseEventModal(eventData[index]);
+          }, 300);
+        }
+      });
+    });
+  });
+}
+
+// Helper functions
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown Date';
+  
+  // Check if the date is in a valid format
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  
+  // Format the date
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
+// Modal handling
+let currentModal = null;
+
+function showModal(content, callback) {
+  // Create modal backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  backdrop.id = 'modal-backdrop';
+  
+  // Insert the content
+  backdrop.innerHTML = content;
+  
+  // Add to the document
+  document.body.appendChild(backdrop);
+  
+  // Save reference to current modal
+  currentModal = backdrop;
+  
+  // Add event listeners to close buttons
+  document.querySelectorAll('.close-modal').forEach(button => {
+    button.addEventListener('click', closeCurrentModal);
+  });
+  
+  // Close on backdrop click
+  backdrop.addEventListener('click', function(event) {
+    if (event.target === backdrop) {
+      closeCurrentModal();
+    }
+  });
+  
+  // Prevent scrolling of the body
+  document.body.style.overflow = 'hidden';
+  
+  // Execute callback if provided
+  if (typeof callback === 'function') {
+    callback();
+  }
+}
+
+function closeCurrentModal() {
+  if (currentModal) {
+    document.body.removeChild(currentModal);
+    currentModal = null;
+    document.body.style.overflow = '';
+  }
+}
+
+// Add helper CSS for modals
+document.addEventListener('DOMContentLoaded', function() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .modal-backdrop {
+      z-index: 50;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    #modal-backdrop {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    #modal-backdrop > div {
+      animation: slideIn 0.3s ease-out;
+    }
+  `;
+  document.head.appendChild(style);
+});
 
 // function displayOrangeBookData(data) {
 //     console.log(data)
@@ -6236,15 +8291,12 @@ async function loadModalDetails(applicationNumber, brandName, ingredient) {
         </div>
       </div>
       
-      <div class="mb-6">
-        <h4 class="text-md font-semibold border-b pb-2 mb-2">Orange Book Information</h4>
-        ${renderOrangeBookDetails(orangeBookData)}
-      </div>
+
       
-      <div class="mb-6">
+    <!--  <div class="mb-6">
         <h4 class="text-md font-semibold border-b pb-2 mb-2">DailyMed Information</h4>
         ${renderDailyMedDetails(dailyMedData)}
-      </div>
+      </div> -->
       
       <div id="documentSection" class="mb-6">
         <h4 class="text-md font-semibold border-b pb-2 mb-2">FDA Documents</h4>
