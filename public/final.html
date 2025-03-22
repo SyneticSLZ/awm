@@ -103,6 +103,195 @@
             </div>
         </div>
 
+<!-- EMA Data Section -->
+<section id="emaDataSection" class=" mb-6">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">European Medicines Agency (EMA) Data</h2>
+      <div class="flex items-center">
+        <span id="emaDataLastUpdated" class="text-xs text-gray-500 mr-2">Last updated: Loading...</span>
+        <button id="refreshEmaDataBtn" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+    
+    <!-- EMA Data Tabs -->
+    <div class="mb-6 border-b border-gray-200">
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+        <li class="mr-2" role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
+                  id="ema-approval-tab" 
+                  data-tab="ema-approval-content"
+                  aria-selected="true">
+            EMA Approvals
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ema-orphan-tab" 
+                  data-tab="ema-orphan-content"
+                  aria-selected="false">
+            Orphan Designations
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ema-safety-tab" 
+                  data-tab="ema-safety-content"
+                  aria-selected="false">
+            Safety Communications
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ema-psusa-tab" 
+                  data-tab="ema-psusa-content"
+                  aria-selected="false">
+            PSUSA
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ema-shortages-tab" 
+                  data-tab="ema-shortages-content"
+                  aria-selected="false">
+            Shortages
+          </button>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- EMA Tab Content -->
+    <div class="ema-tab-content">
+      <!-- EMA Approvals Tab Content -->
+      <div id="ema-approval-content" class="ema-tab-pane active">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Marketing Authorizations</h3>
+          <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="emaApprovalCount">0 approvals</span>
+        </div>
+        <div class="ema-data-container" id="emaApprovalData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>EMA approval data will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Orphan Designations Tab Content -->
+      <div id="ema-orphan-content" class="ema-tab-pane hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Orphan Drug Designations</h3>
+          <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full" id="emaOrphanCount">0 designations</span>
+        </div>
+        <div class="ema-data-container" id="emaOrphanData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Orphan designation data will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Safety Communications Tab Content -->
+      <div id="ema-safety-content" class="ema-tab-pane hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Safety Communications (DHPCs)</h3>
+          <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="emaSafetyCount">0 communications</span>
+        </div>
+        <div class="ema-data-container" id="emaSafetyData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>Safety communication data will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PSUSA Tab Content -->
+      <div id="ema-psusa-content" class="ema-tab-pane hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Periodic Safety Update Reports</h3>
+          <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full" id="emaPsusaCount">0 reports</span>
+        </div>
+        <div class="ema-data-container" id="emaPsusaData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>PSUSA data will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Shortages Tab Content -->
+      <div id="ema-shortages-content" class="ema-tab-pane hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Medicine Shortages</h3>
+          <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full" id="emaShortagesCount">0 shortages</span>
+        </div>
+        <div class="ema-data-container" id="emaShortagesData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Shortage information will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- File Upload Section for Admin -->
+    <div class="mt-8 pt-6 border-t border-gray-200" id="emaDataAdmin">
+      <h3 class="text-lg font-medium mb-4">Data Management</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Upload DHPC Data</h4>
+          <form id="dhpcUploadForm" class="flex flex-col space-y-2">
+            <input type="file" id="dhpcFileInput" accept=".csv" class="text-sm">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded">
+              Upload DHPC File
+            </button>
+          </form>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Upload PSUSA Data</h4>
+          <form id="psusaUploadForm" class="flex flex-col space-y-2">
+            <input type="file" id="psusaFileInput" accept=".csv" class="text-sm">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded">
+              Upload PSUSA File
+            </button>
+          </form>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Upload Shortages Data</h4>
+          <form id="shortagesUploadForm" class="flex flex-col space-y-2">
+            <input type="file" id="shortagesFileInput" accept=".csv" class="text-sm">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded">
+              Upload Shortages File
+            </button>
+          </form>
+        </div>
+      </div>
+      <div id="uploadStatus" class="mt-4 hidden"></div>
+    </div>
+    
+    <div class="text-center mt-4">
+      <p class="text-xs text-gray-500">
+        Data sourced from the European Medicines Agency (EMA) public database.
+      </p>
+    </div>
+  </div>
+</section>
+
+
         <section id="fdaDataSection" class="hidden mb-6">
             <style>
                 /* FDA Data Section Styles */
@@ -467,6 +656,8 @@
             </div>
           </section>
 
+
+
         <div class="bg-white p-4 rounded-lg shadow mb-6 hidden">
             <div class="flex flex-col md:flex-row gap-4">
               <div class="flex-1">
@@ -570,7 +761,7 @@
 
         <!-- Collated Outcomes Section -->
 <!-- Enhanced Collated Outcomes Section -->
-<section id="collatedOutcomesSectxion" style="border: 1px solid red;" class="hidden mb-6" style="display: none;">
+<section id="collatedOutcomesSection" style="border: 1px solid red;" class="hidden mb-6" style="display: none;">
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-xl font-semibold mb-4">Collated Trial Outcomes</h2>
       
@@ -915,6 +1106,17 @@ function updateNavigationBar() {
         newButton.id = 'nav-drug-success';
         newButton.className = 'text-primary hover:text-blue-700 text-sm font-medium';
         newButton.textContent = 'Success Rates';
+
+        const emaButton = document.createElement('button');
+    emaButton.id = 'nav-ema';
+    emaButton.className = 'text-primary hover:text-blue-700 text-sm font-medium';
+    emaButton.textContent = 'EMA Data';
+
+    if (fdaButton) {
+        navDiv.insertBefore(emaButton, fdaButton);
+    } else {
+        navDiv.appendChild(emaButton);
+    }
         
         // Insert before the FDA data button
         const fdaButton = document.getElementById('nav-fda');
@@ -928,6 +1130,10 @@ function updateNavigationBar() {
         newButton.addEventListener('click', () => {
             elements.drugSuccessSection.scrollIntoView({ behavior: 'smooth' });
         });
+
+        emaButton.addEventListener('click', () => {
+        elements.emaDataSection.scrollIntoView({ behavior: 'smooth' });
+    });
     }
 }
 
@@ -2342,10 +2548,10 @@ function createAggregateVisualizations() {
         populateOutcomeMetricSelector();
         
         // Show the collated outcomes section
-        showSection(elements.collatedOutcomesSection, true);
+        // showSection(elements.collatedOutcomesSection, true);
         
         // Create the visualizations
-        displayCollatedOutcomes();
+        // displayCollatedOutcomes();
     }
 }
 
@@ -9488,6 +9694,8 @@ async function handleSearch() {
         
         // Display FDA data section
         displayFdaData(drug);
+        EmaDataModule.searchDrug(drug);
+        
         
         
         // Fetch study details for studies with results
@@ -10517,6 +10725,7 @@ function copyTrialDataToClipboard(nctId) {
     if (elements.conditionSearch) {
         elements.conditionSearch.value = "Treatment Resistant Depression";
     }
+
     
     console.log('Enhanced TRD Clinical Trials Research Tool initialized');
 }
@@ -12307,8 +12516,1768 @@ document.addEventListener('DOMContentLoaded', function() {
     return await response.json();
   }
 
+// EMA Data Module
+const EmaDataModule = (function() {
+  // DOM elements
+  const elements = {
+  section: document.getElementById('emaDataSection'),
+  lastUpdated: document.getElementById('emaDataLastUpdated'),
+  refreshBtn: document.getElementById('refreshEmaDataBtn'),
+  approvalCount: document.getElementById('emaApprovalCount'),
+  orphanCount: document.getElementById('emaOrphanCount'),
+  safetyCount: document.getElementById('emaSafetyCount'),
+  psusaCount: document.getElementById('emaPsusaCount'),
+  shortagesCount: document.getElementById('emaShortagesCount'),
+  referralsCount: document.getElementById('emaReferralsCount'),
+  approvalData: document.getElementById('emaApprovalData'),
+  orphanData: document.getElementById('emaOrphanData'),
+  safetyData: document.getElementById('emaSafetyData'),
+  psusaData: document.getElementById('emaPsusaData'),
+  shortagesData: document.getElementById('emaShortagesData'),
+  referralsData: document.getElementById('emaReferralsData'),
+  uploadStatus: document.getElementById('uploadStatus'),
+  // Form elements
+  dhpcUploadForm: document.getElementById('dhpcUploadForm'),
+  psusaUploadForm: document.getElementById('psusaUploadForm'),
+  shortagesUploadForm: document.getElementById('shortagesUploadForm'),
+  medicinesUploadForm: document.getElementById('medicinesUploadForm'),
+  referralsUploadForm: document.getElementById('referralsUploadForm'),
+  // File inputs
+  dhpcFileInput: document.getElementById('dhpcFileInput'),
+  psusaFileInput: document.getElementById('psusaFileInput'),
+  shortagesFileInput: document.getElementById('shortagesFileInput'),
+  medicinesFileInput: document.getElementById('medicinesFileInput'),
+  referralsFileInput: document.getElementById('referralsFileInput'),
+  dataAdmin: document.getElementById('emaDataAdmin')
+};
 
+  // Initialize the module
+  function init() {
+    // Initialize tab navigation
+    initTabNavigation();
+    
+    // Initialize file upload forms
+    initFileUploadForms();
+    
+    // Add refresh button event listener
+    if (elements.refreshBtn) {
+      elements.refreshBtn.addEventListener('click', refreshEmaData);
+    }
+    
+    // Check data status on initialization
+    checkEmaDataStatus();
+    
+    // Hide admin section by default (can be shown based on user role)
+    toggleAdminSection(false);
+    
+    console.log('EMA Data Module initialized');
+  }
+
+  // Initialize tab navigation
+  function initTabNavigation() {
+    const tabButtons = document.querySelectorAll('.ema-tab-button');
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Hide all tab panes
+        document.querySelectorAll('.ema-tab-pane').forEach(pane => {
+          pane.classList.add('hidden');
+          pane.classList.remove('active');
+        });
+        
+        // Deactivate all tab buttons
+        tabButtons.forEach(btn => {
+          btn.classList.remove('border-blue-500', 'text-blue-600');
+          btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+          btn.setAttribute('aria-selected', 'false');
+        });
+        
+        // Activate the clicked tab
+        document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById(tabId).classList.add('active');
+        
+        // Activate the clicked tab button
+        this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+        this.classList.add('border-blue-500', 'text-blue-600');
+        this.setAttribute('aria-selected', 'true');
+      });
+    });
+  }
+
+  // Initialize file upload forms
+  function initFileUploadForms() {
+    // DHPC Upload Form
+    if (elements.dhpcUploadForm) {
+      elements.dhpcUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('dhpc', elements.dhpcFileInput.files[0]);
+      });
+    }
+    
+    // PSUSA Upload Form
+    if (elements.psusaUploadForm) {
+      elements.psusaUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('psusa', elements.psusaFileInput.files[0]);
+      });
+    }
+    
+    // Shortages Upload Form
+    if (elements.shortagesUploadForm) {
+      elements.shortagesUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('shortages', elements.shortagesFileInput.files[0]);
+      });
+    }
+  }
+
+  // Show the EMA data section
+  function showSection(show = true) {
+    if (elements.section) {
+      elements.section.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Toggle admin section visibility
+  function toggleAdminSection(show = false) {
+    if (elements.dataAdmin) {
+      elements.dataAdmin.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Check EMA data status
+  async function checkEmaDataStatus() {
+    try {
+      showLoadingState(elements.lastUpdated, true);
+      
+      const response = await fetch('/api/ema/status');
+      const data = await response.json();
+      
+      if (response.ok) {
+        updateLastUpdated(data.status);
+      } else {
+        showError('Error checking EMA data status');
+        console.error('Error checking EMA data status:', data.error);
+      }
+      
+      showLoadingState(elements.lastUpdated, false);
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error checking EMA data status:', error);
+      showLoadingState(elements.lastUpdated, false);
+    }
+  }
+
+  // Update last updated timestamp
+  function updateLastUpdated(statusData) {
+    if (!elements.lastUpdated) return;
+    
+    let lastUpdateDate = null;
+    
+    // Find the most recent update across all data types
+    for (const dataType in statusData) {
+      if (statusData[dataType].available && statusData[dataType].lastUpdated) {
+        const updateDate = new Date(statusData[dataType].lastUpdated);
+        if (!lastUpdateDate || updateDate > lastUpdateDate) {
+          lastUpdateDate = updateDate;
+        }
+      }
+    }
+    
+    if (lastUpdateDate) {
+      elements.lastUpdated.textContent = `Last updated: ${formatDate(lastUpdateDate)}`;
+    } else {
+      elements.lastUpdated.textContent = 'Data not yet available';
+    }
+  }
+
+  // Refresh EMA data
+  async function refreshEmaData() {
+    try {
+      if (!elements.refreshBtn) return;
+      
+      // Disable refresh button and show loading state
+      elements.refreshBtn.disabled = true;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refreshing...
+      `;
+      
+      const response = await fetch('/api/ema/refresh', { method: 'POST' });
+      const data = await response.json();
+      
+      if (response.ok) {
+        updateLastUpdated(data.status);
+        showToast('EMA data refreshed successfully', 'success');
+      } else {
+        showError('Error refreshing EMA data');
+        console.error('Error refreshing EMA data:', data.error);
+      }
+      
+      // Re-enable refresh button
+      elements.refreshBtn.disabled = false;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      `;
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error refreshing EMA data:', error);
+      
+      // Re-enable refresh button
+      if (elements.refreshBtn) {
+        elements.refreshBtn.disabled = false;
+        elements.refreshBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        `;
+      }
+    }
+  }
+
+  // Search EMA data for a specific drug
+  async function searchDrug(drugName) {
+    if (!drugName) return;
+    
+    try {
+      // Show loading state for all data containers
+      showLoadingState(elements.approvalData);
+      showLoadingState(elements.orphanData);
+      showLoadingState(elements.safetyData);
+      showLoadingState(elements.psusaData);
+      showLoadingState(elements.shortagesData);
+      
+      // Show the EMA section
+      showSection(true);
+
+      console.log("fetching ema data")
+      const response = await fetch(`/api/ema/drug/${encodeURIComponent(drugName)}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log(data)
+        displayEmaData(data);
+      } else {
+        showError('Error searching EMA data');
+        console.error('Error searching EMA data:', data.error);
+        
+        // Show empty state for all data containers
+        showEmptyState(elements.approvalData, 'No EMA approval data found for this drug.');
+        showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+        showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+        showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+        showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+      }
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error searching EMA data:', error);
+      
+      // Show empty state for all data containers
+      showEmptyState(elements.approvalData, 'Error loading EMA approval data.');
+      showEmptyState(elements.orphanData, 'Error loading orphan designation data.');
+      showEmptyState(elements.safetyData, 'Error loading safety communication data.');
+      showEmptyState(elements.psusaData, 'Error loading PSUSA data.');
+      showEmptyState(elements.shortagesData, 'Error loading shortages data.');
+    }
+  }
+
+  // Display EMA data in the UI
+// Update the display functions in the EMA Data Module to handle the raw CSV data structure
+
+// Display approval data
+function displayApprovalData(data) {
+  if (!elements.approvalData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.approvalData, 'No human medicine approval data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Status</th>
+            <th>Active Substance</th>
+            <th>Therapeutic Area</th>
+            <th>Authorization Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Extract relevant fields based on the raw data structure
+    const medicineName = item._1 || 'Unknown';
+    const status = item._3 || 'Unknown';
+    const substance = item._6 || item._7 || 'Not specified';
+    const therapeuticArea = item._8 || item._13 || 'Not specified';
+    const authDate = item._29 || item._31 || item._36 || 'Unknown';
+    const indication = item._15 || '';
+    const emaLink = item._38 || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('authorised') || status.toLowerCase().includes('authorized')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('refused')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('withdrawn')) {
+      statusClass = 'bg-gray-100 text-gray-800';
+    } else if (status.toLowerCase().includes('pending')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicineName}</div>
+          ${item._2 ? `<div class="text-xs text-gray-500">Procedure: ${item._2}</div>` : ''}
+        </td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${substance}</td>
+        <td>${formatTherapeuticArea(therapeuticArea)}</td>
+        <td>${formatDate(authDate)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          ${indication ? `<div class="text-xs text-gray-600 mt-1">Indication: ${indication}</div>` : ''}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.approvalData.innerHTML = html;
+}
+
+// Display orphan designation data
+function displayOrphanData(data) {
+  if (!elements.orphanData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Condition</th>
+            <th>Status</th>
+            <th>Decision Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicineName = item['Orphan designation'] || item._1 || 'Unknown';
+    const condition = findFieldInItem(item, ['condition', '_2', '_3']) || 'Not specified';
+    const status = findFieldInItem(item, ['status', '_4', '_5']) || 'Unknown';
+    const decisionDate = findFieldInItem(item, ['date', '_6', '_7']) || 'Unknown';
+    const sponsor = findFieldInItem(item, ['sponsor', '_8', '_9']) || '';
+    const emaLink = findFieldInItem(item, ['_20', '_21', '_22']) || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('positive')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('negative')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('withdrawn')) {
+      statusClass = 'bg-gray-100 text-gray-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicineName}</div>
+          ${sponsor ? `<div class="text-xs text-gray-500">Sponsor: ${sponsor}</div>` : ''}
+        </td>
+        <td>${condition}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(decisionDate)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.orphanData.innerHTML = html;
+}
+
+// Display safety communication data
+function displaySafetyData(data) {
+  if (!elements.safetyData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Medicine</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const title = item['Direct healthcare professional communication (DHPC)'] || 
+                  findFieldInItem(item, ['_1', '_2']) || 'Unknown';
+    const medicine = findFieldInItem(item, ['medicine', '_3', '_4']) || 'Not specified';
+    const date = findFieldInItem(item, ['date', '_5', '_6']) || 'Unknown';
+    const reason = findFieldInItem(item, ['reason', '_7', '_8']) || '';
+    const emaLink = findFieldInItem(item, ['_15', '_16', '_17']) || '';
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${title}</div>
+        </td>
+        <td>${medicine}</td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${reason ? `<div class="text-xs text-gray-600 mb-1">Reason: ${reason}</div>` : ''}
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.safetyData.innerHTML = html;
+}
+
+// Display PSUSA data
+function displayPsusaData(data) {
+  if (!elements.psusaData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Substance</th>
+            <th>Procedure</th>
+            <th>Outcome</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const substance = item['Periodic safety update report single assessments (PSUSA)'] || 
+                     item._1 || 
+                     item._2 || 'Unknown';
+    const procedure = item._4 || 'Not specified';
+    const outcome = item._5 || 'Unknown';
+    const date = item._6 || 'Unknown';
+    const emaLink = item._8 || '';
+    
+    // Determine outcome badge class
+    let outcomeClass = 'bg-gray-100 text-gray-800';
+    if (outcome.toLowerCase().includes('variation')) {
+      outcomeClass = 'bg-yellow-100 text-yellow-800';
+    } else if (outcome.toLowerCase().includes('maintenance')) {
+      outcomeClass = 'bg-green-100 text-green-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${substance}</div>
+        </td>
+        <td>${procedure}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${outcomeClass}">
+            ${outcome}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.psusaData.innerHTML = html;
+}
+
+// Display Referrals data
+function displayReferralsData(data) {
+  if (!elements.referralsData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Substance</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicine = item._1 || 'Unknown';
+    const substance = item._2 || 'Not specified';
+    const status = item._3 || 'Unknown';
+    const procedure = item._9 || '';
+    const date = findFieldInItem(item, ['_17', '_18', '_19']) || 'Unknown';
+    const emaLink = item._21 || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('final') || status.toLowerCase().includes('concluded')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('ongoing')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicine}</div>
+        </td>
+        <td>${substance}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${procedure ? `<div class="text-xs text-gray-600 mb-1">Procedure: ${procedure}</div>` : ''}
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.referralsData.innerHTML = html;
+}
+
+// Display Shortages data
+function displayShortagesData(data) {
+  if (!elements.shortagesData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicine = item.Shortage || item._1 || 'Unknown';
+    const reason = findFieldInItem(item, ['reason', '_4', '_5']) || 'Not specified';
+    const status = findFieldInItem(item, ['status', '_6', '_7']) || 'Unknown';
+    const date = findFieldInItem(item, ['date', '_8', '_9']) || 'Unknown';
+    const emaLink = findFieldInItem(item, ['_13', '_14', '_15']) || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('ongoing')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('resolved')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('expected')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicine}</div>
+        </td>
+        <td>${reason}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.shortagesData.innerHTML = html;
+}
+
+// Helper function to find field in an item with numeric keys (_0, _1, etc.)
+function findFieldInItem(item, possibleKeys) {
+  // First try the exact keys
+  for (const key of possibleKeys) {
+    if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+      return item[key];
+    }
+  }
+  
+  // If not found, try all numeric keys
+  for (let i = 0; i < 40; i++) {
+    const key = `_${i}`;
+    if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+      // Try to determine if this is the field we're looking for
+      // This is a simplistic approach and might need refinement
+      const value = item[key].toString().toLowerCase();
+      
+      // Check if this might be a date
+      if (possibleKeys.includes('date') && (value.includes('/') || value.match(/\d{2}\.\d{2}\.\d{4}/))) {
+        return item[key];
+      }
+      
+      // Check if this might be a status
+      if (possibleKeys.includes('status') && 
+          (value.includes('authorised') || value.includes('withdrawn') || 
+           value.includes('ongoing') || value.includes('resolved'))) {
+        return item[key];
+      }
+      
+      // Check if this might be a reason
+      if (possibleKeys.includes('reason') && 
+          value.length > 10 && (value.includes('due to') || value.includes('because'))) {
+        return item[key];
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Update display EMA data to include referrals
+function displayEmaData(data) {
+  const { results, total } = data;
+  
+  // Filter out veterinary products
+  Object.keys(results).forEach(key => {
+    if (Array.isArray(results[key])) {
+      results[key] = results[key].filter(item => !item._0 || item._0.toLowerCase() !== 'veterinary');
+      // Update totals after filtering
+      total[key] = results[key].length;
+    }
+  });
+  
+  // Update counters
+  updateCounter(elements.approvalCount, total.medicines, 'approval', 'approvals');
+  updateCounter(elements.orphanCount, total.orphans, 'designation', 'designations');
+  updateCounter(elements.safetyCount, total.dhpc, 'communication', 'communications');
+  updateCounter(elements.psusaCount, total.psusa, 'report', 'reports');
+  updateCounter(elements.shortagesCount, total.shortages, 'shortage', 'shortages');
+  updateCounter(elements.referralsCount, total.referrals, 'referral', 'referrals');
+  
+  // Display approval data
+  if (results.medicines && results.medicines.length > 0) {
+    displayApprovalData(results.medicines);
+  } else {
+    showEmptyState(elements.approvalData, 'No EMA approval data found for this drug.');
+  }
+  
+  // Display orphan designation data
+  if (results.orphans && results.orphans.length > 0) {
+    displayOrphanData(results.orphans);
+  } else {
+    showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+  }
+  
+  // Display safety communication data
+  if (results.dhpc && results.dhpc.length > 0) {
+    displaySafetyData(results.dhpc);
+  } else {
+    showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+  }
+  
+  // Display PSUSA data
+  if (results.psusa && results.psusa.length > 0) {
+    displayPsusaData(results.psusa);
+  } else {
+    showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+  }
+  
+  // Display Referrals data
+  if (results.referrals && results.referrals.length > 0) {
+    displayReferralsData(results.referrals);
+  } else {
+    showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+  }
+  
+  // Display Shortages data
+  if (results.shortages && results.shortages.length > 0) {
+    displayShortagesData(results.shortages);
+  } else {
+    showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+  }
+}
+  // Display approval data
+  function displayApprovalData(data) {
+  if (!elements.approvalData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.approvalData, 'No human medicine approval data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Status</th>
+            <th>Active Substance</th>
+            <th>Therapeutic Area</th>
+            <th>Authorization Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Extract relevant fields based on the raw data structure
+    const medicineName = item._1 || 'Unknown';
+    const status = item._3 || 'Unknown';
+    const substance = item._6 || item._7 || 'Not specified';
+    const therapeuticArea = item._8 || item._13 || 'Not specified';
+    const authDate = item._29 || item._31 || item._36 || 'Unknown';
+    const indication = item._15 || '';
+    const emaLink = item._38 || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('authorised') || status.toLowerCase().includes('authorized')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('refused')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('withdrawn')) {
+      statusClass = 'bg-gray-100 text-gray-800';
+    } else if (status.toLowerCase().includes('pending')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicineName}</div>
+          ${item._2 ? `<div class="text-xs text-gray-500">Procedure: ${item._2}</div>` : ''}
+        </td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${substance}</td>
+        <td>${formatTherapeuticArea(therapeuticArea)}</td>
+        <td>${formatDate(authDate)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          ${indication ? `<div class="text-xs text-gray-600 mt-1">Indication: ${indication}</div>` : ''}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.approvalData.innerHTML = html;
+}
+
+function displayOrphanData(data) {
+  if (!elements.orphanData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Condition</th>
+            <th>Status</th>
+            <th>Decision Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicineName = item['Orphan designation'] || item._1 || 'Unknown';
+    const condition = findFieldInItem(item, ['condition', '_2', '_3']) || 'Not specified';
+    const status = findFieldInItem(item, ['status', '_4', '_5']) || 'Unknown';
+    const decisionDate = findFieldInItem(item, ['date', '_6', '_7']) || 'Unknown';
+    const sponsor = findFieldInItem(item, ['sponsor', '_8', '_9']) || '';
+    const emaLink = findFieldInItem(item, ['_20', '_21', '_22']) || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('positive')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('negative')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('withdrawn')) {
+      statusClass = 'bg-gray-100 text-gray-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicineName}</div>
+          ${sponsor ? `<div class="text-xs text-gray-500">Sponsor: ${sponsor}</div>` : ''}
+        </td>
+        <td>${condition}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(decisionDate)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.orphanData.innerHTML = html;
+}
+  
+function displaySafetyData(data) {
+  if (!elements.safetyData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Medicine</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const title = item['Direct healthcare professional communication (DHPC)'] || 
+                  findFieldInItem(item, ['_1', '_2']) || 'Unknown';
+    const medicine = findFieldInItem(item, ['medicine', '_3', '_4']) || 'Not specified';
+    const date = findFieldInItem(item, ['date', '_5', '_6']) || 'Unknown';
+    const reason = findFieldInItem(item, ['reason', '_7', '_8']) || '';
+    const emaLink = findFieldInItem(item, ['_15', '_16', '_17']) || '';
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${title}</div>
+        </td>
+        <td>${medicine}</td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${reason ? `<div class="text-xs text-gray-600 mb-1">Reason: ${reason}</div>` : ''}
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.safetyData.innerHTML = html;
+}
+
+// Display PSUSA data
+function displayPsusaData(data) {
+  if (!elements.psusaData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Substance</th>
+            <th>Procedure</th>
+            <th>Outcome</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const substance = item['Periodic safety update report single assessments (PSUSA)'] || 
+                     item._1 || 
+                     item._2 || 'Unknown';
+    const procedure = item._4 || 'Not specified';
+    const outcome = item._5 || 'Unknown';
+    const date = item._6 || 'Unknown';
+    const emaLink = item._8 || '';
+    
+    // Determine outcome badge class
+    let outcomeClass = 'bg-gray-100 text-gray-800';
+    if (outcome.toLowerCase().includes('variation')) {
+      outcomeClass = 'bg-yellow-100 text-yellow-800';
+    } else if (outcome.toLowerCase().includes('maintenance')) {
+      outcomeClass = 'bg-green-100 text-green-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${substance}</div>
+        </td>
+        <td>${procedure}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${outcomeClass}">
+            ${outcome}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.psusaData.innerHTML = html;
+}
+
+// Display Referrals data
+function displayReferralsData(data) {
+  if (!elements.referralsData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Substance</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicine = item._1 || 'Unknown';
+    const substance = item._2 || 'Not specified';
+    const status = item._3 || 'Unknown';
+    const procedure = item._9 || '';
+    const date = findFieldInItem(item, ['_17', '_18', '_19']) || 'Unknown';
+    const emaLink = item._21 || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('final') || status.toLowerCase().includes('concluded')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('ongoing')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicine}</div>
+        </td>
+        <td>${substance}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${procedure ? `<div class="text-xs text-gray-600 mb-1">Procedure: ${procedure}</div>` : ''}
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.referralsData.innerHTML = html;
+}
+
+// Display Shortages data
+function displayShortagesData(data) {
+  if (!elements.shortagesData) return;
+  
+  // Filter out veterinary products
+  const filteredData = data.filter(item => {
+    return !item._0 || item._0.toLowerCase() !== 'veterinary';
+  });
+  
+  if (filteredData.length === 0) {
+    showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  filteredData.forEach(item => {
+    // Find fields based on your CSV structure
+    const medicine = item.Shortage || item._1 || 'Unknown';
+    const reason = findFieldInItem(item, ['reason', '_4', '_5']) || 'Not specified';
+    const status = findFieldInItem(item, ['status', '_6', '_7']) || 'Unknown';
+    const date = findFieldInItem(item, ['date', '_8', '_9']) || 'Unknown';
+    const emaLink = findFieldInItem(item, ['_13', '_14', '_15']) || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('ongoing')) {
+      statusClass = 'bg-red-100 text-red-800';
+    } else if (status.toLowerCase().includes('resolved')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('expected')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicine}</div>
+        </td>
+        <td>${reason}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.shortagesData.innerHTML = html;
+}
+
+// Helper function to find field in an item with numeric keys (_0, _1, etc.)
+function findFieldInItem(item, possibleKeys) {
+  // First try the exact keys
+  for (const key of possibleKeys) {
+    if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+      return item[key];
+    }
+  }
+  
+  // If not found, try all numeric keys
+  for (let i = 0; i < 40; i++) {
+    const key = `_${i}`;
+    if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+      // Try to determine if this is the field we're looking for
+      // This is a simplistic approach and might need refinement
+      const value = item[key].toString().toLowerCase();
+      
+      // Check if this might be a date
+      if (possibleKeys.includes('date') && (value.includes('/') || value.match(/\d{2}\.\d{2}\.\d{4}/))) {
+        return item[key];
+      }
+      
+      // Check if this might be a status
+      if (possibleKeys.includes('status') && 
+          (value.includes('authorised') || value.includes('withdrawn') || 
+           value.includes('ongoing') || value.includes('resolved'))) {
+        return item[key];
+      }
+      
+      // Check if this might be a reason
+      if (possibleKeys.includes('reason') && 
+          value.length > 10 && (value.includes('due to') || value.includes('because'))) {
+        return item[key];
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Helper function to find a field value in an object using various possible keys
+  function findField(obj, possibleKeys) {
+    for (const key of possibleKeys) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+        return obj[key];
+      }
+    }
+    
+    // Try matching keys by pattern
+    for (const objKey in obj) {
+      for (const possibleKey of possibleKeys) {
+        if (objKey.toLowerCase().includes(possibleKey.toLowerCase()) && 
+            obj[objKey] !== undefined && obj[objKey] !== null && obj[objKey] !== '') {
+          return obj[objKey];
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  // Upload a file to the server
+  async function uploadFile(fileType, file) {
+    if (!file) {
+      showUploadStatus('Please select a file', 'error');
+      return;
+    }
+    
+    try {
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Show loading state
+      showUploadStatus('Uploading file...', 'loading');
+      
+      // Send request
+      const response = await fetch(`/api/ema/upload/${fileType}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        showUploadStatus(`File uploaded successfully. Processed ${data.records} records.`, 'success');
+        
+        // Clear file input
+        if (fileType === 'dhpc' && elements.dhpcFileInput) {
+          elements.dhpcFileInput.value = '';
+        } else if (fileType === 'psusa' && elements.psusaFileInput) {
+          elements.psusaFileInput.value = '';
+        } else if (fileType === 'shortages' && elements.shortagesFileInput) {
+          elements.shortagesFileInput.value = '';
+        }
+        
+        // Refresh EMA data status
+        checkEmaDataStatus();
+      } else {
+        showUploadStatus(`Error: ${data.error}`, 'error');
+        console.error('Error uploading file:', data.error);
+      }
+    } catch (error) {
+      showUploadStatus('Error connecting to server', 'error');
+      console.error('Error uploading file:', error);
+    }
+  }
+
+  // Show upload status message
+  function showUploadStatus(message, type = 'info') {
+    if (!elements.uploadStatus) return;
+    
+    let bgColor = 'bg-blue-50';
+    let textColor = 'text-blue-800';
+    let icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    
+    if (type === 'success') {
+      bgColor = 'bg-green-50';
+      textColor = 'text-green-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-50';
+      textColor = 'text-red-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    } else if (type === 'loading') {
+      bgColor = 'bg-blue-50';
+      textColor = 'text-blue-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      `;
+    }
+    
+    elements.uploadStatus.innerHTML = `
+      <div class="flex items-center p-4 ${bgColor} ${textColor} rounded-lg">
+        ${icon}
+        <span>${message}</span>
+      </div>
+    `;
+    
+    elements.uploadStatus.classList.remove('hidden');
+    
+    // Hide the status message after 5 seconds if it's a success message
+    if (type === 'success') {
+      setTimeout(() => {
+        elements.uploadStatus.classList.add('hidden');
+      }, 5000);
+    }
+  }
+
+  // Update counter
+  function updateCounter(element, count, singular, plural) {
+    if (!element) return;
+    
+    element.textContent = `${count} ${count === 1 ? singular : plural}`;
+  }
+
+  // Show loading state
+  function showLoadingState(element, isText = false) {
+    if (!element) return;
+    
+    if (isText) {
+      element.innerHTML = `
+        <span class="animate-pulse">Loading...</span>
+      `;
+    } else {
+      element.innerHTML = `
+        <div class="ema-loading-state">
+          <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <p class="text-center text-gray-500">Loading data...</p>
+        </div>
+      `;
+    }
+  }
+
+  // Show empty state
+  function showEmptyState(element, message) {
+    if (!element) return;
+    
+    element.innerHTML = `
+      <div class="ema-empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p class="text-center text-gray-500">${message}</p>
+      </div>
+    `;
+  }
+
+  // Format date
+  function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Return the original string if it's not a valid date
+      }
+      
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  // Format therapeutic area
+  function formatTherapeuticArea(area) {
+    if (!area) return 'Not specified';
+    
+    // Split by commas and create badges
+    const areas = area.split(',').map(a => a.trim()).filter(a => a);
+    
+    if (areas.length === 0) return 'Not specified';
+    
+    return areas.map(a => `
+      <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full mb-1 mr-1">
+        ${a}
+      </span>
+    `).join('');
+  }
+
+  // Show error toast
+  function showError(message) {
+    showToast(message, 'error');
+  }
+
+  // Show toast message
+  function showToast(message, type = 'info') {
+    // Check if toast container exists, if not create it
+    let toastContainer = document.getElementById('toast-container');
+    
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col space-y-2';
+      document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    
+    let bgColor = 'bg-blue-500';
+    let icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    
+    if (type === 'success') {
+      bgColor = 'bg-green-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    } else if (type === 'warning') {
+      bgColor = 'bg-yellow-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      `;
+    }
+    
+    toast.className = `flex items-center p-3 rounded-lg text-white ${bgColor} shadow-lg transition-opacity duration-500`;
+    toast.innerHTML = `
+      ${icon}
+      <span>${message}</span>
+      <button class="ml-4 text-white focus:outline-none hover:text-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    `;
+    
+    // Add click event to close button
+    const closeButton = toast.querySelector('button');
+    closeButton.addEventListener('click', () => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toastContainer.removeChild(toast);
+      }, 500);
+    });
+    
+    // Add toast to container
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (toast.parentNode === toastContainer) {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (toast.parentNode === toastContainer) {
+            toastContainer.removeChild(toast);
+          }
+        }, 500);
+      }
+    }, 5000);
+  }
+
+  // Set user role (admin or regular user)
+  function setUserRole(role) {
+    const isAdmin = role === 'admin';
+    toggleAdminSection(isAdmin);
+  }
+
+  // Check if user is authenticated and has the correct role
+  async function checkUserPermissions() {
+    try {
+      const response = await fetch('/api/auth/user');
+      const data = await response.json();
+      
+      if (response.ok && data.authenticated) {
+        // Check if user has admin role for EMA data
+        const hasEmaAdminRole = data.roles && data.roles.includes('ema_admin');
+        setUserRole(hasEmaAdminRole ? 'admin' : 'user');
+        
+        return hasEmaAdminRole;
+      } else {
+        setUserRole('user');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking user permissions:', error);
+      setUserRole('user');
+      return false;
+    }
+  }
+
+  // Add CSS styles for EMA data tables
+  function addTableStyles() {
+    const styleId = 'ema-data-table-styles';
+    
+    // Check if styles already exist
+    if (document.getElementById(styleId)) {
+      return;
+    }
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = styleId;
+    styleElement.textContent = `
+      .ema-data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      
+      .ema-data-table th {
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .ema-data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .ema-data-table tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      
+      .ema-empty-state, .ema-loading-state {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
+  }
+
+  // Export functions for external use
+  return {
+    init,
+    searchDrug,
+    showSection,
+    toggleAdminSection,
+    refreshEmaData,
+    checkEmaDataStatus,
+    checkUserPermissions
+  };
+})();
+
+// Initialize the module when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Add table styles
+  EmaDataModule.addTableStyles = function() {
+    const styleId = 'ema-data-table-styles';
+    
+    // Check if styles already exist
+    if (document.getElementById(styleId)) {
+      return;
+    }
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = styleId;
+    styleElement.textContent = `
+      .ema-data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      
+      .ema-data-table th {
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .ema-data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .ema-data-table tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      
+      .ema-empty-state, .ema-loading-state {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
+  };
+  
+  // Add table styles
+  EmaDataModule.addTableStyles();
+  
+  // Initialize the module
+  EmaDataModule.init();
+  
+  // Show admin panel for development (remove in production)
+  EmaDataModule.toggleAdminSection(true);
+  
+});
+
+
+
+
+// Initialize the module when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
   init()
+});
+
+// Add the EMA data module to window for debugging
+window.EmaDataModule = EmaDataModule;
+
+
+
     </script>
 </body>
 </html>

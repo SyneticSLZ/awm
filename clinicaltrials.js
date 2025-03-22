@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
 const DataIntegration = require('./data-integration');
+const emaRoutes = require('./ema-routes');
 const cheerio = require('cheerio');
 const https = require('https');
 const fsextra = require('fs-extra');
@@ -300,6 +301,10 @@ const upload = multer({
 // Grok API configuration - in production use environment variables
 const GROK_API_KEY = 'q2dqVZZgIN7RcBlnGlja2KS52sXSxeEKJxGM7K5Q29s0h3nX5JDXdIjr6rx4PpYshPti6iZAQYxs32J4';
 const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
+
+
+
+app.use('/api/ema', emaRoutes);
 
 // Add this route to fetch PDF document links from FDA website
 // app.get('/api/fda-pdfs/:appNo', async (req, res) => {
@@ -1470,7 +1475,7 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
 
     // Define search variations based on the drug name
     const searchVariations = [
-      drugName,
+      `*${drugName}*`,
       // You can add variations here like manufacturer names if needed
     ];
 
