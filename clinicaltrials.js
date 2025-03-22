@@ -1245,91 +1245,173 @@ const httpsAgent = new https.Agent({
 });
 
 
-// Function to fetch the HTML content from the URL
-async function fetchHtml(url) {
-  try {
-    const response = await axios.get(url, { 
-      httpsAgent,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching URL: ${error.message}`);
-    return null;
-  }
-}
+// // Function to fetch the HTML content from the URL
+// async function fetchHtml(url) {
+//   try {
+//     const response = await axios.get(url, { 
+//       httpsAgent,
+//       headers: {
+//         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+//       }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Error fetching URL: ${error.message}`);
+//     return null;
+//   }
+// }
 
-// Function to extract PDF links from the HTML content
-function extractPdfLinks(html) {
-  const $ = cheerio.load(html);
-  const links = [];
+// // Function to extract PDF links from the HTML content
+// function extractPdfLinks(html) {
+//   const $ = cheerio.load(html);
+//   const links = [];
   
-  $('a').each((index, element) => {
-    const href = $(element).attr('href');
-    const text = $(element).text().trim();
+//   $('a').each((index, element) => {
+//     const href = $(element).attr('href');
+//     const text = $(element).text().trim();
     
-    if (href && (
-      href.includes('.pdf') || 
-      href.includes('drugsatfda_docs') ||
-      text.includes('PDF') ||
-      text.includes('Review') ||
-      text.includes('Label') ||
-      text.includes('Letter')
-    )) {
-      let fullUrl = href;
-      if (href.startsWith('/')) {
-        fullUrl = `https://www.accessdata.fda.gov${href}`;
-      } else if (!href.startsWith('http')) {
-        fullUrl = `https://www.accessdata.fda.gov/${href}`;
-      }
+//     if (href && (
+//       href.includes('.pdf') || 
+//       href.includes('drugsatfda_docs') ||
+//       text.includes('PDF') ||
+//       text.includes('Review') ||
+//       text.includes('Label') ||
+//       text.includes('Letter')
+//     )) {
+//       let fullUrl = href;
+//       if (href.startsWith('/')) {
+//         fullUrl = `https://www.accessdata.fda.gov${href}`;
+//       } else if (!href.startsWith('http')) {
+//         fullUrl = `https://www.accessdata.fda.gov/${href}`;
+//       }
       
-      links.push({
-        name: text || 'No description',
-        url: fullUrl,
-        type: determineType(text, href)
-      });
-    }
-  });
+//       links.push({
+//         name: text || 'No description',
+//         url: fullUrl,
+//         type: determineType(text, href)
+//       });
+//     }
+//   });
   
-  return links;
-}
+//   return links;
+// }
 
-// Function to determine the type of link
-function determineType(text, href) {
-  text = text.toLowerCase();
-  href = href.toLowerCase();
+// // Function to determine the type of link
+// function determineType(text, href) {
+//   text = text.toLowerCase();
+//   href = href.toLowerCase();
   
-  if (text.includes('review') || href.includes('review')) {
-    return 'Review';
-  } else if (text.includes('label') || href.includes('label') || href.includes('lbl')) {
-    return 'Label';
-  } else if (text.includes('letter') || href.includes('letter') || href.includes('ltr')) {
-    return 'Letter';
-  } else {
-    return 'Other';
-  }
-}
+//   if (text.includes('review') || href.includes('review')) {
+//     return 'Review';
+//   } else if (text.includes('label') || href.includes('label') || href.includes('lbl')) {
+//     return 'Label';
+//   } else if (text.includes('letter') || href.includes('letter') || href.includes('ltr')) {
+//     return 'Letter';
+//   } else {
+//     return 'Other';
+//   }
+// }
 
-// API endpoint
+// // API endpoint
+// app.get('/api/fda-pdfs/:appNo', async (req, res) => {
+//   try {
+//     const appNoInput = req.params.appNo;
+//     // Strip "NDA" prefix if present
+//     const appNo = appNoInput.startsWith('NDA') ? appNoInput.substring(3) : appNoInput;
+//     const url = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNo}`;
+//     console.log(url)
+//     // Fetch HTML content
+//     const html = await fetchHtml(url);
+//     if (!html) {
+//       return res.status(500).json({
+//         error: 'Failed to fetch HTML content'
+//       });
+//     }
+    
+//     // Extract PDF links
+//     const pdfLinks = extractPdfLinks(html);
+    
+//     if (pdfLinks.length === 0) {
+//       return res.status(404).json({
+//         message: 'No PDF links found',
+//         total: 0,
+//         results: []
+//       });
+//     }
+    
+//     // Return JSON response with PDF names and links
+//     res.json({
+//       message: 'PDF links retrieved successfully',
+//       total: pdfLinks.length,
+//       results: pdfLinks.map(link => ({
+//         name: link.name,
+//         url: link.url,
+//         type: link.type
+//       }))
+//     });
+    
+//   } catch (error) {
+//     console.error('API Error:', error);
+//     res.status(500).json({
+//       error: 'An error occurred while processing the request',
+//       details: error.message
+//     });
+//   }
+// });
+
+
 app.get('/api/fda-pdfs/:appNo', async (req, res) => {
   try {
     const appNoInput = req.params.appNo;
     // Strip "NDA" prefix if present
     const appNo = appNoInput.startsWith('NDA') ? appNoInput.substring(3) : appNoInput;
-    const url = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNo}`;
-    console.log(url)
+    
+    // Try first with DAF URL
+    let url = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNo}`;
+    console.log(`Fetching URL: ${url}`);
+    
     // Fetch HTML content
-    const html = await fetchHtml(url);
+    let html = await fetchHtml(url);
+    
+    // If we don't get HTML or can't find any links, try the alternative Drugs@FDA URL
+    if (!html) {
+      url = `https://www.accessdata.fda.gov/scripts/cder/drugsatfda/index.cfm?fuseaction=Search.DrugDetails&ApplNo=${appNo}`;
+      console.log(`Initial URL failed, trying alternative URL: ${url}`);
+      html = await fetchHtml(url);
+    }
+    
+    // If we still don't have HTML, try direct TOC URL format
+    if (!html) {
+      // Try directly accessing TOC page using standard format based on appNo
+      // Example: 076092_s000_KetamineTOC.cfm
+      const drugName = req.query.drugName || '';
+      url = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${appNo.substring(0, 4)}/${appNo}_s000_${drugName}TOC.cfm`;
+      console.log(`Trying direct TOC URL: ${url}`);
+      html = await fetchHtml(url);
+    }
+    
     if (!html) {
       return res.status(500).json({
-        error: 'Failed to fetch HTML content'
+        error: 'Failed to fetch HTML content from any FDA source'
       });
     }
     
     // Extract PDF links
-    const pdfLinks = extractPdfLinks(html);
+    let pdfLinks = await extractPdfLinks(html);
+    
+    if (pdfLinks.length === 0) {
+      // Check if we need to try an older URL format
+      if (!url.includes('TOC.cfm')) {
+        // Try older format for CDER documents
+        url = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${appNo.substring(0, 4)}/${appNo}/toc.cfm`;
+        console.log(`No links found, trying older TOC format: ${url}`);
+        html = await fetchHtml(url);
+        
+        if (html) {
+          pdfLinks = await extractPdfLinks(html);
+        }
+      }
+    }
     
     if (pdfLinks.length === 0) {
       return res.status(404).json({
@@ -1359,6 +1441,257 @@ app.get('/api/fda-pdfs/:appNo', async (req, res) => {
   }
 });
 
+// Function to fetch the HTML content from the URL
+async function fetchHtml(url) {
+  try {
+    const response = await axios.get(url, {
+      httpsAgent,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      timeout: 10000 // 10 seconds timeout
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching URL: ${error.message}`);
+    return null;
+  }
+}
+
+// Function to extract PDF links from the HTML content
+async function extractPdfLinks(html) {
+  const $ = cheerio.load(html);
+  let links = [];
+  
+  // Process regular links
+  $('a').each((index, element) => {
+    const href = $(element).attr('href');
+    const text = $(element).text().trim();
+    
+    // Skip if href is undefined or empty
+    if (!href) return;
+    
+    // Skip known bad links
+    if (href.includes('#collapseApproval') || 
+        href.includes('warning-letters') ||
+        href.includes('javascript:') ||
+        href === '#') {
+      return;
+    }
+    
+    // Check if it's a PDF link or a link to a review/label/letter
+    if (href.includes('.pdf') || 
+        href.includes('drugsatfda_docs') ||
+        text.includes('PDF') ||
+        text.includes('Review') ||
+        text.includes('Label') ||
+        text.includes('Letter')) {
+      
+      let fullUrl = makeFullUrl(href);
+      
+      links.push({
+        name: text || 'No description',
+        url: fullUrl,
+        type: determineType(text, href)
+      });
+    }
+  });
+  
+  // Look for Table of Contents (TOC) links and process them
+  // Find all links to approval package TOC pages
+  const tocLinks = links.filter(link => 
+    (link.url.includes('TOC.cfm') || 
+    link.url.includes('toc.cfm') ||
+    link.name.includes('Drug Approval Package') ||
+    link.name.includes('Approval Package'))
+  );
+  
+  if (tocLinks.length > 0) {
+    for (const tocLink of tocLinks) {
+      console.log(`Found TOC link: ${tocLink.url}`);
+      const tocHtml = await fetchHtml(tocLink.url);
+      if (tocHtml) {
+        const tocPdfLinks = await processTocPage(tocHtml);
+        console.log(`Found ${tocPdfLinks.length} PDF links in TOC page`);
+        links = links.concat(tocPdfLinks);
+      }
+    }
+  }
+  
+  // Handle special case where we already have a TOC page and need to extract PDFs
+  // Check if this looks like a TOC page itself
+  if (html.includes('Drug Approval Package') && $('li p a[href$=".pdf"]').length > 0) {
+    console.log('This appears to be a TOC page already, extracting PDF links directly');
+    const directPdfLinks = await processTocPage(html);
+    console.log(`Found ${directPdfLinks.length} direct PDF links from TOC page`);
+    links = links.concat(directPdfLinks);
+  }
+  
+  // Filter out duplicate URLs
+  const uniqueLinks = [];
+  const seenUrls = new Set();
+  
+  for (const link of links) {
+    if (!seenUrls.has(link.url)) {
+      seenUrls.add(link.url);
+      uniqueLinks.push(link);
+    }
+  }
+  
+  return uniqueLinks.filter(link => {
+    // Filter out any remaining problematic links
+    return !link.url.includes('#collapse') && 
+           !link.url.includes('warning-letters') &&
+           !link.url.includes('javascript:') &&
+           link.url !== '#' &&
+           // Ensure PDF links actually have .pdf extension 
+           (link.type === 'Other' || link.url.endsWith('.pdf') || link.url.includes('.pdf?'));
+  });
+}
+
+// Process TOC page and extract PDF links
+async function processTocPage(html) {
+  const $ = cheerio.load(html);
+  const links = [];
+  
+  // Find all <li> elements
+  $('li').each((index, element) => {
+    // Find <p> elements within each <li>
+    const pElements = $(element).find('p');
+    
+    pElements.each((pIndex, pElement) => {
+      // Get the HTML content of the paragraph
+      const pHtml = $(pElement).html();
+      
+      // Extract the first <a> tag using regex - this handles malformed HTML
+      const aMatch = pHtml ? pHtml.match(/<a[^>]*href=["']([^"']*)["'][^>]*>(.*?)<\/a>/i) : null;
+      
+      if (aMatch) {
+        const href = aMatch[1];
+        let text = aMatch[2].trim();
+        
+        // Skip if href is undefined or empty
+        if (!href) return;
+        
+        // Make sure it's a PDF link
+        if (!href.toLowerCase().includes('.pdf')) return;
+        
+        // Get the full text to extract the PDF type (in parentheses)
+        const fullText = $(pElement).text().trim();
+        const parenthetical = fullText.match(/\((.*?)\)/);
+        
+        // Determine document type
+        const documentType = determineType(text, href);
+        
+        // Log what we found
+        console.log(`TOC PDF link found: ${text} - ${href}`);
+        
+        // Add to our results
+        links.push({
+          name: text,
+          url: href, // Use the exact href from the HTML without modifying
+          type: documentType
+        });
+      }
+    });
+  });
+  
+  // If we didn't find any links, try a simpler approach
+  if (links.length === 0) {
+    // Find all <a> elements that have href attributes ending with .pdf
+    $('a[href$=".pdf"]').each((index, element) => {
+      const href = $(element).attr('href');
+      const text = $(element).text().trim();
+      
+      console.log(`Fallback PDF link found: ${text} - ${href}`);
+      
+      links.push({
+        name: text,
+        url: href, // Use the exact href from the HTML without modifying
+        type: determineType(text, href)
+      });
+    });
+  }
+  
+  return links;
+}
+
+// Function to make a full URL from a relative URL
+function makeFullUrl(href) {
+  if (href.startsWith('http')) {
+    return href;
+  } else if (href.startsWith('/')) {
+    return `https://www.accessdata.fda.gov${href}`;
+  } else {
+    // Check if it's an NDA document path
+    if (href.includes('_S000_') || href.match(/\d{6}_/)) {
+      // Extract application number to determine year directory
+      const appNoMatch = href.match(/(\d{6})_/);
+      if (appNoMatch) {
+        const appNo = appNoMatch[1];
+        const year = appNo.substring(0, 4); // First 4 digits should be the year
+        return `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${year}/${href}`;
+      }
+    }
+    return `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${href}`;
+  }
+}
+
+// Function to determine the type of link
+function determineType(text, href) {
+  text = text.toLowerCase();
+  href = href.toLowerCase();
+  
+  if (text.includes('approval') || text.includes('approv')) {
+    return 'Approval Letter';
+  } else if (text.includes('review') || href.includes('review')) {
+    if (text.includes('chemistry') || href.includes('chemr')) {
+      return 'Chemistry Review';
+    } else if (text.includes('clinical') || href.includes('clinicalr')) {
+      return 'Clinical Review';
+    } else if (text.includes('pharm') || href.includes('pharmr')) {
+      return 'Pharmacology Review';
+    } else if (text.includes('biopharm') || href.includes('biopharmr')) {
+      return 'Biopharmaceutics Review';
+    } else if (text.includes('micro') || href.includes('micror')) {
+      return 'Microbiology Review';
+    } else if (text.includes('statistical') || href.includes('statr')) {
+      return 'Statistical Review';
+    } else if (text.includes('medical') || href.includes('medr')) {
+      return 'Medical Review';
+    } else {
+      return 'Review';
+    }
+  } else if (text.includes('label') || href.includes('label') || href.includes('lbl')) {
+    if (text.includes('printed')) {
+      return 'Printed Label';
+    } else {
+      return 'Label';
+    }
+  } else if (text.includes('letter') || href.includes('letter') || href.includes('ltr')) {
+    return 'Letter';
+  } else if (text.includes('correspondence') || href.includes('corres')) {
+    return 'Correspondence';
+  } else if (text.includes('admin') || href.includes('admin')) {
+    return 'Administrative Document';
+  } else {
+    return 'Other';
+  }
+}
+
+// Function to validate URLs before adding them to the results
+async function validateUrl(url) {
+  try {
+    const response = await axios.head(url, {
+      httpsAgent,
+      timeout: 5000
+    });
+    return response.status >= 200 && response.status < 400;
+  } catch (error) {
+    console.error(`URL validation failed for ${url}: ${error.message}`);
+    return false;
+  }
+}
 
 // app.get('/api/fda/drug/:drugName', async (req, res) => {
 //   console.log("194")
