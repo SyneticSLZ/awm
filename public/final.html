@@ -104,7 +104,7 @@
         </div>
 
 <!-- EMA Data Section -->
-<section id="emaDataSection" class=" mb-6">
+<section id="emaDataSection" class="mb-6">
   <div class="bg-white rounded-lg shadow-md p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">European Medicines Agency (EMA) Data</h2>
@@ -152,6 +152,14 @@
                   data-tab="ema-psusa-content"
                   aria-selected="false">
             PSUSA
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="ema-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="ema-referrals-tab" 
+                  data-tab="ema-referrals-content"
+                  aria-selected="false">
+            Referrals
           </button>
         </li>
         <li role="presentation">
@@ -231,6 +239,22 @@
         </div>
       </div>
       
+      <!-- Referrals Tab Content -->
+      <div id="ema-referrals-content" class="ema-tab-pane hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium">Referral Procedures</h3>
+          <span class="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full" id="emaReferralsCount">0 referrals</span>
+        </div>
+        <div class="ema-data-container" id="emaReferralsData">
+          <div class="flex justify-center items-center py-8 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+            </svg>
+            <span>Referral procedure data will be available here once you search for a drug</span>
+          </div>
+        </div>
+      </div>
+      
       <!-- Shortages Tab Content -->
       <div id="ema-shortages-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
@@ -280,6 +304,26 @@
           </form>
         </div>
       </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Upload Medicines Data</h4>
+          <form id="medicinesUploadForm" class="flex flex-col space-y-2">
+            <input type="file" id="medicinesFileInput" accept=".csv" class="text-sm">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded">
+              Upload Medicines File
+            </button>
+          </form>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Upload Referrals Data</h4>
+          <form id="referralsUploadForm" class="flex flex-col space-y-2">
+            <input type="file" id="referralsFileInput" accept=".csv" class="text-sm">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded">
+              Upload Referrals File
+            </button>
+          </form>
+        </div>
+      </div>
       <div id="uploadStatus" class="mt-4 hidden"></div>
     </div>
     
@@ -290,7 +334,6 @@
     </div>
   </div>
 </section>
-
 
         <section id="fdaDataSection" class="hidden mb-6">
             <style>
@@ -9694,6 +9737,7 @@ async function handleSearch() {
         
         // Display FDA data section
         displayFdaData(drug);
+        EmaDataModule.init();
         EmaDataModule.searchDrug(drug);
         
         
@@ -12608,30 +12652,46 @@ const EmaDataModule = (function() {
 
   // Initialize file upload forms
   function initFileUploadForms() {
-    // DHPC Upload Form
-    if (elements.dhpcUploadForm) {
-      elements.dhpcUploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        uploadFile('dhpc', elements.dhpcFileInput.files[0]);
-      });
-    }
-    
-    // PSUSA Upload Form
-    if (elements.psusaUploadForm) {
-      elements.psusaUploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        uploadFile('psusa', elements.psusaFileInput.files[0]);
-      });
-    }
-    
-    // Shortages Upload Form
-    if (elements.shortagesUploadForm) {
-      elements.shortagesUploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        uploadFile('shortages', elements.shortagesFileInput.files[0]);
-      });
-    }
+  // DHPC Upload Form
+  if (elements.dhpcUploadForm) {
+    elements.dhpcUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadFile('dhpc', elements.dhpcFileInput.files[0]);
+    });
   }
+  
+  // PSUSA Upload Form
+  if (elements.psusaUploadForm) {
+    elements.psusaUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadFile('psusa', elements.psusaFileInput.files[0]);
+    });
+  }
+  
+  // Shortages Upload Form
+  if (elements.shortagesUploadForm) {
+    elements.shortagesUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadFile('shortages', elements.shortagesFileInput.files[0]);
+    });
+  }
+  
+  // Medicines Upload Form
+  if (elements.medicinesUploadForm) {
+    elements.medicinesUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadFile('medicines', elements.medicinesFileInput.files[0]);
+    });
+  }
+  
+  // Referrals Upload Form
+  if (elements.referralsUploadForm) {
+    elements.referralsUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadFile('referrals', elements.referralsFileInput.files[0]);
+    });
+  }
+}
 
   // Show the EMA data section
   function showSection(show = true) {
@@ -14202,9 +14262,86 @@ function findFieldInItem(item, possibleKeys) {
   };
 })();
 
+
+function addExtendedTableStyles() {
+  const styleId = 'ema-extended-table-styles';
+  
+  // Check if styles already exist
+  if (document.getElementById(styleId)) {
+    return;
+  }
+  
+  const styleElement = document.createElement('style');
+  styleElement.id = styleId;
+  styleElement.textContent = `
+    .ema-data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .ema-data-table th {
+      background-color: #f8fafc;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #4b5563;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .ema-data-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+    
+    .ema-data-table tbody tr:hover {
+      background-color: #f9fafb;
+    }
+    
+    .ema-empty-state, .ema-loading-state {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+    
+    .ema-data-container {
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+    }
+    
+    /* Adjust the detail sections */
+    .text-xs.text-gray-600 {
+      max-width: 300px;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    
+    /* Make the headers sticky */
+    .ema-data-container {
+      position: relative;
+    }
+  `;
+  
+  document.head.appendChild(styleElement);
+}
 // Initialize the module when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   // Add table styles
+ 
   EmaDataModule.addTableStyles = function() {
     const styleId = 'ema-data-table-styles';
     
@@ -14256,12 +14393,12 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add table styles
   EmaDataModule.addTableStyles();
-  
+  addExtendedTableStyles()
   // Initialize the module
-  EmaDataModule.init();
+
   
   // Show admin panel for development (remove in production)
-  EmaDataModule.toggleAdminSection(true);
+  EmaDataModule.toggleAdminSection(false);
   
 });
 
