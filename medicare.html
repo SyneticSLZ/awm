@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicare Epilepsy Device Analysis Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1, h2, h3, h4 {
+            color: #0066cc;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload {
+            border: 1px dashed #aaa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        
+        .file-upload.active {
+            border-color: #4CAF50;
+            background-color: #f0fff0;
+        }
+        
+        input, button, select {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #0066cc;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 10px 20px;
+        }
+        
+        button:hover {
+            background-color: #0055aa;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f5f7f9;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #feeaea;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #2ecc71;
+            background-color: #e8f8f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .explainer {
+            background-color: #e5f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .explainer h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .no-results {
+            font-style: italic;
+            color: #666;
+            padding: 20px 0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 8px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .tab:hover {
+            background-color: #f0f7ff;
+        }
+        
+        .tab.active {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        .highlight {
+            background-color: #fffde7 !important;
+        }
+        
+        .year-tag {
+            display: inline-block;
+            background-color: #f0f7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .trend-up {
+            color: #2ecc71;
+        }
+        
+        .trend-down {
+            color: #e74c3c;
+        }
+        
+        .trend-neutral {
+            color: #95a5a6;
+        }
+        
+        .device-filter {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .code-info {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .summary-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-right: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .badge-vns {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-rns {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .badge-dbs {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+        
+        .badge-other {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .population-estimate {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medicare Epilepsy Device Analysis Tool</h1>
+    
+    <div class="container">
+        <div class="explainer">
+            <h3>About This Tool</h3>
+            <p>This specialized tool analyzes Medicare reimbursement rates for implantable neurostimulation devices used in epilepsy treatment across multiple years.</p>
+            
+            <div style="background-color: #e8f4ff; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h4 style="margin-top: 0; color: #0055aa;">Key Information Provided:</h4>
+                <ul>
+                    <li><strong>Annual implantation numbers</strong> and reimbursement rates</li>
+                    <li><strong>Year-over-year changes</strong> in reimbursement and utilization</li>
+                    <li><strong>Comparative analysis</strong> between different device types</li>
+                    <li><strong>Estimated percentage</strong> of refractory epilepsy population served</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #fff8e1; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h4 style="margin-top: 0; color: #e65100;">Epilepsy Device Types:</h4>
+                <ul>
+                    <li><strong>Vagus Nerve Stimulation (VNS)</strong>: Stimulates the vagus nerve to reduce seizure frequency</li>
+                    <li><strong>Responsive Neurostimulation (RNS)</strong>: Monitors brain activity and delivers stimulation when a seizure is detected</li>
+                    <li><strong>Deep Brain Stimulation (DBS)</strong>: Delivers electrical stimulation to specific areas of the brain</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Upload Medicare Fee Schedule Data</h2>
+            <p>Upload CMS Physician Fee Schedule CSV files for different years:</p>
+            
+            <div class="input-grid">
+                <div class="file-upload" id="upload2025">
+                    <strong>2025 Data</strong>
+                    <input type="file" id="file2025" accept=".csv" data-year="2025">
+                    <div class="status"></div>
+                </div>
+                
+                <div class="file-upload" id="upload2024B">
+                    <strong>2024B Data</strong>
+                    <input type="file" id="file2024B" accept=".csv" data-year="2024B">
+                    <div class="status"></div>
+                </div>
+                
+                <div class="file-upload" id="upload2024A">
+                    <strong>2024A Data</strong>
+                    <input type="file" id="file2024A" accept=".csv" data-year="2024A">
+                    <div class="status"></div>
+                </div>
+                
+                <div class="file-upload" id="upload2023">
+                    <strong>2023 Data</strong>
+                    <input type="file" id="file2023" accept=".csv" data-year="2023">
+                    <div class="status"></div>
+                </div>
+            </div>
+            
+            <div id="uploadStatus"></div>
+            
+            <div id="dataStats" style="display: none;" class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Files Loaded</div>
+                    <div class="stat-value" id="totalFiles">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Records</div>
+                    <div class="stat-value" id="totalRecords">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Unique HCPCS Codes</div>
+                    <div class="stat-value" id="uniqueCodes">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Years Available</div>
+                    <div class="stat-value" id="yearsAvailable">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="tabs">
+                <div class="tab active" data-tab="epilepsy">Epilepsy Devices</div>
+                <div class="tab" data-tab="search">Code Search</div>
+                <div class="tab" data-tab="trends">Reimbursement Trends</div>
+                <div class="tab" data-tab="compare">Population Impact</div>
+            </div>
+            
+            <div class="tab-content active" id="epilepsy-tab">
+                <h2>Epilepsy Device Analysis</h2>
+                
+                <div class="device-filter">
+                    <h3>Common Epilepsy Implantable Device Codes</h3>
+                    <p>Select device categories to analyze:</p>
+                    
+                    <div class="filter-grid">
+                        <label>
+                            <input type="checkbox" class="device-category" value="vns" checked> 
+                            Vagus Nerve Stimulation (VNS)
+                        </label>
+                        <label>
+                            <input type="checkbox" class="device-category" value="rns" checked> 
+                            Responsive Neurostimulation (RNS)
+                        </label>
+                        <label>
+                            <input type="checkbox" class="device-category" value="dbs" checked> 
+                            Deep Brain Stimulation (DBS)
+                        </label>
+                        <label>
+                            <input type="checkbox" class="device-category" value="other" checked> 
+                            Other Neurostimulation
+                        </label>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button id="analyzeEpilepsyBtn">Analyze Devices</button>
+                    </div>
+                </div>
+                
+                <div id="deviceSummary"></div>
+            </div>
+            
+            <div class="tab-content" id="search-tab">
+                <h2>Search for Reimbursement Rates</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex-grow: 1;">
+                        <input type="text" id="searchInput" placeholder="Enter HCPCS Code (e.g., 61885)">
+                        <div class="help-text">Try codes like 61885, 61886 (pulse generator implants) or 64568 (vagus nerve stimulator implant)</div>
+                    </div>
+                    <div>
+                        <select id="searchType">
+                            <option value="exact">Exact Match</option>
+                            <option value="startsWith">Starts With</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="searchBtn">Search</button>
+                    <button id="clearSearchBtn">Clear</button>
+                </div>
+                
+                <div class="code-info" id="codeInfo" style="display: none;"></div>
+            </div>
+            
+            <div class="tab-content" id="trends-tab">
+                <h2>Reimbursement Rate Trends</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <select id="trendCodeSelect">
+                        <option value="">Select a code to view trends</option>
+                    </select>
+                    
+                    <div class="help-text">Select a code to view its reimbursement trend across available years</div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+                
+                <div id="trendSummary"></div>
+            </div>
+            
+            <div class="tab-content" id="compare-tab">
+                <h2>Epilepsy Population Impact Analysis</h2>
+                
+                <div class="population-estimate">
+                    <h3>Refractory Epilepsy Population Estimates</h3>
+                    <p>Based on current epidemiological data:</p>
+                    <ul>
+                        <li>Approximately 3.4 million Americans have epilepsy</li>
+                        <li>About 30-40% (1.0-1.4 million) have refractory/drug-resistant epilepsy</li>
+                        <li>Not all refractory patients are candidates for neurostimulation devices</li>
+                    </ul>
+                    
+                    <div class="buttons">
+                        <button id="runPopulationAnalysisBtn">Run Population Analysis</button>
+                    </div>
+                </div>
+                
+                <div id="populationAnalysisResults"></div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Results</h2>
+            <div id="resultsInfo"></div>
+            <div id="resultsContainer" class="table-container" style="display: none;">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>HCPCS Code</th>
+                            <th>Year</th>
+                            <th>Description</th>
+                            <th>Device Type</th>
+                            <th>Non-Facility Price</th>
+                            <th>Facility Price</th>
+                            <th>Work RVU</th>
+                            <th>PE RVU (NF)</th>
+                            <th>PE RVU (F)</th>
+                            <th>MP RVU</th>
+                            <th>YoY Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage for different years
+        const data = {
+            "2025": [],
+            "2024B": [],
+            "2024A": [],
+            "2023": []
+        };
+        
+        // Track loaded years
+        const loadedYears = new Set();
+        
+        // Store combined data for searching
+        let combinedData = [];
+        
+        // Device codes for epilepsy implants
+        const epilepsyDeviceCodes = {
+    vns: {
+        codes: ['95970', '95976', '95983', '95977', '61888', '95970', '95976', '95977'],
+        description: 'Vagus Nerve Stimulation (VNS)',
+        color: '#1976d2',
+        estimatedAnnualProcedures: 3800,
+        primaryImplantCode: '64568'
+    },
+    rns: {
+        codes: ['61889', '61891', '61892', '95970', '95983'],
+        description: 'Responsive Neurostimulation (RNS)',
+        color: '#388e3c',
+        estimatedAnnualProcedures: 1200,
+        primaryImplantCode: '61889'
+    },
+    dbs: {
+        codes: ['61867', '61868', '61880', '61885', '61886'],
+        description: 'Deep Brain Stimulation (DBS)',
+        color: '#e65100',
+        estimatedAnnualProcedures: 1500,
+        primaryImplantCode: '61867'
+    },
+    other: {
+        codes: ['64553', '64555', '64561', '64566', '64590', '64595'],
+        description: 'Other Neurostimulation',
+        color: '#7b1fa2',
+        estimatedAnnualProcedures: 800,
+        primaryImplantCode: '64553'
+    }
+};
+
+// Common descriptions for epilepsy device codes
+const codeDescriptions = {
+    '64568': 'Open Implantation of cranial nerve (eg, vagus nerve) neurostimulator electrode array and pulse generator',
+    '64569': 'Revision or replacement of cranial nerve (eg, vagus nerve) neurostimulator electrode array, including connection to existing pulse generator',
+    '64570': 'Removal of cranial nerve (eg, vagus nerve) neurostimulator electrode array and pulse generator',
+    '61885': 'Insertion or replacement of cranial neurostimulator pulse generator or receiver, direct or inductive coupling; with connection to a single electrode array',
+    '61886': 'Insertion or replacement of cranial neurostimulator pulse generator or receiver, direct or inductive coupling; with connection to 2 or more electrode arrays',
+    '61889': 'Insertion of skull-mounted cranial neurostimulator pulse generator or receiver, including craniectomy or craniotomy, when performed, with direct or inductive coupling; with connection to depth and/or cortical strip electrode array(s)',
+    '61891': 'Revision or replacement of skull-mounted cranial neurostimulator pulse generator or receiver with connection to depth and/or cortical strip electrode array(s)',
+    '61892': 'Removal of skull-mounted cranial neurostimulator pulse generator or receiver with cranioplasty, when performed',
+    '61850': 'Twist drill or burr hole(s) for implantation of neurostimulator electrodes, cortical',
+    '61860': 'Craniectomy or craniotomy for implantation of neurostimulator electrodes, cerebral, cortical',
+    '61863': 'Twist drill, burr hole, craniotomy, or craniectomy with stereotactic implantation of neurostimulator electrode array in subcortical site',
+    '61864': 'Twist drill, burr hole, craniotomy, or craniectomy with stereotactic implantation of neurostimulator electrode array in subcortical site; each additional array',
+    '61867': 'Twist drill, burr hole, craniotomy, or craniectomy with stereotactic implantation of neurostimulator electrode array in subcortical site; with insertion of pulse generator',
+    '61868': 'Twist drill, burr hole, craniotomy, or craniectomy with stereotactic implantation of neurostimulator electrode array in subcortical site; with connection to 2 or more arrays',
+    '61880': 'Revision or removal of intracranial neurostimulator electrodes',
+    '61888': 'Revision or removal of cranial neurostimulator pulse generator or receiver',
+    '95970': 'Electronic analysis of implanted neurostimulator pulse generator/transmitter by physician or other qualified health care professional; with brain, cranial nerve, spinal cord, peripheral nerve, or sacral nerve, neurostimulator pulse generator/transmitter, without programming',
+    '95976': 'Electronic analysis with simple cranial nerve neurostimulator pulse generator/transmitter programming by physician or other qualified health care professional (one to three parameters)',
+    '95977': 'Electronic analysis of implanted neurostimulator pulse generator/transmitter with brain, cranial nerve, spinal cord, peripheral nerve, or sacral nerve, neurostimulator pulse generator/transmitter, without programming',
+    '95983': 'Electronic analysis of implanted neurostimulator pulse generator/transmitter with brain neurostimulator pulse generator/transmitter programming, first 15 minutes face-to-face time with physician or other qualified health care professional',
+    '64553': 'Percutaneous implantation of neurostimulator electrode array; cranial nerve',
+    '64555': 'Percutaneous implantation of neurostimulator electrode array; peripheral nerve',
+    '64561': 'Percutaneous implantation of neurostimulator electrode array; sacral nerve',
+    '64566': 'Posterior tibial neurostimulation, percutaneous needle electrode, single treatment',
+    '64590': 'Insertion or replacement of peripheral or gastric neurostimulator pulse generator or receiver',
+    '64595': 'Revision or removal of peripheral or gastric neurostimulator pulse generator or receiver'
+};    
+        // DOM Elements
+        const uploadStatus = document.getElementById('uploadStatus');
+        const dataStats = document.getElementById('dataStats');
+        const totalFiles = document.getElementById('totalFiles');
+        const totalRecords = document.getElementById('totalRecords');
+        const uniqueCodes = document.getElementById('uniqueCodes');
+        const yearsAvailable = document.getElementById('yearsAvailable');
+        const searchInput = document.getElementById('searchInput');
+        const searchType = document.getElementById('searchType');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const codeInfo = document.getElementById('codeInfo');
+        const resultsInfo = document.getElementById('resultsInfo');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsTable = document.getElementById('resultsTable');
+        const resultsBody = document.getElementById('resultsBody');
+        const analyzeEpilepsyBtn = document.getElementById('analyzeEpilepsyBtn');
+        const deviceSummary = document.getElementById('deviceSummary');
+        const trendCodeSelect = document.getElementById('trendCodeSelect');
+        const trendSummary = document.getElementById('trendSummary');
+        const runPopulationAnalysisBtn = document.getElementById('runPopulationAnalysisBtn');
+        const populationAnalysisResults = document.getElementById('populationAnalysisResults');
+        
+        // Handle file uploads
+        document.querySelectorAll('input[type="file"]').forEach(fileInput => {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const year = this.dataset.year;
+                const uploadDiv = document.getElementById(`upload${year}`);
+                const statusDiv = uploadDiv.querySelector('.status');
+                
+                if (file) {
+                    statusDiv.innerHTML = '<div class="loading">Processing file...</div>';
+                    uploadDiv.classList.add('active');
+                    
+                    Papa.parse(file, {
+                        header: true,
+                        dynamicTyping: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            if (results.errors.length > 0) {
+                                statusDiv.innerHTML = `<div class="error">Error: ${results.errors[0].message}</div>`;
+                                return;
+                            }
+                            
+                            // Clean and process the data
+                            data[year] = cleanData(results.data, year);
+                            loadedYears.add(year);
+                            
+                            // Update combined data
+                            updateCombinedData();
+                            
+                            // Update UI
+                            statusDiv.innerHTML = `<div class="success">Loaded ${data[year].length} records</div>`;
+                            updateDataStats();
+                            
+                            // Update dropdowns and selects
+                            updateCodeDropdown();
+                            
+                            // If at least one year's data is loaded, perform an initial epilepsy device analysis
+                            if (loadedYears.size === 1) {
+                                analyzeEpilepsyDevices();
+                            }
+                        },
+                        error: function(error) {
+                            statusDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Update tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
+        // Search functionality
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            resultsInfo.innerHTML = '';
+            resultsContainer.style.display = 'none';
+            codeInfo.style.display = 'none';
+        });
+        
+        // Epilepsy device analysis
+        analyzeEpilepsyBtn.addEventListener('click', analyzeEpilepsyDevices);
+        
+        // Trend chart code selection
+        trendCodeSelect.addEventListener('change', function() {
+            if (this.value) {
+                createTrendChart(this.value);
+            }
+        });
+        
+        // Population analysis
+        runPopulationAnalysisBtn.addEventListener('click', performPopulationAnalysis);
+        
+        // Clean and normalize the data
+        function cleanData(data, year) {
+            return data.map(row => {
+                // Convert price strings to numbers
+                const nonFacilityPrice = parseFloat(String(row['Non-Facility Price'] || '').replace('$', '').trim()) || 0;
+                const facilityPrice = parseFloat(String(row['Facility Price'] || '').replace('$', '').trim()) || 0;
+                
+                // Get HCPCS code and determine device type
+                const hcpcsCode = String(row['HCPCS Code'] || '');
+                const deviceType = getDeviceType(hcpcsCode);
+                
+                return {
+                    year: year,
+                    hcpcsCode: hcpcsCode,
+                    modifier: row['Modifier'] || '',
+                    description: row['Short Description'] || codeDescriptions[hcpcsCode] || '',
+                    deviceType: deviceType,
+                    nonFacilityPrice: nonFacilityPrice,
+                    facilityPrice: facilityPrice,
+                    workRVU: row['Work RVU'] || 0,
+                    nonFacilityPERVU: row['Fully Implemented Non-FAC PE RVU'] || 0,
+                    facilityPERVU: row['Fully Implemented Facility PE RVU'] || 0,
+                    mpRVU: row['MP RVU'] || 0,
+                    macLocality: row['Mac Locality'] || '',
+                    conversionFactor: row['Conv Fact'] || 0,
+                    gpciWork: row['GPCI Work'] || 1,
+                    gpciPE: row['GPCI PE'] || 1,
+                    gpciMP: row['GPCI MP'] || 1,
+                    totalNonFacility: row['Fully Implemented Non-Fac Total'] || 0,
+                    totalFacility: row['Fully Implemented Facility Total'] || 0
+                };
+            });
+        }
+        
+        // Determine device type from HCPCS code
+        function getDeviceType(code) {
+            for (const [type, data] of Object.entries(epilepsyDeviceCodes)) {
+                if (data.codes.includes(code)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+        
+        // Update combined data
+        function updateCombinedData() {
+            combinedData = [];
+            for (const year of loadedYears) {
+                combinedData = combinedData.concat(data[year]);
+            }
+        }
+        
+        // Update data statistics
+        function updateDataStats() {
+            let total = 0;
+            const uniqueCodesSet = new Set();
+            
+            for (const year of loadedYears) {
+                total += data[year].length;
+                data[year].forEach(item => uniqueCodesSet.add(item.hcpcsCode));
+            }
+            
+            totalFiles.textContent = loadedYears.size;
+            totalRecords.textContent = total.toLocaleString();
+            uniqueCodes.textContent = uniqueCodesSet.size.toLocaleString();
+            yearsAvailable.textContent = Array.from(loadedYears).sort().join(', ');
+            
+            dataStats.style.display = 'grid';
+        }
+        
+        // Update code dropdown for trend chart
+        function updateCodeDropdown() {
+            if (combinedData.length > 0) {
+                // Get unique codes
+                const codes = new Set();
+                combinedData.forEach(item => codes.add(item.hcpcsCode));
+                
+                // Clear existing options
+                trendCodeSelect.innerHTML = '<option value="">Select a code to view trends</option>';
+                
+                // Add epilepsy device codes first (if they exist in the data)
+                const allEpilepsyCodes = [];
+                for (const category in epilepsyDeviceCodes) {
+                    allEpilepsyCodes.push(...epilepsyDeviceCodes[category].codes);
+                }
+                
+                // Sort epilepsy codes numerically
+                allEpilepsyCodes.sort((a, b) => parseInt(a) - parseInt(b));
+                
+                // Add epilepsy codes as options
+                allEpilepsyCodes.forEach(code => {
+                    if (codes.has(code)) {
+                        const description = getCodeDescription(code);
+                        trendCodeSelect.innerHTML += `<option value="${code}">${code} - ${description}</option>`;
+                    }
+                });
+                
+                // Add separator
+                trendCodeSelect.innerHTML += '<option disabled>──────────</option>';
+                
+                // Add all other codes
+                Array.from(codes)
+                    .filter(code => !allEpilepsyCodes.includes(code))
+                    .sort((a, b) => parseInt(a) - parseInt(b))
+                    .forEach(code => {
+                        const description = getCodeDescription(code);
+                        trendCodeSelect.innerHTML += `<option value="${code}">${code} - ${description}</option>`;
+                    });
+            }
+        }
+        
+        // Get code description (from most recent year)
+        function getCodeDescription(code) {
+            // First check if we have a predefined description
+            if (codeDescriptions[code]) {
+                return codeDescriptions[code];
+            }
+            
+            // Otherwise look in the data
+            const sortedYears = Array.from(loadedYears).sort().reverse();
+            
+            for (const year of sortedYears) {
+                const item = data[year].find(item => item.hcpcsCode === code);
+                if (item && item.description) {
+                    return item.description;
+                }
+            }
+            
+            return '';
+        }
+        
+        // Perform search
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            if (!searchTerm) {
+                resultsInfo.innerHTML = '<p>Please enter a HCPCS code to search.</p>';
+                resultsContainer.style.display = 'none';
+                codeInfo.style.display = 'none';
+                return;
+            }
+            
+            if (combinedData.length === 0) {
+                resultsInfo.innerHTML = '<p>Please upload at least one CSV file first.</p>';
+                resultsContainer.style.display = 'none';
+                codeInfo.style.display = 'none';
+                return;
+            }
+            
+            // Filter data based on search term and type
+            let results;
+            if (searchType.value === 'exact') {
+                results = combinedData.filter(item => 
+                    String(item.hcpcsCode) === searchTerm
+                );
+            } else if (searchType.value === 'startsWith') {
+                results = combinedData.filter(item => 
+                    String(item.hcpcsCode).startsWith(searchTerm)
+                );
+            } else {
+                results = combinedData.filter(item => 
+                    String(item.hcpcsCode).includes(searchTerm) ||
+                    String(item.description).toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            
+            // Sort results by code and year
+            results.sort((a, b) => {
+                if (a.hcpcsCode !== b.hcpcsCode) {
+                    return parseInt(a.hcpcsCode) - parseInt(b.hcpcsCode);
+                }
+                return b.year.localeCompare(a.year); // Most recent years first
+            });
+            
+            // Display code information if we have a single code
+            if (results.length > 0 && searchType.value === 'exact') {
+                displayCodeInfo(results[0].hcpcsCode);
+            } else {
+                codeInfo.style.display = 'none';
+            }
+            
+            // Display results
+            displayResults(results, `Search results for: ${searchTerm}`);
+        }
+        
+        // Display code information
+        function displayCodeInfo(code) {
+            const deviceType = getDeviceType(code);
+            const description = getCodeDescription(code);
+            
+            let html = `
+                <h3>Code Information: ${code}</h3>
+                <p><strong>Description:</strong> ${description}</p>
+            `;
+            
+            if (deviceType) {
+                const deviceInfo = epilepsyDeviceCodes[deviceType];
+                html += `
+                    <p><strong>Device Category:</strong> 
+                        <span class="badge badge-${deviceType}">${deviceInfo.description}</span>
+                    </p>
+                    <p><strong>Related Codes:</strong> ${deviceInfo.codes.filter(c => c !== code).join(', ')}</p>
+                `;
+            }
+            
+            // Get latest reimbursement info
+            const sortedYears = Array.from(loadedYears).sort().reverse();
+            if (sortedYears.length > 0) {
+                const latestYear = sortedYears[0];
+                const latestData = data[latestYear].find(item => item.hcpcsCode === code);
+                
+                if (latestData) {
+                    html += `
+                        <p><strong>Latest Reimbursement (${latestYear}):</strong></p>
+                        <ul>
+                            <li>Non-Facility: $${latestData.nonFacilityPrice.toFixed(2)}</li>
+                            <li>Facility: $${latestData.facilityPrice.toFixed(2)}</li>
+                        </ul>
+                    `;
+                }
+            }
+            
+            codeInfo.innerHTML = html;
+            codeInfo.style.display = 'block';
+        }
+        
+        // Analyze epilepsy devices
+        function analyzeEpilepsyDevices() {
+            if (combinedData.length === 0) {
+                resultsInfo.innerHTML = '<p>Please upload at least one CSV file first.</p>';
+                resultsContainer.style.display = 'none';
+                deviceSummary.innerHTML = '';
+                return;
+            }
+            
+            // Get selected device categories
+            const selectedCategories = [];
+            document.querySelectorAll('.device-category:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.value);
+            });
+            
+            if (selectedCategories.length === 0) {
+                resultsInfo.innerHTML = '<p>Please select at least one device category.</p>';
+                resultsContainer.style.display = 'none';
+                deviceSummary.innerHTML = '';
+                return;
+            }
+            
+            // Collect all codes from selected categories
+            const codes = [];
+            selectedCategories.forEach(category => {
+                codes.push(...epilepsyDeviceCodes[category].codes);
+            });
+            
+            // Filter data for the selected codes
+            const results = combinedData.filter(item => codes.includes(String(item.hcpcsCode)));
+            
+            // Sort results by code and year
+            results.sort((a, b) => {
+                if (a.hcpcsCode !== b.hcpcsCode) {
+                    return parseInt(a.hcpcsCode) - parseInt(b.hcpcsCode);
+                }
+                return b.year.localeCompare(a.year); // Most recent years first
+            });
+            
+            // Generate summary by device type
+            const summaryByType = {};
+            
+            // Initialize with selected categories
+            selectedCategories.forEach(category => {
+                summaryByType[category] = {
+                    name: epilepsyDeviceCodes[category].description,
+                    color: epilepsyDeviceCodes[category].color,
+                    codes: epilepsyDeviceCodes[category].codes,
+                    primaryImplantCode: epilepsyDeviceCodes[category].primaryImplantCode,
+                    yearData: {},
+                    estimatedAnnualProcedures: epilepsyDeviceCodes[category].estimatedAnnualProcedures
+                };
+            });
+            
+            // Group data by year and device type
+            const years = Array.from(loadedYears).sort();
+            
+            // Initialize year data for each device type
+            selectedCategories.forEach(category => {
+                years.forEach(year => {
+                    summaryByType[category].yearData[year] = {
+                        avgNonFacilityPrice: 0,
+                        avgFacilityPrice: 0,
+                        primaryImplantRate: 0,
+                        yoyChange: null
+                    };
+                });
+            });
+            
+            // Fill in data
+            results.forEach(item => {
+                const deviceType = item.deviceType;
+                if (deviceType && selectedCategories.includes(deviceType)) {
+                    // Only process if this is the primary implant code
+                    if (item.hcpcsCode === summaryByType[deviceType].primaryImplantCode) {
+                        summaryByType[deviceType].yearData[item.year].primaryImplantRate = item.nonFacilityPrice;
+                    }
+                    
+                    // Add to summary data
+                    if (!summaryByType[deviceType].yearData[item.year].allCodes) {
+                        summaryByType[deviceType].yearData[item.year].allCodes = [];
+                    }
+                    summaryByType[deviceType].yearData[item.year].allCodes.push(item);
+                }
+            });
+            
+            // Calculate averages and YoY changes
+            Object.keys(summaryByType).forEach(deviceType => {
+                const deviceData = summaryByType[deviceType];
+                
+                // Sort years
+                const sortedYears = Object.keys(deviceData.yearData).sort();
+                
+                // Calculate averages for each year
+                sortedYears.forEach(year => {
+                    const yearData = deviceData.yearData[year];
+                    if (yearData.allCodes && yearData.allCodes.length > 0) {
+                        // Calculate averages excluding zeros
+                        const nonFacPrices = yearData.allCodes
+                            .filter(item => item.nonFacilityPrice > 0)
+                            .map(item => item.nonFacilityPrice);
+                            
+                        const facPrices = yearData.allCodes
+                            .filter(item => item.facilityPrice > 0)
+                            .map(item => item.facilityPrice);
+                        
+                        yearData.avgNonFacilityPrice = nonFacPrices.length > 0 ? 
+                            nonFacPrices.reduce((sum, price) => sum + price, 0) / nonFacPrices.length : 0;
+                            
+                        yearData.avgFacilityPrice = facPrices.length > 0 ? 
+                            facPrices.reduce((sum, price) => sum + price, 0) / facPrices.length : 0;
+                    }
+                });
+                
+                // Calculate YoY changes
+                for (let i = 1; i < sortedYears.length; i++) {
+                    const prevYear = sortedYears[i-1];
+                    const currYear = sortedYears[i];
+                    
+                    const prevData = deviceData.yearData[prevYear];
+                    const currData = deviceData.yearData[currYear];
+                    
+                    if (prevData.primaryImplantRate > 0) {
+                        currData.yoyChange = ((currData.primaryImplantRate - prevData.primaryImplantRate) / 
+                                             prevData.primaryImplantRate) * 100;
+                    }
+                }
+            });
+            
+            // Display device summary
+            displayDeviceSummary(summaryByType, years);
+            
+            // Display results
+            displayResults(results, "Epilepsy Device Reimbursement Analysis");
+        }
+        
+        // Display device summary
+        function displayDeviceSummary(summaryByType, years) {
+            if (Object.keys(summaryByType).length === 0 || years.length === 0) {
+                deviceSummary.innerHTML = '<p>No data available for selected device types.</p>';
+                return;
+            }
+            
+            let html = `<h3>Epilepsy Device Reimbursement Summary</h3>`;
+            
+            // Get most recent and least recent years for comparison
+            const oldestYear = years[0];
+            const newestYear = years[years.length - 1];
+            
+            // Create a card for each device type
+            Object.keys(summaryByType).forEach(deviceType => {
+                const deviceData = summaryByType[deviceType];
+                const oldestYearData = deviceData.yearData[oldestYear];
+                const newestYearData = deviceData.yearData[newestYear];
+                
+                // Calculate overall change if we have multiple years
+                let overallChange = null;
+                let annualGrowthRate = null;
+                
+                if (years.length > 1 && oldestYearData.primaryImplantRate > 0 && newestYearData.primaryImplantRate > 0) {
+                    overallChange = ((newestYearData.primaryImplantRate - oldestYearData.primaryImplantRate) / 
+                                    oldestYearData.primaryImplantRate) * 100;
+                                    
+                    // Calculate compound annual growth rate
+                    const yearDiff = years.length - 1; // Number of periods
+                    annualGrowthRate = (Math.pow(newestYearData.primaryImplantRate / oldestYearData.primaryImplantRate, 1 / yearDiff) - 1) * 100;
+                }
+                
+                html += `
+                    <div class="summary-card">
+                        <div class="summary-title">
+                            <span class="badge badge-${deviceType}">${deviceData.name}</span>
+                            Primary Implant: ${deviceData.primaryImplantCode}
+                        </div>
+                        
+                        <div class="stats" style="margin-top: 10px;">
+                            <div class="stat-card">
+                                <div class="stat-label">Latest Reimbursement (${newestYear})</div>
+                                <div class="stat-value">$${newestYearData.primaryImplantRate.toFixed(2)}</div>
+                            </div>
+                `;
+                
+                if (years.length > 1) {
+                    html += `
+                            <div class="stat-card">
+                                <div class="stat-label">Initial Reimbursement (${oldestYear})</div>
+                                <div class="stat-value">$${oldestYearData.primaryImplantRate.toFixed(2)}</div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-label">Overall Change</div>
+                                <div class="stat-value ${overallChange > 0 ? 'trend-up' : overallChange < 0 ? 'trend-down' : 'trend-neutral'}">
+                                    ${overallChange !== null ? `${overallChange > 0 ? '+' : ''}${overallChange.toFixed(2)}%` : 'N/A'}
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-label">Annual Growth Rate</div>
+                                <div class="stat-value ${annualGrowthRate > 0 ? 'trend-up' : annualGrowthRate < 0 ? 'trend-down' : 'trend-neutral'}">
+                                    ${annualGrowthRate !== null ? `${annualGrowthRate > 0 ? '+' : ''}${annualGrowthRate.toFixed(2)}%` : 'N/A'}
+                                </div>
+                            </div>
+                    `;
+                }
+                
+                html += `
+                            <div class="stat-card">
+                                <div class="stat-label">Est. Annual Procedures</div>
+                                <div class="stat-value">${deviceData.estimatedAnnualProcedures.toLocaleString()}</div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-label">Est. Annual Revenue</div>
+                                <div class="stat-value">$${(deviceData.estimatedAnnualProcedures * newestYearData.primaryImplantRate).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px;">Year-by-Year Reimbursement Rates</h4>
+                        <div class="table-container" style="max-height: 200px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Primary Implant Rate</th>
+                                        <th>YoY Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                years.slice().reverse().forEach(year => {
+                    const yearData = deviceData.yearData[year];
+                    html += `
+                        <tr>
+                            <td>${year}</td>
+                            <td>$${yearData.primaryImplantRate.toFixed(2)}</td>
+                            <td class="${yearData.yoyChange > 0 ? 'trend-up' : yearData.yoyChange < 0 ? 'trend-down' : 'trend-neutral'}">
+                                ${yearData.yoyChange !== null ? `${yearData.yoyChange > 0 ? '+' : ''}${yearData.yoyChange.toFixed(2)}%` : '-'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            deviceSummary.innerHTML = html;
+        }
+        
+        // Create trend chart for a specific code
+        function createTrendChart(code) {
+            // Filter data for the selected code
+            const results = combinedData.filter(item => item.hcpcsCode === code);
+            
+            if (results.length === 0) {
+                document.getElementById('trendChart').innerHTML = '<p>No data available for this code.</p>';
+                trendSummary.innerHTML = '';
+                return;
+            }
+            
+            // Group by year
+            const yearData = {};
+            results.forEach(item => {
+                if (!yearData[item.year]) {
+                    yearData[item.year] = item;
+                }
+            });
+            
+            // Prepare chart data
+            const years = Object.keys(yearData).sort();
+            const nonFacilityPrices = years.map(year => yearData[year].nonFacilityPrice);
+            const facilityPrices = years.map(year => yearData[year].facilityPrice);
+            
+            // Calculate year-over-year percent changes
+            const nonFacilityChanges = [];
+            const facilityChanges = [];
+            
+            for (let i = 1; i < years.length; i++) {
+                const prevNonFacility = nonFacilityPrices[i-1];
+                const currNonFacility = nonFacilityPrices[i];
+                const nonFacilityChange = prevNonFacility > 0 ? 
+                    ((currNonFacility - prevNonFacility) / prevNonFacility) * 100 : 0;
+                nonFacilityChanges.push(nonFacilityChange);
+                
+                const prevFacility = facilityPrices[i-1];
+                const currFacility = facilityPrices[i];
+                const facilityChange = prevFacility > 0 ? 
+                    ((currFacility - prevFacility) / prevFacility) * 100 : 0;
+                facilityChanges.push(facilityChange);
+            }
+            
+            // Create Chart.js chart
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (window.trendChart) {
+                window.trendChart.destroy();
+            }
+            
+            window.trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Non-Facility Price ($)',
+                            data: nonFacilityPrices,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Facility Price ($)',
+                            data: facilityPrices,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Reimbursement Trends for ${code} - ${getCodeDescription(code)}`,
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const datasetIndex = context.datasetIndex;
+                                    const index = context.dataIndex;
+                                    
+                                    // Only show YoY change for years after the first year
+                                    if (index > 0) {
+                                        const changeArray = datasetIndex === 0 ? nonFacilityChanges : facilityChanges;
+                                        const changeValue = changeArray[index - 1];
+                                        const sign = changeValue >= 0 ? '+' : '';
+                                        return `YoY Change: ${sign}${changeValue.toFixed(2)}%`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Reimbursement Rate ($)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create trend summary
+            createTrendSummary(code, years, nonFacilityPrices, facilityPrices, nonFacilityChanges, facilityChanges);
+            
+            // Display the results in the table as well
+            displayResults(results, `Reimbursement Trends for ${code} - ${getCodeDescription(code)}`);
+        }
+        
+        // Create trend summary
+        function createTrendSummary(code, years, nonFacilityPrices, facilityPrices, nonFacilityChanges, facilityChanges) {
+            if (years.length < 2) {
+                trendSummary.innerHTML = '<p>At least two years of data are needed for trend analysis.</p>';
+                return;
+            }
+            
+            // Calculate overall changes
+            const firstYearNF = nonFacilityPrices[0];
+            const lastYearNF = nonFacilityPrices[nonFacilityPrices.length - 1];
+            const overallChangeNF = firstYearNF > 0 ? ((lastYearNF - firstYearNF) / firstYearNF) * 100 : 0;
+            
+            const firstYearF = facilityPrices[0];
+            const lastYearF = facilityPrices[facilityPrices.length - 1];
+            const overallChangeF = firstYearF > 0 ? ((lastYearF - firstYearF) / firstYearF) * 100 : 0;
+            
+            // Calculate compound annual growth rate (CAGR)
+            const yearDiff = years.length - 1; // Number of periods
+            const cagrNF = firstYearNF > 0 ? (Math.pow(lastYearNF / firstYearNF, 1 / yearDiff) - 1) * 100 : 0;
+            const cagrF = firstYearF > 0 ? (Math.pow(lastYearF / firstYearF, 1 / yearDiff) - 1) * 100 : 0;
+            
+            // Average annual change
+            const avgChangeNF = nonFacilityChanges.length > 0 ? 
+                nonFacilityChanges.reduce((sum, change) => sum + change, 0) / nonFacilityChanges.length : 0;
+                
+            const avgChangeF = facilityChanges.length > 0 ? 
+                facilityChanges.reduce((sum, change) => sum + change, 0) / facilityChanges.length : 0;
+            
+            // Create HTML
+            let html = `
+                <div class="summary-card">
+                    <div class="summary-title">Trend Analysis for ${code}</div>
+                    
+                    <div class="stats" style="margin-top: 10px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Initial Non-Facility (${years[0]})</div>
+                            <div class="stat-value">$${firstYearNF.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Latest Non-Facility (${years[years.length - 1]})</div>
+                            <div class="stat-value">$${lastYearNF.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Overall Change (Non-Facility)</div>
+                            <div class="stat-value ${overallChangeNF > 0 ? 'trend-up' : overallChangeNF < 0 ? 'trend-down' : 'trend-neutral'}">
+                                ${overallChangeNF > 0 ? '+' : ''}${overallChangeNF.toFixed(2)}%
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Annual Growth Rate (Non-Facility)</div>
+                            <div class="stat-value ${cagrNF > 0 ? 'trend-up' : cagrNF < 0 ? 'trend-down' : 'trend-neutral'}">
+                                ${cagrNF > 0 ? '+' : ''}${cagrNF.toFixed(2)}% per year
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Initial Facility (${years[0]})</div>
+                            <div class="stat-value">$${firstYearF.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Latest Facility (${years[years.length - 1]})</div>
+                            <div class="stat-value">$${lastYearF.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Overall Change (Facility)</div>
+                            <div class="stat-value ${overallChangeF > 0 ? 'trend-up' : overallChangeF < 0 ? 'trend-down' : 'trend-neutral'}">
+                                ${overallChangeF > 0 ? '+' : ''}${overallChangeF.toFixed(2)}%
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Annual Growth Rate (Facility)</div>
+                            <div class="stat-value ${cagrF > 0 ? 'trend-up' : cagrF < 0 ? 'trend-down' : 'trend-neutral'}">
+                                ${cagrF > 0 ? '+' : ''}${cagrF.toFixed(2)}% per year
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 15px;">Annual Changes</h4>
+                    <div class="table-container" style="max-height: 200px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Year Range</th>
+                                    <th>Non-Facility Change</th>
+                                    <th>Facility Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            for (let i = 1; i < years.length; i++) {
+                const prevYear = years[i-1];
+                const currYear = years[i];
+                const nfChange = nonFacilityChanges[i-1];
+                const fChange = facilityChanges[i-1];
+                
+                html += `
+                    <tr>
+                        <td>${prevYear} → ${currYear}</td>
+                        <td class="${nfChange > 0 ? 'trend-up' : nfChange < 0 ? 'trend-down' : 'trend-neutral'}">
+                            ${nfChange > 0 ? '+' : ''}${nfChange.toFixed(2)}%
+                        </td>
+                        <td class="${fChange > 0 ? 'trend-up' : fChange < 0 ? 'trend-down' : 'trend-neutral'}">
+                            ${fChange > 0 ? '+' : ''}${fChange.toFixed(2)}%
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            trendSummary.innerHTML = html;
+        }
+        
+        // Perform population analysis
+        function performPopulationAnalysis() {
+            if (combinedData.length === 0) {
+                populationAnalysisResults.innerHTML = '<p>Please upload at least one CSV file first.</p>';
+                return;
+            }
+            
+            // Get the most recent year's data
+            const years = Array.from(loadedYears).sort();
+            if (years.length === 0) {
+                populationAnalysisResults.innerHTML = '<p>No data available for analysis.</p>';
+                return;
+            }
+            
+            const mostRecentYear = years[years.length - 1];
+            
+            // Epilepsy population estimates
+            const totalEpilepsyPopulation = 3400000; // 3.4 million Americans with epilepsy
+            const minRefractoryRate = 0.30; // 30% refractory rate (conservative)
+            const maxRefractoryRate = 0.40; // 40% refractory rate (liberal)
+            const minRefractoryPopulation = totalEpilepsyPopulation * minRefractoryRate;
+            const maxRefractoryPopulation = totalEpilepsyPopulation * maxRefractoryRate;
+            
+            // Device implantation estimates by type
+            let totalAnnualImplants = 0;
+            const deviceImplants = {};
+            
+            // Extract data for each device type
+            Object.keys(epilepsyDeviceCodes).forEach(deviceType => {
+                const deviceInfo = epilepsyDeviceCodes[deviceType];
+                deviceImplants[deviceType] = {
+                    name: deviceInfo.description,
+                    annualProcedures: deviceInfo.estimatedAnnualProcedures,
+                    primaryImplantCode: deviceInfo.primaryImplantCode
+                };
+                totalAnnualImplants += deviceInfo.estimatedAnnualProcedures;
+            });
+            
+            // Calculate market share percentages
+            Object.keys(deviceImplants).forEach(deviceType => {
+                deviceImplants[deviceType].marketShare = 
+                    (deviceImplants[deviceType].annualProcedures / totalAnnualImplants) * 100;
+            });
+            
+            // Calculate penetration rate (percentage of refractory population served)
+            const minPenetrationRate = (totalAnnualImplants / maxRefractoryPopulation) * 100;
+            const maxPenetrationRate = (totalAnnualImplants / minRefractoryPopulation) * 100;
+            
+            // Calculate annual revenue
+            const annualRevenueByType = {};
+            let totalAnnualRevenue = 0;
+            
+            Object.keys(deviceImplants).forEach(deviceType => {
+                const deviceData = deviceImplants[deviceType];
+                const primaryCode = deviceData.primaryImplantCode;
+                
+                // Find reimbursement rate for the primary code in the most recent year
+                const codeData = data[mostRecentYear].find(item => item.hcpcsCode === primaryCode);
+                
+                if (codeData) {
+                    const reimbursementRate = codeData.nonFacilityPrice;
+                    const annualRevenue = deviceData.annualProcedures * reimbursementRate;
+                    
+                    annualRevenueByType[deviceType] = {
+                        reimbursementRate,
+                        annualRevenue
+                    };
+                    
+                    totalAnnualRevenue += annualRevenue;
+                }
+            });
+            
+            // Display results
+            let html = `
+                <div class="summary-card">
+                    <div class="summary-title">Epilepsy Population Impact Analysis</div>
+                    
+                    <div class="stats" style="margin-top: 10px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Epilepsy Population</div>
+                            <div class="stat-value">${totalEpilepsyPopulation.toLocaleString()}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Refractory Epilepsy Range</div>
+                            <div class="stat-value">${minRefractoryPopulation.toLocaleString()} - ${maxRefractoryPopulation.toLocaleString()}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Total Annual Implants</div>
+                            <div class="stat-value">${totalAnnualImplants.toLocaleString()}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Penetration Rate</div>
+                            <div class="stat-value">${minPenetrationRate.toFixed(1)}% - ${maxPenetrationRate.toFixed(1)}%</div>
+                            <div style="font-size: 12px; color: #666;">of refractory population</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">Total Annual Revenue</div>
+                            <div class="stat-value">$${totalAnnualRevenue.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 15px;">Device Type Breakdown</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Device Type</th>
+                                    <th>Annual Procedures</th>
+                                    <th>Market Share</th>
+                                    <th>Reimbursement Rate</th>
+                                    <th>Annual Revenue</th>
+                                    <th>% of Refractory Population</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            Object.keys(deviceImplants).forEach(deviceType => {
+                const deviceData = deviceImplants[deviceType];
+                const revenueData = annualRevenueByType[deviceType] || { reimbursementRate: 0, annualRevenue: 0 };
+                const percentOfRefractoryPop = (deviceData.annualProcedures / minRefractoryPopulation) * 100;
+                
+                html += `
+                    <tr>
+                        <td>
+                            <span class="badge badge-${deviceType}">${deviceData.name}</span>
+                        </td>
+                        <td>${deviceData.annualProcedures.toLocaleString()}</td>
+                        <td>${deviceData.marketShare.toFixed(1)}%</td>
+                        <td>$${revenueData.reimbursementRate.toFixed(2)}</td>
+                        <td>$${revenueData.annualRevenue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                        <td>${percentOfRefractoryPop.toFixed(2)}%</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h4 style="margin-top: 15px;">Market Opportunity Analysis</h4>
+                    <p>Based on current penetration rates, there remains a significant opportunity to serve more patients with refractory epilepsy:</p>
+                    <ul>
+                        <li><strong>${(100 - maxPenetrationRate).toFixed(1)}% - ${(100 - minPenetrationRate).toFixed(1)}%</strong> of the refractory epilepsy population is not currently served by implantable devices</li>
+                        <li>This represents approximately <strong>${(minRefractoryPopulation - totalAnnualImplants).toLocaleString()} - ${(maxRefractoryPopulation - totalAnnualImplants).toLocaleString()}</strong> potential patients</li>
+                        <li>At current reimbursement rates, this represents a potential market opportunity of <strong>$${((minRefractoryPopulation - totalAnnualImplants) * (totalAnnualRevenue / totalAnnualImplants)).toLocaleString(undefined, {maximumFractionDigits: 0})}</strong> to <strong>$${((maxRefractoryPopulation - totalAnnualImplants) * (totalAnnualRevenue / totalAnnualImplants)).toLocaleString(undefined, {maximumFractionDigits: 0})}</strong></li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px; font-style: italic; color: #666;">Note: This analysis uses estimated procedure volumes and population figures. Actual numbers may vary. Not all refractory epilepsy patients are candidates for neurostimulation devices due to various clinical factors.</p>
+                </div>
+            `;
+            
+            populationAnalysisResults.innerHTML = html;
+        }
+        
+        // Display results in table
+        function displayResults(results, title) {
+            if (results.length === 0) {
+                resultsInfo.innerHTML = '<p class="no-results">No results found.</p>';
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            resultsInfo.innerHTML = `<p>Found ${results.length} result${results.length !== 1 ? 's' : ''} for ${title}</p>`;
+            resultsBody.innerHTML = '';
+            
+            // Group results by code for YoY comparison
+            const resultsByCode = {};
+            results.forEach(item => {
+                if (!resultsByCode[item.hcpcsCode]) {
+                    resultsByCode[item.hcpcsCode] = [];
+                }
+                resultsByCode[item.hcpcsCode].push(item);
+            });
+            
+            // Process and display each result
+            results.forEach(item => {
+                // Calculate YoY change if we have data for previous year
+                let yoyChangeHtml = '';
+                
+                // Find if we have data for previous years for this code
+                const codeResults = resultsByCode[item.hcpcsCode];
+                if (codeResults.length > 1) {
+                    // Get available years for this code
+                    const codeYears = codeResults.map(r => r.year).sort();
+                    const itemYearIndex = codeYears.indexOf(item.year);
+                    
+                    // If this is not the earliest year for this code
+                    if (itemYearIndex > 0) {
+                        const prevYear = codeYears[itemYearIndex - 1];
+                        const prevYearItem = codeResults.find(r => r.year === prevYear);
+                        
+                        if (prevYearItem && prevYearItem.nonFacilityPrice > 0) {
+                            const percentChange = ((item.nonFacilityPrice - prevYearItem.nonFacilityPrice) / 
+                                                    prevYearItem.nonFacilityPrice) * 100;
+                            
+                            const trendClass = percentChange > 0 ? 'trend-up' : 
+                                              (percentChange < 0 ? 'trend-down' : 'trend-neutral');
+                            
+                            const sign = percentChange >= 0 ? '+' : '';
+                            
+                            yoyChangeHtml = `
+                                <span class="${trendClass}">
+                                    ${sign}${percentChange.toFixed(2)}% from ${prevYear}
+                                </span>
+                            `;
+                        }
+                    }
+                }
+                
+                // Get device type badge if available
+                let deviceTypeHtml = '';
+                if (item.deviceType) {
+                    const deviceInfo = epilepsyDeviceCodes[item.deviceType];
+                    deviceTypeHtml = `<span class="badge badge-${item.deviceType}">${deviceInfo.description}</span>`;
+                }
+                
+                // Add row to table
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.hcpcsCode}</td>
+                    <td>
+                        <span class="year-tag">${item.year}</span>
+                    </td>
+                    <td>${item.description}</td>
+                    <td>${deviceTypeHtml}</td>
+                    <td>$${item.nonFacilityPrice.toFixed(2)}</td>
+                    <td>$${item.facilityPrice.toFixed(2)}</td>
+                    <td>${item.workRVU.toFixed(2)}</td>
+                    <td>${item.nonFacilityPERVU.toFixed(2)}</td>
+                    <td>${item.facilityPERVU.toFixed(2)}</td>
+                    <td>${item.mpRVU.toFixed(2)}</td>
+                    <td>${yoyChangeHtml}</td>
+                `;
+                
+                resultsBody.appendChild(row);
+            });
+            
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Initialize with epilepsy device analysis if data is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (loadedYears.size > 0) {
+                analyzeEpilepsyDevices();
+            }
+        });
+    </script>
+</body>
+</html>
