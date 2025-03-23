@@ -591,207 +591,690 @@ function fetchStudyDetails(nctId) {
 // Display full study details
 
 
-function displayStudyDetails(study) {
-    elements.resultsContainer.classList.add('hidden');
-    elements.studyDetailsSection.classList.remove('hidden');
+// function displayStudyDetails(study) {
+//     elements.resultsContainer.classList.add('hidden');
+//     elements.studyDetailsSection.classList.remove('hidden');
     
-    // Clear previous charts
-    Object.values(appState.activeCharts).forEach(chart => chart.destroy());
-    appState.activeCharts = {};
+//     // Clear previous charts
+//     Object.values(appState.activeCharts).forEach(chart => chart.destroy());
+//     appState.activeCharts = {};
     
-    if (!study || !study.protocolSection) {
-        elements.studyDetailsContent.innerHTML = '<div class="text-red-500">Error: Study details not found.</div>';
+//     if (!study || !study.protocolSection) {
+//         elements.studyDetailsContent.innerHTML = '<div class="text-red-500">Error: Study details not found.</div>';
+//         return;
+//     }
+
+//     // Access specific modules directly from the v2 API structure
+//     const identification = study.protocolSection.identificationModule || {};
+//     const status = study.protocolSection.statusModule || {};
+//     const design = study.protocolSection.designModule || {};
+//     const enrollment = design.enrollmentInfo.count
+//     console.log(enrollment)
+//     const description = study.protocolSection.descriptionModule || {};
+//     const sponsors = study.protocolSection.sponsorCollaboratorsModule || {};
+//     const conditions = study.protocolSection.conditionsModule || {};
+//     const arms = study.protocolSection.armsInterventionsModule || {};
+//     const eligibility = study.protocolSection.eligibilityModule || {};
+//     const locations = study.protocolSection.contactsLocationsModule || {};
+//     const outcomes = study.protocolSection.outcomesModule || {};
+//     const results = study.resultsSection || {}; // Assuming resultsSection contains outcome results
+    
+//     // Build the HTML content for study details
+//     let html = `
+//         <div class="mb-6">
+//             <h3 class="text-2xl font-semibold mb-2">${identification.briefTitle || 'No Title Available'}</h3>
+//             <p class="text-gray-600">${identification.nctId || 'No NCT ID'}</p>
+//             ${study.hasResults ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Has Results</span>' : ''}
+//         </div>
+        
+//         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+//             <div>
+//                 <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Study Information</h4>
+//                 <dl class="space-y-2">
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Status</dt>
+//                         <dd class="mt-1">${status.overallStatus || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Phase</dt>
+//                         <dd class="mt-1">${getPhaseDisplay(design) || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Study Type</dt>
+//                         <dd class="mt-1">${design.studyType || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Start Date</dt>
+//                         <dd class="mt-1">${getDateDisplay(status.startDateStruct) || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Completion Date</dt>
+//                         <dd class="mt-1">${getDateDisplay(status.completionDateStruct) || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Enrollment</dt>
+//                         <dd class="mt-1">${ enrollment || 'Not Specified'}</dd>
+//                     </div>
+//                 </dl>
+//             </div>
+            
+//             <div>
+//                 <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Sponsor & Collaborators</h4>
+//                 <dl class="space-y-2">
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Lead Sponsor</dt>
+//                         <dd class="mt-1">${sponsors.leadSponsor?.name || 'Not Specified'}</dd>
+//                     </div>
+//                     <div>
+//                         <dt class="text-sm font-medium text-gray-500">Collaborators</dt>
+//                         <dd class="mt-1">${getCollaborators(sponsors) || 'None'}</dd>
+//                     </div>
+//                 </dl>
+//             </div>
+//         </div>
+        
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Description</h4>
+//             <div class="prose max-w-none">
+//                 <p>${description.briefSummary || 'No summary available.'}</p>
+                
+//                 ${description.detailedDescription ? 
+//                     `<h5 class="text-md font-medium mt-4 mb-2">Detailed Description</h5>
+//                     <p>${description.detailedDescription}</p>` : ''}
+//             </div>
+//         </div>
+        
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Conditions & Interventions</h4>
+            
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <div>
+//                     <h5 class="text-md font-medium mb-2">Conditions</h5>
+//                     <ul class="list-disc list-inside space-y-1">
+//                         ${getConditionsList(conditions) || '<li>None specified</li>'}
+//                     </ul>
+//                 </div>
+                
+//                 <div>
+//                     <h5 class="text-md font-medium mb-2">Interventions</h5>
+//                     <ul class="list-disc list-inside space-y-1">
+//                         ${getInterventionsList(arms) || '<li>None specified</li>'}
+//                     </ul>
+//                 </div>
+//             </div>
+//         </div>
+        
+//         ${eligibility ? `
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Eligibility</h4>
+            
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <div>
+//                     <h5 class="text-md font-medium mb-2">Criteria</h5>
+//                     <div class="text-sm whitespace-pre-line bg-gray-50 p-3 rounded">${eligibility.eligibilityCriteria || 'No criteria specified.'}</div>
+//                 </div>
+                
+//                 <div>
+//                     <h5 class="text-md font-medium mb-2">Demographics</h5>
+//                     <dl class="space-y-2">
+//                         <div>
+//                             <dt class="text-sm font-medium text-gray-500">Gender</dt>
+//                             <dd class="mt-1">${eligibility.sex || 'Not Specified'}</dd>
+//                         </div>
+//                         <div>
+//                             <dt class="text-sm font-medium text-gray-500">Minimum Age</dt>
+//                             <dd class="mt-1">${eligibility.minimumAge || 'Not Specified'}</dd>
+//                         </div>
+//                         <div>
+//                             <dt class="text-sm font-medium text-gray-500">Maximum Age</dt>
+//                             <dd class="mt-1">${eligibility.maximumAge || 'Not Specified'}</dd>
+//                         </div>
+//                         <div>
+//                             <dt class="text-sm font-medium text-gray-500">Healthy Volunteers</dt>
+//                             <dd class="mt-1">${eligibility.healthyVolunteers || 'Not Specified'}</dd>
+//                         </div>
+//                     </dl>
+//                 </div>
+//             </div>
+//         </div>` : ''}
+        
+//         ${outcomes ? `
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Outcome Measures</h4>
+//             <div class="space-y-4">
+//                 ${getOutcomesList(outcomes) || '<p>No outcome measures specified.</p>'}
+//             </div>
+//         </div>` : ''}
+
+
+
+//             ${study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0) ? `
+//                 <div class="mt-6">
+//                     <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Study Results</h4>
+//                     <div class="space-y-6">
+//                         ${getResultsCharts(results, identification.nctId)}
+//                     </div>
+//                 </div>` : ''}
+        
+//         ${locations ? `
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Locations</h4>
+//             <div class="grid grid-cols-1 gap-4">
+//                 ${getLocationsList(locations) || '<p>No locations specified.</p>'}
+//             </div>
+//         </div>` : ''}
+        
+//         <div class="mt-6">
+//             <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">More Information</h4>
+//             <div class="flex flex-col space-y-2">
+//                 <a href="https://clinicaltrials.gov/study/${identification.nctId}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
+//                     View on ClinicalTrials.gov
+//                 </a>
+//             </div>
+//         </div>
+//     `;
+    
+//     // elements.studyDetailsContent.innerHTML = html;
+    
+//     // Initialize charts after HTML is inserted
+// // Update the chart initialization condition
+// // Use a slight delay or ensure DOM is ready
+// setTimeout(() => {
+//     elements.studyDetailsContent.innerHTML = html;
+//     if (study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0)) {
+//         initializeOutcomeCharts(results);
+//     }
+// }, 0); // Zero timeout ensures it runs after current execution stack
+
+// // if (study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0)) {
+// //     initializeOutcomeCharts(results);
+// // }
+// }
+
+/**
+ * Enhanced function to display study details with improved UI and data extraction
+ */
+function displayStudyDetail(study) {
+    if (!study) {
+        console.error("No study data provided to displayStudyDetail");
         return;
     }
-
-    // Access specific modules directly from the v2 API structure
-    const identification = study.protocolSection.identificationModule || {};
-    const status = study.protocolSection.statusModule || {};
-    const design = study.protocolSection.designModule || {};
-    const enrollment = design.enrollmentInfo.count
-    console.log(enrollment)
-    const description = study.protocolSection.descriptionModule || {};
-    const sponsors = study.protocolSection.sponsorCollaboratorsModule || {};
-    const conditions = study.protocolSection.conditionsModule || {};
-    const arms = study.protocolSection.armsInterventionsModule || {};
-    const eligibility = study.protocolSection.eligibilityModule || {};
-    const locations = study.protocolSection.contactsLocationsModule || {};
-    const outcomes = study.protocolSection.outcomesModule || {};
-    const results = study.resultsSection || {}; // Assuming resultsSection contains outcome results
     
-    // Build the HTML content for study details
-    let html = `
-        <div class="mb-6">
-            <h3 class="text-2xl font-semibold mb-2">${identification.briefTitle || 'No Title Available'}</h3>
-            <p class="text-gray-600">${identification.nctId || 'No NCT ID'}</p>
-            ${study.hasResults ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Has Results</span>' : ''}
-        </div>
+    console.log("Displaying study detail:", study);
+    
+    // Safely extract study data with fallbacks
+    const identification = study.protocolSection?.identificationModule || {};
+    const design = study.protocolSection?.designModule || {};
+    const status = study.protocolSection?.statusModule || {};
+    const description = study.protocolSection?.descriptionModule || {};
+    const arms = study.protocolSection?.armsInterventionsModule?.armGroups || [];
+    const eligibility = study.protocolSection?.eligibilityModule || {};
+    const outcomes = study.resultsSection?.outcomeMeasuresModule?.outcomeMeasures || [];
+    const sponsor = study.protocolSection?.sponsorCollaboratorsModule?.leadSponsor || {};
+    
+    // Categorize outcomes
+    const primaryOutcomes = outcomes.filter(outcome => outcome.type === "PRIMARY");
+    const secondaryOutcomes = outcomes.filter(outcome => outcome.type === "SECONDARY");
+    
+    // Format dates
+    const formatDate = (dateStruct) => {
+        if (!dateStruct || !dateStruct.date) return 'Not specified';
+        return new Date(dateStruct.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+    
+    // Get enrollment count
+    const enrollmentCount = design.enrollmentInfo?.count || 'Not specified';
+    
+    // Determine study phase display
+    const phaseDisplay = formatPhase(design.phases?.[0] || 'N/A');
+    
+    // Get study duration
+    const startDate = formatDate(status.startDateStruct);
+    const completionDate = formatDate(status.completionDateStruct);
+    
+    // Study duration calculation
+    let durationDisplay = 'Not available';
+    if (status.startDateStruct?.date && status.completionDateStruct?.date) {
+        const start = new Date(status.startDateStruct.date);
+        const end = new Date(status.completionDateStruct.date);
+        const durationMs = end - start;
+        const durationDays = Math.floor(durationMs / (1000 * 60 * 60 * 24));
+        const durationMonths = Math.floor(durationDays / 30);
+        const durationYears = Math.floor(durationMonths / 12);
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Study Information</h4>
-                <dl class="space-y-2">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Status</dt>
-                        <dd class="mt-1">${status.overallStatus || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Phase</dt>
-                        <dd class="mt-1">${getPhaseDisplay(design) || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Study Type</dt>
-                        <dd class="mt-1">${design.studyType || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Start Date</dt>
-                        <dd class="mt-1">${getDateDisplay(status.startDateStruct) || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Completion Date</dt>
-                        <dd class="mt-1">${getDateDisplay(status.completionDateStruct) || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Enrollment</dt>
-                        <dd class="mt-1">${ enrollment || 'Not Specified'}</dd>
-                    </div>
-                </dl>
+        if (durationYears > 0) {
+            durationDisplay = `${durationYears} year${durationYears !== 1 ? 's' : ''}`;
+            if (durationMonths % 12 > 0) {
+                durationDisplay += `, ${durationMonths % 12} month${durationMonths % 12 !== 1 ? 's' : ''}`;
+            }
+        } else if (durationMonths > 0) {
+            durationDisplay = `${durationMonths} month${durationMonths !== 1 ? 's' : ''}`;
+        } else {
+            durationDisplay = `${durationDays} day${durationDays !== 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Determine if this is a TRD-specific study
+    const title = identification.briefTitle?.toLowerCase() || '';
+    const officialTitle = identification.officialTitle?.toLowerCase() || '';
+    const briefSummary = description.briefSummary?.toLowerCase() || '';
+    const detailedDescription = description.detailedDescription?.toLowerCase() || '';
+    
+    const trdTerms = [
+        'treatment-resistant depression', 
+        'treatment resistant depression',
+        'trd',
+        'refractory depression',
+        'treatment-refractory depression'
+    ];
+    
+    const isTRDSpecific = trdTerms.some(term => 
+        title.includes(term) || 
+        officialTitle.includes(term) || 
+        briefSummary.includes(term) || 
+        detailedDescription.includes(term)
+    );
+    
+    // Get masking information
+    const maskingInfo = design.designInfo?.maskingInfo || {};
+    const masking = maskingInfo.masking || 'Not specified';
+    const maskingDesc = maskingInfo.maskingDescription || '';
+    const whoMasked = maskingInfo.whoMasked || [];
+    
+    // Format masked parties
+    let maskingParties = '';
+    if (whoMasked && whoMasked.length > 0) {
+        maskingParties = whoMasked.map(party => {
+            return party
+                .replace('_', ' ')
+                .toLowerCase()
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }).join(', ');
+    }
+    
+    // Build HTML for study detail
+    elements.studyDetailContent.innerHTML = `
+        <!-- Study Header with Key Info -->
+        <div class="border-b pb-6 mb-6">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">${identification.briefTitle || 'Untitled Study'}</h2>
+                <div class="flex gap-2">
+                    <button id="copyStudyData" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-4M16 5h2a2 2 0 012 2v4M21 14H11" />
+                        </svg>
+                        Copy Data
+                    </button>
+                    <a href="https://clinicaltrials.gov/study/${identification.nctId}" target="_blank" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View on ClinicalTrials.gov
+                    </a>
+                </div>
             </div>
             
-            <div>
-                <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Sponsor & Collaborators</h4>
-                <dl class="space-y-2">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Lead Sponsor</dt>
-                        <dd class="mt-1">${sponsors.leadSponsor?.name || 'Not Specified'}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Collaborators</dt>
-                        <dd class="mt-1">${getCollaborators(sponsors) || 'None'}</dd>
-                    </div>
-                </dl>
+            <!-- Key Identifiers Row -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="bg-gray-100 text-sm px-3 py-1 rounded-full font-medium">NCT ID: ${identification.nctId || 'N/A'}</span>
+                <span class="bg-gray-100 text-sm px-3 py-1 rounded-full font-medium">Phase: ${phaseDisplay}</span>
+                <span class="bg-${getStatusColor(status.overallStatus)} text-white text-sm px-3 py-1 rounded-full font-medium">${formatStatus(status.overallStatus)}</span>
+                ${isTRDSpecific ? '<span class="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full font-medium">TRD-Specific</span>' : ''}
+                ${study.hasResults ? '<span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full font-medium">Has Results</span>' : ''}
             </div>
-        </div>
-        
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Description</h4>
-            <div class="prose max-w-none">
-                <p>${description.briefSummary || 'No summary available.'}</p>
-                
-                ${description.detailedDescription ? 
-                    `<h5 class="text-md font-medium mt-4 mb-2">Detailed Description</h5>
-                    <p>${description.detailedDescription}</p>` : ''}
-            </div>
-        </div>
-        
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Conditions & Interventions</h4>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Study Metadata -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                 <div>
-                    <h5 class="text-md font-medium mb-2">Conditions</h5>
-                    <ul class="list-disc list-inside space-y-1">
-                        ${getConditionsList(conditions) || '<li>None specified</li>'}
-                    </ul>
+                    <p class="text-sm text-gray-500">Sponsor</p>
+                    <p class="font-medium">${sponsor.name || 'Unknown'}</p>
                 </div>
-                
                 <div>
-                    <h5 class="text-md font-medium mb-2">Interventions</h5>
-                    <ul class="list-disc list-inside space-y-1">
-                        ${getInterventionsList(arms) || '<li>None specified</li>'}
-                    </ul>
+                    <p class="text-sm text-gray-500">Study Start</p>
+                    <p class="font-medium">${startDate}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Completion</p>
+                    <p class="font-medium">${completionDate}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Duration</p>
+                    <p class="font-medium">${durationDisplay}</p>
                 </div>
             </div>
         </div>
         
-        ${eligibility ? `
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Eligibility</h4>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h5 class="text-md font-medium mb-2">Criteria</h5>
-                    <div class="text-sm whitespace-pre-line bg-gray-50 p-3 rounded">${eligibility.eligibilityCriteria || 'No criteria specified.'}</div>
+        <!-- Two-Column Layout for Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Left Column: Study Design & Enrollment -->
+            <div class="lg:col-span-1">
+                <!-- Study Design Card -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Study Design
+                    </h3>
+                    <div class="space-y-2">
+                        <div>
+                            <p class="text-sm text-gray-500">Study Type</p>
+                            <p class="font-medium">${design.studyType || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Allocation</p>
+                            <p class="font-medium">${formatDesignInfo(design.designInfo?.allocation)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Intervention Model</p>
+                            <p class="font-medium">${formatDesignInfo(design.designInfo?.interventionModel)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Primary Purpose</p>
+                            <p class="font-medium">${formatDesignInfo(design.designInfo?.primaryPurpose)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Masking</p>
+                            <p class="font-medium">${formatDesignInfo(masking)}</p>
+                            ${maskingParties ? `<p class="text-sm text-gray-600">Who masked: ${maskingParties}</p>` : ''}
+                            ${maskingDesc ? `<p class="text-sm italic text-gray-600 mt-1">${maskingDesc}</p>` : ''}
+                        </div>
+                    </div>
                 </div>
                 
-                <div>
-                    <h5 class="text-md font-medium mb-2">Demographics</h5>
-                    <dl class="space-y-2">
+                <!-- Enrollment Card -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Enrollment
+                    </h3>
+                    <div class="space-y-2">
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Gender</dt>
-                            <dd class="mt-1">${eligibility.sex || 'Not Specified'}</dd>
+                            <p class="text-sm text-gray-500">Total Enrollment</p>
+                            <p class="font-medium">${enrollmentCount}</p>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Minimum Age</dt>
-                            <dd class="mt-1">${eligibility.minimumAge || 'Not Specified'}</dd>
+                            <p class="text-sm text-gray-500">Sex/Gender</p>
+                            <p class="font-medium">${formatGender(eligibility.sex)}</p>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Maximum Age</dt>
-                            <dd class="mt-1">${eligibility.maximumAge || 'Not Specified'}</dd>
+                            <p class="text-sm text-gray-500">Age Range</p>
+                            <p class="font-medium">${eligibility.minimumAge || 'N/A'} to ${eligibility.maximumAge || 'N/A'}</p>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Healthy Volunteers</dt>
-                            <dd class="mt-1">${eligibility.healthyVolunteers || 'Not Specified'}</dd>
+                            <p class="text-sm text-gray-500">Healthy Volunteers</p>
+                            <p class="font-medium">${eligibility.healthyVolunteers === true ? 'Accepted' : eligibility.healthyVolunteers === false ? 'Not Accepted' : 'Not Specified'}</p>
                         </div>
-                    </dl>
+                    </div>
                 </div>
             </div>
-        </div>` : ''}
-        
-        ${outcomes ? `
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Outcome Measures</h4>
-            <div class="space-y-4">
-                ${getOutcomesList(outcomes) || '<p>No outcome measures specified.</p>'}
-            </div>
-        </div>` : ''}
-
-
-
-            ${study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0) ? `
-                <div class="mt-6">
-                    <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Study Results</h4>
-                    <div class="space-y-6">
-                        ${getResultsCharts(results, identification.nctId)}
+            
+            <!-- Right Column: Summary & Arms -->
+            <div class="lg:col-span-2">
+                <!-- Brief Summary -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Study Summary
+                    </h3>
+                    <div class="prose prose-sm max-w-none">
+                        <p>${description.briefSummary || 'No summary available.'}</p>
+                        ${description.detailedDescription ? `
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <p class="font-medium mb-2">Detailed Description:</p>
+                                <p>${description.detailedDescription}</p>
+                            </div>
+                        ` : ''}
                     </div>
-                </div>` : ''}
-        
-        ${locations ? `
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">Locations</h4>
-            <div class="grid grid-cols-1 gap-4">
-                ${getLocationsList(locations) || '<p>No locations specified.</p>'}
+                </div>
+                
+                <!-- Arms and Interventions -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Arms and Interventions
+                    </h3>
+                    ${arms.length > 0 ? 
+                        `<div class="space-y-4">
+                            ${arms.map(arm => {
+                                // Determine arm color based on type
+                                let typeColor = 'bg-gray-100 text-gray-800';
+                                if (arm.type === 'EXPERIMENTAL') typeColor = 'bg-blue-100 text-blue-800';
+                                if (arm.type === 'ACTIVE_COMPARATOR') typeColor = 'bg-green-100 text-green-800';
+                                if (arm.type === 'PLACEBO_COMPARATOR') typeColor = 'bg-purple-100 text-purple-800';
+                                if (arm.type === 'SHAM_COMPARATOR') typeColor = 'bg-yellow-100 text-yellow-800';
+                                if (arm.type === 'NO_INTERVENTION') typeColor = 'bg-gray-100 text-gray-800';
+                                
+                                return `
+                                <div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">${arm.label || 'Unnamed Arm'}</h4>
+                                            <span class="inline-block ${typeColor} text-xs px-2 py-1 rounded-full mt-1">
+                                                ${formatArmType(arm.type)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm mt-2">${arm.description || 'No description available.'}</p>
+                                    ${arm.interventionNames && arm.interventionNames.length > 0 ? 
+                                        `<div class="mt-2">
+                                            <p class="text-xs text-gray-500">Interventions:</p>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                ${arm.interventionNames.map(intervention => 
+                                                    `<span class="bg-gray-100 text-xs px-2 py-1 rounded-full">${intervention}</span>`
+                                                ).join('')}
+                                            </div>
+                                        </div>` : ''
+                                    }
+                                </div>`;
+                            }).join('')}
+                        </div>` : 
+                        '<p class="italic text-gray-500">No arms or interventions information available.</p>'
+                    }
+                </div>
             </div>
-        </div>` : ''}
+        </div>
         
-        <div class="mt-6">
-            <h4 class="text-lg font-medium mb-3 border-b border-gray-200 pb-2">More Information</h4>
-            <div class="flex flex-col space-y-2">
-                <a href="https://clinicaltrials.gov/study/${identification.nctId}" target="_blank" class="text-indigo-600 hover:text-indigo-800">
-                    View on ClinicalTrials.gov
-                </a>
-            </div>
+        <!-- Outcome Measurements -->
+        <div id="outcomeVisuals" class="mb-8">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Outcome Measurements
+            </h3>
+            ${outcomes.length > 0 ? 
+                `<div class="space-y-8">
+                    ${primaryOutcomes.length > 0 ? 
+                        `<div>
+                            <h4 class="text-lg font-medium mb-3 flex items-center">
+                                <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+                                Primary Outcomes
+                            </h4>
+                            <div class="space-y-6">
+                                ${primaryOutcomes.map((outcome, idx) => `
+                                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                                        <div class="p-4 border-b border-gray-100">
+                                            <h5 class="font-medium text-lg text-gray-900">${outcome.title}</h5>
+                                            <p class="text-sm mt-1">${outcome.description || 'No description available.'}</p>
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Time Frame: ${outcome.timeFrame || 'Not specified'}</span>
+                                                ${outcome.unitOfMeasure ? `<span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Unit: ${outcome.unitOfMeasure}</span>` : ''}
+                                                ${outcome.paramType ? `<span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Type: ${formatParamType(outcome.paramType)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="relative h-80 p-4">
+                                            <canvas id="outcome_${identification.nctId}_${idx}"></canvas>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>` : 
+                        ''}
+                    
+                    ${secondaryOutcomes.length > 0 ? 
+                        `<div>
+                            <h4 class="text-lg font-medium mb-3 flex items-center">
+                                <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                                Secondary Outcomes
+                            </h4>
+                            <div class="space-y-6">
+                                ${secondaryOutcomes.map((outcome, idx) => `
+                                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                                        <div class="p-4 border-b border-gray-100">
+                                            <h5 class="font-medium text-lg text-gray-900">${outcome.title}</h5>
+                                            <p class="text-sm mt-1">${outcome.description || 'No description available.'}</p>
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Time Frame: ${outcome.timeFrame || 'Not specified'}</span>
+                                                ${outcome.unitOfMeasure ? `<span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Unit: ${outcome.unitOfMeasure}</span>` : ''}
+                                                ${outcome.paramType ? `<span class="text-xs bg-gray-100 px-2 py-1 rounded-full">Type: ${formatParamType(outcome.paramType)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="relative h-80 p-4">
+                                            <canvas id="outcome_secondary_${identification.nctId}_${idx}"></canvas>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>` : 
+                        ''}
+                </div>` : 
+                '<div class="bg-gray-50 rounded-lg p-6 text-center"><p class="italic text-gray-500">No outcome measurements available for this study.</p></div>'
+            }
         </div>
     `;
     
-    // elements.studyDetailsContent.innerHTML = html;
-    
-    // Initialize charts after HTML is inserted
-// Update the chart initialization condition
-// Use a slight delay or ensure DOM is ready
-setTimeout(() => {
-    elements.studyDetailsContent.innerHTML = html;
-    if (study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0)) {
-        initializeOutcomeCharts(results);
-    }
-}, 0); // Zero timeout ensures it runs after current execution stack
-
-// if (study.hasResults || (study.resultsSection && Object.keys(study.resultsSection).length > 0)) {
-//     initializeOutcomeCharts(results);
-// }
+    // Create outcome charts after content is added to DOM
+    setTimeout(() => {
+        createOutcomeCharts(study);
+        
+        // Add event listener for copy button
+        const copyButton = document.getElementById('copyStudyData');
+        if (copyButton) {
+            copyButton.addEventListener('click', () => {
+                copyTrialDataToClipboard(identification.nctId);
+            });
+        }
+    }, 100);
 }
 
-// function displayStudyDetails(study) {
+/**
+ * Helper functions for formatting study data
+ */
+
+// Format phase text
+function formatPhase(phase) {
+    if (!phase) return 'N/A';
+    return phase
+        .replace('PHASE', 'Phase ')
+        .replace('PRE_', 'Pre-')
+        .replace('_', '/');
+}
+
+// Format study status
+function formatStatus(status) {
+    if (!status) return 'Unknown';
+    return status
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Get color for status
+function getStatusColor(status) {
+    if (!status) return 'gray-500';
+    
+    const statusColors = {
+        'COMPLETED': 'green-500',
+        'RECRUITING': 'blue-500',
+        'NOT_YET_RECRUITING': 'yellow-500',
+        'ACTIVE_NOT_RECRUITING': 'indigo-500',
+        'TERMINATED': 'red-500',
+        'WITHDRAWN': 'gray-500',
+        'SUSPENDED': 'orange-500',
+        'ENROLLING_BY_INVITATION': 'purple-500',
+        'AVAILABLE': 'teal-500',
+        'NO_LONGER_AVAILABLE': 'gray-500',
+        'APPROVED_FOR_MARKETING': 'green-500',
+        'WITHHELD': 'gray-500',
+        'UNKNOWN': 'gray-500'
+    };
+    
+    return statusColors[status] || 'gray-500';
+}
+
+// Format design info fields
+function formatDesignInfo(value) {
+    if (!value) return 'Not specified';
+    return value
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Format gender display
+function formatGender(sex) {
+    if (!sex) return 'Not specified';
+    
+    if (sex === 'ALL') return 'All Genders';
+    if (sex === 'FEMALE') return 'Female';
+    if (sex === 'MALE') return 'Male';
+    
+    return sex
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Format arm type for display
+function formatArmType(type) {
+    if (!type) return 'Unknown';
+    
+    const typeNames = {
+        'EXPERIMENTAL': 'Experimental',
+        'ACTIVE_COMPARATOR': 'Active Comparator',
+        'PLACEBO_COMPARATOR': 'Placebo',
+        'SHAM_COMPARATOR': 'Sham',
+        'NO_INTERVENTION': 'No Intervention',
+        'OTHER': 'Other'
+    };
+    
+    return typeNames[type] || type
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Format parameter type
+function formatParamType(paramType) {
+    if (!paramType) return 'Not specified';
+    
+    const paramTypeNames = {
+        'MEAN': 'Mean',
+        'MEDIAN': 'Median',
+        'LEAST_SQUARES_MEAN': 'Least Squares Mean',
+        'GEOMETRIC_MEAN': 'Geometric Mean',
+        'NUMBER': 'Number',
+        'COUNT_OF_PARTICIPANTS': 'Count of Participants',
+        'COUNT_OF_UNITS': 'Count of Units'
+    };
+    
+    return paramTypeNames[paramType] || paramType
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+////// function displayStudyDetails(study) {
 //     console.log('tudy');
     
 //     // Extract data from study object
