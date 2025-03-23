@@ -11640,8 +11640,7 @@ async function handleSearch() {
                 </div>
             `;
             // Still show FDA data even if no studies are found
-            EmaDataModule.init();
-            EmaDataModule.searchDrug(drug);
+
             displayFdaData(drug);
             displayLoading(false);
             return;
