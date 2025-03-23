@@ -2936,3 +2936,7 @@
 ::1 - - [22/Mar/2025:07:11:24 +0000] "GET /api/fda-pdfs/076092 HTTP/1.1" 200 659 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [22/Mar/2025:07:17:08 +0000] "GET /api/fda-pdfs/076092 HTTP/1.1" 200 1398 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [22/Mar/2025:07:22:04 +0000] "GET /api/fda-pdfs/076092 HTTP/1.1" 200 5658 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [22/Mar/2025:07:29:24 +0000] "GET / HTTP/1.1" 200 612304 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [22/Mar/2025:07:29:24 +0000] "GET /favicon.ico HTTP/1.1" 200 612304 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [22/Mar/2025:07:29:49 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [22/Mar/2025:07:29:50 +0000] "GET /favicon.ico HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
