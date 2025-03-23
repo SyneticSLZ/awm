@@ -108,9 +108,9 @@
   <div class="bg-white rounded-lg shadow-md p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">European Medicines Agency (EMA) Data</h2>
-      <div class="flex items-center">
-        <span id="emaDataLastUpdated" class="text-xs text-gray-500 mr-2">Last updated: Loading...</span>
-        <button id="refreshEmaDataBtn" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+      <div class="flex items-center" style="display: none;">
+        <span id="emaDataLastUpdated" class="text-xs text-gray-500 mr-2" >Last updated: Loading...</span>
+        <button id="refreshEmaDataBtn" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded" style="display: none;">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -11640,6 +11640,8 @@ async function handleSearch() {
                 </div>
             `;
             // Still show FDA data even if no studies are found
+            EmaDataModule.init();
+            EmaDataModule.searchDrug(drug);
             displayFdaData(drug);
             displayLoading(false);
             return;
@@ -12628,7 +12630,7 @@ alert('Study data copied to clipboard.');
             const navbar = document.createElement('div');
     navbar.className = 'fixed bottom-4 left-0 right-0 flex justify-center';
     navbar.innerHTML = `
-           <div class="bg-white rounded-full shadow-lg px-4 py-2 flex space-x-4">
+           <div class="bg-white rounded-full shadow-lg px-4 py-2 flex space-x-4"  style="display: none;">
                 <button id="nav-studies" class="text-primary hover:text-blue-700 text-sm font-medium">Studies</button>
                 <button id="nav-outcomes" class="text-primary hover:text-blue-700 text-sm font-medium">Outcomes</button>
                 <button id="nav-aggregate" class="text-primary hover:text-blue-700 text-sm font-medium">Aggregate</button>

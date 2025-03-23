@@ -686,9 +686,214 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
   }
 }
 
+
+/**
+ * Function to find recent drugs targeting treatment-resistant depression
+ * @param {number} yearsThreshold - Consider drugs authorized within this many years as recent (default: 5)
+ * @returns {Promise<Object>} - Matching depression treatment drugs
+ */
+async function findTreatmentResistantDepressionDrugs(yearsThreshold = 5) {
+  // Initialize field mappings if not already done
+  await initializeFieldMappings();
+  
+  try {
+    // Check if medicines file exists
+    if (!fs.existsSync(EMA_FILES.MEDICINES)) {
+      return { error: 'Medicines data file not found' };
+    }
+    
+    // List of keywords related to depression treatments
+    const depressionKeywords = [
+      'depression', 'depressive', 'antidepressant', 'mood disorder',
+      'major depressive disorder', 'mdd', 'trd', 'treatment-resistant depression',
+      'treatment resistant depression', 'refractory depression'
+    ];
+    
+    // More specific treatment-resistant depression keywords
+    const resistantDepressionKeywords = [
+      'treatment-resistant', 'treatment resistant', 'refractory', 
+      'trd', 'inadequate response', 'failed treatment'
+    ];
+    
+    // Calculate the date threshold for recent drugs
+    const currentDate = new Date();
+    const thresholdDate = new Date();
+    thresholdDate.setFullYear(currentDate.getFullYear() - yearsThreshold);
+    
+    // Store results
+    const results = [];
+    
+    // Read and process the medicines file
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(EMA_FILES.MEDICINES)
+        .pipe(csv({
+          skipLines: 0,
+          headers: true,
+          mapHeaders: ({ header }) => header.trim()
+        }))
+        .on('data', (data) => {
+          // Determine authorization date
+          let authDate = null;
+          let dateField = FIELD_MAPPINGS.MEDICINES.authorisation_date;
+          
+          if (dateField && data[dateField]) {
+            authDate = parseDate(data[dateField]);
+          } else {
+            // Try to find any date field if the mapped one isn't available
+            Object.entries(data).forEach(([key, value]) => {
+              if (!authDate && key.toLowerCase().includes('date') && value) {
+                authDate = parseDate(value);
+              }
+            });
+          }
+          
+          // Skip if we can't determine the date or if it's older than the threshold
+          if (!authDate || authDate < thresholdDate) {
+            return;
+          }
+          
+          // Check if it's related to depression
+          let isDepressionDrug = false;
+          let isTreatmentResistant = false;
+          
+          // First check therapeutic area and indication fields
+          const therapeuticField = FIELD_MAPPINGS.MEDICINES.therapeutic_area;
+          const nameField = FIELD_MAPPINGS.MEDICINES.name;
+          
+          // Check all fields for depression keywords
+          Object.entries(data).forEach(([key, value]) => {
+            if (value && typeof value === 'string') {
+              const lowerValue = value.toLowerCase();
+              
+              // Check for depression keywords
+              if (!isDepressionDrug) {
+                isDepressionDrug = depressionKeywords.some(keyword => 
+                  lowerValue.includes(keyword)
+                );
+              }
+              
+              // Check for treatment-resistant keywords
+              if (!isTreatmentResistant) {
+                isTreatmentResistant = resistantDepressionKeywords.some(keyword => 
+                  lowerValue.includes(keyword)
+                );
+              }
+            }
+          });
+          
+          // Add to results if it's a depression drug
+          if (isDepressionDrug) {
+            // Clean up the data object by removing empty fields
+            const cleanData = {};
+            Object.entries(data).forEach(([key, value]) => {
+              if (value !== null && value !== undefined && value !== '') {
+                cleanData[key] = value;
+              }
+            });
+            
+            // Add our analysis flags
+            cleanData._isTreatmentResistant = isTreatmentResistant;
+            cleanData._authDate = authDate.toISOString().split('T')[0];
+            
+            results.push(cleanData);
+          }
+        })
+        .on('end', () => {
+          // Sort by date, newest first
+          results.sort((a, b) => {
+            return new Date(b._authDate) - new Date(a._authDate);
+          });
+          
+          // Return the results
+          resolve({
+            total: results.length,
+            treatmentResistantCount: results.filter(item => item._isTreatmentResistant).length,
+            results: results
+          });
+        })
+        .on('error', (err) => {
+          reject(err);
+        });
+    });
+  } catch (error) {
+    console.error(`Error finding depression drugs:`, error);
+    return { error: 'Error searching for depression drugs', details: error.message };
+  }
+}
+
+/**
+ * Helper function to parse date strings in various formats
+ * @param {string} dateString - The date string to parse
+ * @returns {Date|null} - Parsed date or null if invalid
+ */
+function parseDate(dateString) {
+  if (!dateString) return null;
+  
+  // Try different date formats
+  const formats = [
+    // ISO format
+    /^(\d{4})-(\d{2})-(\d{2})$/,
+    // European format
+    /^(\d{2})\/(\d{2})\/(\d{4})$/,
+    /^(\d{2})-(\d{2})-(\d{4})$/,
+    // US format
+    /^(\d{2})\/(\d{2})\/(\d{4})$/,
+    // Text format (e.g., "12 January 2020")
+    /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/
+  ];
+  
+  let date = null;
+  
+  // Try parsing with Date constructor first
+  date = new Date(dateString);
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+  
+  // Try regex patterns
+  for (const format of formats) {
+    const match = dateString.match(format);
+    if (match) {
+      // Handle each format accordingly
+      if (format === formats[0]) {
+        // ISO: YYYY-MM-DD
+        date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+      } else if (format === formats[1] || format === formats[2]) {
+        // European: DD/MM/YYYY or DD-MM-YYYY
+        date = new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
+      } else if (format === formats[3]) {
+        // US: MM/DD/YYYY
+        date = new Date(parseInt(match[3]), parseInt(match[1]) - 1, parseInt(match[2]));
+      } else if (format === formats[4]) {
+        // Text format: DD Month YYYY
+        const months = {
+          'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+          'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+        };
+        const month = months[match[2].toLowerCase()];
+        if (month !== undefined) {
+          date = new Date(parseInt(match[3]), month, parseInt(match[1]));
+        }
+      }
+      
+      if (date && !isNaN(date.getTime())) {
+        return date;
+      }
+    }
+  }
+  
+  // If all else fails, try to extract a year at minimum
+  const yearMatch = dateString.match(/\b(20\d{2})\b/);
+  if (yearMatch) {
+    return new Date(parseInt(yearMatch[1]), 0, 1);
+  }
+  
+  return null;
+}
 module.exports = {
   searchEmaDrugData,
   processUploadedEmaFile,
   getEmaDataStatus,
-  initializeFieldMappings
+  initializeFieldMappings,
+  findTreatmentResistantDepressionDrugs
 };

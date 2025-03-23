@@ -100,6 +100,49 @@ router.get('/drug/:drugName', async (req, res) => {
 });
 
 /**
+ * @route GET /api/ema/treatment-resistant-depression
+ * @desc Find recent drugs targeting treatment-resistant depression
+ * @access Public
+ */
+router.get('/treatment-resistant-depression', async (req, res) => {
+  try {
+    console.log("Searching for treatment-resistant depression drugs");
+    
+    // Get years threshold from query parameter (default: 5)
+    const yearsThreshold = parseInt(req.query.years) || 5;
+    
+    // Validate years parameter
+    if (yearsThreshold < 1 || yearsThreshold > 20) {
+      return res.status(400).json({ 
+        error: 'Years threshold must be between 1 and 20' 
+      });
+    }
+    
+    const results = await emaProcessor.findTreatmentResistantDepressionDrugs(yearsThreshold);
+    
+    // Add search metadata
+    const response = {
+      ...results,
+      searchMetadata: {
+        yearsThreshold,
+        timestamp: new Date(),
+        query: `Recent treatment-resistant depression drugs (last ${yearsThreshold} years)`
+      }
+    };
+    
+    console.log(`Found ${results.total} depression drugs, ${results.treatmentResistantCount} specifically for treatment-resistant depression`);
+    res.json(response);
+  } catch (error) {
+    console.error('Error finding depression drugs:', error);
+    res.status(500).json({ 
+      error: 'Error finding depression drugs', 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+/**
  * @route POST /api/ema/upload/:fileType
  * @desc Upload and process an EMA data file
  * @access Public
