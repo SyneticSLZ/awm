@@ -33,20 +33,69 @@ router.get('/status', async (req, res) => {
  * @desc Search EMA data for a specific drug
  * @access Public
  */
+// router.get('/drug/:drugName', async (req, res) => {
+//   try {
+// console.log("trying")
+//     const drugName = req.params.drugName;
+//     if (!drugName) {
+//       return res.status(400).json({ error: 'Drug name is required' });
+//     }
+    
+//     const results = await emaProcessor.searchEmaDrugData(drugName);
+//     console.log(results)
+//     res.json(results);
+//   } catch (error) {
+//     console.error('Error searching EMA data:', error);
+//     res.status(500).json({ error: 'Error searching EMA data', details: error.message });
+//   }
+// });
+
+
+/**
+ * @route GET /api/ema/drug/:drugName
+ * @desc Search EMA data for a specific drug using fuzzy matching
+ * @access Public
+ */
 router.get('/drug/:drugName', async (req, res) => {
   try {
-console.log("trying")
+    console.log("Searching for drug:", req.params.drugName);
+    
     const drugName = req.params.drugName;
     if (!drugName) {
       return res.status(400).json({ error: 'Drug name is required' });
     }
     
-    const results = await emaProcessor.searchEmaDrugData(drugName);
-    console.log(results)
-    res.json(results);
+    // Get threshold from query parameter (default: 0.7)
+    const threshold = parseFloat(req.query.threshold) || 0.7;
+    
+    // Validate threshold
+    if (threshold < 0 || threshold > 1) {
+      return res.status(400).json({ 
+        error: 'Threshold must be between 0 and 1' 
+      });
+    }
+    
+    const results = await emaProcessor.searchEmaDrugData(drugName, threshold);
+    
+    // Add search metadata
+    const response = {
+      ...results,
+      searchMetadata: {
+        threshold,
+        timestamp: new Date(),
+        query: drugName
+      }
+    };
+    
+    console.log(`Found ${JSON.stringify(response.total)} matches for "${drugName}" with threshold ${threshold}`);
+    res.json(response);
   } catch (error) {
     console.error('Error searching EMA data:', error);
-    res.status(500).json({ error: 'Error searching EMA data', details: error.message });
+    res.status(500).json({ 
+      error: 'Error searching EMA data', 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

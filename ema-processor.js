@@ -164,125 +164,125 @@ async function initializeFieldMappings() {
   }
 }
 
-/**
- * Search EMA data for a specific drug name
- * @param {string} drugName - Drug name to search for
- * @returns {Promise<Object>} - Search results
- */
-async function searchEmaDrugData(drugName) {
-  if (!drugName) {
-    return { error: 'No drug name provided' };
-  }
+// /**
+//  * Search EMA data for a specific drug name
+//  * @param {string} drugName - Drug name to search for
+//  * @returns {Promise<Object>} - Search results
+//  */
+// async function searchEmaDrugData(drugName) {
+//   if (!drugName) {
+//     return { error: 'No drug name provided' };
+//   }
   
-  // Initialize field mappings if not already done
-  await initializeFieldMappings();
+//   // Initialize field mappings if not already done
+//   await initializeFieldMappings();
   
-  // Normalize drug name for search
-  const normalizedDrugName = drugName.toLowerCase().trim();
+//   // Normalize drug name for search
+//   const normalizedDrugName = drugName.toLowerCase().trim();
   
-  try {
-    // Search results
-    const results = {
-      medicines: [],
-      orphans: [],
-      referrals: [],
-      dhpc: [],
-      psusa: [],
-      shortages: []
-    };
+//   try {
+//     // Search results
+//     const results = {
+//       medicines: [],
+//       orphans: [],
+//       referrals: [],
+//       dhpc: [],
+//       psusa: [],
+//       shortages: []
+//     };
     
-    // Search in medicines data
-    if (fs.existsSync(EMA_FILES.MEDICINES)) {
-      results.medicines = await searchCsvFile(EMA_FILES.MEDICINES, normalizedDrugName);
-    }
+//     // Search in medicines data
+//     if (fs.existsSync(EMA_FILES.MEDICINES)) {
+//       results.medicines = await searchCsvFile(EMA_FILES.MEDICINES, normalizedDrugName);
+//     }
     
-    // Search in orphans data
-    if (fs.existsSync(EMA_FILES.ORPHANS)) {
-      results.orphans = await searchCsvFile(EMA_FILES.ORPHANS, normalizedDrugName);
-    }
+//     // Search in orphans data
+//     if (fs.existsSync(EMA_FILES.ORPHANS)) {
+//       results.orphans = await searchCsvFile(EMA_FILES.ORPHANS, normalizedDrugName);
+//     }
     
-    // Search in referrals data
-    if (fs.existsSync(EMA_FILES.REFERRALS)) {
-      results.referrals = await searchCsvFile(EMA_FILES.REFERRALS, normalizedDrugName);
-    }
+//     // Search in referrals data
+//     if (fs.existsSync(EMA_FILES.REFERRALS)) {
+//       results.referrals = await searchCsvFile(EMA_FILES.REFERRALS, normalizedDrugName);
+//     }
     
-    // Search in DHPC data
-    if (fs.existsSync(EMA_FILES.DHPC)) {
-      results.dhpc = await searchCsvFile(EMA_FILES.DHPC, normalizedDrugName);
-    }
+//     // Search in DHPC data
+//     if (fs.existsSync(EMA_FILES.DHPC)) {
+//       results.dhpc = await searchCsvFile(EMA_FILES.DHPC, normalizedDrugName);
+//     }
     
-    // Search in PSUSA data
-    if (fs.existsSync(EMA_FILES.PSUSA)) {
-      results.psusa = await searchCsvFile(EMA_FILES.PSUSA, normalizedDrugName);
-    }
+//     // Search in PSUSA data
+//     if (fs.existsSync(EMA_FILES.PSUSA)) {
+//       results.psusa = await searchCsvFile(EMA_FILES.PSUSA, normalizedDrugName);
+//     }
     
-    // Search in shortages data
-    if (fs.existsSync(EMA_FILES.SHORTAGES)) {
-      results.shortages = await searchCsvFile(EMA_FILES.SHORTAGES, normalizedDrugName);
-    }
+//     // Search in shortages data
+//     if (fs.existsSync(EMA_FILES.SHORTAGES)) {
+//       results.shortages = await searchCsvFile(EMA_FILES.SHORTAGES, normalizedDrugName);
+//     }
     
-    return {
-      query: drugName,
-      results,
-      total: {
-        medicines: results.medicines.length,
-        orphans: results.orphans.length,
-        referrals: results.referrals.length,
-        dhpc: results.dhpc.length,
-        psusa: results.psusa.length,
-        shortages: results.shortages.length
-      }
-    };
-  } catch (error) {
-    console.error(`Error searching EMA data for ${drugName}:`, error);
-    return { error: 'Error searching EMA data', details: error.message };
-  }
-}
+//     return {
+//       query: drugName,
+//       results,
+//       total: {
+//         medicines: results.medicines.length,
+//         orphans: results.orphans.length,
+//         referrals: results.referrals.length,
+//         dhpc: results.dhpc.length,
+//         psusa: results.psusa.length,
+//         shortages: results.shortages.length
+//       }
+//     };
+//   } catch (error) {
+//     console.error(`Error searching EMA data for ${drugName}:`, error);
+//     return { error: 'Error searching EMA data', details: error.message };
+//   }
+// }
 
-/**
- * Search a CSV file for a drug name
- * @param {string} filePath - Path to the CSV file
- * @param {string} searchTerm - Term to search for
- * @returns {Promise<Array>} - Matching records
- */
-async function searchCsvFile(filePath, searchTerm) {
-  return new Promise((resolve, reject) => {
-    const results = [];
+// /**
+//  * Search a CSV file for a drug name
+//  * @param {string} filePath - Path to the CSV file
+//  * @param {string} searchTerm - Term to search for
+//  * @returns {Promise<Array>} - Matching records
+//  */
+// async function searchCsvFile(filePath, searchTerm) {
+//   return new Promise((resolve, reject) => {
+//     const results = [];
     
-    fs.createReadStream(filePath)
-      .pipe(csv({
-        skipLines: 0,
-        headers: true,
-        mapHeaders: ({ header }) => header.trim()
-      }))
-      .on('data', (data) => {
-        // Check all fields for the search term
-        const isMatch = Object.entries(data).some(([key, value]) => {
-          return value && 
-                 typeof value === 'string' && 
-                 value.toLowerCase().includes(searchTerm);
-        });
+//     fs.createReadStream(filePath)
+//       .pipe(csv({
+//         skipLines: 0,
+//         headers: true,
+//         mapHeaders: ({ header }) => header.trim()
+//       }))
+//       .on('data', (data) => {
+//         // Check all fields for the search term
+//         const isMatch = Object.entries(data).some(([key, value]) => {
+//           return value && 
+//                  typeof value === 'string' && 
+//                  value.toLowerCase().includes(searchTerm);
+//         });
         
-        if (isMatch) {
-          // Clean up the data object by removing empty fields
-          const cleanData = {};
-          Object.entries(data).forEach(([key, value]) => {
-            if (value !== null && value !== undefined && value !== '') {
-              cleanData[key] = value;
-            }
-          });
+//         if (isMatch) {
+//           // Clean up the data object by removing empty fields
+//           const cleanData = {};
+//           Object.entries(data).forEach(([key, value]) => {
+//             if (value !== null && value !== undefined && value !== '') {
+//               cleanData[key] = value;
+//             }
+//           });
           
-          results.push(cleanData);
-        }
-      })
-      .on('end', () => {
-        resolve(results);
-      })
-      .on('error', (err) => {
-        reject(err);
-      });
-  });
-}
+//           results.push(cleanData);
+//         }
+//       })
+//       .on('end', () => {
+//         resolve(results);
+//       })
+//       .on('error', (err) => {
+//         reject(err);
+//       });
+//   });
+// }
 
 /**
  * Process a manually uploaded EMA file
@@ -400,6 +400,291 @@ function countCsvRecords(filePath) {
 initializeFieldMappings().catch(err => {
   console.error('Error during initialization:', err);
 });
+
+/**
+ * Calculate Levenshtein distance between two strings
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} - Distance score
+ */
+function levenshteinDistance(a, b) {
+  const matrix = [];
+
+  // Initialize matrix
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+/**
+ * Calculate similarity score between two strings (0-1)
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} - Similarity score (higher is more similar)
+ */
+function calculateSimilarity(a, b) {
+  if (!a || !b) return 0;
+  
+  // Convert to lowercase for comparison
+  const str1 = a.toLowerCase().trim();
+  const str2 = b.toLowerCase().trim();
+  
+  // Exact match
+  if (str1 === str2) return 1;
+  
+  // Check if exact drug name is a substring match
+  // For example, "ketamine hydrochloride" contains "ketamine"
+  if (str1.includes(str2) && (
+      str1.startsWith(str2 + ' ') || 
+      str1.includes(' ' + str2 + ' ') || 
+      str1.endsWith(' ' + str2)
+     )) {
+    return 0.95;
+  }
+  
+  if (str2.includes(str1) && (
+      str2.startsWith(str1 + ' ') || 
+      str2.includes(' ' + str1 + ' ') || 
+      str2.endsWith(' ' + str1)
+     )) {
+    return 0.9;
+  }
+  
+  // For very short strings, be more strict
+  if (str1.length < 4 || str2.length < 4) {
+    // For short terms, they should be very similar to match
+    const distance = levenshteinDistance(str1, str2);
+    if (distance > 1) return 0; // Only allow 1 character difference for short terms
+    return 0.85;
+  }
+  
+  // Check first few characters as a strong signal
+  // Many drug names share the same prefix - this is important
+  const prefixLength = Math.min(4, Math.floor(str1.length / 2), Math.floor(str2.length / 2));
+  if (str1.substring(0, prefixLength) !== str2.substring(0, prefixLength)) {
+    // If the first few characters don't match at all, reduce similarity significantly
+    // This helps prevent "ketamine" from matching "caffeine" just because they share the suffix
+    return 0.2; 
+  }
+  
+  // Calculate Levenshtein distance
+  const distance = levenshteinDistance(str1, str2);
+  
+  // For drug names, be more strict about distance
+  if (distance > Math.min(str1.length, str2.length) / 2) {
+    return 0.3; // Too many changes needed, probably different drugs
+  }
+  
+  // Convert distance to similarity score with more emphasis on closeness
+  const maxLength = Math.max(str1.length, str2.length);
+  let similarity = 1 - (distance / maxLength);
+  
+  // Boost similarity if they share significant beginning parts
+  const sharedPrefixLength = getSharedPrefixLength(str1, str2);
+  if (sharedPrefixLength >= 4) {
+    similarity += 0.1; // Boost score for names sharing significant prefix
+  }
+  
+  return Math.min(similarity, 1); // Cap at 1
+}
+
+/**
+ * Get the length of the shared prefix between two strings
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} - Length of shared prefix
+ */
+function getSharedPrefixLength(a, b) {
+  let i = 0;
+  const minLength = Math.min(a.length, b.length);
+  
+  while (i < minLength && a[i] === b[i]) {
+    i++;
+  }
+  
+  return i;
+}
+
+/**
+ * Search a CSV file for a drug name with fuzzy matching
+ * @param {string} filePath - Path to the CSV file
+ * @param {string} searchTerm - Term to search for
+ * @param {number} threshold - Similarity threshold (0-1), default 0.7
+ * @returns {Promise<Array>} - Matching records with similarity scores
+ */
+async function searchCsvFile(filePath, searchTerm, threshold = 0.7) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    
+    fs.createReadStream(filePath)
+      .pipe(csv({
+        skipLines: 0,
+        headers: true,
+        mapHeaders: ({ header }) => header.trim()
+      }))
+      .on('data', (data) => {
+        // Track highest similarity score for this record
+        let highestSimilarity = 0;
+        let matchingField = '';
+        
+        // Check all fields for similarity
+        Object.entries(data).forEach(([key, value]) => {
+          if (!value || typeof value !== 'string') return;
+          
+          // Split value into words for more accurate matching
+          const words = value.split(/\s+/);
+          
+          // Check whole value
+          const wholeSimilarity = calculateSimilarity(value, searchTerm);
+          if (wholeSimilarity > highestSimilarity) {
+            highestSimilarity = wholeSimilarity;
+            matchingField = key;
+          }
+          
+          // Check individual words (for multi-word values)
+          words.forEach(word => {
+            if (word.length < 3) return; // Skip very short words
+            
+            const wordSimilarity = calculateSimilarity(word, searchTerm);
+            if (wordSimilarity > highestSimilarity) {
+              highestSimilarity = wordSimilarity;
+              matchingField = key;
+            }
+          });
+          
+          // Check for exact substring (case insensitive)
+          if (value.toLowerCase().includes(searchTerm.toLowerCase())) {
+            const containsSimilarity = 0.9; // High similarity for substring match
+            if (containsSimilarity > highestSimilarity) {
+              highestSimilarity = containsSimilarity;
+              matchingField = key;
+            }
+          }
+        });
+        
+        // Only include results above threshold
+        if (highestSimilarity >= threshold) {
+          // Clean up the data object by removing empty fields
+          const cleanData = {};
+          Object.entries(data).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+              cleanData[key] = value;
+            }
+          });
+          
+          // Add similarity info
+          cleanData._similarity = highestSimilarity;
+          cleanData._matchField = matchingField;
+          
+          results.push(cleanData);
+        }
+      })
+      .on('end', () => {
+        // Sort results by similarity (highest first)
+        results.sort((a, b) => b._similarity - a._similarity);
+        resolve(results);
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
+}
+
+/**
+ * Search EMA data for a specific drug name using fuzzy matching
+ * @param {string} drugName - Drug name to search for
+ * @param {number} threshold - Optional similarity threshold (0-1) 
+ * @returns {Promise<Object>} - Search results
+ */
+async function searchEmaDrugData(drugName, threshold = 0.7) {
+  if (!drugName) {
+    return { error: 'No drug name provided' };
+  }
+  
+  // Initialize field mappings if not already done
+  await initializeFieldMappings();
+  
+  // Normalize drug name for search
+  const normalizedDrugName = drugName.toLowerCase().trim();
+  
+  try {
+    // Search results
+    const results = {
+      medicines: [],
+      orphans: [],
+      referrals: [],
+      dhpc: [],
+      psusa: [],
+      shortages: []
+    };
+    
+    // Search in medicines data
+    if (fs.existsSync(EMA_FILES.MEDICINES)) {
+      results.medicines = await searchCsvFile(EMA_FILES.MEDICINES, normalizedDrugName, threshold);
+    }
+    
+    // Search in orphans data
+    if (fs.existsSync(EMA_FILES.ORPHANS)) {
+      results.orphans = await searchCsvFile(EMA_FILES.ORPHANS, normalizedDrugName, threshold);
+    }
+    
+    // Search in referrals data
+    if (fs.existsSync(EMA_FILES.REFERRALS)) {
+      results.referrals = await searchCsvFile(EMA_FILES.REFERRALS, normalizedDrugName, threshold);
+    }
+    
+    // Search in DHPC data
+    if (fs.existsSync(EMA_FILES.DHPC)) {
+      results.dhpc = await searchCsvFile(EMA_FILES.DHPC, normalizedDrugName, threshold);
+    }
+    
+    // Search in PSUSA data
+    if (fs.existsSync(EMA_FILES.PSUSA)) {
+      results.psusa = await searchCsvFile(EMA_FILES.PSUSA, normalizedDrugName, threshold);
+    }
+    
+    // Search in shortages data
+    if (fs.existsSync(EMA_FILES.SHORTAGES)) {
+      results.shortages = await searchCsvFile(EMA_FILES.SHORTAGES, normalizedDrugName, threshold);
+    }
+    
+    return {
+      query: drugName,
+      results,
+      total: {
+        medicines: results.medicines.length,
+        orphans: results.orphans.length,
+        referrals: results.referrals.length,
+        dhpc: results.dhpc.length,
+        psusa: results.psusa.length,
+        shortages: results.shortages.length
+      }
+    };
+  } catch (error) {
+    console.error(`Error searching EMA data for ${drugName}:`, error);
+    return { error: 'Error searching EMA data', details: error.message };
+  }
+}
 
 module.exports = {
   searchEmaDrugData,
