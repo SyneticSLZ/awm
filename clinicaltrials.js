@@ -2074,6 +2074,126 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
   }
 });
 
+app.get('/api/fda/condition/:conditionName', async (req, res) => {
+  console.log("Fetching FDA drug data by condition");
+  const { conditionName } = req.params;
+
+  try {
+    // Initialize result structure
+    const results = { 
+      endpoints: {}, 
+      combinedResults: []
+    };
+
+    // Define FDA endpoints (focus on 'label' first, others optional)
+    const endpoints = {
+      label: "https://api.fda.gov/drug/label.json",
+      drugsFda: "https://api.fda.gov/drug/drugsfda.json" // Optional for additional details
+    };
+
+    // Process the 'label' endpoint first to get drugs by condition
+    const labelBaseUrl = endpoints.label;
+    const conditionSearchQuery = `search=indications_and_usage:"${conditionName}"`;
+    const labelUrl = `${labelBaseUrl}?${conditionSearchQuery}&limit=100`;
+    console.log(`Trying FDA label endpoint with condition: ${conditionName}`);
+
+    const labelResponse = await axios.get(labelUrl, { timeout: 15000 });
+
+    if (labelResponse.data && labelResponse.data.results && labelResponse.data.results.length > 0) {
+      console.log(`Success! Found ${labelResponse.data.results.length} drugs for ${conditionName}`);
+      results.endpoints.label = {
+        status: "success",
+        count: labelResponse.data.results.length,
+        data: labelResponse.data.results,
+        searchTerm: conditionName
+      };
+
+      // Extract drug names and details from label endpoint
+      const drugs = labelResponse.data.results.map(result => ({
+        brandName: result.openfda?.brand_name?.[0] || "Unknown",
+        genericName: result.openfda?.generic_name?.[0] || "Unknown",
+        indications: result.indications_and_usage?.[0] || "No indication details",
+        manufacturer: result.openfda?.manufacturer_name?.[0] || result.sponsor_name || "Unknown"
+      }));
+      results.combinedResults = drugs;
+
+      // Optionally fetch additional details from drugsFda using drug names
+      if (endpoints.drugsFda) {
+        const drugNames = drugs.map(d => d.brandName).filter(Boolean);
+        for (const drugName of drugNames) {
+          const drugSearchQuery = `search=openfda.brand_name:"${drugName}"`;
+          const drugsFdaUrl = `${endpoints.drugsFda}?${drugSearchQuery}&limit=10`;
+          try {
+            const drugsFdaResponse = await axios.get(drugsFdaUrl, { timeout: 15000 });
+            if (drugsFdaResponse.data && drugsFdaResponse.data.results) {
+              results.endpoints.drugsFda = results.endpoints.drugsFda || { status: "success", data: [] };
+              results.endpoints.drugsFda.data.push(...drugsFdaResponse.data.results);
+
+              // Process drugsFda data into categorized format (from your original code)
+              const categorizedDrugs = {};
+              for (const drug of drugsFdaResponse.data.results) {
+                const appNumber = drug.application_number;
+                const products = drug.products || [];
+                let approvalDate = "Unknown";
+                const submissions = drug.submissions || [];
+                const approval = submissions.find(s => s.submission_status === "AP" || s.submission_status === "Approved");
+                if (approval) approvalDate = approval.submission_status_date;
+
+                for (const product of products) {
+                  if (!product.brand_name) continue;
+                  const brandName = product.brand_name.toLowerCase();
+                  const strength = product.active_ingredients?.map(ing => `${ing.name} ${ing.strength}`).join(", ") || "Unknown";
+                  if (!categorizedDrugs[brandName]) categorizedDrugs[brandName] = {};
+                  if (!categorizedDrugs[brandName][strength]) categorizedDrugs[brandName][strength] = [];
+
+                  categorizedDrugs[brandName][strength].push({
+                    brandName: product.brand_name,
+                    applicationNumber: appNumber,
+                    approvalDate,
+                    fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
+                    sponsorName: drug.sponsor_name,
+                    dosageForm: product.dosage_form,
+                    route: product.route,
+                    marketingStatus: product.marketing_status
+                  });
+                }
+              }
+              results.categorized = categorizedDrugs;
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch drugsFda data for ${drugName}: ${error.message}`);
+          }
+        }
+      }
+    } else {
+      results.endpoints.label = {
+        status: "error",
+        error: `No drugs found for condition ${conditionName}`,
+        statusCode: "404",
+        data: []
+      };
+      results.combinedResults = [{
+        source: "placeholder",
+        condition: conditionName,
+        description: `No FDA data found for condition ${conditionName}`,
+      }];
+    }
+
+    // Return the results
+    res.json({
+      raw: results,
+      categorized: results.categorized || {}
+    });
+
+  } catch (error) {
+    console.error(`Error fetching FDA data for condition ${conditionName}:`, error);
+    res.status(500).json({ 
+      error: "Error fetching condition data",
+      message: error.message 
+    });
+  }
+});
+
 // Helper function to process results from different endpoints
 function processEndpointResults(endpointName, results, searchTerm) {
   const processed = [];
@@ -2678,12 +2798,112 @@ app.get('/api/drug-complete/:drugName', async (req, res) => {
 /**
  * Main endpoint to search studies with various parameters
  */
+// app.get('/api/studies/search', validatePagination, async (req, res) => {
+//   try {
+//     const { 
+//       query, condition, intervention, status, phase, sponsor, 
+//       title, location, patientData, sort, countTotal, fields,
+//       advanced
+//     } = req.query;
+    
+//     const { page, pageSize } = req.pagination;
+    
+//     console.log(`🔍 Searching for studies with query: ${query || 'None specified'}`);
+    
+//     // Build parameters for API request
+//     const params = new URLSearchParams();
+    
+//     // Add query parameters
+//     if (condition) params.append('query.cond', condition);
+//     if (intervention) params.append('query.intr', intervention);
+//     if (title) params.append('query.titles', title);
+//     if (location) params.append('query.locn', location);
+//     if (sponsor) params.append('query.spons', sponsor);
+//     if (query) params.append('query.term', query);
+//     if (patientData) params.append('query.patient', patientData);
+    
+//     // Add filter parameters
+//     if (status) {
+//       if (Array.isArray(status)) {
+//         params.append('filter.overallStatus', status.join(','));
+//       } else {
+//         params.append('filter.overallStatus', status);
+//       }
+//     }
+    
+//     // Add advanced filter
+//     if (advanced) params.append('filter.advanced', advanced);
+    
+//     // Add pagination
+//     params.append('pageSize', pageSize);
+//     if (req.query.pageToken) {
+//       params.append('pageToken', req.query.pageToken);
+//     }
+    
+//     // Add sorting
+//     if (sort) {
+//       if (Array.isArray(sort)) {
+//         params.append('sort', sort.join(','));
+//       } else {
+//         params.append('sort', sort);
+//       }
+//     }
+    
+//     // Add count total
+//     if (countTotal) params.append('countTotal', true);
+    
+//     // Add fields
+//     if (fields) {
+//       if (Array.isArray(fields)) {
+//         params.append('fields', fields.join(','));
+//       } else {
+//         params.append('fields', fields);
+//       }
+//     } else {
+//       // Default fields if none specified - comprehensive data
+//       params.append('fields', 'protocolSection,derivedSection,hasResults');
+//     }
+    
+//     // Format parameter
+//     params.append('format', 'json');
+    
+//     // Make the API request
+//     const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+//       params: params
+//     });
+    
+//     // Format pagination for frontend
+//     const totalCount = response.data.totalCount || 0;
+//     const totalPages = Math.ceil(totalCount / pageSize);
+//     const hasNextPage = !!response.data.nextPageToken;
+    
+//     const paginationInfo = {
+//       currentPage: page,
+//       pageSize,
+//       totalCount,
+//       totalPages,
+//       hasNextPage,
+//       nextPageToken: response.data.nextPageToken
+//     };
+    
+//     res.json({
+//       success: true,
+//       data: response.data,
+//       pagination: paginationInfo
+//     });
+//   } catch (error) {
+//     handleApiError(error, res);
+//   }
+// });
+
+
+// Backend route with enhanced pagination support
 app.get('/api/studies/search', validatePagination, async (req, res) => {
   try {
-    const { 
-      query, condition, intervention, status, phase, sponsor, 
+    const {
+      query, condition, intervention, status, phase, sponsor,
       title, location, patientData, sort, countTotal, fields,
-      advanced
+      advanced, fetchAll
     } = req.query;
     
     const { page, pageSize } = req.pagination;
@@ -2747,7 +2967,53 @@ app.get('/api/studies/search', validatePagination, async (req, res) => {
     // Format parameter
     params.append('format', 'json');
     
-    // Make the API request
+    // Check if we need to fetch all studies
+    if (fetchAll === 'true') {
+      const allStudies = [];
+      let currentParams = new URLSearchParams(params.toString());
+      let hasMorePages = true;
+      let nextPageToken = null;
+      
+      while (hasMorePages) {
+        if (nextPageToken) {
+          currentParams.set('pageToken', nextPageToken);
+        }
+        
+        console.log(`Fetching page with token: ${nextPageToken || 'initial'}`);
+        
+        const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+          params: currentParams
+        });
+        
+        const studies = response.data.studies || [];
+        allStudies.push(...studies);
+        
+        nextPageToken = response.data.nextPageToken;
+        hasMorePages = !!nextPageToken;
+        
+        // Optional: Add delay between requests to prevent rate limiting
+        if (hasMorePages) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      
+      return res.json({
+        success: true,
+        data: {
+          studies: allStudies,
+          totalCount: allStudies.length
+        },
+        pagination: {
+          currentPage: 1,
+          pageSize: allStudies.length,
+          totalCount: allStudies.length,
+          totalPages: 1,
+          hasNextPage: false
+        }
+      });
+    }
+    
+    // Standard paginated response when fetchAll is not true
     const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
       params: params
     });
@@ -2776,6 +3042,7 @@ app.get('/api/studies/search', validatePagination, async (req, res) => {
   }
 });
 /**
+ * 
  * Endpoint to get details of a specific study by NCT ID
  */
 app.get('/api/studies/:nctId', async (req, res) => {

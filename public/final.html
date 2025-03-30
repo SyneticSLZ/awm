@@ -24,6 +24,143 @@
             }
         }
     </script>
+    <style>
+      /* Timeline Visualization Styles */
+.timeline-chart {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.year-markers {
+    height: 20px;
+    position: relative;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+}
+
+.year-markers div {
+    transform: translateX(-50%);
+}
+
+.condition-track {
+    transition: all 0.2s ease;
+}
+
+.condition-track:hover {
+    transform: translateX(4px);
+}
+
+/* Activity indicators hover effects */
+.condition-track .relative div {
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.condition-track:hover .relative div {
+    transform: scale(1.5);
+}
+
+/* Make the tooltips work with pure CSS */
+.condition-track .relative div::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.condition-track .relative div:hover::after {
+    opacity: 1;
+}
+
+/* Insight cards hover effects */
+.insight-card {
+    transition: all 0.2s ease;
+}
+
+.insight-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+/* Evolution patterns section */
+.evolution-patterns {
+    margin-top: 1rem;
+}
+
+/* Make the timeline responsive */
+@media (max-width: 768px) {
+    .year-markers div {
+        font-size: 0.6rem;
+    }
+    
+    .condition-track .absolute {
+        transform: scale(0.8);
+    }
+    
+    .condition-track:hover .absolute {
+        transform: scale(1.2);
+    }
+}
+
+/* Add some animation for loading and transitions */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#drug-usage-timeline {
+    animation: fadeIn 0.5s ease;
+}
+
+.condition-track {
+    animation: fadeIn 0.3s ease;
+    animation-fill-mode: both;
+}
+
+/* Stagger the animations for each condition track */
+.condition-track:nth-child(1) { animation-delay: 0.1s; }
+.condition-track:nth-child(2) { animation-delay: 0.2s; }
+.condition-track:nth-child(3) { animation-delay: 0.3s; }
+.condition-track:nth-child(4) { animation-delay: 0.4s; }
+.condition-track:nth-child(5) { animation-delay: 0.5s; }
+.condition-track:nth-child(6) { animation-delay: 0.6s; }
+.condition-track:nth-child(7) { animation-delay: 0.7s; }
+.condition-track:nth-child(8) { animation-delay: 0.8s; }
+.condition-track:nth-child(9) { animation-delay: 0.9s; }
+.condition-track:nth-child(10) { animation-delay: 1s; }
+
+/* Enhance the insight cards */
+.insight-card {
+    border-left: 4px solid #3b82f6;
+    background-color: #f9fafb;
+}
+
+.insight-card:nth-child(2) {
+    border-left-color: #10b981;
+}
+
+.insight-card:nth-child(3) {
+    border-left-color: #f59e0b;
+}
+
+.insight-card:nth-child(4) {
+    border-left-color: #ef4444;
+}
+
+.insight-card:nth-child(5) {
+    border-left-color: #8b5cf6;
+}
+    </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
     <header class="bg-dark text-white shadow-md">
@@ -1706,37 +1843,94 @@ function getColorByIndex(index, alpha = 1) {
         // }
 
 
-        async function fetchStudies(drug, condition, hasResults) {
-try {
-    condition = condition || "Treatment Resistant Depression";
+//         async function fetchStudies(drug, condition, hasResults) {
+// try {
+//     condition = condition || "";
     
-    // Using our backend endpoint
-    const params = {
+//     // Using our backend endpoint
+//     const params = {
+//         condition: condition,
+//         intervention: drug,
+//         hasResults: hasResults,
+//         fields: "protocolSection,resultsSection,hasResults",
+//         pageSize: 100
+//     };
+    
+//     console.log("Fetching studies with params:", params);
+//     const response = await axios.get(`${API_BASE_URL}/studies/search`, { 
+//         params,
+//         headers: {
+//             'Accept': 'application/json',
+//             'Cache-Control': 'no-cache',
+//             'Pragma': 'no-cache'
+//         }
+//     });
+    
+//     console.log("Studies search response status:", response.status);
+//     let studies = response.data.data.studies || [];
+    
+//     return studies;
+// } catch (error) {
+//     console.error("Error fetching studies:", error);
+//     return [];
+// }
+// }
+
+
+async function fetchStudies(drug, condition, hasResults) {
+  try {
+    condition = condition || "";
+    const allStudies = [];
+    let pageToken = null;
+    let hasNextPage = true;
+    
+    // Continue fetching until there are no more pages
+    while (hasNextPage) {
+      const params = {
         condition: condition,
         intervention: drug,
         hasResults: hasResults,
         fields: "protocolSection,resultsSection,hasResults",
-        pageSize: 100
-    };
-    
-    console.log("Fetching studies with params:", params);
-    const response = await axios.get(`${API_BASE_URL}/studies/search`, { 
+        pageSize: 100 // Keep page size at 100 for efficiency
+      };
+      
+      // Add page token for pagination if we're not on the first page
+      if (pageToken) {
+        params.pageToken = pageToken;
+      }
+      
+      console.log(`Fetching studies page with params:`, params);
+      
+      const response = await axios.get(`${API_BASE_URL}/studies/search`, {
         params,
         headers: {
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
-    });
+      });
+      
+      console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
+      
+      const studies = response.data.data.studies || [];
+      allStudies.push(...studies);
+      
+      // Get next page token
+      pageToken = response.data.pagination?.nextPageToken;
+      hasNextPage = !!pageToken;
+      
+      // Optional: Add delay to avoid rate limiting
+      if (hasNextPage) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
     
-    console.log("Studies search response status:", response.status);
-    let studies = response.data.data.studies || [];
-    
-    return studies;
-} catch (error) {
-    console.error("Error fetching studies:", error);
+    console.log(`Total studies fetched: ${allStudies.length}`);
+    return allStudies;
+  } catch (error) {
+    console.error("Error fetching all studies:", error);
     return [];
-}
+  }
 }
 
 async function fetchStudyDetails(nctId) {
@@ -2460,9 +2654,989 @@ return title.length > 60 ? title.substring(0, 57) + '...' : title;
         //         });
         //     });
         // }
+        function generateDrugUsageTimeline(studies, drugName) {
+    // Create container for the timeline
+    const timelineContainer = document.createElement('div');
+    timelineContainer.className = 'mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
+    timelineContainer.innerHTML = `
+        <h2 class="text-xl font-bold mb-4">Historical Usage Timeline: ${drugName}</h2>
+        <div id="usage-timeline" class="relative">
+            <div class="timeline-loading text-center p-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-blue-500"></div>
+                <p class="mt-2 text-gray-600">Analyzing usage patterns...</p>
+            </div>
+        </div>
+    `;
+
+    // Process the data after rendering the initial container
+    setTimeout(() => {
+        // Extract and organize timeline data
+        const usageData = extractUsageData(studies);
+        
+        if (Object.keys(usageData.byCondition).length === 0) {
+            // No meaningful data found
+            document.getElementById('usage-timeline').innerHTML = `
+                <div class="text-center p-4 text-gray-500">
+                    <p>Insufficient data to generate a timeline for ${drugName}.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Render the timeline visualization
+        renderTimelineVisualization(usageData, drugName);
+    }, 100);
+    
+    return timelineContainer;
+}
+
+// function extractUsageData(studies) {
+//     // Initialize data structure
+//     const result = {
+//         earliestStudyYear: null,
+//         latestStudyYear: null,
+//         byCondition: {},
+//         byPhase: {
+//             "PRE_PHASE": [],
+//             "PHASE1": [],
+//             "PHASE1_PHASE2": [],
+//             "PHASE2": [],
+//             "PHASE3": [],
+//             "PHASE4": []
+//         },
+//         totalStudies: studies.length
+//     };
+    
+//     // Current year for comparison
+//     const currentYear = new Date().getFullYear();
+    
+//     studies.forEach(study => {
+//         // Extract key information
+//         const startYear = extractYearFromDate(
+//             study.protocolSection?.statusModule?.startDateStruct?.date
+//         );
+        
+//         const completionYear = extractYearFromDate(
+//             study.protocolSection?.statusModule?.completionDateStruct?.date
+//         );
+        
+//         const primaryCompletionYear = extractYearFromDate(
+//             study.protocolSection?.statusModule?.primaryCompletionDateStruct?.date
+//         );
+        
+//         // Use the most appropriate year available
+//         const studyYear = startYear || 
+//                          (primaryCompletionYear && primaryCompletionYear <= currentYear ? primaryCompletionYear : null) || 
+//                          (completionYear && completionYear <= currentYear ? completionYear : null) || 
+//                          null;
+        
+//         if (!studyYear) return; // Skip if no valid year
+        
+//         // Update earliest/latest years
+//         if (result.earliestStudyYear === null || studyYear < result.earliestStudyYear) {
+//             result.earliestStudyYear = studyYear;
+//         }
+        
+//         if (result.latestStudyYear === null || studyYear > result.latestStudyYear) {
+//             result.latestStudyYear = studyYear;
+//         }
+        
+//         // Extract conditions
+//         const conditions = study.protocolSection?.conditionsModule?.conditions || [];
+        
+//         // If no specific conditions listed, use a placeholder
+//         if (conditions.length === 0) {
+//             const category = "Unspecified Condition";
+            
+//             if (!result.byCondition[category]) {
+//                 result.byCondition[category] = {
+//                     count: 0,
+//                     years: {},
+//                     earliestYear: null,
+//                     latestYear: null
+//                 };
+//             }
+            
+//             result.byCondition[category].count++;
+//             result.byCondition[category].years[studyYear] = (result.byCondition[category].years[studyYear] || 0) + 1;
+            
+//             // Update condition-specific earliest/latest years
+//             if (result.byCondition[category].earliestYear === null || 
+//                 studyYear < result.byCondition[category].earliestYear) {
+//                 result.byCondition[category].earliestYear = studyYear;
+//             }
+            
+//             if (result.byCondition[category].latestYear === null || 
+//                 studyYear > result.byCondition[category].latestYear) {
+//                 result.byCondition[category].latestYear = studyYear;
+//             }
+//         } else {
+//             // Process each condition
+//             conditions.forEach(condition => {
+//                 // Normalize the condition name - capitalize first letter of each word
+//                 const normalizedCondition = condition
+//                     .split(' ')
+//                     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+//                     .join(' ');
+                
+//                 // Initialize condition data if it doesn't exist
+//                 if (!result.byCondition[normalizedCondition]) {
+//                     result.byCondition[normalizedCondition] = {
+//                         count: 0,
+//                         years: {},
+//                         earliestYear: null,
+//                         latestYear: null
+//                     };
+//                 }
+                
+//                 // Increment counts
+//                 result.byCondition[normalizedCondition].count++;
+//                 result.byCondition[normalizedCondition].years[studyYear] = 
+//                     (result.byCondition[normalizedCondition].years[studyYear] || 0) + 1;
+                
+//                 // Update condition-specific earliest/latest years
+//                 if (result.byCondition[normalizedCondition].earliestYear === null || 
+//                     studyYear < result.byCondition[normalizedCondition].earliestYear) {
+//                     result.byCondition[normalizedCondition].earliestYear = studyYear;
+//                 }
+                
+//                 if (result.byCondition[normalizedCondition].latestYear === null || 
+//                     studyYear > result.byCondition[normalizedCondition].latestYear) {
+//                     result.byCondition[normalizedCondition].latestYear = studyYear;
+//                 }
+//             });
+//         }
+        
+//         // Track phases
+//         const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+//         if (result.byPhase[phase]) {
+//             result.byPhase[phase].push({
+//                 nctId: study.protocolSection?.identificationModule?.nctId,
+//                 year: studyYear,
+//                 conditions: conditions.length > 0 ? conditions : ["Unspecified"]
+//             });
+//         }
+//     });
+    
+//     // Filter out conditions with very few studies (< 2% of total)
+//     const minStudiesThreshold = Math.max(1, Math.ceil(result.totalStudies * 0.02));
+    
+//     Object.keys(result.byCondition).forEach(condition => {
+//         if (result.byCondition[condition].count < minStudiesThreshold) {
+//             delete result.byCondition[condition];
+//         }
+//     });
+    
+//     // Group similar conditions
+//     const groupedConditions = groupSimilarConditions(result.byCondition);
+//     if (Object.keys(groupedConditions).length > 0) {
+//         result.byCondition = groupedConditions;
+//     }
+    
+//     return result;
+// }
+function extractUsageData(studies) {
+    // Initialize data structure
+    const result = {
+        earliestStudyYear: null,
+        latestStudyYear: null,
+        byCondition: {},
+        byPhase: {
+            "PRE_PHASE": [],
+            "PHASE1": [],
+            "PHASE1_PHASE2": [],
+            "PHASE2": [],
+            "PHASE3": [],
+            "PHASE4": []
+        },
+        totalStudies: studies.length
+    };
+    
+    // Current year for comparison
+    const currentYear = new Date().getFullYear();
+    
+    studies.forEach(study => {
+        // Extract key information
+        const startYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.startDateStruct?.date
+        );
+        
+        const completionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.completionDateStruct?.date
+        );
+        
+        const primaryCompletionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.primaryCompletionDateStruct?.date
+        );
+        
+        // Use the most appropriate year available
+        const studyYear = startYear || 
+                         (primaryCompletionYear && primaryCompletionYear <= currentYear ? primaryCompletionYear : null) || 
+                         (completionYear && completionYear <= currentYear ? completionYear : null) || 
+                         null;
+        
+        if (!studyYear) return; // Skip if no valid year
+        
+        // Update earliest/latest years
+        if (result.earliestStudyYear === null || studyYear < result.earliestStudyYear) {
+            result.earliestStudyYear = studyYear;
+        }
+        
+        if (result.latestStudyYear === null || studyYear > result.latestStudyYear) {
+            result.latestStudyYear = studyYear;
+        }
+        
+        // Extract conditions
+        const conditions = study.protocolSection?.conditionsModule?.conditions || [];
+        
+        // If no specific conditions listed, use a placeholder
+        if (conditions.length === 0) {
+            const category = "Unspecified Condition";
+            
+            if (!result.byCondition[category]) {
+                result.byCondition[category] = {
+                    count: 0,
+                    years: {},
+                    earliestYear: null,
+                    latestYear: null
+                };
+            }
+            
+            result.byCondition[category].count++;
+            result.byCondition[category].years[studyYear] = (result.byCondition[category].years[studyYear] || 0) + 1;
+            
+            // Update condition-specific earliest/latest years
+            if (result.byCondition[category].earliestYear === null || 
+                studyYear < result.byCondition[category].earliestYear) {
+                result.byCondition[category].earliestYear = studyYear;
+            }
+            
+            if (result.byCondition[category].latestYear === null || 
+                studyYear > result.byCondition[category].latestYear) {
+                result.byCondition[category].latestYear = studyYear;
+            }
+        } else {
+            // Process each condition
+            conditions.forEach(condition => {
+                // Keep the exact condition name as provided, only first letter capitalized for consistency
+                const normalizedCondition = condition.charAt(0).toUpperCase() + condition.slice(1);
+                
+                // Initialize condition data if it doesn't exist
+                if (!result.byCondition[normalizedCondition]) {
+                    result.byCondition[normalizedCondition] = {
+                        count: 0,
+                        years: {},
+                        earliestYear: null,
+                        latestYear: null
+                    };
+                }
+                
+                // Increment counts
+                result.byCondition[normalizedCondition].count++;
+                result.byCondition[normalizedCondition].years[studyYear] = 
+                    (result.byCondition[normalizedCondition].years[studyYear] || 0) + 1;
+                
+                // Update condition-specific earliest/latest years
+                if (result.byCondition[normalizedCondition].earliestYear === null || 
+                    studyYear < result.byCondition[normalizedCondition].earliestYear) {
+                    result.byCondition[normalizedCondition].earliestYear = studyYear;
+                }
+                
+                if (result.byCondition[normalizedCondition].latestYear === null || 
+                    studyYear > result.byCondition[normalizedCondition].latestYear) {
+                    result.byCondition[normalizedCondition].latestYear = studyYear;
+                }
+            });
+        }
+        
+        // Track phases
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        if (result.byPhase[phase]) {
+            result.byPhase[phase].push({
+                nctId: study.protocolSection?.identificationModule?.nctId,
+                year: studyYear,
+                conditions: conditions.length > 0 ? conditions : ["Unspecified"]
+            });
+        }
+    });
+    
+    // We'll keep all conditions regardless of frequency to show complete data
+    // But we can sort by count to display the most studied conditions prominently
+    
+    return result;
+}
+function groupSimilarConditions(conditionsData) {
+    // // Define condition categories and their keywords
+    // const categories = {
+    //     "Depression": ["depression", "depressive", "mood disorder"],
+    //     "Pain": ["pain", "analgesia", "analgesic"],
+    //     "Anesthesia": ["anesthesia", "anaesthesia", "sedation"],
+    //     "Anxiety": ["anxiety", "anxious", "panic"],
+    //     "Addiction": ["addiction", "substance abuse", "dependence", "substance use disorder"],
+    //     "Neurological": ["dementia", "alzheimer", "parkinson", "multiple sclerosis", "epilepsy", "seizure"],
+    //     "Psychiatric": ["schizophrenia", "bipolar", "ptsd", "trauma", "ocd"]
+    // };
+    
+    // const result = {};
+    // const assignedConditions = new Set();
+    
+    // // First pass: assign conditions to predefined categories
+    // Object.keys(categories).forEach(category => {
+    //     const keywords = categories[category];
+    //     let totalCount = 0;
+    //     let earliestYear = null;
+    //     let latestYear = null;
+    //     const yearCounts = {};
+        
+    //     Object.keys(conditionsData).forEach(condition => {
+    //         const conditionLower = condition.toLowerCase();
+            
+    //         if (keywords.some(keyword => conditionLower.includes(keyword))) {
+    //             assignedConditions.add(condition);
+    //             totalCount += conditionsData[condition].count;
+                
+    //             // Update years
+    //             if (earliestYear === null || conditionsData[condition].earliestYear < earliestYear) {
+    //                 earliestYear = conditionsData[condition].earliestYear;
+    //             }
+                
+    //             if (latestYear === null || conditionsData[condition].latestYear > latestYear) {
+    //                 latestYear = conditionsData[condition].latestYear;
+    //             }
+                
+    //             // Merge year counts
+    //             Object.keys(conditionsData[condition].years).forEach(year => {
+    //                 yearCounts[year] = (yearCounts[year] || 0) + conditionsData[condition].years[year];
+    //             });
+    //         }
+    //     });
+        
+    //     if (totalCount > 0) {
+    //         result[category] = {
+    //             count: totalCount,
+    //             years: yearCounts,
+    //             earliestYear: earliestYear,
+    //             latestYear: latestYear
+    //         };
+    //     }
+    // });
+    
+    // // Second pass: add remaining conditions
+    // Object.keys(conditionsData).forEach(condition => {
+    //     if (!assignedConditions.has(condition)) {
+    //         result[condition] = conditionsData[condition];
+    //     }
+    // });
+    // console.log(result)
+    
+    return conditionsData;
+}
+
+// function renderTimelineVisualization(data, drugName) {
+//     const timelineElement = document.getElementById('usage-timeline');
+    
+//     // Create array of conditions sorted by earliest use
+//     const sortedConditions = Object.keys(data.byCondition)
+//         .map(condition => ({
+//             name: condition,
+//             ...data.byCondition[condition]
+//         }))
+//         .sort((a, b) => a.earliestYear - b.earliestYear);
+    
+//     // Calculate timeline dimensions
+//     const startYear = data.earliestStudyYear;
+//     const endYear = data.latestStudyYear;
+//     const yearSpan = endYear - startYear + 1;
+    
+//     // Generate the timeline HTML
+//     let timelineHTML = `
+//         <div class="mb-6">
+//             <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${startYear} to ${endYear}</p>
+//         </div>
+//         <div class="timeline-chart relative">
+//             <!-- Year markers -->
+//             <div class="year-markers flex justify-between text-xs text-gray-500 mb-2">
+//     `;
+    
+//     // Add year markers (show at most 10 years to avoid overcrowding)
+//     const yearStep = Math.max(1, Math.ceil(yearSpan / 10));
+//     for (let year = startYear; year <= endYear; year += yearStep) {
+//         const position = ((year - startYear) / yearSpan) * 100;
+//         timelineHTML += `<div class="absolute" style="left: ${position}%">${year}</div>`;
+//     }
+    
+//     timelineHTML += `
+//             </div>
+            
+//             <!-- Timeline tracks -->
+//             <div class="timeline-tracks space-y-6">
+//     `;
+    
+//     // Generate a track for each condition
+//     sortedConditions.forEach((condition, index) => {
+//         const startPosition = ((condition.earliestYear - startYear) / yearSpan) * 100;
+//         const endPosition = 100 - ((endYear - condition.latestYear) / yearSpan) * 100;
+//         const width = endPosition - startPosition;
+        
+//         // Generate a color based on the condition index
+//         const hue = (index * 137.5) % 360; // Golden ratio to distribute colors
+//         const color = `hsl(${hue}, 70%, 60%)`;
+//         const darkColor = `hsl(${hue}, 70%, 40%)`;
+        
+//         timelineHTML += `
+//             <div class="condition-track">
+//                 <div class="flex justify-between items-center mb-1">
+//                     <span class="font-medium text-sm">${condition.name}</span>
+//                     <span class="text-xs text-gray-500">${condition.count} studies</span>
+//                 </div>
+//                 <div class="relative h-8 bg-gray-100 rounded-full overflow-hidden">
+//                     <div class="absolute h-full rounded-full" style="left: ${startPosition}%; width: ${width}%; background-color: ${color};">
+//                         <div class="h-full flex items-center justify-center text-xs font-bold text-white">
+//                             ${condition.earliestYear} - ${condition.latestYear}
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Activity indicators -->
+//                 <div class="relative h-1 mt-1">
+//         `;
+        
+//         // Add activity indicators (small circles indicating study frequency)
+//         Object.keys(condition.years).forEach(year => {
+//             const yearPosition = ((year - startYear) / yearSpan) * 100;
+//             const size = Math.min(12, Math.max(4, condition.years[year] * 2)); // Scale based on study count
+            
+//             timelineHTML += `
+//                 <div class="absolute rounded-full" 
+//                      style="left: ${yearPosition}%; top: -${size/4}px; width: ${size}px; height: ${size}px; background-color: ${darkColor};"
+//                      title="${year}: ${condition.years[year]} studies">
+//                 </div>
+//             `;
+//         });
+        
+//         timelineHTML += `
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+        
+//         <!-- Evolution of usage patterns -->
+//         <div class="mt-8">
+//             <h3 class="text-lg font-medium mb-3">Key Evolution Patterns</h3>
+//             <div class="evolution-patterns grid grid-cols-1 md:grid-cols-2 gap-4">
+//     `;
+    
+//     // Generate insights based on the data
+//     const insights = generateInsights(data, drugName, sortedConditions);
+    
+//     insights.forEach(insight => {
+//         timelineHTML += `
+//             <div class="insight-card p-3 bg-gray-50 rounded-lg border border-gray-200">
+//                 <div class="flex items-start">
+//                     <div class="insight-icon mr-3 text-blue-500">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+//                         </svg>
+//                     </div>
+//                     <p class="text-sm">${insight}</p>
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+//     `;
+    
+//     // Update the timeline element
+//     timelineElement.innerHTML = timelineHTML;
+// }
+
+// function generateInsights(data, drugName, sortedConditions) {
+//     const insights = [];
+//     const currentYear = new Date().getFullYear();
+    
+//     // Insight 1: First studied indication
+//     if (sortedConditions.length > 0) {
+//         const firstCondition = sortedConditions[0];
+//         insights.push(
+//             `${drugName} was first studied for <strong>${firstCondition.name}</strong> in ${firstCondition.earliestYear}, ${currentYear - firstCondition.earliestYear} years ago.`
+//         );
+//     }
+    
+//     // Insight 2: Most studied indication
+//     const mostStudiedCondition = sortedConditions.sort((a, b) => b.count - a.count)[0];
+//     insights.push(
+//         `The most researched application has been <strong>${mostStudiedCondition.name}</strong> with ${mostStudiedCondition.count} studies.`
+//     );
+    
+//     // Insight 3: Recent expansion
+//     const recentConditions = sortedConditions
+//         .filter(c => c.earliestYear >= currentYear - 10)
+//         .sort((a, b) => b.earliestYear - a.earliestYear);
+    
+//     if (recentConditions.length > 0) {
+//         insights.push(
+//             `In the past decade, research has expanded to include <strong>${recentConditions.map(c => c.name).join(', ')}</strong>.`
+//         );
+//     }
+    
+//     // Insight 4: Phase progression
+//     const phaseData = data.byPhase;
+//     const latePhaseCount = (phaseData.PHASE3 || []).length + (phaseData.PHASE4 || []).length;
+//     const totalPhaseCount = Object.values(phaseData).flat().length;
+    
+//     if (totalPhaseCount > 0) {
+//         const latePhasePercentage = Math.round((latePhaseCount / totalPhaseCount) * 100);
+//         insights.push(
+//             `${latePhasePercentage}% of studies have reached late-stage (Phase 3-4) clinical trials, indicating ${latePhasePercentage > 30 ? 'significant' : 'ongoing'} progress toward regulatory approval across various conditions.`
+//         );
+//     }
+    
+//     // Insight 5: Recent activity
+//     const recentYears = currentYear - 5;
+//     let recentActivityCount = 0;
+    
+//     sortedConditions.forEach(condition => {
+//         Object.keys(condition.years).forEach(year => {
+//             if (parseInt(year) >= recentYears) {
+//                 recentActivityCount += condition.years[year];
+//             }
+//         });
+//     });
+    
+//     if (data.totalStudies > 0) {
+//         const recentPercentage = Math.round((recentActivityCount / data.totalStudies) * 100);
+//         insights.push(
+//             `${recentPercentage}% of all ${drugName} studies have been conducted in the last 5 years, showing ${recentPercentage > 50 ? 'accelerating' : 'continued'} research interest.`
+//         );
+//     }
+    
+//     return insights;
+// }
+
+
+
+function renderTimelineVisualization(data, drugName) {
+    const timelineElement = document.getElementById('usage-timeline');
+    
+    // Create array of conditions sorted by number of studies (most studied first)
+    const sortedConditions = Object.keys(data.byCondition)
+        .map(condition => ({
+            name: condition,
+            ...data.byCondition[condition]
+        }))
+        .sort((a, b) => b.count - a.count)
+        // Limit to top 20 conditions to avoid overcrowding
+        .slice(0, 20);
+    
+    // Calculate timeline dimensions
+    const startYear = data.earliestStudyYear;
+    const endYear = data.latestStudyYear;
+    const yearSpan = endYear - startYear + 1;
+    
+    // Generate the timeline HTML
+    let timelineHTML = `
+        <div class="mb-6">
+            <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${startYear} to ${endYear}</p>
+            <p class="text-sm text-gray-500 mt-1">Showing top ${sortedConditions.length} conditions out of ${Object.keys(data.byCondition).length} total</p>
+        </div>
+        <div class="timeline-chart relative">
+            <!-- Year markers -->
+            <div class="year-markers flex justify-between text-xs text-gray-500 mb-2">
+    `;
+    
+    // Add year markers (show at most 10 years to avoid overcrowding)
+    const yearStep = Math.max(1, Math.ceil(yearSpan / 10));
+    for (let year = startYear; year <= endYear; year += yearStep) {
+        const position = ((year - startYear) / yearSpan) * 100;
+        timelineHTML += `<div class="absolute" style="left: ${position}%">${year}</div>`;
+    }
+    
+    timelineHTML += `
+            </div>
+            
+            <!-- Timeline tracks -->
+            <div class="timeline-tracks space-y-6">
+    `;
+    
+    // Generate a track for each condition
+    sortedConditions.forEach((condition, index) => {
+        const startPosition = ((condition.earliestYear - startYear) / yearSpan) * 100;
+        const endPosition = 100 - ((endYear - condition.latestYear) / yearSpan) * 100;
+        const width = endPosition - startPosition;
+        
+        // Generate a color based on the condition index
+        const hue = (index * 137.5) % 360; // Golden ratio to distribute colors
+        const color = `hsl(${hue}, 70%, 60%)`;
+        const darkColor = `hsl(${hue}, 70%, 40%)`;
+        
+        timelineHTML += `
+            <div class="condition-track">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-baseline mb-1">
+                    <span class="font-medium text-sm break-words">${condition.name}</span>
+                    <span class="text-xs text-gray-500">${condition.count} ${condition.count === 1 ? 'study' : 'studies'}</span>
+                </div>
+                <div class="relative h-8 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="absolute h-full rounded-full" style="left: ${startPosition}%; width: ${width}%; background-color: ${color};">
+                        <div class="h-full flex items-center justify-center text-xs font-bold text-white whitespace-nowrap px-2 overflow-hidden">
+                            ${condition.earliestYear} - ${condition.latestYear}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Activity indicators -->
+                <div class="relative h-1 mt-1">
+        `;
+        
+        // Add activity indicators (small circles indicating study frequency)
+        Object.keys(condition.years).forEach(year => {
+            const yearPosition = ((year - startYear) / yearSpan) * 100;
+            const size = Math.min(12, Math.max(4, condition.years[year] * 2)); // Scale based on study count
+            
+            timelineHTML += `
+                <div class="absolute rounded-full" 
+                     style="left: ${yearPosition}%; top: -${size/4}px; width: ${size}px; height: ${size}px; background-color: ${darkColor};"
+                     title="${year}: ${condition.years[year]} ${condition.years[year] === 1 ? 'study' : 'studies'}">
+                </div>
+            `;
+        });
+        
+        timelineHTML += `
+                </div>
+            </div>
+        `;
+    });
+    
+    timelineHTML += `
+            </div>
+        </div>
+        
+        <!-- View all conditions button for when there are more than 20 -->
+        ${Object.keys(data.byCondition).length > 20 ? `
+        <div class="mt-4 text-center">
+            <button id="view-all-conditions" class="px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm">
+                View All ${Object.keys(data.byCondition).length} Conditions
+            </button>
+        </div>
+        ` : ''}
+        
+        <!-- Evolution of usage patterns -->
+        <div class="mt-8">
+            <h3 class="text-lg font-medium mb-3">Key Clinical Insights</h3>
+            <div class="evolution-patterns grid grid-cols-1 md:grid-cols-2 gap-4">
+    `;
+    
+    // Generate insights based on the data
+    const insights = generateInsights(data, drugName, sortedConditions);
+    
+    insights.forEach(insight => {
+        timelineHTML += `
+            <div class="insight-card p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-start">
+                    <div class="insight-icon mr-3 text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-sm">${insight}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    timelineHTML += `
+            </div>
+        </div>
+    `;
+    
+    // Update the timeline element
+    timelineElement.innerHTML = timelineHTML;
+    
+    // Add event listener for the "View All Conditions" button
+    const viewAllButton = document.getElementById('view-all-conditions');
+    if (viewAllButton) {
+        viewAllButton.addEventListener('click', () => {
+            // Show modal with all conditions
+            showAllConditionsModal(data, drugName);
+        });
+    }
+}
+
+function showAllConditionsModal(data, drugName) {
+    // Create a modal to display all conditions
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    
+    // Sort all conditions by count
+    const allConditions = Object.keys(data.byCondition)
+        .map(condition => ({
+            name: condition,
+            count: data.byCondition[condition].count,
+            earliestYear: data.byCondition[condition].earliestYear,
+            latestYear: data.byCondition[condition].latestYear
+        }))
+        .sort((a, b) => b.count - a.count);
+    
+    // Create the modal content
+    let modalContent = `
+        <div class="bg-white rounded-lg w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">All Clinical Conditions for ${drugName}</h3>
+                    <button id="close-conditions-modal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500">${allConditions.length} total conditions found in clinical trials</p>
+            </div>
+            <div class="overflow-y-auto p-4">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+    `;
+    
+    allConditions.forEach((condition, index) => {
+        modalContent += `
+            <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                <td class="px-4 py-2 text-sm">${condition.name}</td>
+                <td class="px-4 py-2 text-sm text-center">${condition.count}</td>
+                <td class="px-4 py-2 text-sm text-center">${condition.earliestYear} - ${condition.latestYear}</td>
+            </tr>
+        `;
+    });
+    
+    modalContent += `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    modal.innerHTML = modalContent;
+    document.body.appendChild(modal);
+    
+    // Add event listener to close the modal
+    document.getElementById('close-conditions-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    // Also close when clicking outside the modal content
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+function generateInsights(data, drugName, sortedConditions) {
+    const insights = [];
+    const currentYear = new Date().getFullYear();
+    
+    // Insight 1: First studied indication
+    if (sortedConditions.length > 0) {
+        const firstCondition = sortedConditions.sort((a, b) => a.earliestYear - b.earliestYear)[0];
+        insights.push(
+            `${drugName} was first studied for <strong>${firstCondition.name}</strong> in ${firstCondition.earliestYear}, ${currentYear - firstCondition.earliestYear} years ago.`
+        );
+    }
+    
+    // Insight 2: Most studied indication
+    const mostStudiedCondition = sortedConditions.sort((a, b) => b.count - a.count)[0];
+    insights.push(
+        `The most researched application has been <strong>${mostStudiedCondition.name}</strong> with ${mostStudiedCondition.count} studies.`
+    );
+    
+    // Insight 3: Count unique conditions
+    const uniqueConditionCount = Object.keys(data.byCondition).length;
+    insights.push(
+        `${drugName} has been investigated for ${uniqueConditionCount} distinct clinical conditions, showing its potential versatility across multiple medical applications.`
+    );
+    
+    // Insight 4: Phase progression
+    const phaseData = data.byPhase;
+    const latePhaseCount = (phaseData.PHASE3 || []).length + (phaseData.PHASE4 || []).length;
+    const totalPhaseCount = Object.values(phaseData).flat().length;
+    
+    if (totalPhaseCount > 0) {
+        const latePhasePercentage = Math.round((latePhaseCount / totalPhaseCount) * 100);
+        insights.push(
+            `${latePhasePercentage}% of studies have reached late-stage (Phase 3-4) clinical trials, indicating ${latePhasePercentage > 30 ? 'significant' : 'ongoing'} progress toward regulatory approval across various conditions.`
+        );
+    }
+    
+    // Insight 5: Recent activity and trend
+    const recentYears = currentYear - 5;
+    let recentActivityCount = 0;
+    const recentConditions = new Set();
+    
+    sortedConditions.forEach(condition => {
+        Object.keys(condition.years).forEach(year => {
+            if (parseInt(year) >= recentYears) {
+                recentActivityCount += condition.years[year];
+                recentConditions.add(condition.name);
+            }
+        });
+    });
+    
+    if (recentConditions.size > 0) {
+        const topRecentConditions = Array.from(recentConditions).slice(0, 3);
+        if (topRecentConditions.length > 0) {
+            insights.push(
+                `In the last 5 years, research has focused on ${recentConditions.size} conditions, with notable interest in <strong>${topRecentConditions.join('</strong>, <strong>')}</strong>.`
+            );
+        }
+    }
+    
+    return insights;
+}
+
+
+function extractYearFromDate(dateString) {
+    if (!dateString) return null;
+    
+    // Extract year from YYYY-MM-DD format
+    const match = dateString.match(/^(\d{4})-/);
+    if (match) {
+        return parseInt(match[1]);
+    }
+    
+    // Try to extract any 4-digit year
+    const yearMatch = dateString.match(/\b(\d{4})\b/);
+    if (yearMatch) {
+        const year = parseInt(yearMatch[1]);
+        // Validate year is reasonable (between 1950 and current year + 5)
+        const currentYear = new Date().getFullYear();
+        if (year >= 1950 && year <= currentYear + 5) {
+            return year;
+        }
+    }
+    
+    return null;
+}
+
+// Update the displayStudies function to include the timeline
+function displayStudiesWithTimeline(studies, drugName) {
+    // First, create and append the timeline
+    const timelineElement = generateDrugUsageTimeline(studies, drugName);
+    
+    // Check if there's already a timeline
+    const existingTimeline = document.getElementById('drug-usage-timeline');
+    if (existingTimeline) {
+        existingTimeline.replaceWith(timelineElement);
+    } else {
+        // Insert the timeline before the studies list
+        const studiesContainer = elements.studiesList.parentElement;
+        timelineElement.id = 'drug-usage-timeline';
+        studiesContainer.insertBefore(timelineElement, elements.studiesList);
+    }
+    
+    // Now continue with the original display logic
+    elements.studiesList.innerHTML = '';
+    elements.studyCount.textContent = studies.length;
+
+    if (studies.length === 0) {
+        elements.studiesList.innerHTML = `
+            <div class="text-center p-4 text-gray-500">
+                <p>No studies found matching the current filters.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort studies by phase
+    const phaseOrder = { 
+        "PRE_PHASE": 0, 
+        "PHASE1": 1, 
+        "PHASE1_PHASE2": 1.5,
+        "PHASE2": 2, 
+        "PHASE3": 3, 
+        "PHASE4": 4 
+    };
+
+    studies.sort((a, b) => {
+        const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
+    });
+
+    studies.forEach(study => {
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        const title = study.protocolSection?.identificationModule?.briefTitle;
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+        const status = study.protocolSection?.statusModule?.overallStatus;
+        const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+        const hasResults = study.hasResults;
+        
+        // Determine if this is a TRD-specific study
+        const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+        const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+        const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+        
+        const trdTerms = [
+            'treatment-resistant depression', 
+            'treatment resistant depression',
+            'trd',
+            'refractory depression'
+        ];
+        
+        const isTRDSpecific = trdTerms.some(term => 
+            briefTitle.includes(term) || 
+            officialTitle.includes(term) || 
+            briefSummary.includes(term)
+        );
+        
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+        card.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
+                <div class="flex gap-2 items-center flex-wrap">
+                    <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
+                    <span class="text-sm font-medium">${formatPhase(phase)}</span>
+                    ${getStatusBadge(status)}
+                    ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+                </div>
+                <div>
+                    <span class="text-xs text-gray-500">${nctId}</span>
+                    ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
+                </div>
+            </div>
+            <h3 class="text-lg font-medium mb-2">${title}</h3>
+            <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
+            <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Study Details
+            </button>
+        `;
+        elements.studiesList.appendChild(card);
+        
+        // Add event listener to the view button
+        card.querySelector('.view-study-btn').addEventListener('click', () => {
+            viewStudyDetails(nctId);
+        });
+    });
+}
+
+
 
 // Function to display studies in the UI
-function displayStudies(studies) {
+function displayStudies(studies, drug, condition) {
 elements.studiesList.innerHTML = '';
 elements.studyCount.textContent = studies.length;
 
@@ -2474,6 +3648,18 @@ if (studies.length === 0) {
     `;
     return;
 }
+
+
+const existingTimeline = document.getElementById('drug-usage-timeline');
+    if (existingTimeline) {
+        existingTimeline.remove();
+    }
+    
+
+    displayStudiesWithTimeline(studies, drug || 'Selected Drug');
+        
+        // Update browser history and URL parameters
+        // updateUrlParameters(drug, condition, hasResultsOnly, trdFocusOnly);
 
 // Sort studies by phase
 const phaseOrder = { 
@@ -6249,7 +7435,7 @@ function initFdaDataSection() {
 }
 
 // Function to display FDA data when available
-async function displayFdaData(drugName) {
+async function displayFdaData(drugName,condition) {
   // Initialize the FDA data section
   initFdaDataSection();
   
@@ -6269,6 +7455,10 @@ async function displayFdaData(drugName) {
   elements.dailyMedData.innerHTML = loadingTemplate;
   
   try {
+        // if (!drug) {
+    //     alert('Please enter a drug name to search.');
+    //     return;
+    // }
     // Fetch comprehensive FDA drug data
     const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
     const fdaData = await fdaResponse.json();
@@ -6307,17 +7497,72 @@ async function displayFdaData(drugName) {
   }
 }
 
-// Helper function to create error messages
-function createErrorMessage(message) {
-  return `
-    <div class="flex justify-center items-center py-8 text-red-500">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+
+async function displayFdaClinicalData(condition) {
+  // Initialize the FDA data section
+  initFdaDataSection();
+  
+  // Show loading state
+  const loadingTemplate = `
+    <div class="flex justify-center items-center py-8">
+      <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <span>${message}</span>
+      <span class="ml-2 text-gray-600">Loading clinical FDA data for ${condition}...</span>
     </div>
   `;
+  
+  elements.fdaDocuments.innerHTML = loadingTemplate;
+  elements.orangeBookData.innerHTML = loadingTemplate;
+  elements.dailyMedData.innerHTML = loadingTemplate;
+  
+  try {
+    // if (!condition) {
+    //   alert('Please enter a clinical condition to search.');
+    //   return;
+    // }
+
+    // Fetch FDA data by condition
+    const fdaResponse = await fetch(`/api/fda/condition/${encodeURIComponent(condition)}`);
+    const fdaData = await fdaResponse.json();
+    
+    if (fdaResponse.ok && !fdaData.error) {
+      // Display the comprehensive FDA data for the condition
+      displayComprehensiveFdaData(fdaData, condition);
+    } else {
+      elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
+    }
+    
+    // Continue with existing Orange Book and DailyMed fetches
+    const orangeBookResponse = await fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(condition)}`);
+    const orangeBookData = await orangeBookResponse.json();
+    
+    if (orangeBookResponse.ok && !orangeBookData.error) {
+      displayOrangeBookData(orangeBookData);
+    } else {
+      elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+    }
+    
+    const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(condition)}`);
+    const dailyMedData = await dailyMedResponse.json();
+    
+    if (dailyMedResponse.ok && !dailyMedData.error) {
+      displayDailyMedData(dailyMedData);
+    } else {
+      elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+    }
+    
+  } catch (error) {
+    console.error("Error fetching FDA data:", error);
+    elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
+    elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
+    elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+  }
 }
+
+
 
 // New function to display comprehensive FDA data
 function displayComprehensiveFdaData(fdaData, drugName) {
@@ -11576,10 +12821,7 @@ async function handleSearch() {
     const hasResultsOnly = elements.hasResultsOnly.checked;
     const trdFocusOnly = elements.trdFocusOnly.checked;
     
-    if (!drug) {
-        alert('Please enter a drug name to search.');
-        return;
-    }
+
     
     // Update state
     appState.hasResultsOnly = hasResultsOnly;
@@ -11621,10 +12863,10 @@ async function handleSearch() {
         
         // Filter for TRD-specific studies if requested
         let filteredStudies = studies;
-        if (trdFocusOnly) {
-            filteredStudies = filterTRDSpecificStudies(studies);
-            console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-        }
+        // if (trdFocusOnly) {
+        //     filteredStudies = filterTRDSpecificStudies(studies);
+        //     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+        // }
         
         appState.studies = filteredStudies;
         collectAllTrialOutcomes()
@@ -11640,9 +12882,21 @@ async function handleSearch() {
                 </div>
             `;
             // Still show FDA data even if no studies are found
+           
+            
+            if (!drug) {
+        // alert('Please enter a drug name to search.');
+        displayFdaClinicalData(condition);
+        EmaClinicalDataModule.init();
+        EmaClinicalDataModule.searchCondition(condition);
+        displayLoading(false);
+    } else {
+      displayFdaData(drug);
+      EmaDataModule.init();
+      EmaDataModule.searchDrug(drug);
+      displayLoading(false);
+    }
 
-            displayFdaData(drug);
-            displayLoading(false);
             return;
         }
         
@@ -11651,13 +12905,12 @@ async function handleSearch() {
         showSection(elements.resultsOverview, true);
         
         // Display studies list
-        displayStudies(filteredStudies);
+        displayStudies(filteredStudies, drug, condition);
         showSection(elements.studiesSection, true);
         
         // Display FDA data section
-        displayFdaData(drug);
-        EmaDataModule.init();
-        EmaDataModule.searchDrug(drug);
+        // displayFdaData(drug, condition);
+
         
         
         
@@ -16208,6 +17461,918 @@ function findFieldInItem(item, possibleKeys) {
     checkUserPermissions
   };
 })();
+
+const EmaClinicalDataModule = (function() {
+  // DOM elements (unchanged from original)
+  const elements = {
+    section: document.getElementById('emaDataSection'),
+    lastUpdated: document.getElementById('emaDataLastUpdated'),
+    refreshBtn: document.getElementById('refreshEmaDataBtn'),
+    approvalCount: document.getElementById('emaApprovalCount'),
+    orphanCount: document.getElementById('emaOrphanCount'),
+    safetyCount: document.getElementById('emaSafetyCount'),
+    psusaCount: document.getElementById('emaPsusaCount'),
+    shortagesCount: document.getElementById('emaShortagesCount'),
+    referralsCount: document.getElementById('emaReferralsCount'),
+    approvalData: document.getElementById('emaApprovalData'),
+    orphanData: document.getElementById('emaOrphanData'),
+    safetyData: document.getElementById('emaSafetyData'),
+    psusaData: document.getElementById('emaPsusaData'),
+    shortagesData: document.getElementById('emaShortagesData'),
+    referralsData: document.getElementById('emaReferralsData'),
+    uploadStatus: document.getElementById('uploadStatus'),
+    dhpcUploadForm: document.getElementById('dhpcUploadForm'),
+    psusaUploadForm: document.getElementById('psusaUploadForm'),
+    shortagesUploadForm: document.getElementById('shortagesUploadForm'),
+    medicinesUploadForm: document.getElementById('medicinesUploadForm'),
+    referralsUploadForm: document.getElementById('referralsUploadForm'),
+    dhpcFileInput: document.getElementById('dhpcFileInput'),
+    psusaFileInput: document.getElementById('psusaFileInput'),
+    shortagesFileInput: document.getElementById('shortagesFileInput'),
+    medicinesFileInput: document.getElementById('medicinesFileInput'),
+    referralsFileInput: document.getElementById('referralsFileInput'),
+    dataAdmin: document.getElementById('emaDataAdmin')
+  };
+
+  // Initialize the module
+  function init() {
+    initTabNavigation();
+    initFileUploadForms();
+    if (elements.refreshBtn) {
+      elements.refreshBtn.addEventListener('click', refreshEmaData);
+    }
+    checkEmaDataStatus();
+    toggleAdminSection(false);
+    addTableStyles();
+    console.log('EMA Clinical Data Module initialized');
+  }
+
+  // Tab navigation and file upload forms remain unchanged
+  function initTabNavigation() {
+    const tabButtons = document.querySelectorAll('.ema-tab-button');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        document.querySelectorAll('.ema-tab-pane').forEach(pane => {
+          pane.classList.add('hidden');
+          pane.classList.remove('active');
+        });
+        tabButtons.forEach(btn => {
+          btn.classList.remove('border-blue-500', 'text-blue-600');
+          btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+          btn.setAttribute('aria-selected', 'false');
+        });
+        document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById(tabId).classList.add('active');
+        this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+        this.classList.add('border-blue-500', 'text-blue-600');
+        this.setAttribute('aria-selected', 'true');
+      });
+    });
+  }
+
+  function initFileUploadForms() {
+    if (elements.dhpcUploadForm) {
+      elements.dhpcUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('dhpc', elements.dhpcFileInput.files[0]);
+      });
+    }
+    if (elements.psusaUploadForm) {
+      elements.psusaUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('psusa', elements.psusaFileInput.files[0]);
+      });
+    }
+    if (elements.shortagesUploadForm) {
+      elements.shortagesUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('shortages', elements.shortagesFileInput.files[0]);
+      });
+    }
+    if (elements.medicinesUploadForm) {
+      elements.medicinesUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('medicines', elements.medicinesFileInput.files[0]);
+      });
+    }
+    if (elements.referralsUploadForm) {
+      elements.referralsUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('referrals', elements.referralsFileInput.files[0]);
+      });
+    }
+  }
+
+  // New function to search by condition
+  async function searchCondition(condition) {
+    if (!condition) {
+      showError('Please provide a clinical condition to search.');
+      return;
+    }
+
+    try {
+      showLoadingState(elements.approvalData);
+      showLoadingState(elements.orphanData);
+      showLoadingState(elements.safetyData);
+      showLoadingState(elements.psusaData);
+      showLoadingState(elements.shortagesData);
+      showLoadingState(elements.referralsData);
+      showSection(true);
+
+      console.log(`Fetching EMA data for condition: ${condition}`);
+      const response = await fetch(`/api/ema/condition/${encodeURIComponent(condition)}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log(data);
+        displayEmaClinicalData(data, condition);
+      } else {
+        showError(`Error searching EMA data for ${condition}`);
+        console.error('Error searching EMA data:', data.error);
+        showEmptyState(elements.approvalData, `No EMA approval data found for ${condition}.`);
+        showEmptyState(elements.orphanData, `No orphan designation data found for ${condition}.`);
+        showEmptyState(elements.safetyData, `No safety communication data found for ${condition}.`);
+        showEmptyState(elements.psusaData, `No PSUSA data found for ${condition}.`);
+        showEmptyState(elements.shortagesData, `No shortage data found for ${condition}.`);
+        showEmptyState(elements.referralsData, `No referral data found for ${condition}.`);
+      }
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error(`Error searching EMA data for ${condition}:`, error);
+      showEmptyState(elements.approvalData, 'Error loading EMA approval data.');
+      showEmptyState(elements.orphanData, 'Error loading orphan designation data.');
+      showEmptyState(elements.safetyData, 'Error loading safety communication data.');
+      showEmptyState(elements.psusaData, 'Error loading PSUSA data.');
+      showEmptyState(elements.shortagesData, 'Error loading shortages data.');
+      showEmptyState(elements.referralsData, 'Error loading referrals data.');
+    }
+  }
+
+  // Updated display function for condition-based data
+  function displayEmaClinicalData(data, condition) {
+    const { results, total } = data;
+
+    // Filter out veterinary products
+    Object.keys(results).forEach(key => {
+      if (Array.isArray(results[key])) {
+        results[key] = results[key].filter(item => !item._0 || item._0.toLowerCase() !== 'veterinary');
+        total[key] = results[key].length;
+      }
+    });
+
+    // Update counters with total number of records
+    updateCounter(elements.approvalCount, total.medicines, 'approval', 'approvals');
+    updateCounter(elements.orphanCount, total.orphans, 'designation', 'designations');
+    updateCounter(elements.safetyCount, total.dhpc, 'communication', 'communications');
+    updateCounter(elements.psusaCount, total.psusa, 'report', 'reports');
+    updateCounter(elements.shortagesCount, total.shortages, 'shortage', 'shortages');
+    updateCounter(elements.referralsCount, total.referrals, 'referral', 'referrals');
+
+    // Display data for each category
+    displayClinicalApprovalData(results.medicines, condition);
+    displayClinicalOrphanData(results.orphans, condition);
+    displayClinicalSafetyData(results.dhpc, condition);
+    displayClinicalPsusaData(results.psusa, condition);
+    displayClinicalShortagesData(results.shortages, condition);
+    displayClinicalReferralsData(results.referrals, condition);
+  }
+
+  // Clinical display functions
+  function displayClinicalApprovalData(data, condition) {
+    if (!elements.approvalData || !data || data.length === 0) {
+      showEmptyState(elements.approvalData, `No EMA approval data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">Approved Medicines for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Status</th>
+              <th>Active Substance</th>
+              <th>Therapeutic Area</th>
+              <th>Authorization Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const medicineName = item._1 || 'Unknown';
+      const status = item._3 || 'Unknown';
+      const substance = item._6 || item._7 || 'Not specified';
+      const therapeuticArea = item._8 || item._13 || 'Not specified';
+      const authDate = item._29 || item._31 || item._36 || 'Unknown';
+      const indication = item._15 || '';
+      const emaLink = item._38 || '';
+
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('authorised') || status.toLowerCase().includes('authorized')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('refused')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('withdrawn')) {
+        statusClass = 'bg-gray-100 text-gray-800';
+      } else if (status.toLowerCase().includes('pending')) {
+        statusClass = 'bg-yellow-100 text-yellow-800';
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicineName}</div>
+            ${item._2 ? `<div class="text-xs text-gray-500">Procedure: ${item._2}</div>` : ''}
+          </td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${substance}</td>
+          <td>${formatTherapeuticArea(therapeuticArea)}</td>
+          <td>${formatDate(authDate)}</td>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+            ${indication ? `<div class="text-xs text-gray-600 mt-1">Indication: ${indication}</div>` : ''}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.approvalData.innerHTML = html;
+  }
+
+  function displayClinicalOrphanData(data, condition) {
+    if (!elements.orphanData || !data || data.length === 0) {
+      showEmptyState(elements.orphanData, `No orphan designation data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">Orphan Designations for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Decision Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const medicineName = item['Orphan designation'] || item._1 || 'Unknown';
+      const orphanCondition = findFieldInItem(item, ['condition', '_2', '_3']) || 'Not specified';
+      const status = findFieldInItem(item, ['status', '_4', '_5']) || 'Unknown';
+      const decisionDate = findFieldInItem(item, ['date', '_6', '_7']) || 'Unknown';
+      const sponsor = findFieldInItem(item, ['sponsor', '_8', '_9']) || '';
+      const emaLink = findFieldInItem(item, ['_20', '_21', '_22']) || '';
+
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('positive')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('negative')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('withdrawn')) {
+        statusClass = 'bg-gray-100 text-gray-800';
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicineName}</div>
+            ${sponsor ? `<div class="text-xs text-gray-500">Sponsor: ${sponsor}</div>` : ''}
+          </td>
+          <td>${orphanCondition}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(decisionDate)}</td>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.orphanData.innerHTML = html;
+  }
+
+  function displayClinicalSafetyData(data, condition) {
+    if (!elements.safetyData || !data || data.length === 0) {
+      showEmptyState(elements.safetyData, `No safety communication data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">Safety Communications for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Medicine</th>
+              <th>Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const title = item['Direct healthcare professional communication (DHPC)'] || findFieldInItem(item, ['_1', '_2']) || 'Unknown';
+      const medicine = findFieldInItem(item, ['medicine', '_3', '_4']) || 'Not specified';
+      const date = findFieldInItem(item, ['date', '_5', '_6']) || 'Unknown';
+      const reason = findFieldInItem(item, ['reason', '_7', '_8']) || '';
+      const emaLink = findFieldInItem(item, ['_15', '_16', '_17']) || '';
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${title}</div>
+          </td>
+          <td>${medicine}</td>
+          <td>${formatDate(date)}</td>
+          <td>
+            ${reason ? `<div class="text-xs text-gray-600 mb-1">Reason: ${reason}</div>` : ''}
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.safetyData.innerHTML = html;
+  }
+
+  function displayClinicalPsusaData(data, condition) {
+    if (!elements.psusaData || !data || data.length === 0) {
+      showEmptyState(elements.psusaData, `No PSUSA data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">PSUSA Reports for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Substance</th>
+              <th>Procedure</th>
+              <th>Outcome</th>
+              <th>Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const substance = item['Periodic safety update report single assessments (PSUSA)'] || item._1 || item._2 || 'Unknown';
+      const procedure = item._4 || 'Not specified';
+      const outcome = item._5 || 'Unknown';
+      const date = item._6 || 'Unknown';
+      const emaLink = item._8 || '';
+
+      let outcomeClass = 'bg-gray-100 text-gray-800';
+      if (outcome.toLowerCase().includes('variation')) {
+        outcomeClass = 'bg-yellow-100 text-yellow-800';
+      } else if (outcome.toLowerCase().includes('maintenance')) {
+        outcomeClass = 'bg-green-100 text-green-800';
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${substance}</div>
+          </td>
+          <td>${procedure}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${outcomeClass}">
+              ${outcome}
+            </span>
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.psusaData.innerHTML = html;
+  }
+
+  function displayClinicalShortagesData(data, condition) {
+    if (!elements.shortagesData || !data || data.length === 0) {
+      showEmptyState(elements.shortagesData, `No shortage data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">Shortages for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const medicine = item.Shortage || item._1 || 'Unknown';
+      const reason = findFieldInItem(item, ['reason', '_4', '_5']) || 'Not specified';
+      const status = findFieldInItem(item, ['status', '_6', '_7']) || 'Unknown';
+      const date = findFieldInItem(item, ['date', '_8', '_9']) || 'Unknown';
+      const emaLink = findFieldInItem(item, ['_13', '_14', '_15']) || '';
+
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('ongoing')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('resolved')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('expected')) {
+        statusClass = 'bg-yellow-100 text-yellow-800';
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicine}</div>
+          </td>
+          <td>${reason}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.shortagesData.innerHTML = html;
+  }
+
+  function displayClinicalReferralsData(data, condition) {
+    if (!elements.referralsData || !data || data.length === 0) {
+      showEmptyState(elements.referralsData, `No referral data found for ${condition}.`);
+      return;
+    }
+
+    let html = `
+      <div class="overflow-x-auto">
+        <h2 class="text-lg font-semibold mb-2">Referrals for ${condition}</h2>
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Substance</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    data.forEach(item => {
+      const medicine = item._1 || 'Unknown';
+      const substance = item._2 || 'Not specified';
+      const status = item._3 || 'Unknown';
+      const procedure = item._9 || '';
+      const date = findFieldInItem(item, ['_17', '_18', '_19']) || 'Unknown';
+      const emaLink = item._21 || '';
+
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('final') || status.toLowerCase().includes('concluded')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('ongoing')) {
+        statusClass = 'bg-yellow-100 text-yellow-800';
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicine}</div>
+          </td>
+          <td>${substance}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>
+            ${procedure ? `<div class="text-xs text-gray-600 mb-1">Procedure: ${procedure}</div>` : ''}
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="text-blue-600 hover:underline">EMA Page</a>` : 'N/A'}
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    elements.referralsData.innerHTML = html;
+  }
+
+  // Helper functions (mostly unchanged)
+  function showSection(show = true) {
+    if (elements.section) {
+      elements.section.classList.toggle('hidden', !show);
+    }
+  }
+
+  function toggleAdminSection(show = false) {
+    if (elements.dataAdmin) {
+      elements.dataAdmin.classList.toggle('hidden', !show);
+    }
+  }
+
+  async function checkEmaDataStatus() {
+    try {
+      showLoadingState(elements.lastUpdated, true);
+      const response = await fetch('/api/ema/status');
+      const data = await response.json();
+      if (response.ok) {
+        updateLastUpdated(data.status);
+      } else {
+        showError('Error checking EMA data status');
+        console.error('Error checking EMA data status:', data.error);
+      }
+      showLoadingState(elements.lastUpdated, false);
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error checking EMA data status:', error);
+      showLoadingState(elements.lastUpdated, false);
+    }
+  }
+
+  function updateLastUpdated(statusData) {
+    if (!elements.lastUpdated) return;
+    let lastUpdateDate = null;
+    for (const dataType in statusData) {
+      if (statusData[dataType].available && statusData[dataType].lastUpdated) {
+        const updateDate = new Date(statusData[dataType].lastUpdated);
+        if (!lastUpdateDate || updateDate > lastUpdateDate) {
+          lastUpdateDate = updateDate;
+        }
+      }
+    }
+    elements.lastUpdated.textContent = lastUpdateDate 
+      ? `Last updated: ${formatDate(lastUpdateDate)}` 
+      : 'Data not yet available';
+  }
+
+  async function refreshEmaData() {
+    try {
+      if (!elements.refreshBtn) return;
+      elements.refreshBtn.disabled = true;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refreshing...
+      `;
+      const response = await fetch('/api/ema/refresh', { method: 'POST' });
+      const data = await response.json();
+      if (response.ok) {
+        updateLastUpdated(data.status);
+        showToast('EMA data refreshed successfully', 'success');
+      } else {
+        showError('Error refreshing EMA data');
+        console.error('Error refreshing EMA data:', data.error);
+      }
+      elements.refreshBtn.disabled = false;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      `;
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error refreshing EMA data:', error);
+      if (elements.refreshBtn) {
+        elements.refreshBtn.disabled = false;
+        elements.refreshBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        `;
+      }
+    }
+  }
+
+  async function uploadFile(fileType, file) {
+    if (!file) {
+      showUploadStatus('Please select a file', 'error');
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      showUploadStatus('Uploading file...', 'loading');
+      const response = await fetch(`/api/ema/upload/${fileType}`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (response.ok) {
+        showUploadStatus(`File uploaded successfully. Processed ${data.records} records.`, 'success');
+        if (fileType === 'dhpc' && elements.dhpcFileInput) elements.dhpcFileInput.value = '';
+        else if (fileType === 'psusa' && elements.psusaFileInput) elements.psusaFileInput.value = '';
+        else if (fileType === 'shortages' && elements.shortagesFileInput) elements.shortagesFileInput.value = '';
+        else if (fileType === 'medicines' && elements.medicinesFileInput) elements.medicinesFileInput.value = '';
+        else if (fileType === 'referrals' && elements.referralsFileInput) elements.referralsFileInput.value = '';
+        checkEmaDataStatus();
+      } else {
+        showUploadStatus(`Error: ${data.error}`, 'error');
+        console.error('Error uploading file:', data.error);
+      }
+    } catch (error) {
+      showUploadStatus('Error connecting to server', 'error');
+      console.error('Error uploading file:', error);
+    }
+  }
+
+  function showUploadStatus(message, type = 'info') {
+    if (!elements.uploadStatus) return;
+    let bgColor = 'bg-blue-50', textColor = 'text-blue-800', icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    if (type === 'success') {
+      bgColor = 'bg-green-50'; textColor = 'text-green-800'; icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-50'; textColor = 'text-red-800'; icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    } else if (type === 'loading') {
+      bgColor = 'bg-blue-50'; textColor = 'text-blue-800'; icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      `;
+    }
+    elements.uploadStatus.innerHTML = `
+      <div class="flex items-center p-4 ${bgColor} ${textColor} rounded-lg">
+        ${icon}
+        <span>${message}</span>
+      </div>
+    `;
+    elements.uploadStatus.classList.remove('hidden');
+    if (type === 'success') setTimeout(() => elements.uploadStatus.classList.add('hidden'), 5000);
+  }
+
+  function updateCounter(element, count, singular, plural) {
+    if (!element) return;
+    element.textContent = `${count} ${count === 1 ? singular : plural}`;
+  }
+
+  function showLoadingState(element, isText = false) {
+    if (!element) return;
+    if (isText) {
+      element.innerHTML = `<span class="animate-pulse">Loading...</span>`;
+    } else {
+      element.innerHTML = `
+        <div class="ema-loading-state">
+          <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <p class="text-center text-gray-500">Loading data...</p>
+        </div>
+      `;
+    }
+  }
+
+  function showEmptyState(element, message) {
+    if (!element) return;
+    element.innerHTML = `
+      <div class="ema-empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p class="text-center text-gray-500">${message}</p>
+      </div>
+    `;
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  function formatTherapeuticArea(area) {
+    if (!area) return 'Not specified';
+    const areas = area.split(',').map(a => a.trim()).filter(a => a);
+    if (areas.length === 0) return 'Not specified';
+    return areas.map(a => `
+      <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full mb-1 mr-1">
+        ${a}
+      </span>
+    `).join('');
+  }
+
+  function findFieldInItem(item, possibleKeys) {
+    for (const key of possibleKeys) {
+      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+        return item[key];
+      }
+    }
+    for (let i = 0; i < 40; i++) {
+      const key = `_${i}`;
+      if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+        const value = item[key].toString().toLowerCase();
+        if (possibleKeys.includes('date') && (value.includes('/') || value.match(/\d{2}\.\d{2}\.\d{4}/))) {
+          return item[key];
+        }
+        if (possibleKeys.includes('status') && 
+            (value.includes('authorised') || value.includes('withdrawn') || 
+             value.includes('ongoing') || value.includes('resolved'))) {
+          return item[key];
+        }
+        if (possibleKeys.includes('reason') && 
+            value.length > 10 && (value.includes('due to') || value.includes('because'))) {
+          return item[key];
+        }
+      }
+    }
+    return null;
+  }
+
+  function showError(message) {
+    showToast(message, 'error');
+  }
+
+  function showToast(message, type = 'info') {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col space-y-2';
+      document.body.appendChild(toastContainer);
+    }
+    const toast = document.createElement('div');
+    let bgColor = 'bg-blue-500', icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    if (type === 'success') {
+      bgColor = 'bg-green-500'; icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-500'; icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    }
+    toast.className = `flex items-center p-3 rounded-lg text-white ${bgColor} shadow-lg transition-opacity duration-500`;
+    toast.innerHTML = `
+      ${icon}
+      <span>${message}</span>
+      <button class="ml-4 text-white focus:outline-none hover:text-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    `;
+    const closeButton = toast.querySelector('button');
+    closeButton.addEventListener('click', () => {
+      toast.style.opacity = '0';
+      setTimeout(() => toastContainer.removeChild(toast), 500);
+    });
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      if (toast.parentNode === toastContainer) {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (toast.parentNode === toastContainer) toastContainer.removeChild(toast);
+        }, 500);
+      }
+    }, 5000);
+  }
+
+  function addTableStyles() {
+    const styleId = 'ema-data-table-styles';
+    if (document.getElementById(styleId)) return;
+    const styleElement = document.createElement('style');
+    styleElement.id = styleId;
+    styleElement.textContent = `
+      .ema-data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .ema-data-table th {
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .ema-data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .ema-data-table tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      .ema-empty-state, .ema-loading-state {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+      }
+    `;
+    document.head.appendChild(styleElement);
+  }
+
+  // Export functions
+  return {
+    init,
+    searchCondition, // New function for condition-based search
+    showSection,
+    toggleAdminSection,
+    refreshEmaData,
+    checkEmaDataStatus
+    // Note: Removed searchDrug since this is now condition-focused
+  };
+})();
+
+// Example usage
+
+
 
 
 function addExtendedTableStyles() {

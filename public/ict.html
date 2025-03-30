@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://icdcdn.who.int/embeddedct/icd11ect-1.7.1.css">    
+    <title>Embedded Coding Tool v1.7.1</title>
+</head>
+
+<body>
+    <!-- input element used for typing the search  -->
+    Type for starting search: 
+    <input type="text" class="ctw-input" autocomplete="off" data-ctw-ino="1">  
+    <!-- div element used for showing the search results -->
+    <div class="ctw-window" data-ctw-ino="1"></div>
+    
+    <script src="https://icdcdn.who.int/embeddedct/icd11ect-1.7.1.js"></script>
+    <script>
+        const mySettings = {
+            // The API located at the URL below should be used only for software development and testing. 
+            // ICD content at this location might not be up to date or complete. 
+            // For production, use the API located at id.who.int with proper OAUTH authentication
+            apiServerUrl: "https://icd11restapi-developer-test.azurewebsites.net"
+        };
+
+        // configure the ECT Handler
+        ECT.Handler.configure(mySettings);
+    </script>    
+</body>
+</html>

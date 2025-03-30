@@ -99,6 +99,64 @@ router.get('/drug/:drugName', async (req, res) => {
   }
 });
 
+
+
+/**
+ * @route GET /api/ema/condition/:conditionName
+ * @desc Search EMA data for drugs associated with a specific condition
+ * @access Public
+ */
+router.get('/condition/:conditionName', async (req, res) => {
+  try {
+    console.log("Searching for condition:", req.params.conditionName);
+    
+    const conditionName = req.params.conditionName;
+    if (!conditionName) {
+      return res.status(400).json({ error: 'Condition name is required' });
+    }
+    
+    // Optional query parameters
+    const threshold = parseFloat(req.query.threshold) || 0.7; // Fuzzy matching threshold
+    const yearsThreshold = parseInt(req.query.years) || null; // Optional time filter
+    
+    // Validate parameters
+    if (threshold < 0 || threshold > 1) {
+      return res.status(400).json({ 
+        error: 'Threshold must be between 0 and 1' 
+      });
+    }
+    if (yearsThreshold && (yearsThreshold < 1 || yearsThreshold > 20)) {
+      return res.status(400).json({ 
+        error: 'Years threshold must be between 1 and 20' 
+      });
+    }
+    
+    const results = await emaProcessor.searchEmaConditionData(conditionName, { 
+      threshold, 
+      yearsThreshold 
+    });
+    
+    const response = {
+      ...results,
+      searchMetadata: {
+        threshold,
+        yearsThreshold,
+        timestamp: new Date(),
+        query: conditionName
+      }
+    };
+    
+    console.log(`Found ${JSON.stringify(response.total)} matches for condition "${conditionName}"`);
+    res.json(response);
+  } catch (error) {
+    console.error('Error searching EMA condition data:', error);
+    res.status(500).json({ 
+      error: 'Error searching EMA condition data', 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
 /**
  * @route GET /api/ema/treatment-resistant-depression
  * @desc Find recent drugs targeting treatment-resistant depression

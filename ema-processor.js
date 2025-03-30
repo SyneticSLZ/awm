@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const Papa = require('papaparse');
+const FuzzySet = require('fuzzyset.js');
 const { createObjectCsvWriter } = require('csv-writer');
 
 // Base data directory
@@ -164,6 +165,174 @@ async function initializeFieldMappings() {
   }
 }
 
+
+/**
+ * Search EMA data for drugs associated with a specific condition
+ * @param {string} conditionName - The clinical condition to search for (e.g., "Major Depressive Disorder")
+ * @param {Object} options - Search options
+ * @param {number} options.threshold - Fuzzy matching threshold (0 to 1, default: 0.7)
+ * @param {number|null} options.yearsThreshold - Filter results to last X years (optional)
+ * @returns {Object} - Results with categorized data and totals
+ */
+async function searchEmaConditionData(conditionName, options = {}) {
+  const { threshold = 0.7, yearsThreshold = null } = options;
+
+  // Validate inputs
+  if (!conditionName || typeof conditionName !== 'string') {
+    throw new Error('Condition name is required and must be a string');
+  }
+  if (threshold < 0 || threshold > 1) {
+    throw new Error('Threshold must be between 0 and 1');
+  }
+  if (yearsThreshold !== null && (yearsThreshold < 1 || yearsThreshold > 20)) {
+    throw new Error('Years threshold must be between 1 and 20');
+  }
+
+  // Initialize results structure
+  const results = {
+    medicines: [],
+    orphans: [],
+    dhpc: [],
+    psusa: [],
+    shortages: [],
+    referrals: []
+  };
+  const total = {
+    medicines: 0,
+    orphans: 0,
+    dhpc: 0,
+    psusa: 0,
+    shortages: 0,
+    referrals: 0
+  };
+
+  // Date filtering helper
+  const currentYear = new Date().getFullYear();
+  const isRecent = (dateStr) => {
+    if (!yearsThreshold || !dateStr) return true;
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime()) && (currentYear - date.getFullYear()) <= yearsThreshold;
+  };
+
+  // Fuzzy matching setup
+  const fuzzySet = new FuzzySet();
+  const conditionLower = conditionName.toLowerCase();
+
+  // Search Medicines (therapeutic area, indication)
+  this.data.medicines.forEach(item => {
+    const therapeuticArea = (item._8 || item._13 || '').toLowerCase();
+    const indication = (item._15 || '').toLowerCase();
+    const text = `${therapeuticArea} ${indication}`.trim();
+    
+    if (text) {
+      fuzzySet.add(text);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const authDate = item._29 || item._31 || item._36;
+        if (isRecent(authDate)) {
+          results.medicines.push(item);
+        }
+      }
+    }
+  });
+  total.medicines = results.medicines.length;
+
+  // Search Orphans (condition field)
+  this.data.orphans.forEach(item => {
+    const orphanCondition = (item._2 || item._3 || '').toLowerCase();
+    
+    if (orphanCondition) {
+      fuzzySet.add(orphanCondition);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const decisionDate = item._6 || item._7;
+        if (isRecent(decisionDate)) {
+          results.orphans.push(item);
+        }
+      }
+    }
+  });
+  total.orphans = results.orphans.length;
+
+  // Search DHPC (medicine name, reason)
+  this.data.dhpc.forEach(item => {
+    const title = (item['Direct healthcare professional communication (DHPC)'] || item._1 || item._2 || '').toLowerCase();
+    const medicine = (item._3 || item._4 || '').toLowerCase();
+    const reason = (item._7 || item._8 || '').toLowerCase();
+    const text = `${title} ${medicine} ${reason}`.trim();
+    
+    if (text) {
+      fuzzySet.add(text);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const date = item._5 || item._6;
+        if (isRecent(date)) {
+          results.dhpc.push(item);
+        }
+      }
+    }
+  });
+  total.dhpc = results.dhpc.length;
+
+  // Search PSUSA (substance, procedure)
+  this.data.psusa.forEach(item => {
+    const substance = (item['Periodic safety update report single assessments (PSUSA)'] || item._1 || item._2 || '').toLowerCase();
+    const procedure = (item._4 || '').toLowerCase();
+    const text = `${substance} ${procedure}`.trim();
+    
+    if (text) {
+      fuzzySet.add(text);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const date = item._6;
+        if (isRecent(date)) {
+          results.psusa.push(item);
+        }
+      }
+    }
+  });
+  total.psusa = results.psusa.length;
+
+  // Search Shortages (medicine, reason)
+  this.data.shortages.forEach(item => {
+    const medicine = (item.Shortage || item._1 || '').toLowerCase();
+    const reason = (item._4 || item._5 || '').toLowerCase();
+    const text = `${medicine} ${reason}`.trim();
+    
+    if (text) {
+      fuzzySet.add(text);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const date = item._8 || item._9;
+        if (isRecent(date)) {
+          results.shortages.push(item);
+        }
+      }
+    }
+  });
+  total.shortages = results.shortages.length;
+
+  // Search Referrals (medicine, substance)
+  this.data.referrals.forEach(item => {
+    const medicine = (item._1 || '').toLowerCase();
+    const substance = (item._2 || '').toLowerCase();
+    const text = `${medicine} ${substance}`.trim();
+    
+    if (text) {
+      fuzzySet.add(text);
+      const match = fuzzySet.get(conditionLower, null, threshold);
+      if (match && match[0][0] >= threshold) {
+        const date = item._17 || item._18 || item._19;
+        if (isRecent(date)) {
+          results.referrals.push(item);
+        }
+      }
+    }
+  });
+  total.referrals = results.referrals.length;
+
+  return { results, total };
+}
 // /**
 //  * Search EMA data for a specific drug name
 //  * @param {string} drugName - Drug name to search for
@@ -892,6 +1061,7 @@ function parseDate(dateString) {
 }
 module.exports = {
   searchEmaDrugData,
+  searchEmaConditionData,
   processUploadedEmaFile,
   getEmaDataStatus,
   initializeFieldMappings,
