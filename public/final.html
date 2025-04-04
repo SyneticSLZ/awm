@@ -199,7 +199,7 @@
                     <input type="checkbox" id="hasResultsOnly" class="mr-2" checked>
                     <label for="hasResultsOnly" class="text-sm">Show only studies with results</label>
                 </div>
-                <div>
+                <div >
                     <input type="checkbox" id="trdFocusOnly" class="mr-2" checked>
                     <label for="trdFocusOnly" class="text-sm">Focus on TRD-specific trials only</label>
                 </div>
@@ -3219,21 +3219,1058 @@ function groupSimilarConditions(conditionsData) {
     
 //     return insights;
 // }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// function renderTimelineVisualization(data, drugName) {
+//     const timelineElement = document.getElementById('usage-timeline');
+    
+//     // Create array of conditions sorted by number of studies (most studied first)
+//     const sortedConditions = Object.keys(data.byCondition)
+//         .map(condition => ({
+//             name: condition,
+//             ...data.byCondition[condition]
+//         }))
+//         .sort((a, b) => b.count - a.count)
+//         // Limit to top 20 conditions to avoid overcrowding
+//         .slice(0, 20);
+    
+//     // Calculate timeline dimensions
+//     const startYear = data.earliestStudyYear;
+//     const endYear = data.latestStudyYear;
+//     const yearSpan = endYear - startYear + 1;
+    
+//     // Generate the timeline HTML
+//     let timelineHTML = `
+//         <div class="mb-6">
+//             <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${startYear} to ${endYear}</p>
+//             <p class="text-sm text-gray-500 mt-1">Showing top ${sortedConditions.length} conditions out of ${Object.keys(data.byCondition).length} total</p>
+//         </div>
+//         <div class="timeline-chart relative">
+//             <!-- Year markers -->
+//             <div class="year-markers flex justify-between text-xs text-gray-500 mb-2">
+//     `;
+    
+//     // Add year markers (show at most 10 years to avoid overcrowding)
+//     const yearStep = Math.max(1, Math.ceil(yearSpan / 10));
+//     for (let year = startYear; year <= endYear; year += yearStep) {
+//         const position = ((year - startYear) / yearSpan) * 100;
+//         timelineHTML += `<div class="absolute" style="left: ${position}%">${year}</div>`;
+//     }
+    
+//     timelineHTML += `
+//             </div>
+            
+//             <!-- Timeline tracks -->
+//             <div class="timeline-tracks space-y-6">
+//     `;
+    
+//     // Generate a track for each condition
+//     sortedConditions.forEach((condition, index) => {
+//         const startPosition = ((condition.earliestYear - startYear) / yearSpan) * 100;
+//         const endPosition = 100 - ((endYear - condition.latestYear) / yearSpan) * 100;
+//         const width = endPosition - startPosition;
+        
+//         // Generate a color based on the condition index
+//         const hue = (index * 137.5) % 360; // Golden ratio to distribute colors
+//         const color = `hsl(${hue}, 70%, 60%)`;
+//         const darkColor = `hsl(${hue}, 70%, 40%)`;
+        
+//         timelineHTML += `
+//             <div class="condition-track">
+//                 <div class="flex flex-col md:flex-row md:justify-between md:items-baseline mb-1">
+//                     <span class="font-medium text-sm break-words">${condition.name}</span>
+//                     <span class="text-xs text-gray-500">${condition.count} ${condition.count === 1 ? 'study' : 'studies'}</span>
+//                 </div>
+//                 <div class="relative h-8 bg-gray-100 rounded-full overflow-hidden">
+//                     <div class="absolute h-full rounded-full" style="left: ${startPosition}%; width: ${width}%; background-color: ${color};">
+//                         <div class="h-full flex items-center justify-center text-xs font-bold text-white whitespace-nowrap px-2 overflow-hidden">
+//                             ${condition.earliestYear} - ${condition.latestYear}
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Activity indicators -->
+//                 <div class="relative h-1 mt-1">
+//         `;
+        
+//         // Add activity indicators (small circles indicating study frequency)
+//         Object.keys(condition.years).forEach(year => {
+//             const yearPosition = ((year - startYear) / yearSpan) * 100;
+//             const size = Math.min(12, Math.max(4, condition.years[year] * 2)); // Scale based on study count
+            
+//             timelineHTML += `
+//                 <div class="absolute rounded-full" 
+//                      style="left: ${yearPosition}%; top: -${size/4}px; width: ${size}px; height: ${size}px; background-color: ${darkColor};"
+//                      title="${year}: ${condition.years[year]} ${condition.years[year] === 1 ? 'study' : 'studies'}">
+//                 </div>
+//             `;
+//         });
+        
+//         timelineHTML += `
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+        
+//         <!-- View all conditions button for when there are more than 20 -->
+//         ${Object.keys(data.byCondition).length > 20 ? `
+//         <div class="mt-4 text-center">
+//             <button id="view-all-conditions" class="px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm">
+//                 View All ${Object.keys(data.byCondition).length} Conditions
+//             </button>
+//         </div>
+//         ` : ''}
+        
+//         <!-- Evolution of usage patterns -->
+//         <div class="mt-8">
+//             <h3 class="text-lg font-medium mb-3">Key Clinical Insights</h3>
+//             <div class="evolution-patterns grid grid-cols-1 md:grid-cols-2 gap-4">
+//     `;
+    
+//     // Generate insights based on the data
+//     const insights = generateInsights(data, drugName, sortedConditions);
+    
+//     insights.forEach(insight => {
+//         timelineHTML += `
+//             <div class="insight-card p-3 bg-gray-50 rounded-lg border border-gray-200">
+//                 <div class="flex items-start">
+//                     <div class="insight-icon mr-3 text-blue-500">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+//                         </svg>
+//                     </div>
+//                     <p class="text-sm">${insight}</p>
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+//     `;
+    
+//     // Update the timeline element
+//     timelineElement.innerHTML = timelineHTML;
+    
+//     // Add event listener for the "View All Conditions" button
+//     const viewAllButton = document.getElementById('view-all-conditions');
+//     if (viewAllButton) {
+//         viewAllButton.addEventListener('click', () => {
+//             // Show modal with all conditions
+//             showAllConditionsModal(data, drugName);
+//         });
+//     }
+// }
+
+// function showAllConditionsModal(data, drugName) {
+//     // Create a modal to display all conditions
+//     const modal = document.createElement('div');
+//     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    
+//     // Sort all conditions by count
+//     const allConditions = Object.keys(data.byCondition)
+//         .map(condition => ({
+//             name: condition,
+//             count: data.byCondition[condition].count,
+//             earliestYear: data.byCondition[condition].earliestYear,
+//             latestYear: data.byCondition[condition].latestYear
+//         }))
+//         .sort((a, b) => b.count - a.count);
+    
+//     // Create the modal content
+//     let modalContent = `
+//         <div class="bg-white rounded-lg w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+//             <div class="p-4 border-b">
+//                 <div class="flex justify-between items-center">
+//                     <h3 class="text-xl font-bold">All Clinical Conditions for ${drugName}</h3>
+//                     <button id="close-conditions-modal" class="text-gray-500 hover:text-gray-700">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                         </svg>
+//                     </button>
+//                 </div>
+//                 <p class="text-sm text-gray-500">${allConditions.length} total conditions found in clinical trials</p>
+//             </div>
+//             <div class="overflow-y-auto p-4">
+//                 <table class="w-full">
+//                     <thead class="bg-gray-50">
+//                         <tr>
+//                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</th>
+//                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
+//                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+//                         </tr>
+//                     </thead>
+//                     <tbody class="divide-y divide-gray-200">
+//     `;
+    
+//     allConditions.forEach((condition, index) => {
+//         modalContent += `
+//             <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+//                 <td class="px-4 py-2 text-sm">${condition.name}</td>
+//                 <td class="px-4 py-2 text-sm text-center">${condition.count}</td>
+//                 <td class="px-4 py-2 text-sm text-center">${condition.earliestYear} - ${condition.latestYear}</td>
+//             </tr>
+//         `;
+//     });
+    
+//     modalContent += `
+//                     </tbody>
+//                 </table>
+//             </div>
+//         </div>
+//     `;
+    
+//     modal.innerHTML = modalContent;
+//     document.body.appendChild(modal);
+    
+//     // Add event listener to close the modal
+//     document.getElementById('close-conditions-modal').addEventListener('click', () => {
+//         document.body.removeChild(modal);
+//     });
+    
+//     // Also close when clicking outside the modal content
+//     modal.addEventListener('click', (e) => {
+//         if (e.target === modal) {
+//             document.body.removeChild(modal);
+//         }
+//     });
+// }
+
+// function generateInsights(data, drugName, sortedConditions) {
+//     const insights = [];
+//     const currentYear = new Date().getFullYear();
+    
+//     // Insight 1: First studied indication
+//     if (sortedConditions.length > 0) {
+//         const firstCondition = sortedConditions.sort((a, b) => a.earliestYear - b.earliestYear)[0];
+//         insights.push(
+//             `${drugName} was first studied for <strong>${firstCondition.name}</strong> in ${firstCondition.earliestYear}, ${currentYear - firstCondition.earliestYear} years ago.`
+//         );
+//     }
+    
+//     // Insight 2: Most studied indication
+//     const mostStudiedCondition = sortedConditions.sort((a, b) => b.count - a.count)[0];
+//     insights.push(
+//         `The most researched application has been <strong>${mostStudiedCondition.name}</strong> with ${mostStudiedCondition.count} studies.`
+//     );
+    
+//     // Insight 3: Count unique conditions
+//     const uniqueConditionCount = Object.keys(data.byCondition).length;
+//     insights.push(
+//         `${drugName} has been investigated for ${uniqueConditionCount} distinct clinical conditions, showing its potential versatility across multiple medical applications.`
+//     );
+    
+//     // Insight 4: Phase progression
+//     const phaseData = data.byPhase;
+//     const latePhaseCount = (phaseData.PHASE3 || []).length + (phaseData.PHASE4 || []).length;
+//     const totalPhaseCount = Object.values(phaseData).flat().length;
+    
+//     if (totalPhaseCount > 0) {
+//         const latePhasePercentage = Math.round((latePhaseCount / totalPhaseCount) * 100);
+//         insights.push(
+//             `${latePhasePercentage}% of studies have reached late-stage (Phase 3-4) clinical trials, indicating ${latePhasePercentage > 30 ? 'significant' : 'ongoing'} progress toward regulatory approval across various conditions.`
+//         );
+//     }
+    
+//     // Insight 5: Recent activity and trend
+//     const recentYears = currentYear - 5;
+//     let recentActivityCount = 0;
+//     const recentConditions = new Set();
+    
+//     sortedConditions.forEach(condition => {
+//         Object.keys(condition.years).forEach(year => {
+//             if (parseInt(year) >= recentYears) {
+//                 recentActivityCount += condition.years[year];
+//                 recentConditions.add(condition.name);
+//             }
+//         });
+//     });
+    
+//     if (recentConditions.size > 0) {
+//         const topRecentConditions = Array.from(recentConditions).slice(0, 3);
+//         if (topRecentConditions.length > 0) {
+//             insights.push(
+//                 `In the last 5 years, research has focused on ${recentConditions.size} conditions, with notable interest in <strong>${topRecentConditions.join('</strong>, <strong>')}</strong>.`
+//             );
+//         }
+//     }
+    
+//     return insights;
+// }
+
+
+// function extractYearFromDate(dateString) {
+//     if (!dateString) return null;
+    
+//     // Extract year from YYYY-MM-DD format
+//     const match = dateString.match(/^(\d{4})-/);
+//     if (match) {
+//         return parseInt(match[1]);
+//     }
+    
+//     // Try to extract any 4-digit year
+//     const yearMatch = dateString.match(/\b(\d{4})\b/);
+//     if (yearMatch) {
+//         const year = parseInt(yearMatch[1]);
+//         // Validate year is reasonable (between 1950 and current year + 5)
+//         const currentYear = new Date().getFullYear();
+//         if (year >= 1950 && year <= currentYear + 5) {
+//             return year;
+//         }
+//     }
+    
+//     return null;
+// }
+
+// // Update the displayStudies function to include the timeline
+// function displayStudiesWithTimeline(studies, drugName) {
+//     // First, create and append the timeline
+//     const timelineElement = generateDrugUsageTimeline(studies, drugName);
+    
+//     // Check if there's already a timeline
+//     const existingTimeline = document.getElementById('drug-usage-timeline');
+//     if (existingTimeline) {
+//         existingTimeline.replaceWith(timelineElement);
+//     } else {
+//         // Insert the timeline before the studies list
+//         const studiesContainer = elements.studiesList.parentElement;
+//         timelineElement.id = 'drug-usage-timeline';
+//         studiesContainer.insertBefore(timelineElement, elements.studiesList);
+//     }
+    
+//     // Now continue with the original display logic
+//     elements.studiesList.innerHTML = '';
+//     elements.studyCount.textContent = studies.length;
+
+//     if (studies.length === 0) {
+//         elements.studiesList.innerHTML = `
+//             <div class="text-center p-4 text-gray-500">
+//                 <p>No studies found matching the current filters.</p>
+//             </div>
+//         `;
+//         return;
+//     }
+
+//     // Sort studies by phase
+//     const phaseOrder = { 
+//         "PRE_PHASE": 0, 
+//         "PHASE1": 1, 
+//         "PHASE1_PHASE2": 1.5,
+//         "PHASE2": 2, 
+//         "PHASE3": 3, 
+//         "PHASE4": 4 
+//     };
+
+//     studies.sort((a, b) => {
+//         const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+//         const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+//         return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
+//     });
+
+//     studies.forEach(study => {
+//         const nctId = study.protocolSection?.identificationModule?.nctId;
+//         const title = study.protocolSection?.identificationModule?.briefTitle;
+//         const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+//         const status = study.protocolSection?.statusModule?.overallStatus;
+//         const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+//         const hasResults = study.hasResults;
+        
+//         // Determine if this is a TRD-specific study
+//         const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+//         const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+//         const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+        
+//         const trdTerms = [
+//             'treatment-resistant depression', 
+//             'treatment resistant depression',
+//             'trd',
+//             'refractory depression'
+//         ];
+        
+//         const isTRDSpecific = trdTerms.some(term => 
+//             briefTitle.includes(term) || 
+//             officialTitle.includes(term) || 
+//             briefSummary.includes(term)
+//         );
+        
+//         const card = document.createElement('div');
+//         card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+//         card.innerHTML = `
+//             <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
+//                 <div class="flex gap-2 items-center flex-wrap">
+//                     <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
+//                     <span class="text-sm font-medium">${formatPhase(phase)}</span>
+//                     ${getStatusBadge(status)}
+//                     ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+//                 </div>
+//                 <div>
+//                     <span class="text-xs text-gray-500">${nctId}</span>
+//                     ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
+//                 </div>
+//             </div>
+//             <h3 class="text-lg font-medium mb-2">${title}</h3>
+//             <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
+//             <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+//                 </svg>
+//                 View Study Details
+//             </button>
+//         `;
+//         elements.studiesList.appendChild(card);
+        
+//         // Add event listener to the view button
+//         card.querySelector('.view-study-btn').addEventListener('click', () => {
+//             viewStudyDetails(nctId);
+//         });
+//     });
+// }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-function renderTimelineVisualization(data, drugName) {
+/**
+ * Extracts usage data for drug-centric timeline
+ * @param {Array} studies - Array of study objects
+ * @param {string} drugName - Name of the drug
+ * @returns {Object} - Structured usage data
+ */
+function extractUsageData(studies, drugName) {
+    // Initialize data structure
+    const result = {
+        earliestStudyYear: null,
+        latestStudyYear: null,
+        byCondition: {},
+        byPhase: {
+            "PRE_PHASE": [],
+            "PHASE1": [],
+            "PHASE1_PHASE2": [],
+            "PHASE2": [],
+            "PHASE3": [],
+            "PHASE4": []
+        },
+        totalStudies: studies.length,
+        entityType: 'drug',
+        entityName: drugName
+    };
+    
+    // Current year for comparison
+    const currentYear = new Date().getFullYear();
+    
+    studies.forEach(study => {
+        // Extract key information
+        const startYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.startDateStruct?.date
+        );
+        
+        const completionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.completionDateStruct?.date
+        );
+        
+        const primaryCompletionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.primaryCompletionDateStruct?.date
+        );
+        
+        // Use the most appropriate year available
+        const studyYear = startYear || 
+                         (primaryCompletionYear && primaryCompletionYear <= currentYear ? primaryCompletionYear : null) || 
+                         (completionYear && completionYear <= currentYear ? completionYear : null) || 
+                         null;
+        
+        if (!studyYear) return; // Skip if no valid year
+        
+        // Update earliest/latest years
+        if (result.earliestStudyYear === null || studyYear < result.earliestStudyYear) {
+            result.earliestStudyYear = studyYear;
+        }
+        
+        if (result.latestStudyYear === null || studyYear > result.latestStudyYear) {
+            result.latestStudyYear = studyYear;
+        }
+        
+        // Extract conditions
+        const conditions = study.protocolSection?.conditionsModule?.conditions || [];
+        
+        // If no specific conditions listed, use a placeholder
+        if (conditions.length === 0) {
+            const category = "Unspecified Condition";
+            
+            if (!result.byCondition[category]) {
+                result.byCondition[category] = {
+                    count: 0,
+                    years: {},
+                    earliestYear: null,
+                    latestYear: null,
+                    studies: [] // Store study IDs for linking
+                };
+            }
+            
+            result.byCondition[category].count++;
+            result.byCondition[category].years[studyYear] = (result.byCondition[category].years[studyYear] || 0) + 1;
+            
+            // Store study ID for linking
+            result.byCondition[category].studies.push({
+                id: study.protocolSection?.identificationModule?.nctId,
+                year: studyYear,
+                title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study'
+            });
+            
+            // Update condition-specific earliest/latest years
+            if (result.byCondition[category].earliestYear === null || 
+                studyYear < result.byCondition[category].earliestYear) {
+                result.byCondition[category].earliestYear = studyYear;
+            }
+            
+            if (result.byCondition[category].latestYear === null || 
+                studyYear > result.byCondition[category].latestYear) {
+                result.byCondition[category].latestYear = studyYear;
+            }
+        } else {
+            // Process each condition
+            conditions.forEach(condition => {
+                // Keep the exact condition name as provided, only first letter capitalized for consistency
+                const normalizedCondition = condition.charAt(0).toUpperCase() + condition.slice(1);
+                
+                // Initialize condition data if it doesn't exist
+                if (!result.byCondition[normalizedCondition]) {
+                    result.byCondition[normalizedCondition] = {
+                        count: 0,
+                        years: {},
+                        earliestYear: null,
+                        latestYear: null,
+                        studies: [] // Store study IDs for linking
+                    };
+                }
+                
+                // Increment counts
+                result.byCondition[normalizedCondition].count++;
+                result.byCondition[normalizedCondition].years[studyYear] = 
+                    (result.byCondition[normalizedCondition].years[studyYear] || 0) + 1;
+                
+                // Store study ID for linking
+                result.byCondition[normalizedCondition].studies.push({
+                    id: study.protocolSection?.identificationModule?.nctId,
+                    year: studyYear,
+                    title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study',
+                    phase: study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE"
+                });
+                
+                // Update condition-specific earliest/latest years
+                if (result.byCondition[normalizedCondition].earliestYear === null || 
+                    studyYear < result.byCondition[normalizedCondition].earliestYear) {
+                    result.byCondition[normalizedCondition].earliestYear = studyYear;
+                }
+                
+                if (result.byCondition[normalizedCondition].latestYear === null || 
+                    studyYear > result.byCondition[normalizedCondition].latestYear) {
+                    result.byCondition[normalizedCondition].latestYear = studyYear;
+                }
+            });
+        }
+        
+        // Track phases
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        if (result.byPhase[phase]) {
+            result.byPhase[phase].push({
+                nctId: study.protocolSection?.identificationModule?.nctId,
+                year: studyYear,
+                conditions: conditions.length > 0 ? conditions : ["Unspecified"],
+                title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study'
+            });
+        }
+    });
+    
+    return result;
+}
+
+/**
+ * Extracts data for condition-centric timeline
+ * @param {Array} studies - Array of study objects
+ * @param {string} conditionName - Name of the condition
+ * @returns {Object} - Structured usage data
+ */
+function extractConditionData(studies, conditionName) {
+    // Initialize data structure
+    const result = {
+        earliestStudyYear: null,
+        latestStudyYear: null,
+        byDrug: {}, // Instead of byCondition, we track by drug
+        byPhase: {
+            "PRE_PHASE": [],
+            "PHASE1": [],
+            "PHASE1_PHASE2": [],
+            "PHASE2": [],
+            "PHASE3": [],
+            "PHASE4": []
+        },
+        totalStudies: studies.length,
+        entityType: 'condition',
+        entityName: conditionName
+    };
+    
+    // Current year for comparison
+    const currentYear = new Date().getFullYear();
+    
+    studies.forEach(study => {
+        // Extract key information
+        const startYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.startDateStruct?.date
+        );
+        
+        const completionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.completionDateStruct?.date
+        );
+        
+        const primaryCompletionYear = extractYearFromDate(
+            study.protocolSection?.statusModule?.primaryCompletionDateStruct?.date
+        );
+        
+        // Use the most appropriate year available
+        const studyYear = startYear || 
+                         (primaryCompletionYear && primaryCompletionYear <= currentYear ? primaryCompletionYear : null) || 
+                         (completionYear && completionYear <= currentYear ? completionYear : null) || 
+                         null;
+        
+        if (!studyYear) return; // Skip if no valid year
+        
+        // Update earliest/latest years
+        if (result.earliestStudyYear === null || studyYear < result.earliestStudyYear) {
+            result.earliestStudyYear = studyYear;
+        }
+        
+        if (result.latestStudyYear === null || studyYear > result.latestStudyYear) {
+            result.latestStudyYear = studyYear;
+        }
+        
+        // Extract interventions (drugs or treatments)
+        const interventions = study.protocolSection?.armsInterventionsModule?.interventions || [];
+        
+        // If no specific interventions listed, use a placeholder
+        if (interventions.length === 0) {
+            const category = "Unspecified Treatment";
+            
+            if (!result.byDrug[category]) {
+                result.byDrug[category] = {
+                    count: 0,
+                    years: {},
+                    earliestYear: null,
+                    latestYear: null,
+                    studies: [] // Store study IDs for linking
+                };
+            }
+            
+            result.byDrug[category].count++;
+            result.byDrug[category].years[studyYear] = (result.byDrug[category].years[studyYear] || 0) + 1;
+            
+            // Store study ID for linking
+            result.byDrug[category].studies.push({
+                id: study.protocolSection?.identificationModule?.nctId,
+                year: studyYear,
+                title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study',
+                phase: study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE"
+            });
+            
+            // Update drug-specific earliest/latest years
+            if (result.byDrug[category].earliestYear === null || 
+                studyYear < result.byDrug[category].earliestYear) {
+                result.byDrug[category].earliestYear = studyYear;
+            }
+            
+            if (result.byDrug[category].latestYear === null || 
+                studyYear > result.byDrug[category].latestYear) {
+                result.byDrug[category].latestYear = studyYear;
+            }
+        } else {
+            // Process each intervention
+            interventions.forEach(intervention => {
+                // Only capture drug interventions
+                if (intervention.type?.toLowerCase() !== 'drug' && 
+                    intervention.type?.toLowerCase() !== 'biological' &&
+                    intervention.type?.toLowerCase() !== 'combination product') {
+                    return;
+                }
+                
+                // Normalize drug name
+                const drugName = intervention.name.charAt(0).toUpperCase() + intervention.name.slice(1);
+                
+                // Initialize drug data if it doesn't exist
+                if (!result.byDrug[drugName]) {
+                    result.byDrug[drugName] = {
+                        count: 0,
+                        years: {},
+                        earliestYear: null,
+                        latestYear: null,
+                        studies: [] // Store study IDs for linking
+                    };
+                }
+                
+                // Increment counts
+                result.byDrug[drugName].count++;
+                result.byDrug[drugName].years[studyYear] = 
+                    (result.byDrug[drugName].years[studyYear] || 0) + 1;
+                
+                // Store study ID for linking
+                result.byDrug[drugName].studies.push({
+                    id: study.protocolSection?.identificationModule?.nctId,
+                    year: studyYear,
+                    title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study',
+                    phase: study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE"
+                });
+                
+                // Update drug-specific earliest/latest years
+                if (result.byDrug[drugName].earliestYear === null || 
+                    studyYear < result.byDrug[drugName].earliestYear) {
+                    result.byDrug[drugName].earliestYear = studyYear;
+                }
+                
+                if (result.byDrug[drugName].latestYear === null || 
+                    studyYear > result.byDrug[drugName].latestYear) {
+                    result.byDrug[drugName].latestYear = studyYear;
+                }
+            });
+        }
+        
+        // Track phases
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        if (result.byPhase[phase]) {
+            result.byPhase[phase].push({
+                nctId: study.protocolSection?.identificationModule?.nctId,
+                year: studyYear,
+                title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study'
+            });
+        }
+    });
+    
+    return result;
+}
+
+/**
+ * Renders the timeline visualization
+ * @param {Object} data - Processed timeline data
+ * @param {string} entityName - Name of drug or condition
+ * @param {string} entityType - Either 'drug' or 'condition'
+ */
+
+ 
+// function renderTimelineVisualization(data, entityName, entityType = 'drug') {
+//     const timelineElement = document.getElementById('usage-timeline');
+    
+//     // Determine which data field to use based on entity type
+//     const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+//     const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
+    
+//     // Create array of items sorted by number of studies (most studied first)
+//     const sortedItems = Object.keys(data[dataField])
+//         .map(item => ({
+//             name: item,
+//             ...data[dataField][item]
+//         }))
+//         .sort((a, b) => b.count - a.count)
+//         // Limit to top 15 items to avoid overcrowding
+//         .slice(0, 15);
+    
+//     // Calculate timeline dimensions
+//     const startYear = data.earliestStudyYear;
+//     const endYear = data.latestStudyYear;
+//     const yearSpan = endYear - startYear + 1;
+    
+//     // Generate the timeline HTML
+//     let timelineHTML = `
+//         <div class="mb-6">
+//             <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${startYear} to ${endYear}</p>
+//             <p class="text-sm text-gray-500 mt-1">Showing top ${sortedItems.length} ${itemType} out of ${Object.keys(data[dataField]).length} total</p>
+//         </div>
+        
+//         <div class="mb-4">
+//             <input type="text" id="timeline-search" placeholder="Search ${itemType}..." 
+//                    class="w-full p-2 border border-gray-300 rounded shadow-sm text-sm">
+//         </div>
+        
+//         <div class="timeline-chart relative">
+//             <!-- Year markers -->
+//             <div class="year-markers flex justify-between text-xs text-gray-500 mb-2">
+//     `;
+    
+//     // Add year markers (show at most 10 years to avoid overcrowding)
+//     const yearStep = Math.max(1, Math.ceil(yearSpan / 10));
+//     for (let year = startYear; year <= endYear; year += yearStep) {
+//         const position = ((year - startYear) / yearSpan) * 100;
+//         timelineHTML += `<div class="absolute" style="left: ${position}%">${year}</div>`;
+//     }
+    
+//     timelineHTML += `
+//             </div>
+            
+//             <!-- Timeline tracks -->
+//             <div class="timeline-tracks space-y-6">
+//     `;
+    
+//     // Generate a track for each item
+//     sortedItems.forEach((item, index) => {
+//         const startPosition = ((item.earliestYear - startYear) / yearSpan) * 100;
+//         const endPosition = 100 - ((endYear - item.latestYear) / yearSpan) * 100;
+//         const width = endPosition - startPosition;
+        
+//         // Generate a color based on the item index
+//         const hue = (index * 137.5) % 360; // Golden ratio to distribute colors
+//         const color = `hsl(${hue}, 70%, 60%)`;
+//         const darkColor = `hsl(${hue}, 70%, 40%)`;
+        
+//         timelineHTML += `
+//             <div class="item-track" data-item="${item.name.toLowerCase()}">
+//                 <div class="flex flex-col md:flex-row md:justify-between md:items-baseline mb-1">
+//                     <a href="#" class="item-link font-medium text-sm break-words text-blue-600 hover:text-blue-800 hover:underline" 
+//                        data-item="${item.name}" data-type="${entityType === 'drug' ? 'condition' : 'drug'}">
+//                         ${item.name}
+//                     </a>
+//                     <span class="text-xs text-gray-500">${item.count} ${item.count === 1 ? 'study' : 'studies'}</span>
+//                 </div>
+//                 <div class="relative h-8 bg-gray-100 rounded-full overflow-hidden">
+//                     <div class="absolute h-full rounded-full" style="left: ${startPosition}%; width: ${width}%; background-color: ${color};">
+//                         <div class="h-full flex items-center justify-center text-xs font-bold text-white whitespace-nowrap px-2 overflow-hidden">
+//                             ${item.earliestYear} - ${item.latestYear}
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Activity indicators -->
+//                 <div class="relative h-1 mt-1">
+//         `;
+        
+//         // Add activity indicators (small circles indicating study frequency)
+//         Object.keys(item.years).forEach(year => {
+//             const yearPosition = ((year - startYear) / yearSpan) * 100;
+//             const studyCount = item.years[year];
+//             const size = Math.min(12, Math.max(4, studyCount * 2)); // Scale based on study count
+            
+//             // Find studies for this year and item
+//             const yearStudies = item.studies.filter(study => study.year == year);
+//             const studyIds = yearStudies.map(study => study.id).join(',');
+//             const studyTitles = yearStudies.map(study => study.title).join('||');
+            
+//             timelineHTML += `
+//                 <div class="absolute rounded-full study-indicator cursor-pointer" 
+//                      style="left: ${yearPosition}%; top: -${size/4}px; width: ${size}px; height: ${size}px; background-color: ${darkColor};"
+//                      data-year="${year}" 
+//                      data-count="${studyCount}"
+//                      data-item="${item.name}"
+//                      data-studies="${studyIds}"
+//                      data-titles="${encodeURIComponent(studyTitles)}"
+//                      title="${year}: ${studyCount} ${studyCount === 1 ? 'study' : 'studies'} for ${item.name}">
+//                 </div>
+//             `;
+//         });
+        
+//         timelineHTML += `
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+        
+//         <!-- View all button for when there are more than shown -->
+//         ${Object.keys(data[dataField]).length > sortedItems.length ? `
+//         <div class="mt-4 text-center">
+//             <button id="view-all-items" class="px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm">
+//                 View All ${Object.keys(data[dataField]).length} ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}
+//             </button>
+//         </div>
+//         ` : ''}
+        
+//         <!-- Study details popup -->
+//         <div id="study-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+//             <div class="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+//                 <div class="p-4 border-b flex justify-between items-center">
+//                     <h3 class="text-lg font-bold" id="popup-title">Studies</h3>
+//                     <button id="close-popup" class="text-gray-500 hover:text-gray-700">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                         </svg>
+//                     </button>
+//                 </div>
+//                 <div class="overflow-y-auto p-4" id="popup-content">
+//                     <!-- Content will be dynamically inserted here -->
+//                 </div>
+//             </div>
+//         </div>
+        
+//         <!-- Evolution insights -->
+//         <div class="mt-8">
+//             <h3 class="text-lg font-medium mb-3">Key Clinical Insights</h3>
+//             <div class="evolution-patterns grid grid-cols-1 md:grid-cols-2 gap-4">
+//     `;
+    
+//     // Generate insights based on the data
+//     const insights = generateInsights(data, entityName, sortedItems, entityType);
+    
+//     insights.forEach(insight => {
+//         timelineHTML += `
+//             <div class="insight-card p-3 bg-gray-50 rounded-lg border border-gray-200">
+//                 <div class="flex items-start">
+//                     <div class="insight-icon mr-3 text-blue-500">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+//                         </svg>
+//                     </div>
+//                     <p class="text-sm">${insight}</p>
+//                 </div>
+//             </div>
+//         `;
+//     });
+    
+//     timelineHTML += `
+//             </div>
+//         </div>
+//     `;
+    
+//     // Update the timeline element
+//     timelineElement.innerHTML = timelineHTML;
+    
+//     // Add event listeners
+    
+//     // 1. Search functionality
+//     const searchInput = document.getElementById('timeline-search');
+//     if (searchInput) {
+//         searchInput.addEventListener('input', (e) => {
+//             const searchTerm = e.target.value.toLowerCase();
+//             const tracks = document.querySelectorAll('.item-track');
+            
+//             tracks.forEach(track => {
+//                 const itemName = track.dataset.item;
+//                 if (!searchTerm || itemName.includes(searchTerm)) {
+//                     track.style.display = '';
+//                 } else {
+//                     track.style.display = 'none';
+//                 }
+//             });
+//         });
+//     }
+    
+//     // 2. View all button
+//     const viewAllButton = document.getElementById('view-all-items');
+//     if (viewAllButton) {
+//         viewAllButton.addEventListener('click', () => {
+//             // Show modal with all items
+//             showAllItemsModal(data, entityName, entityType);
+//         });
+//     }
+    
+//     // 3. Study indicators (dots)
+//     const studyIndicators = document.querySelectorAll('.study-indicator');
+//     studyIndicators.forEach(indicator => {
+//         indicator.addEventListener('click', (e) => {
+//             const year = e.target.dataset.year;
+//             const item = e.target.dataset.item;
+//             const count = e.target.dataset.count;
+//             const studyIds = e.target.dataset.studies.split(',');
+//             const studyTitles = decodeURIComponent(e.target.dataset.titles).split('||');
+            
+//             // Show popup with links to studies
+//             const popup = document.getElementById('study-popup');
+//             const popupTitle = document.getElementById('popup-title');
+//             const popupContent = document.getElementById('popup-content');
+            
+//             popupTitle.textContent = `${count} Studies for ${item} (${year})`;
+            
+//             let studyListHTML = `<ul class="space-y-2">`;
+            
+//             for (let i = 0; i < studyIds.length; i++) {
+//                 studyListHTML += `
+//                     <li class="border-b border-gray-100 pb-2">
+//                         <a href="#" class="text-blue-600 hover:text-blue-800 font-medium study-link" data-nctid="${studyIds[i]}">
+//                             ${studyTitles[i] || `Study ${i+1}`}
+//                         </a>
+//                     </li>
+//                 `;
+//             }
+            
+//             studyListHTML += `</ul>`;
+//             popupContent.innerHTML = studyListHTML;
+            
+//             // Add event listeners to study links
+//             const studyLinks = popupContent.querySelectorAll('.study-link');
+//             studyLinks.forEach(link => {
+//                 link.addEventListener('click', (e) => {
+//                     e.preventDefault();
+//                     const nctId = e.target.dataset.nctid;
+//                     if (nctId) {
+//                         // Close the popup
+//                         popup.classList.add('hidden');
+//                         // View study details (assuming viewStudyDetails function exists)
+//                         viewStudyDetails(nctId);
+//                     }
+//                 });
+//             });
+            
+//             // Show the popup
+//             popup.classList.remove('hidden');
+//         });
+//     });
+    
+//     // 4. Close popup button
+//     const closePopupButton = document.getElementById('close-popup');
+//     if (closePopupButton) {
+//         closePopupButton.addEventListener('click', () => {
+//             document.getElementById('study-popup').classList.add('hidden');
+//         });
+//     }
+//     // 5. Item links (condition/drug names)
+//     const itemLinks = document.querySelectorAll('.item-link');
+//     itemLinks.forEach(link => {
+//         link.addEventListener('click', (e) => {
+//             e.preventDefault();
+//             const itemName = e.target.dataset.item;
+//             const itemType = e.target.dataset.type;
+            
+//             // Trigger search for this item
+//             // This would typically call your search function with the item as the search term
+//             if (typeof searchForEntity === 'function') {
+//                 searchForEntity(itemName, itemType);
+//             } else {
+//                 alert(`Search for ${itemType}: ${itemName} would be triggered here`);
+//                 console.log(`Search for ${itemType}: ${itemName}`);
+//             }
+//         });
+//     });
+    
+//     // 6. Close popup when clicking outside
+//     const popup = document.getElementById('study-popup');
+//     if (popup) {
+//         popup.addEventListener('click', (e) => {
+//             if (e.target === popup) {
+//                 popup.classList.add('hidden');
+//             }
+//         });
+//     }
+// }
+function renderTimelineVisualization(data, entityName, entityType = 'drug') {
     const timelineElement = document.getElementById('usage-timeline');
     
-    // Create array of conditions sorted by number of studies (most studied first)
-    const sortedConditions = Object.keys(data.byCondition)
-        .map(condition => ({
-            name: condition,
-            ...data.byCondition[condition]
+    // Determine which data field to use based on entity type
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
+    
+    // Create array of items sorted by number of studies (most studied first)
+    const sortedItems = Object.keys(data[dataField])
+        .map(item => ({
+            name: item,
+            ...data[dataField][item]
         }))
         .sort((a, b) => b.count - a.count)
-        // Limit to top 20 conditions to avoid overcrowding
-        .slice(0, 20);
+        // Limit to top 15 items to avoid overcrowding
+        .slice(0, 15);
     
     // Calculate timeline dimensions
     const startYear = data.earliestStudyYear;
@@ -3244,8 +4281,14 @@ function renderTimelineVisualization(data, drugName) {
     let timelineHTML = `
         <div class="mb-6">
             <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${startYear} to ${endYear}</p>
-            <p class="text-sm text-gray-500 mt-1">Showing top ${sortedConditions.length} conditions out of ${Object.keys(data.byCondition).length} total</p>
+            <p class="text-sm text-gray-500 mt-1">Showing top ${sortedItems.length} ${itemType} out of ${Object.keys(data[dataField]).length} total</p>
         </div>
+        
+        <div class="mb-4">
+            <input type="text" id="timeline-search" placeholder="Search ${itemType}..." 
+                   class="w-full p-2 border border-gray-300 rounded shadow-sm text-sm">
+        </div>
+        
         <div class="timeline-chart relative">
             <!-- Year markers -->
             <div class="year-markers flex justify-between text-xs text-gray-500 mb-2">
@@ -3265,27 +4308,30 @@ function renderTimelineVisualization(data, drugName) {
             <div class="timeline-tracks space-y-6">
     `;
     
-    // Generate a track for each condition
-    sortedConditions.forEach((condition, index) => {
-        const startPosition = ((condition.earliestYear - startYear) / yearSpan) * 100;
-        const endPosition = 100 - ((endYear - condition.latestYear) / yearSpan) * 100;
+    // Generate a track for each item
+    sortedItems.forEach((item, index) => {
+        const startPosition = ((item.earliestYear - startYear) / yearSpan) * 100;
+        const endPosition = 100 - ((endYear - item.latestYear) / yearSpan) * 100;
         const width = endPosition - startPosition;
         
-        // Generate a color based on the condition index
+        // Generate a color based on the item index
         const hue = (index * 137.5) % 360; // Golden ratio to distribute colors
         const color = `hsl(${hue}, 70%, 60%)`;
         const darkColor = `hsl(${hue}, 70%, 40%)`;
         
         timelineHTML += `
-            <div class="condition-track">
+            <div class="item-track" data-item="${item.name.toLowerCase()}">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-baseline mb-1">
-                    <span class="font-medium text-sm break-words">${condition.name}</span>
-                    <span class="text-xs text-gray-500">${condition.count} ${condition.count === 1 ? 'study' : 'studies'}</span>
+                    <a href="#" class="item-link font-medium text-sm break-words text-blue-600 hover:text-blue-800 hover:underline" 
+                       data-item="${item.name}" data-type="${entityType === 'drug' ? 'condition' : 'drug'}">
+                        ${item.name}
+                    </a>
+                    <span class="text-xs text-gray-500">${item.count} ${item.count === 1 ? 'study' : 'studies'}</span>
                 </div>
                 <div class="relative h-8 bg-gray-100 rounded-full overflow-hidden">
                     <div class="absolute h-full rounded-full" style="left: ${startPosition}%; width: ${width}%; background-color: ${color};">
                         <div class="h-full flex items-center justify-center text-xs font-bold text-white whitespace-nowrap px-2 overflow-hidden">
-                            ${condition.earliestYear} - ${condition.latestYear}
+                            ${item.earliestYear} - ${item.latestYear}
                         </div>
                     </div>
                 </div>
@@ -3295,14 +4341,18 @@ function renderTimelineVisualization(data, drugName) {
         `;
         
         // Add activity indicators (small circles indicating study frequency)
-        Object.keys(condition.years).forEach(year => {
+        Object.keys(item.years).forEach(year => {
             const yearPosition = ((year - startYear) / yearSpan) * 100;
-            const size = Math.min(12, Math.max(4, condition.years[year] * 2)); // Scale based on study count
+            const studyCount = item.years[year];
+            const size = Math.min(12, Math.max(4, studyCount * 2)); // Scale based on study count
             
             timelineHTML += `
-                <div class="absolute rounded-full" 
+                <div class="absolute rounded-full study-indicator cursor-pointer" 
                      style="left: ${yearPosition}%; top: -${size/4}px; width: ${size}px; height: ${size}px; background-color: ${darkColor};"
-                     title="${year}: ${condition.years[year]} ${condition.years[year] === 1 ? 'study' : 'studies'}">
+                     data-year="${year}" 
+                     data-count="${studyCount}"
+                     data-item="${item.name}"
+                     title="${year}: ${studyCount} ${studyCount === 1 ? 'study' : 'studies'} for ${item.name}">
                 </div>
             `;
         });
@@ -3317,23 +4367,26 @@ function renderTimelineVisualization(data, drugName) {
             </div>
         </div>
         
-        <!-- View all conditions button for when there are more than 20 -->
-        ${Object.keys(data.byCondition).length > 20 ? `
+        <!-- View all button for when there are more than shown -->
+        ${Object.keys(data[dataField]).length > sortedItems.length ? `
         <div class="mt-4 text-center">
-            <button id="view-all-conditions" class="px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm">
-                View All ${Object.keys(data.byCondition).length} Conditions
+            <button id="view-all-items" class="px-4 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm">
+                View All ${Object.keys(data[dataField]).length} ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}
             </button>
         </div>
         ` : ''}
         
-        <!-- Evolution of usage patterns -->
+        <!-- Usage detail modal (will be created dynamically) -->
+        <div id="usage-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"></div>
+        
+        <!-- Evolution insights -->
         <div class="mt-8">
             <h3 class="text-lg font-medium mb-3">Key Clinical Insights</h3>
             <div class="evolution-patterns grid grid-cols-1 md:grid-cols-2 gap-4">
     `;
     
     // Generate insights based on the data
-    const insights = generateInsights(data, drugName, sortedConditions);
+    const insights = generateInsights(data, entityName, sortedItems, entityType);
     
     insights.forEach(insight => {
         timelineHTML += `
@@ -3358,28 +4411,689 @@ function renderTimelineVisualization(data, drugName) {
     // Update the timeline element
     timelineElement.innerHTML = timelineHTML;
     
-    // Add event listener for the "View All Conditions" button
-    const viewAllButton = document.getElementById('view-all-conditions');
+    // Add event listeners
+    
+    // 1. Search functionality
+    const searchInput = document.getElementById('timeline-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const tracks = document.querySelectorAll('.item-track');
+            
+            tracks.forEach(track => {
+                const itemName = track.dataset.item;
+                if (!searchTerm || itemName.includes(searchTerm)) {
+                    track.style.display = '';
+                } else {
+                    track.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // 2. View all button
+    const viewAllButton = document.getElementById('view-all-items');
     if (viewAllButton) {
         viewAllButton.addEventListener('click', () => {
-            // Show modal with all conditions
-            showAllConditionsModal(data, drugName);
+            // Show modal with all items
+            showAllItemsModal(data, entityName, entityType);
+        });
+    }
+    
+    // 3. Item links (condition/drug names)
+    const itemLinks = document.querySelectorAll('.item-link');
+    itemLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const itemName = e.target.dataset.item;
+            const itemType = e.target.dataset.type;
+            
+            // Get the data for this item
+            const itemData = data[dataField][itemName];
+            
+            if (itemData) {
+                // Show detailed modal
+                showUsageDetailModal(itemData, itemName, entityType);
+            } else {
+                // Fallback to search
+                if (typeof searchForEntity === 'function') {
+                    searchForEntity(itemName, itemType);
+                } else {
+                    alert(`Search for ${itemType}: ${itemName}`);
+                    console.log(`Search for ${itemType}: ${itemName}`);
+                }
+            }
+        });
+    });
+    
+    // 4. Study indicators (dots)
+    const studyIndicators = document.querySelectorAll('.study-indicator');
+    studyIndicators.forEach(indicator => {
+        indicator.addEventListener('click', (e) => {
+            const item = e.target.dataset.item;
+            
+            // Get the data for this item
+            const itemData = data[dataField][item];
+            
+            if (itemData) {
+                // Show detailed modal
+                showUsageDetailModal(itemData, item, entityType);
+            }
+        });
+    });
+}
+
+/**
+ * Shows a detailed modal for a specific usage (condition or drug)
+ * @param {Object} itemData - Data for the specific item
+ * @param {string} itemName - Name of the item (condition or drug)
+ * @param {string} entityType - Type of the parent entity ('drug' or 'condition')
+ */
+function showUsageDetailModal(itemData, itemName, entityType) {
+    // Get or create modal container
+    let modal = document.getElementById('usage-detail-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'usage-detail-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+        document.body.appendChild(modal);
+    }
+    
+    // Make sure modal is visible
+    modal.classList.remove('hidden');
+    
+    // Determine relation type based on entity type
+    const relationType = entityType === 'drug' ? 'condition' : 'drug';
+    const relationTypeName = entityType === 'drug' ? 'Condition' : 'Treatment';
+    
+    // Sort studies by year (newest first)
+    const sortedStudies = [...(itemData.studies || [])].sort((a, b) => b.year - a.year);
+    
+    // Group studies by phase
+    const studiesByPhase = {};
+    sortedStudies.forEach(study => {
+        const phase = study.phase || 'Unknown';
+        if (!studiesByPhase[phase]) {
+            studiesByPhase[phase] = [];
+        }
+        studiesByPhase[phase].push(study);
+    });
+    
+    // Get phase order for sorting
+    const phaseOrder = {
+        "PHASE4": 1,
+        "PHASE3": 2,
+        "PHASE2": 3,
+        "PHASE1_PHASE2": 4,
+        "PHASE1": 5,
+        "PRE_PHASE": 6,
+        "Unknown": 7
+    };
+    
+    // Sort phases
+    const sortedPhases = Object.keys(studiesByPhase).sort((a, b) => 
+        (phaseOrder[a] || 999) - (phaseOrder[b] || 999)
+    );
+    
+    // Create a heatmap data for years
+    const yearData = [];
+    const years = Object.keys(itemData.years || {}).map(Number).sort((a, b) => a - b);
+    
+    // Find max studies in a year for scaling
+    const maxYearCount = Math.max(...Object.values(itemData.years || {}).map(count => Number(count)));
+    
+    years.forEach(year => {
+        const count = itemData.years[year] || 0;
+        // Calculate color intensity based on count relative to max
+        const intensity = Math.floor((count / maxYearCount) * 100);
+        yearData.push({
+            year,
+            count,
+            intensity
+        });
+    });
+    
+    // Create modal content
+    let modalContent = `
+        <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b bg-gray-50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">${itemName}</h3>
+                    <button id="close-usage-detail-modal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600">
+                    ${relationTypeName} studied from ${itemData.earliestYear} to ${itemData.latestYear} 
+                    (${itemData.count} total studies)
+                </p>
+            </div>
+            
+            <div class="overflow-y-auto">
+                <!-- Quick stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b">
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <div class="text-sm text-blue-600 font-medium">First Studied</div>
+                        <div class="text-2xl font-bold">${itemData.earliestYear}</div>
+                        <div class="text-xs text-gray-500">${new Date().getFullYear() - itemData.earliestYear} years ago</div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <div class="text-sm text-green-600 font-medium">Total Studies</div>
+                        <div class="text-2xl font-bold">${itemData.count}</div>
+                        <div class="text-xs text-gray-500">Across ${years.length} years</div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-3 rounded-lg">
+                        <div class="text-sm text-purple-600 font-medium">Latest Activity</div>
+                        <div class="text-2xl font-bold">${itemData.latestYear}</div>
+                        <div class="text-xs text-gray-500">${itemData.years[itemData.latestYear] || 0} studies in that year</div>
+                    </div>
+                </div>
+                
+                <!-- Year activity heatmap -->
+                <div class="p-4 border-b">
+                    <h4 class="text-lg font-medium mb-3">Research Activity by Year</h4>
+                    <div class="flex flex-wrap gap-1 justify-center">
+    `;
+    
+    // Generate year blocks for heatmap
+    yearData.forEach(data => {
+        const blueIntensity = Math.min(255, Math.max(100, 220 - data.intensity * 1.5));
+        modalContent += `
+            <div class="relative group">
+                <div class="w-10 h-10 flex items-center justify-center text-xs font-medium 
+                           ${data.intensity > 50 ? 'text-white' : 'text-gray-800'}" 
+                     style="background-color: rgb(0, 0, ${blueIntensity})">
+                    ${data.year}
+                </div>
+                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap">
+                    ${data.count} studies in ${data.year}
+                </div>
+            </div>
+        `;
+    });
+    
+    modalContent += `
+                    </div>
+                </div>
+                
+                <!-- Studies breakdown -->
+                <div class="p-4">
+                    <h4 class="text-lg font-medium mb-3">Studies by Phase</h4>
+                    <div class="space-y-4">
+    `;
+    
+    // Create phase sections
+    sortedPhases.forEach(phase => {
+        const phaseStudies = studiesByPhase[phase];
+        const formattedPhase = formatPhase(phase);
+        
+        modalContent += `
+            <div class="border rounded-lg overflow-hidden">
+                <div class="bg-gray-50 p-3 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${getPhaseColor(phase)}"></span>
+                        <h5 class="font-medium">${formattedPhase}</h5>
+                    </div>
+                    <span class="text-sm text-gray-500">${phaseStudies.length} studies</span>
+                </div>
+                
+                <div class="divide-y divide-gray-100">
+        `;
+        
+        // List studies in this phase
+        phaseStudies.forEach(study => {
+            modalContent += `
+                <div class="p-3 hover:bg-gray-50">
+                    <div class="flex justify-between items-start mb-1">
+                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium study-link" data-nctid="${study.id}">
+                            ${study.title || 'Untitled Study'}
+                        </a>
+                        <span class="text-xs text-gray-500">${study.year}</span>
+                    </div>
+                    <div class="flex space-x-2 mt-2">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800 study-link" data-nctid="${study.id}">
+                            View Details
+                        </a>
+                        <span class="text-gray-300">|</span>
+                        <a href="https://clinicaltrials.gov/study/${study.id}" target="_blank" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            ClinicalTrials.gov
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        
+        modalContent += `
+                </div>
+            </div>
+        `;
+    });
+    
+    modalContent += `
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer with export options -->
+            <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
+                <button id="export-usage-data" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export Data
+                </button>
+                
+                <a href="#" class="px-3 py-1.5 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm flex items-center" id="search-all-studies-link" data-item="${itemName}" data-type="${relationType}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    View All Studies
+                </a>
+            </div>
+        </div>
+    `;
+    
+    // Insert modal content
+    modal.innerHTML = modalContent;
+    
+    // Add event listeners
+    
+    // 1. Close modal button
+    document.getElementById('close-usage-detail-modal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+    
+    // 2. Close when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+    
+    // 3. Study links
+    const studyLinks = modal.querySelectorAll('.study-link');
+    studyLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const nctId = e.target.dataset.nctid;
+            if (nctId) {
+                // Close the modal
+                modal.classList.add('hidden');
+                // View study details
+                viewStudyDetails(nctId);
+            }
+        });
+    });
+    
+    // 4. Export data button
+    document.getElementById('export-usage-data').addEventListener('click', () => {
+        exportUsageData(itemData, itemName);
+    });
+    
+    // 5. Search all studies link
+    document.getElementById('search-all-studies-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        const searchItem = e.target.dataset.item;
+        const searchType = e.target.dataset.type;
+        
+        // Close the modal
+        modal.classList.add('hidden');
+        
+        // Trigger search for all studies
+        if (typeof searchForEntity === 'function') {
+            searchForEntity(searchItem, searchType);
+        } else {
+            alert(`Search for all studies with ${searchType}: ${searchItem}`);
+            console.log(`Search for all studies with ${searchType}: ${searchItem}`);
+        }
+    });
+}
+
+/**
+ * Exports data for a specific usage (condition or drug)
+ * @param {Object} itemData - Data for the specific item
+ * @param {string} itemName - Name of the item
+ */
+function exportUsageData(itemData, itemName) {
+    // Prepare data for CSV export
+    const csvRows = [];
+    
+    // Header row
+    csvRows.push(['Study ID', 'Title', 'Year', 'Phase']);
+    
+    // Data rows
+    (itemData.studies || []).forEach(study => {
+        csvRows.push([
+            study.id,
+            study.title || 'Untitled Study',
+            study.year,
+            study.phase || 'Unknown'
+        ]);
+    });
+    
+    // Convert to CSV string
+    let csvContent = csvRows.map(row => 
+        row.map(cell => 
+            typeof cell === 'string' && cell.includes(',') 
+                ? `"${cell.replace(/"/g, '""')}"` 
+                : String(cell)
+        ).join(',')
+    ).join('\n');
+    
+    // Create download link
+    const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${itemName.replace(/\s+/g, '_')}_studies.csv`);
+    document.body.appendChild(link);
+    
+    // Trigger download
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+}
+
+/**
+ * Helper function to format phase for display
+ * @param {string} phase - Raw phase value
+ * @returns {string} - Formatted phase string
+ */
+function formatPhase(phase) {
+    switch(phase) {
+        case "PRE_PHASE":
+            return "Pre-Clinical";
+        case "PHASE1":
+            return "Phase 1";
+        case "PHASE1_PHASE2":
+            return "Phase 1/2";
+        case "PHASE2":
+            return "Phase 2";
+        case "PHASE3":
+            return "Phase 3";
+        case "PHASE4":
+            return "Phase 4";
+        default:
+            return phase || "Unknown";
+    }
+}
+
+/**
+ * Helper function to get color for phase
+ * @param {string} phase - Raw phase value
+ * @returns {string} - Color hex code
+ */
+function getPhaseColor(phase) {
+    switch(phase) {
+        case "PRE_PHASE":
+            return "#9CA3AF"; // gray-400
+        case "PHASE1":
+            return "#60A5FA"; // blue-400
+        case "PHASE1_PHASE2":
+            return "#34D399"; // green-400
+        case "PHASE2":
+            return "#10B981"; // green-500
+        case "PHASE3":
+            return "#047857"; // green-700
+        case "PHASE4":
+            return "#064E3B"; // green-900
+        default:
+            return "#D1D5DB"; // gray-300
+    }
+}
+/**
+ * Renders the timeline data as a list
+ * @param {Object} data - Processed timeline data
+ * @param {string} entityName - Name of drug or condition
+ * @param {string} entityType - Either 'drug' or 'condition'
+ */
+function renderTimelineList(data, entityName, entityType = 'drug') {
+    const timelineElement = document.getElementById('usage-timeline');
+    
+    // Determine which data field to use based on entity type
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
+    
+    // Create sorted array of all items
+    const allItems = Object.keys(data[dataField])
+        .map(item => ({
+            name: item,
+            ...data[dataField][item]
+        }))
+        .sort((a, b) => b.count - a.count);
+    
+    // Generate the list HTML
+    let listHTML = `
+        <div class="mb-6">
+            <p class="text-sm text-gray-600">Based on analysis of ${data.totalStudies} clinical trials from ${data.earliestStudyYear} to ${data.latestStudyYear}</p>
+        </div>
+        
+        <div class="mb-4">
+            <input type="text" id="timeline-list-search" placeholder="Search ${itemType}..." 
+                   class="w-full p-2 border border-gray-300 rounded shadow-sm text-sm">
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${entityType === 'drug' ? 'Condition' : 'Treatment'}</th>
+                        <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
+                        <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+                        <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Activity</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="timeline-list-body">
+    `;
+    
+    allItems.forEach((item, index) => {
+        // Find peak year (year with most studies)
+        let peakYear = null;
+        let peakCount = 0;
+        
+        Object.keys(item.years).forEach(year => {
+            if (item.years[year] > peakCount) {
+                peakCount = item.years[year];
+                peakYear = year;
+            }
+        });
+        
+        listHTML += `
+            <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}" data-item="${item.name.toLowerCase()}">
+                <td class="px-4 py-2 text-sm font-medium">
+                    <a href="#" class="item-link text-blue-600 hover:text-blue-800 hover:underline" 
+                       data-item="${item.name}" data-type="${entityType === 'drug' ? 'condition' : 'drug'}">
+                        ${item.name}
+                    </a>
+                </td>
+                <td class="px-4 py-2 text-sm text-center">${item.count}</td>
+                <td class="px-4 py-2 text-sm text-center">${item.earliestYear} - ${item.latestYear}</td>
+                <td class="px-4 py-2 text-sm text-center">
+                    <span class="inline-flex items-center">
+                        ${peakYear ? `${peakYear} (${peakCount} studies)` : 'N/A'}
+                        <button class="ml-2 text-blue-500 hover:text-blue-700 view-year-studies"
+                                data-year="${peakYear}" 
+                                data-item="${item.name}"
+                                data-count="${peakCount}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+    
+    listHTML += `
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Study details popup -->
+        <div id="list-study-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                <div class="p-4 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-bold" id="list-popup-title">Studies</h3>
+                    <button id="close-list-popup" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto p-4" id="list-popup-content">
+                    <!-- Content will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Update the timeline element
+    timelineElement.innerHTML = listHTML;
+    
+    // Add event listeners
+    
+    // 1. Search functionality
+    const searchInput = document.getElementById('timeline-list-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#timeline-list-body tr');
+            
+            rows.forEach(row => {
+                const itemName = row.dataset.item;
+                if (!searchTerm || itemName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // 2. Item links
+    const itemLinks = document.querySelectorAll('.item-link');
+    itemLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const itemName = e.target.dataset.item;
+            const itemType = e.target.dataset.type;
+            
+            // Trigger search for this item
+            if (typeof searchForEntity === 'function') {
+                searchForEntity(itemName, itemType);
+            } else {
+                alert(`Search for ${itemType}: ${itemName} would be triggered here`);
+                console.log(`Search for ${itemType}: ${itemName}`);
+            }
+        });
+    });
+    
+    // 3. View year studies buttons
+    const viewYearButtons = document.querySelectorAll('.view-year-studies');
+    viewYearButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const year = button.dataset.year;
+            const item = button.dataset.item;
+            const count = button.dataset.count;
+            
+            // Find studies for this year and item
+            const itemData = data[dataField][item];
+            if (!itemData || !itemData.studies) return;
+            
+            const yearStudies = itemData.studies.filter(study => study.year == year);
+            
+            // Show popup with links to studies
+            const popup = document.getElementById('list-study-popup');
+            const popupTitle = document.getElementById('list-popup-title');
+            const popupContent = document.getElementById('list-popup-content');
+            
+            popupTitle.textContent = `${count} Studies for ${item} (${year})`;
+            
+            let studyListHTML = `<ul class="space-y-2">`;
+            
+            yearStudies.forEach((study, i) => {
+                studyListHTML += `
+                    <li class="border-b border-gray-100 pb-2">
+                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium study-link" data-nctid="${study.id}">
+                            ${study.title || `Study ${i+1}`}
+                        </a>
+                    </li>
+                `;
+            });
+            
+            studyListHTML += `</ul>`;
+            popupContent.innerHTML = studyListHTML;
+            
+            // Add event listeners to study links
+            const studyLinks = popupContent.querySelectorAll('.study-link');
+            studyLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const nctId = e.target.dataset.nctid;
+                    if (nctId) {
+                        // Close the popup
+                        popup.classList.add('hidden');
+                        // View study details
+                        viewStudyDetails(nctId);
+                    }
+                });
+            });
+            
+            // Show the popup
+            popup.classList.remove('hidden');
+        });
+    });
+    
+    // 4. Close popup button
+    const closePopupButton = document.getElementById('close-list-popup');
+    if (closePopupButton) {
+        closePopupButton.addEventListener('click', () => {
+            document.getElementById('list-study-popup').classList.add('hidden');
+        });
+    }
+    
+    // 5. Close popup when clicking outside
+    const popup = document.getElementById('list-study-popup');
+    if (popup) {
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                popup.classList.add('hidden');
+            }
         });
     }
 }
 
-function showAllConditionsModal(data, drugName) {
-    // Create a modal to display all conditions
+/**
+ * Shows a modal with all items in the timeline
+ * @param {Object} data - Processed timeline data
+ * @param {string} entityName - Name of drug or condition
+ * @param {string} entityType - Either 'drug' or 'condition'
+ */
+function showAllItemsModal(data, entityName, entityType = 'drug') {
+    // Create a modal to display all items
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
     
-    // Sort all conditions by count
-    const allConditions = Object.keys(data.byCondition)
-        .map(condition => ({
-            name: condition,
-            count: data.byCondition[condition].count,
-            earliestYear: data.byCondition[condition].earliestYear,
-            latestYear: data.byCondition[condition].latestYear
+    // Determine which data field to use based on entity type
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'Conditions' : 'Treatments';
+    
+    // Sort all items by count
+    const allItems = Object.keys(data[dataField])
+        .map(item => ({
+            name: item,
+            count: data[dataField][item].count,
+            earliestYear: data[dataField][item].earliestYear,
+            latestYear: data[dataField][item].latestYear
         }))
         .sort((a, b) => b.count - a.count);
     
@@ -3388,33 +5102,45 @@ function showAllConditionsModal(data, drugName) {
         <div class="bg-white rounded-lg w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-4 border-b">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">All Clinical Conditions for ${drugName}</h3>
-                    <button id="close-conditions-modal" class="text-gray-500 hover:text-gray-700">
+                    <h3 class="text-xl font-bold">All ${itemType} for ${entityName}</h3>
+                    <button id="close-items-modal" class="text-gray-500 hover:text-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <p class="text-sm text-gray-500">${allConditions.length} total conditions found in clinical trials</p>
+                <p class="text-sm text-gray-500">${allItems.length} total ${itemType.toLowerCase()} found in clinical trials</p>
+                
+                <div class="mt-2">
+                    <input type="text" id="modal-search" placeholder="Search ${itemType.toLowerCase()}..." 
+                           class="w-full p-2 border border-gray-300 rounded shadow-sm text-sm">
+                </div>
             </div>
             <div class="overflow-y-auto p-4">
                 <table class="w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${entityType === 'drug' ? 'Condition' : 'Treatment'}</th>
                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
                             <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200" id="modal-items-list">
     `;
     
-    allConditions.forEach((condition, index) => {
+    allItems.forEach((item, index) => {
         modalContent += `
-            <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                <td class="px-4 py-2 text-sm">${condition.name}</td>
-                <td class="px-4 py-2 text-sm text-center">${condition.count}</td>
-                <td class="px-4 py-2 text-sm text-center">${condition.earliestYear} - ${condition.latestYear}</td>
+            <tr class="${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}" data-item="${item.name.toLowerCase()}">
+                <td class="px-4 py-2 text-sm">${item.name}</td>
+                <td class="px-4 py-2 text-sm text-center">${item.count}</td>
+                <td class="px-4 py-2 text-sm text-center">${item.earliestYear} - ${item.latestYear}</td>
+                <td class="px-4 py-2 text-sm text-center">
+                    <button class="text-blue-600 hover:text-blue-800 view-item-studies"
+                            data-item="${item.name}" data-type="${entityType === 'drug' ? 'condition' : 'drug'}">
+                        View Studies
+                    </button>
+                </td>
             </tr>
         `;
     });
@@ -3429,42 +5155,114 @@ function showAllConditionsModal(data, drugName) {
     modal.innerHTML = modalContent;
     document.body.appendChild(modal);
     
-    // Add event listener to close the modal
-    document.getElementById('close-conditions-modal').addEventListener('click', () => {
+    // Add event listeners
+    
+    // 1. Close modal button
+    document.getElementById('close-items-modal').addEventListener('click', () => {
         document.body.removeChild(modal);
     });
     
-    // Also close when clicking outside the modal content
+    // 2. Close when clicking outside
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             document.body.removeChild(modal);
         }
     });
+    
+    // 3. Search functionality
+    const searchInput = document.getElementById('modal-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#modal-items-list tr');
+            
+            rows.forEach(row => {
+                const itemName = row.dataset.item;
+                if (!searchTerm || itemName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // 4. View item studies buttons
+    const viewItemButtons = document.querySelectorAll('.view-item-studies');
+    viewItemButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const itemName = button.dataset.item;
+            const itemType = button.dataset.type;
+            
+            // Close the modal
+            document.body.removeChild(modal);
+            
+            // Redirect to item-specific page or trigger search
+            if (typeof searchForEntity === 'function') {
+                searchForEntity(itemName, itemType);
+            } else {
+                alert(`Search for ${itemType}: ${itemName} would be triggered here`);
+                console.log(`Search for ${itemType}: ${itemName}`);
+            }
+        });
+    });
 }
 
-function generateInsights(data, drugName, sortedConditions) {
+/**
+ * Generates insights based on timeline data
+ * @param {Object} data - Processed timeline data
+ * @param {string} entityName - Name of the drug or condition
+ * @param {Array} sortedItems - Array of sorted items (conditions or drugs)
+ * @param {string} entityType - Either 'drug' or 'condition'
+ * @returns {Array} - Array of insight strings
+ */
+function generateInsights(data, entityName, sortedItems, entityType = 'drug') {
     const insights = [];
     const currentYear = new Date().getFullYear();
     
-    // Insight 1: First studied indication
-    if (sortedConditions.length > 0) {
-        const firstCondition = sortedConditions.sort((a, b) => a.earliestYear - b.earliestYear)[0];
-        insights.push(
-            `${drugName} was first studied for <strong>${firstCondition.name}</strong> in ${firstCondition.earliestYear}, ${currentYear - firstCondition.earliestYear} years ago.`
-        );
+    // Determine field and terminology based on entity type
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'condition' : 'treatment';
+    
+    // Insight 1: First studied indication/treatment
+    if (sortedItems.length > 0) {
+        const firstItem = [...sortedItems].sort((a, b) => a.earliestYear - b.earliestYear)[0];
+        if (entityType === 'drug') {
+            insights.push(
+                `${entityName} was first studied for <strong>${firstItem.name}</strong> in ${firstItem.earliestYear}, ${currentYear - firstItem.earliestYear} years ago.`
+            );
+        } else {
+            insights.push(
+                `${entityName} was first treated with <strong>${firstItem.name}</strong> in clinical trials starting in ${firstItem.earliestYear}, ${currentYear - firstItem.earliestYear} years ago.`
+            );
+        }
     }
     
-    // Insight 2: Most studied indication
-    const mostStudiedCondition = sortedConditions.sort((a, b) => b.count - a.count)[0];
-    insights.push(
-        `The most researched application has been <strong>${mostStudiedCondition.name}</strong> with ${mostStudiedCondition.count} studies.`
-    );
+    // Insight 2: Most studied indication/treatment
+    const mostStudiedItem = sortedItems.length > 0 ? sortedItems[0] : null;
+    if (mostStudiedItem) {
+        if (entityType === 'drug') {
+            insights.push(
+                `The most researched application has been <strong>${mostStudiedItem.name}</strong> with ${mostStudiedItem.count} studies.`
+            );
+        } else {
+            insights.push(
+                `The most commonly investigated treatment has been <strong>${mostStudiedItem.name}</strong> with ${mostStudiedItem.count} studies.`
+            );
+        }
+    }
     
-    // Insight 3: Count unique conditions
-    const uniqueConditionCount = Object.keys(data.byCondition).length;
-    insights.push(
-        `${drugName} has been investigated for ${uniqueConditionCount} distinct clinical conditions, showing its potential versatility across multiple medical applications.`
-    );
+    // Insight 3: Count unique conditions/treatments
+    const uniqueItemCount = Object.keys(data[dataField]).length;
+    if (entityType === 'drug') {
+        insights.push(
+            `${entityName} has been investigated for ${uniqueItemCount} distinct clinical conditions, showing its potential versatility across multiple medical applications.`
+        );
+    } else {
+        insights.push(
+            `${entityName} has been studied with ${uniqueItemCount} different treatments in clinical trials, reflecting the diverse therapeutic approaches being explored.`
+        );
+    }
     
     // Insight 4: Phase progression
     const phaseData = data.byPhase;
@@ -3474,37 +5272,55 @@ function generateInsights(data, drugName, sortedConditions) {
     if (totalPhaseCount > 0) {
         const latePhasePercentage = Math.round((latePhaseCount / totalPhaseCount) * 100);
         insights.push(
-            `${latePhasePercentage}% of studies have reached late-stage (Phase 3-4) clinical trials, indicating ${latePhasePercentage > 30 ? 'significant' : 'ongoing'} progress toward regulatory approval across various conditions.`
+            `${latePhasePercentage}% of studies have reached late-stage (Phase 3-4) clinical trials, indicating ${latePhasePercentage > 30 ? 'significant' : 'ongoing'} progress toward regulatory approval.`
         );
     }
     
     // Insight 5: Recent activity and trend
     const recentYears = currentYear - 5;
     let recentActivityCount = 0;
-    const recentConditions = new Set();
+    const recentItems = new Set();
     
-    sortedConditions.forEach(condition => {
-        Object.keys(condition.years).forEach(year => {
+    sortedItems.forEach(item => {
+        Object.keys(item.years).forEach(year => {
             if (parseInt(year) >= recentYears) {
-                recentActivityCount += condition.years[year];
-                recentConditions.add(condition.name);
+                recentActivityCount += item.years[year];
+                recentItems.add(item.name);
             }
         });
     });
     
-    if (recentConditions.size > 0) {
-        const topRecentConditions = Array.from(recentConditions).slice(0, 3);
-        if (topRecentConditions.length > 0) {
-            insights.push(
-                `In the last 5 years, research has focused on ${recentConditions.size} conditions, with notable interest in <strong>${topRecentConditions.join('</strong>, <strong>')}</strong>.`
-            );
+    if (recentItems.size > 0) {
+        const topRecentItems = Array.from(recentItems).slice(0, 3);
+        if (topRecentItems.length > 0) {
+            if (entityType === 'drug') {
+                insights.push(
+                    `In the last 5 years, research has focused on ${recentItems.size} conditions, with notable interest in <strong>${topRecentItems.join('</strong>, <strong>')}</strong>.`
+                );
+            } else {
+                insights.push(
+                    `In the last 5 years, clinical research has explored ${recentItems.size} treatments, with significant focus on <strong>${topRecentItems.join('</strong>, <strong>')}</strong>.`
+                );
+            }
         }
+    }
+    
+    // Insight 6: Historical perspective
+    const yearSpan = data.latestStudyYear - data.earliestStudyYear;
+    if (yearSpan >= 10) {
+        insights.push(
+            `Clinical investigation of ${entityName} spans ${yearSpan} years, demonstrating sustained scientific interest and evolving research approaches over time.`
+        );
     }
     
     return insights;
 }
 
-
+/**
+ * Extracts year from date string
+ * @param {string} dateString - Date string in various formats
+ * @returns {number|null} - Extracted year or null if not found
+ */
 function extractYearFromDate(dateString) {
     if (!dateString) return null;
     
@@ -3528,19 +5344,25 @@ function extractYearFromDate(dateString) {
     return null;
 }
 
-// Update the displayStudies function to include the timeline
-function displayStudiesWithTimeline(studies, drugName) {
-    // First, create and append the timeline
-    const timelineElement = generateDrugUsageTimeline(studies, drugName);
+/**
+ * Displays studies with timeline visualization
+ * @param {Array} studies - Array of study objects
+ * @param {string} entityName - Name of drug or condition
+ * @param {string} entityType - Either 'drug' or 'condition'
+ */
+function displayStudiesWithTimeline(studies, entityName, entityType) {
+
+    // Create and append the timeline
+    const timelineElement = generateUsageTimeline(studies, entityName, entityType);
     
     // Check if there's already a timeline
-    const existingTimeline = document.getElementById('drug-usage-timeline');
+    const existingTimeline = document.getElementById('entity-usage-timeline');
     if (existingTimeline) {
         existingTimeline.replaceWith(timelineElement);
     } else {
         // Insert the timeline before the studies list
         const studiesContainer = elements.studiesList.parentElement;
-        timelineElement.id = 'drug-usage-timeline';
+        timelineElement.id = 'entity-usage-timeline';
         studiesContainer.insertBefore(timelineElement, elements.studiesList);
     }
     
@@ -3570,7 +5392,7 @@ function displayStudiesWithTimeline(studies, drugName) {
     studies.sort((a, b) => {
         const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
         const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
-        return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
+        return (phaseOrder[phaseB] || 0) - (phaseOrder[phaseA] || 0);  // Reversed order - latest phases first
     });
 
     studies.forEach(study => {
@@ -3600,7 +5422,7 @@ function displayStudiesWithTimeline(studies, drugName) {
         );
         
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+        card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200 mb-4';
         card.innerHTML = `
             <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
                 <div class="flex gap-2 items-center flex-wrap">
@@ -3616,13 +5438,21 @@ function displayStudiesWithTimeline(studies, drugName) {
             </div>
             <h3 class="text-lg font-medium mb-2">${title}</h3>
             <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
-            <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                View Study Details
-            </button>
+            <div class="flex flex-wrap gap-2">
+                <button data-nctid="${nctId}" class="view-study-btn text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    View Details
+                </button>
+                <a href="https://clinicaltrials.gov/study/${nctId}" target="_blank" class="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    ClinicalTrials.gov
+                </a>
+            </div>
         `;
         elements.studiesList.appendChild(card);
         
@@ -3631,6 +5461,446 @@ function displayStudiesWithTimeline(studies, drugName) {
             viewStudyDetails(nctId);
         });
     });
+}
+
+
+
+
+/**
+ * Generates a timeline visualization for either drug usage or condition treatments
+ * @param {Array} studies - Array of study objects
+ * @param {string} entityName - Name of the drug or condition
+ * @param {string} entityType - Either 'drug' or 'condition'
+ * @returns {HTMLElement} - The timeline container element
+ */
+ function generateUsageTimeline(studies, entityName, entityType) {
+    // Create container for the timeline
+    const timelineContainer = document.createElement('div');
+    timelineContainer.className = 'mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
+    
+    const titleText = entityType === 'drug' 
+        ? `Historical Usage Timeline: ${entityName}`
+        : `Treatment Timeline: ${entityName}`;
+    
+    timelineContainer.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">${titleText}</h2>
+            
+            <div class="flex items-center mt-2 md:mt-0">
+                <div class="text-xs text-gray-500 mr-4">
+                    <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> Clinical trials
+                </div>
+                <select id="timeline-view-toggle" class="text-sm border border-gray-300 rounded p-1">
+                    <option value="chart" selected>Chart View</option>
+                    <option value="list">List View</option>
+                </select>
+            </div>
+        </div>
+        <div id="usage-timeline" class="relative">
+            <div class="timeline-loading text-center p-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-blue-500"></div>
+                <p class="mt-2 text-gray-600">Analyzing ${entityType === 'drug' ? 'usage patterns' : 'treatment approaches'}...</p>
+            </div>
+        </div>
+    `;
+
+    // Process the data after rendering the initial container
+    setTimeout(() => {
+        // Extract and organize timeline data
+        const usageData = entityType === 'drug' 
+            ? extractUsageData(studies, entityName) 
+            : extractConditionData(studies, entityName);
+        
+        if ((!usageData.byCondition || Object.keys(usageData.byCondition).length === 0) && 
+            (!usageData.byDrug || Object.keys(usageData.byDrug).length === 0)) {
+            // No meaningful data found
+            document.getElementById('usage-timeline').innerHTML = `
+                <div class="text-center p-4 text-gray-500">
+                    <p>Insufficient data to generate a timeline for ${entityName}.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Render the timeline visualization
+        renderTimelineVisualization(usageData, entityName, entityType);
+        
+        // Add event listener for the view toggle
+        const viewToggle = timelineContainer.querySelector('#timeline-view-toggle');
+        if (viewToggle) {
+            viewToggle.addEventListener('change', (e) => {
+                const view = e.target.value;
+                if (view === 'chart') {
+                    renderTimelineVisualization(usageData, entityName, entityType);
+                } else if (view === 'list') {
+                    renderTimelineList(usageData, entityName, entityType);
+                }
+            });
+        }
+    }, 100);
+    
+    return timelineContainer;
+}
+
+/**
+ * Wrapper function to maintain backward compatibility
+ */
+function generateDrugUsageTimeline(studies, drugName) {
+    return generateUsageTimeline(studies, drugName, 'drug');
+}
+
+/**
+ * Wrapper function for condition-based timeline
+ */
+function generateConditionTimeline(studies, conditionName) {
+    return generateUsageTimeline(studies, conditionName, 'condition');
+}
+/**
+ * Helper function to format phase for display
+ * @param {string} phase - Raw phase value
+ * @returns {string} - Formatted phase string
+ */
+function formatPhase(phase) {
+    switch(phase) {
+        case "PRE_PHASE":
+            return "Pre-Clinical";
+        case "PHASE1":
+            return "Phase 1";
+        case "PHASE1_PHASE2":
+            return "Phase 1/2";
+        case "PHASE2":
+            return "Phase 2";
+        case "PHASE3":
+            return "Phase 3";
+        case "PHASE4":
+            return "Phase 4";
+        default:
+            return phase || "Unknown";
+    }
+}
+
+/**
+ * Helper function to get color for phase
+ * @param {string} phase - Raw phase value
+ * @returns {string} - Color hex code
+ */
+function getPhaseColor(phase) {
+    switch(phase) {
+        case "PRE_PHASE":
+            return "#9CA3AF"; // gray-400
+        case "PHASE1":
+            return "#60A5FA"; // blue-400
+        case "PHASE1_PHASE2":
+            return "#34D399"; // green-400
+        case "PHASE2":
+            return "#10B981"; // green-500
+        case "PHASE3":
+            return "#047857"; // green-700
+        case "PHASE4":
+            return "#064E3B"; // green-900
+        default:
+            return "#D1D5DB"; // gray-300
+    }
+}
+
+/**
+ * Helper function to generate status badge HTML
+ * @param {string} status - Study status
+ * @returns {string} - Badge HTML
+ */
+function getStatusBadge(status) {
+    if (!status) return '';
+    
+    const statusMap = {
+        'Completed': { color: 'bg-green-100 text-green-800', priority: 3 },
+        'Active': { color: 'bg-blue-100 text-blue-800', priority: 1 },
+        'Recruiting': { color: 'bg-blue-100 text-blue-800', priority: 1 },
+        'Not yet recruiting': { color: 'bg-yellow-100 text-yellow-800', priority: 2 },
+        'Enrolling by invitation': { color: 'bg-blue-100 text-blue-800', priority: 1 },
+        'Suspended': { color: 'bg-red-100 text-red-800', priority: 0 },
+        'Terminated': { color: 'bg-red-100 text-red-800', priority: 0 },
+        'Withdrawn': { color: 'bg-red-100 text-red-800', priority: 0 },
+        'Unknown status': { color: 'bg-gray-100 text-gray-800', priority: 4 }
+    };
+    
+    const statusInfo = statusMap[status] || { color: 'bg-gray-100 text-gray-800', priority: 4 };
+    
+    return `<span class="text-xs ${statusInfo.color} px-2 py-0.5 rounded-full">${status}</span>`;
+}
+
+/**
+ * Search for a specific entity (drug or condition)
+ * This is a placeholder function that should be implemented based on your application
+ * @param {string} entityName - Name of the entity to search for
+ * @param {string} entityType - Type of entity ('drug' or 'condition')
+ */
+function searchForEntity(entityName, entityType) {
+    console.log(`Searching for ${entityType}: ${entityName}`);
+    
+    // This function should be implemented by the application
+    // For example, it might:
+    // 1. Set the search input field value
+    // 2. Trigger the search
+    // 3. Update the UI state
+    
+    // Example implementation:
+    if (typeof elements !== 'undefined' && elements.searchInput) {
+        elements.searchInput.value = entityName;
+        
+        // Trigger search
+        if (typeof searchStudies === 'function') {
+            // Set the entity type in your search parameters
+            const searchParams = {
+                term: entityName,
+                type: entityType
+            };
+            
+            searchStudies(searchParams);
+        }
+    } else {
+        // Fallback if elements object is not available
+        alert(`Search for ${entityType}: ${entityName}`);
+    }
+}
+
+/**
+ * Helper function to handle downloading timeline data
+ * @param {Object} data - Timeline data
+ * @param {string} entityName - Name of entity
+ * @param {string} entityType - Type of entity ('drug' or 'condition')
+ */
+function downloadTimelineData(data, entityName, entityType) {
+    // Prepare data for download
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'Condition' : 'Treatment';
+    
+    // Create CSV content
+    let csvContent = `${itemType},Studies,First Year,Last Year,Peak Year\n`;
+    
+    Object.keys(data[dataField]).forEach(item => {
+        const itemData = data[dataField][item];
+        
+        // Find peak year
+        let peakYear = null;
+        let peakCount = 0;
+        
+        Object.keys(itemData.years).forEach(year => {
+            if (itemData.years[year] > peakCount) {
+                peakCount = itemData.years[year];
+                peakYear = year;
+            }
+        });
+        
+        // Add row to CSV
+        csvContent += `"${item}",${itemData.count},${itemData.earliestYear},${itemData.latestYear},${peakYear || 'N/A'}\n`;
+    });
+    
+    // Create download link
+    const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${entityName.replace(/\s+/g, '_')}_timeline_data.csv`);
+    document.body.appendChild(link);
+    
+    // Trigger download
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+}
+
+// Add an "Export Data" button to the timeline header
+function addExportButton(timelineElement, data, entityName, entityType) {
+    const headerDiv = timelineElement.querySelector('div.flex.flex-col.md\\:flex-row');
+    
+    if (headerDiv) {
+        const exportButton = document.createElement('button');
+        exportButton.className = 'mt-2 md:mt-0 ml-0 md:ml-2 px-3 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-sm flex items-center';
+        exportButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export Data
+        `;
+        
+        exportButton.addEventListener('click', () => {
+            downloadTimelineData(data, entityName, entityType);
+        });
+        
+        headerDiv.appendChild(exportButton);
+    }
+}
+
+// Add a "Compare" button for drug vs condition comparison
+function addCompareButton(timelineElement, entityName, entityType) {
+    const headerDiv = timelineElement.querySelector('div.flex.flex-col.md\\:flex-row');
+    
+    if (headerDiv) {
+        const compareButton = document.createElement('button');
+        compareButton.className = 'mt-2 md:mt-0 ml-0 md:ml-2 px-3 py-1 bg-purple-50 text-purple-600 rounded hover:bg-purple-100 transition-colors text-sm flex items-center';
+        compareButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Compare
+        `;
+        
+        compareButton.addEventListener('click', () => {
+            // Show a modal with comparison options
+            showComparisonModal(entityName, entityType);
+        });
+        
+        headerDiv.appendChild(compareButton);
+    }
+}
+
+/**
+ * Shows a modal for choosing comparison options
+ * @param {string} entityName - Current entity name
+ * @param {string} entityType - Current entity type
+ */
+function showComparisonModal(entityName, entityType) {
+    // Create a modal
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    
+    // Opposite entity type
+    const oppositeType = entityType === 'drug' ? 'condition' : 'drug';
+    const oppositeTypeName = entityType === 'drug' ? 'Condition' : 'Drug';
+    
+    // Create modal content
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg w-full max-w-md overflow-hidden flex flex-col">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold">Compare ${entityName}</h3>
+                    <button id="close-compare-modal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <p class="mb-4">Compare this ${entityType} with another ${entityType} or a specific ${oppositeType}:</p>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Compare with another ${entityType}:</label>
+                    <div class="flex">
+                        <input type="text" id="compare-entity" placeholder="Enter ${entityType} name..." 
+                               class="flex-grow p-2 border border-gray-300 rounded-l shadow-sm text-sm">
+                        <button id="compare-same-type" class="px-4 py-2 bg-blue-500 text-white rounded-r hover:bg-blue-600 transition-colors">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Compare with a ${oppositeType}:</label>
+                    <div class="flex">
+                        <input type="text" id="compare-opposite" placeholder="Enter ${oppositeTypeName} name..." 
+                               class="flex-grow p-2 border border-gray-300 rounded-l shadow-sm text-sm">
+                        <button id="compare-opposite-type" class="px-4 py-2 bg-purple-500 text-white rounded-r hover:bg-purple-600 transition-colors">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <p class="text-sm text-gray-500">
+                        Comparing will show both timelines side-by-side to help identify patterns and relationships.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    
+    // 1. Close modal button
+    document.getElementById('close-compare-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    // 2. Close when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+    
+    // 3. Compare with same entity type
+    document.getElementById('compare-same-type').addEventListener('click', () => {
+        const compareEntity = document.getElementById('compare-entity').value.trim();
+        if (compareEntity) {
+            // Close modal
+            document.body.removeChild(modal);
+            
+            // Initialize comparison
+            if (typeof compareEntities === 'function') {
+                compareEntities(entityName, compareEntity, entityType, entityType);
+            } else {
+                alert(`Compare ${entityName} (${entityType}) with ${compareEntity} (${entityType})`);
+                console.log(`Compare ${entityName} (${entityType}) with ${compareEntity} (${entityType})`);
+            }
+        }
+    });
+    
+    // 4. Compare with opposite entity type
+    document.getElementById('compare-opposite-type').addEventListener('click', () => {
+        const compareEntity = document.getElementById('compare-opposite').value.trim();
+        if (compareEntity) {
+            // Close modal
+            document.body.removeChild(modal);
+            
+            // Initialize comparison
+            if (typeof compareEntities === 'function') {
+                compareEntities(entityName, compareEntity, entityType, oppositeType);
+            } else {
+                alert(`Compare ${entityName} (${entityType}) with ${compareEntity} (${oppositeType})`);
+                console.log(`Compare ${entityName} (${entityType}) with ${compareEntity} (${oppositeType})`);
+            }
+        }
+    });
+}
+
+/**
+ * Compares two entities by showing their timelines side by side
+ * This is a placeholder that should be implemented based on your application
+ * @param {string} entity1 - First entity name
+ * @param {string} entity2 - Second entity name
+ * @param {string} type1 - First entity type
+ * @param {string} type2 - Second entity type
+ */
+function compareEntities(entity1, entity2, type1, type2) {
+    console.log(`Comparing ${entity1} (${type1}) with ${entity2} (${type2})`);
+    
+    // This function should be implemented based on your application logic
+    // It would typically:
+    // 1. Fetch data for both entities
+    // 2. Create a comparison view
+    // 3. Display the comparison
+    
+    alert(`Comparison feature would be implemented here for ${entity1} vs ${entity2}`);
+}
+
+// Add these functions to maintain backward compatibility with existing code
+function groupSimilarConditions(conditionsData) {
+    // This function is kept for backward compatibility
+    return conditionsData;
+}
+
+/**
+ * Main rendering function for display studies with timeline
+ * @param {Array} studies - Array of study objects 
+ * @param {string} entityName - Name of drug or condition
+ * @param {string} entityType - Type of entity ('drug' or 'condition')
+ */
+function displayStudiesWithEntityTimeline(studies, entityName, entityType) {
+    // Create a wrapper for both drug and condition views
+    displayStudiesWithTimeline(studies, entityName, entityType);
 }
 
 
@@ -3655,8 +5925,10 @@ const existingTimeline = document.getElementById('drug-usage-timeline');
         existingTimeline.remove();
     }
     
-
-    displayStudiesWithTimeline(studies, drug || 'Selected Drug');
+if (!drug){
+  displayStudiesWithTimeline(studies, condition , 'condition');
+}
+    displayStudiesWithTimeline(studies, drug, 'drug' );
         
         // Update browser history and URL parameters
         // updateUrlParameters(drug, condition, hasResultsOnly, trdFocusOnly);
@@ -7423,6 +9695,682 @@ function createPhasePerformanceChart(outcomes) {
 //   // Initial render
 //   renderCurrentPage();
 // }
+
+//////////////////////////////////////////////////WARNING LETTERS ///////////////////////////////////////////////////////////
+// New function to fetch warning letters
+async function fetchWarningLetters(searchTerm, filters = {}) {
+  try {
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('term', searchTerm);
+    queryParams.append('field', 'all');
+
+
+    
+    // Add filters if they exist
+    if (filters.type) queryParams.append('type', filters.type); // human or veterinary
+    if (filters.issueDate) queryParams.append('issueDate', filters.issueDate);
+    if (filters.issuingOffice) queryParams.append('issuingOffice', filters.issuingOffice);
+    
+    // Show loading state
+    elements.warningLettersData.innerHTML = `
+      <div class="flex justify-center items-center py-8">
+        <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="ml-2 text-gray-600">Searching warning letters...</span>
+      </div>
+    `;
+    
+    // Make request to the API
+    const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching warning letters: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Display the warning letters
+    displayWarningLetters(data, searchTerm);
+  } catch (error) {
+    console.error("Error fetching warning letters:", error);
+    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching warning letters");
+    elements.warningLettersCount.textContent = "0 letters";
+  }
+}
+
+// New function to display warning letters
+function displayWarningLetters(data, searchTerm) {
+  const letters = data.results || [];
+  const totalCount = data.total || 0;
+  
+  // Update counter
+  elements.warningLettersCount.textContent = `${totalCount} letters`;
+  
+  if (letters.length === 0) {
+    elements.warningLettersData.innerHTML = `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No warning letters found containing "${searchTerm}"</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Get unique issuing offices for filter
+  const issuingOffices = [...new Set(letters.map(letter => letter.issuingOffice))].filter(Boolean);
+  
+  // Determine which letters are veterinary vs human
+  const isVeterinary = letter => {
+    const vetKeywords = ['animal', 'vet', 'veterinary', 'livestock', 'pet', 'cattle', 'poultry', 'swine', 'equine', 'fish', 'aquatic', 'cow', 'horse', 'dog', 'cat'];
+    const title = (letter.companyName || '').toLowerCase();
+    const subject = (letter.subject || '').toLowerCase();
+    const content = (letter.fullContent || '').toLowerCase();
+    
+    return vetKeywords.some(keyword => 
+      title.includes(keyword) || 
+      subject.includes(keyword) || 
+      content.includes(keyword)
+    );
+  };
+  
+  // Create HTML for warning letters section
+  let html = `
+    <div>
+      <!-- Filter controls -->
+      <div class="mb-4">
+        <div class="flex flex-wrap items-center justify-between">
+          <div class="flex-1 min-w-0 mb-2 sm:mb-0">
+            <h4 class="text-sm font-medium text-gray-700">Found ${totalCount} warning letters related to "${searchTerm}"</h4>
+          </div>
+          <div class="flex space-x-2">
+            <div>
+              <select id="warning-letters-type-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="all">All Types</option>
+                <option value="human">Human</option>
+                <option value="veterinary">Veterinary</option>
+              </select>
+            </div>
+            <div>
+              <select id="warning-letters-office-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="all">All Offices</option>
+                ${issuingOffices.map(office => `<option value="${office}">${office}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Warning letters list -->
+      <div id="warning-letters-list" class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+  `;
+  
+  // Add each warning letter
+  letters.forEach(letter => {
+    // Determine if veterinary or human
+    const letterType = isVeterinary(letter) ? 'veterinary' : 'human';
+    
+    html += `
+      <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
+           data-id="${letter.id || letter.letterId}" 
+           data-type="${letterType}" 
+           data-office="${letter.issuingOffice || ''}">
+        <div class="flex justify-between items-start">
+          <h5 class="text-sm font-medium">${letter.companyName}</h5>
+          <div class="flex space-x-2">
+            <span class="text-xs px-2 py-1 rounded-full ${letterType === 'veterinary' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+              ${letterType === 'veterinary' ? 'Veterinary' : 'Human'}
+            </span>
+            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+              ${formatDate(letter.letterIssueDate)}
+            </span>
+          </div>
+        </div>
+        
+        <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+        <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
+        
+        <div class="mt-2 text-xs text-gray-600 line-clamp-2">
+          ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+        </div>
+        
+        <div class="mt-3 flex justify-between items-center">
+          <button class="text-xs text-blue-600 hover:text-blue-800 view-warning-letter" data-id="${letter.id || letter.letterId}">
+            View Details
+          </button>
+          ${letter.companyUrl ? `
+            <a href="${letter.companyUrl}" target="_blank" class="text-xs text-gray-600 hover:text-gray-800">
+              View on FDA Website
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline-block ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  });
+  
+  // Close container divs
+  html += `
+      </div>
+      
+      <div class="mt-4 text-center">
+        <button id="load-more-letters" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded transition-colors">
+          Load More Letters
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Update the warning letters section
+  elements.warningLettersData.innerHTML = html;
+  
+  // Add event listeners for warning letter detail view
+  document.querySelectorAll('.view-warning-letter').forEach(button => {
+    button.addEventListener('click', function() {
+      const letterId = this.getAttribute('data-id');
+      viewWarningLetterDetails(letterId, searchTerm);
+    });
+  });
+  
+  // Add event listeners for filters
+  document.getElementById('warning-letters-type-filter').addEventListener('change', applyWarningLetterFilters);
+  document.getElementById('warning-letters-office-filter').addEventListener('change', applyWarningLetterFilters);
+  
+  // Add event listener for load more button
+  document.getElementById('load-more-letters').addEventListener('click', function() {
+    loadMoreWarningLetters(searchTerm);
+  });
+}
+
+// Function to apply warning letter filters
+function applyWarningLetterFilters() {
+  const typeFilter = document.getElementById('warning-letters-type-filter').value;
+  const officeFilter = document.getElementById('warning-letters-office-filter').value;
+  
+  // Get all letter items
+  const letterItems = document.querySelectorAll('.warning-letter-item');
+  let visibleCount = 0;
+  
+  // Apply filters
+  letterItems.forEach(item => {
+    const itemType = item.getAttribute('data-type');
+    const itemOffice = item.getAttribute('data-office');
+    
+    const typeMatch = typeFilter === 'all' || itemType === typeFilter;
+    const officeMatch = officeFilter === 'all' || itemOffice === officeFilter;
+    
+    // Show/hide based on filter matching
+    if (typeMatch && officeMatch) {
+      item.classList.remove('hidden');
+      visibleCount++;
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+  
+  // Update the visible count
+  const countEl = document.querySelector('#warning-letters-list').previousElementSibling.querySelector('h4');
+  if (countEl) {
+    const totalCount = letterItems.length;
+    const searchTerm = countEl.textContent.match(/related to "([^"]+)"/)?.[1] || '';
+    
+    if (visibleCount < totalCount) {
+      countEl.textContent = `Showing ${visibleCount} of ${totalCount} warning letters related to "${searchTerm}"`;
+    } else {
+      countEl.textContent = `Found ${totalCount} warning letters related to "${searchTerm}"`;
+    }
+  }
+  
+  // Show/hide load more button based on filters
+  const loadMoreBtn = document.getElementById('load-more-letters');
+  if (visibleCount === 0) {
+    loadMoreBtn.classList.add('hidden');
+    
+    // Display a message if no results match the filters
+    const noResultsEl = document.getElementById('no-filter-results');
+    if (!noResultsEl) {
+      const messageEl = document.createElement('div');
+      messageEl.id = 'no-filter-results';
+      messageEl.className = 'text-center p-4 text-sm text-gray-500';
+      messageEl.textContent = 'No warning letters match the selected filters.';
+      
+      document.getElementById('warning-letters-list').appendChild(messageEl);
+    }
+  } else {
+    loadMoreBtn.classList.remove('hidden');
+    
+    // Remove no results message if it exists
+    const noResultsEl = document.getElementById('no-filter-results');
+    if (noResultsEl) noResultsEl.remove();
+  }
+}
+
+// Function to load more warning letters
+async function loadMoreWarningLetters(searchTerm) {
+  const loadMoreBtn = document.getElementById('load-more-letters');
+  const currentCount = document.querySelectorAll('.warning-letter-item').length;
+  
+  // Show loading state
+  loadMoreBtn.innerHTML = `
+    <svg class="animate-spin h-4 w-4 mr-1 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    Loading...
+  `;
+  loadMoreBtn.disabled = true;
+  
+  try {
+    // Get the current filter values
+    const typeFilter = document.getElementById('warning-letters-type-filter').value;
+    const officeFilter = document.getElementById('warning-letters-office-filter').value;
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('term', searchTerm);
+    queryParams.append('field', 'all');
+    queryParams.append('offset', currentCount);
+    queryParams.append('limit', 10); // Load 10 more letters
+    
+    // Add filters if they're not "all"
+    if (typeFilter !== 'all') queryParams.append('type', typeFilter);
+    if (officeFilter !== 'all') queryParams.append('issuingOffice', officeFilter);
+    
+    // Make request to the API
+    const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching more warning letters: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const letters = data.results || [];
+    
+    if (letters.length === 0) {
+      // No more letters to load
+      loadMoreBtn.innerHTML = 'No more letters to load';
+      loadMoreBtn.disabled = true;
+      return;
+    }
+    
+    // Function to check if letter is veterinary
+    const isVeterinary = letter => {
+      const vetKeywords = ['animal', 'vet', 'veterinary', 'livestock', 'pet', 'cattle', 'poultry', 'swine', 'equine', 'fish', 'aquatic', 'cow', 'horse', 'dog', 'cat'];
+      const title = (letter.companyName || '').toLowerCase();
+      const subject = (letter.subject || '').toLowerCase();
+      const content = (letter.fullContent || '').toLowerCase();
+      
+      return vetKeywords.some(keyword => 
+        title.includes(keyword) || 
+        subject.includes(keyword) || 
+        content.includes(keyword)
+      );
+    };
+    
+    // Create HTML for new letters
+    let html = '';
+    
+    letters.forEach(letter => {
+      // Determine if veterinary or human
+      const letterType = isVeterinary(letter) ? 'veterinary' : 'human';
+      
+      html += `
+        <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
+             data-id="${letter.id || letter.letterId}" 
+             data-type="${letterType}" 
+             data-office="${letter.issuingOffice || ''}">
+          <div class="flex justify-between items-start">
+            <h5 class="text-sm font-medium">${letter.companyName}</h5>
+            <div class="flex space-x-2">
+              <span class="text-xs px-2 py-1 rounded-full ${letterType === 'veterinary' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+                ${letterType === 'veterinary' ? 'Veterinary' : 'Human'}
+              </span>
+              <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                ${formatDate(letter.letterIssueDate)}
+              </span>
+            </div>
+          </div>
+          
+          <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+          <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
+          
+          <div class="mt-2 text-xs text-gray-600 line-clamp-2">
+            ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+          </div>
+          
+          <div class="mt-3 flex justify-between items-center">
+            <button class="text-xs text-blue-600 hover:text-blue-800 view-warning-letter" data-id="${letter.id || letter.letterId}">
+              View Details
+            </button>
+            ${letter.companyUrl ? `
+              <a href="${letter.companyUrl}" target="_blank" class="text-xs text-gray-600 hover:text-gray-800">
+                View on FDA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline-block ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    });
+    
+    // Append new letters to the list
+    document.getElementById('warning-letters-list').insertAdjacentHTML('beforeend', html);
+    
+    // Add event listeners for new warning letter detail view buttons
+    document.querySelectorAll('.view-warning-letter:not([data-initialized])').forEach(button => {
+      button.setAttribute('data-initialized', 'true');
+      button.addEventListener('click', function() {
+        const letterId = this.getAttribute('data-id');
+        viewWarningLetterDetails(letterId, searchTerm);
+      });
+    });
+    
+    // Update button state
+    loadMoreBtn.innerHTML = 'Load More Letters';
+    loadMoreBtn.disabled = false;
+    
+    // Apply current filters to the new items
+    applyWarningLetterFilters();
+  } catch (error) {
+    console.error('Error loading more warning letters:', error);
+    loadMoreBtn.innerHTML = 'Error Loading More';
+    
+    // Auto-reset after a delay
+    setTimeout(() => {
+      loadMoreBtn.innerHTML = 'Load More Letters';
+      loadMoreBtn.disabled = false;
+    }, 3000);
+  }
+}
+
+// Function to view warning letter details
+async function viewWarningLetterDetails(letterId, searchTerm) {
+  try {
+    // Show loading modal
+    showWarningLetterModal(`
+      <div class="flex justify-center items-center py-12">
+        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="ml-2">Loading warning letter details...</span>
+      </div>
+    `);
+    
+    // Fetch the warning letter details
+    const response = await fetch(`${API_BASE_URL}/wl/letter/${letterId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching warning letter details: ${response.status}`);
+    }
+    
+    const letter = await response.json();
+    
+    // Format the letter content
+    let contentHtml = '';
+    
+    if (letter.fullContent) {
+      // If we have a search term, highlight it
+      contentHtml = searchTerm 
+        ? highlightSearchTerm(letter.fullContent, searchTerm)
+        : letter.fullContent;
+    } else {
+      contentHtml = '<p class="text-gray-500">No letter content available.</p>';
+    }
+    
+    // Show warning letter details in modal
+    showWarningLetterModal(`
+      <div>
+        <div class="border-b pb-4 mb-4">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-semibold">${letter.companyName}</h3>
+            <div class="flex space-x-2">
+              ${letter.companyUrl ? `
+                <a href="${letter.companyUrl}" target="_blank" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded transition-colors">
+                  View on FDA Website
+                </a>
+              ` : ''}
+            </div>
+          </div>
+          
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p class="text-gray-500">Letter ID:</p>
+              <p>${letter.letterId || 'N/A'}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Issue Date:</p>
+              <p>${formatDate(letter.letterIssueDate)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Issuing Office:</p>
+              <p>${letter.issuingOffice || 'N/A'}</p>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <p class="text-gray-500">Subject:</p>
+            <p>${letter.subject || 'No subject provided'}</p>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h4 class="text-lg font-medium mb-2">Letter Content</h4>
+          <div class="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto custom-scrollbar text-sm whitespace-pre-line">
+            ${contentHtml}
+          </div>
+        </div>
+        
+        ${letter.companyUrl ? `
+          <div class="flex justify-center">
+            <a href="${letter.companyUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View complete warning letter on FDA website
+            </a>
+          </div>
+        ` : ''}
+      </div>
+    `, letter.companyName);
+    
+    // If we have a search term, scroll to the first occurrence and highlight it specially
+    if (searchTerm && letter.fullContent) {
+      setTimeout(() => {
+        // Find the first highlighted element
+        const firstHighlight = document.querySelector('.highlight');
+        if (firstHighlight) {
+          // Scroll the element into view within the scrollable container
+          firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Add a special animation to draw attention
+          firstHighlight.classList.add('animate-pulse');
+          setTimeout(() => {
+            firstHighlight.classList.remove('animate-pulse');
+          }, 2000);
+        }
+      }, 500);
+    }
+  } catch (error) {
+    console.error('Error fetching warning letter details:', error);
+    showWarningLetterModal(`
+      <div class="text-center text-red-500 p-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-lg font-medium mb-2">Error Loading Warning Letter</h3>
+        <p class="text-sm text-gray-600">We couldn't load the warning letter details. Please try again later.</p>
+      </div>
+    `, 'Error');
+  }
+}
+
+// Function to show warning letter modal
+function showWarningLetterModal(content, title = 'Warning Letter Details') {
+  // Check if modal already exists
+  let modal = document.getElementById('warning-letter-modal');
+  
+  if (!modal) {
+    // Create modal if it doesn't exist
+    modal = document.createElement('div');
+    modal.id = 'warning-letter-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    
+    // Build modal HTML
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold" id="warning-letter-modal-title">${title}</h2>
+          <button id="close-warning-letter-modal" class="text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="overflow-y-auto p-6" id="warning-letter-modal-content">
+          ${content}
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listener to close button
+    document.getElementById('close-warning-letter-modal').addEventListener('click', closeWarningLetterModal);
+    
+    // Close on click outside content
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeWarningLetterModal();
+      }
+    });
+    
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('flex')) {
+        closeWarningLetterModal();
+      }
+    });
+  } else {
+    // Update modal content
+    document.getElementById('warning-letter-modal-title').textContent = title;
+    document.getElementById('warning-letter-modal-content').innerHTML = content;
+    
+    // Show the modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  
+  // Prevent body scrolling
+  document.body.style.overflow = 'hidden';
+}
+
+// Function to close warning letter modal
+function closeWarningLetterModal() {
+  const modal = document.getElementById('warning-letter-modal');
+  if (modal) {
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    
+    // Allow body scrolling again
+    document.body.style.overflow = '';
+  }
+}
+
+// Helper function to highlight search terms in text
+function highlightSearchTerm(text, searchTerm) {
+  if (!text || !searchTerm) return text;
+  
+  // Escape special characters in the search term
+  const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  
+  // Create a regular expression to find the search term
+  const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
+  
+  // Replace matches with highlighted spans
+  return text.replace(regex, '<span class="highlight bg-yellow-200 px-0.5 rounded">$1</span>');
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown Date';
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateString;
+  }
+}
+
+// Helper function to create error message
+function createErrorMessage(message) {
+  return `
+    <div class="text-center p-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-red-600">${message}</p>
+    </div>
+  `;
+}
+
+// Helper function to show/hide a section
+function showSection(element, show) {
+  if (show) {
+    element.classList.remove('hidden');
+  } else {
+    element.classList.add('hidden');
+  }
+}
+
+// Function to search warning letters directly
+async function searchWarningLetters(searchTerm, type = null, issuingOffice = null) {
+  // Display the FDA data section if it's hidden
+  showSection(elements.fdaDataSection, true);
+  
+  // Show loading state only for warning letters
+  elements.warningLettersData.innerHTML = `
+    <div class="flex justify-center items-center py-8">
+      <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="ml-2 text-gray-600">Searching warning letters...</span>
+    </div>
+  `;
+  
+  try {
+    // Create filters object
+    const filters = {};
+    if (type) filters.type = type;
+    if (issuingOffice) filters.issuingOffice = issuingOffice;
+    
+    // Fetch warning letters
+    await fetchWarningLetters(searchTerm, filters);
+  } catch (error) {
+    console.error('Error searching warning letters:', error);
+    elements.warningLettersData.innerHTML = createErrorMessage('Error searching warning letters');
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function initFdaDataSection() {
   // Show the section
   showSection(elements.fdaDataSection, true);
@@ -7453,6 +10401,7 @@ async function displayFdaData(drugName,condition) {
   elements.fdaDocuments.innerHTML = loadingTemplate;
   elements.orangeBookData.innerHTML = loadingTemplate;
   elements.dailyMedData.innerHTML = loadingTemplate;
+  elements.warningLettersData.innerHTML = loadingTemplate;
   
   try {
         // if (!drug) {
@@ -7460,7 +10409,7 @@ async function displayFdaData(drugName,condition) {
     //     return;
     // }
     // Fetch comprehensive FDA drug data
-    const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
+    const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
     const fdaData = await fdaResponse.json();
     
     if (fdaResponse.ok && !fdaData.error) {
@@ -7471,7 +10420,7 @@ async function displayFdaData(drugName,condition) {
     }
     
     // Continue with existing Orange Book and DailyMed fetches
-    const orangeBookResponse = await fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
+    const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
     const orangeBookData = await orangeBookResponse.json();
     
     if (orangeBookResponse.ok && !orangeBookData.error) {
@@ -7489,11 +10438,15 @@ async function displayFdaData(drugName,condition) {
       elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
     }
     
+    // Fetch warning letters
+    await fetchWarningLetters(drugName);
+    
   } catch (error) {
     console.error("Error fetching FDA data:", error);
     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching FDA data");
   }
 }
 
@@ -7517,7 +10470,7 @@ async function displayFdaClinicalData(condition) {
   elements.fdaDocuments.innerHTML = loadingTemplate;
   elements.orangeBookData.innerHTML = loadingTemplate;
   elements.dailyMedData.innerHTML = loadingTemplate;
-  
+  elements.warningLettersData.innerHTML = loadingTemplate;
   try {
     // if (!condition) {
     //   alert('Please enter a clinical condition to search.');
@@ -7554,11 +10507,15 @@ async function displayFdaClinicalData(condition) {
       elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
     }
     
+    // Fetch warning letters
+    await fetchWarningLetters(condition);
+    
   } catch (error) {
     console.error("Error fetching FDA data:", error);
     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching FDA data");
   }
 }
 

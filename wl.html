@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FDA Warning Letters Database</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom styles -->
+  <style>
+    .loading-spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid #3498db;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .highlight {
+      background-color: #FFFF00;
+      padding: 2px;
+      border-radius: 2px;
+    }
+
+    .letter-content {
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">FDA Warning Letters Database</h1>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="#" class="hover:text-blue-200 nav-link" data-page="home">Home</a></li>
+          <li><a href="#" class="hover:text-blue-200 nav-link" data-page="search">Search</a></li>
+          <li><a href="#" class="hover:text-blue-200 nav-link" data-page="advanced-search">Advanced Search</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Pages will be shown/hidden here based on navigation -->
+    
+    <!-- Home Page / Dashboard -->
+    <section id="home-page" class="page">
+      <div class="mb-8 text-center bg-blue-700 text-white py-12 px-6 rounded-lg shadow-md">
+        <h1 class="text-4xl font-bold mb-4">FDA Warning Letters Database</h1>
+        <p class="text-xl mb-6">Search and explore FDA warning letters to companies and organizations</p>
+        <div class="flex justify-center space-x-4">
+          <button class="bg-white text-blue-700 px-6 py-2 rounded-md shadow hover:bg-blue-50 font-medium nav-link" data-page="search">
+            Search Letters
+          </button>
+          <button class="bg-transparent border border-white text-white px-6 py-2 rounded-md hover:bg-blue-600 font-medium nav-link" data-page="advanced-search">
+            Advanced Search
+          </button>
+        </div>
+      </div>
+
+      <div id="dashboard-stats" class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">Total Warning Letters</h3>
+          <p id="total-letters" class="text-3xl font-bold text-blue-700">Loading...</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">Date Range</h3>
+          <p id="date-range" class="text-md text-gray-700">Loading...</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">Top Issuing Office</h3>
+          <p id="top-office" class="text-md text-gray-700">Loading...</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-2xl font-bold mb-4">Recent Warning Letters</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recent-letters" class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colspan="5" class="px-6 py-4 text-center">Loading recent letters...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Page -->
+    <section id="search-page" class="page hidden">
+      <h1 class="text-3xl font-bold mb-6">Search FDA Warning Letters</h1>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <form id="search-form" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="search-term" class="block text-sm font-medium text-gray-700 mb-1">Search Term</label>
+              <input type="text" id="search-term" name="term" placeholder="Enter drug, brand, company, condition..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label for="search-field" class="block text-sm font-medium text-gray-700 mb-1">Search In</label>
+              <select id="search-field" name="field" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="all">All Fields</option>
+                <option value="company">Company Name</option>
+                <option value="subject">Subject</option>
+                <option value="content">Letter Content</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label for="date-from" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" id="date-from" name="dateFrom" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label for="date-to" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" id="date-to" name="dateTo" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label for="issuing-office" class="block text-sm font-medium text-gray-700 mb-1">Issuing Office</label>
+              <select id="issuing-office" name="issuingOffice" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Any Office</option>
+                <!-- Will be populated from API -->
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-4">
+            <button type="button" id="reset-search" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+              Reset
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <div id="search-results" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Search Results</h2>
+          <p id="results-count" class="text-gray-700"></p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issuing Office</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="results-table" class="bg-white divide-y divide-gray-200">
+                <!-- Search results will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button id="prev-page-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+              </button>
+              <button id="next-page-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+              </button>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700" id="pagination-info"></p>
+              </div>
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="pagination-controls">
+                  <!-- Pagination controls will be populated here -->
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advanced Search Page -->
+    <section id="advanced-search-page" class="page hidden">
+      <h1 class="text-3xl font-bold mb-6">Advanced Search</h1>
+      
+      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <form id="advanced-search-form" class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Search Terms</label>
+            <p class="text-sm text-gray-500 mb-4">Enter multiple terms to search for in FDA warning letters.</p>
+            
+            <div id="search-terms-container" class="space-y-4">
+              <div class="search-term-row flex items-center space-x-4">
+                <input type="text" name="terms[]" placeholder="Enter search term" class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="button" class="remove-term hidden px-2 py-1 text-red-600 border border-red-300 rounded hover:bg-red-50">
+                  Remove
+                </button>
+              </div>
+            </div>
+            
+            <button type="button" id="add-term" class="mt-2 text-blue-600 hover:text-blue-800 text-sm flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+              </svg>
+              Add Another Term
+            </button>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Search Logic</label>
+            <div class="flex space-x-6">
+              <div class="flex items-center">
+                <input type="radio" id="operator-and" name="operator" value="AND" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                <label for="operator-and" class="ml-2 block text-sm text-gray-700">
+                  Match ALL terms (AND)
+                </label>
+              </div>
+              <div class="flex items-center">
+                <input type="radio" id="operator-or" name="operator" value="OR" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                <label for="operator-or" class="ml-2 block text-sm text-gray-700">
+                  Match ANY term (OR)
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-4">
+            <button type="button" id="reset-advanced-search" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+              Reset
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <div id="advanced-search-results" class="hidden">
+        <!-- This will display the same results table as in the regular search page -->
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Search Results</h2>
+          <p id="advanced-results-count" class="text-gray-700"></p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issuing Office</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="advanced-results-table" class="bg-white divide-y divide-gray-200">
+                <!-- Advanced search results will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div id="advanced-pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button id="advanced-prev-page-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+              </button>
+              <button id="advanced-next-page-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+              </button>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700" id="advanced-pagination-info"></p>
+              </div>
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="advanced-pagination-controls">
+                  <!-- Advanced pagination controls will be populated here -->
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Letter Detail Modal -->
+    <div id="letter-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 id="letter-modal-title" class="text-xl font-bold truncate">Warning Letter Details</h2>
+          <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="overflow-y-auto p-6">
+          <div id="letter-loading" class="flex justify-center items-center py-12">
+            <div class="loading-spinner"></div>
+            <span>Loading letter details...</span>
+          </div>
+          
+          <div id="letter-content" class="hidden">
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div class="bg-gray-50 p-4 rounded">
+                <p class="font-medium text-gray-700">Letter ID</p>
+                <p id="letter-id" class="text-gray-900"></p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded">
+                <p class="font-medium text-gray-700">Issue Date</p>
+                <p id="letter-date" class="text-gray-900"></p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded">
+                <p class="font-medium text-gray-700">Issuing Office</p>
+                <p id="letter-office" class="text-gray-900"></p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded md:col-span-2">
+                <p class="font-medium text-gray-700">Subject</p>
+                <p id="letter-subject" class="text-gray-900"></p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded">
+                <p class="font-medium text-gray-700">Posted Date</p>
+                <p id="letter-posted-date" class="text-gray-900"></p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded md:col-span-3">
+                <p class="font-medium text-gray-700">Recipient Information</p>
+                <div id="letter-recipient-info" class="text-gray-900"></div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-2">Letter Content</h3>
+              <div id="letter-full-content" class="bg-gray-50 p-4 rounded letter-content text-sm"></div>
+            </div>
+            
+            <div class="flex justify-between">
+              <a id="letter-source-link" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                View on FDA Website
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-gray-300 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <p>&copy; 2025 FDA Warning Letters Database</p>
+          <p class="text-sm">All data sourced from the FDA public website.</p>
+        </div>
+        <div>
+          <p class="text-sm">This tool is for informational purposes only.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Configuration
+    const API_URL = 'http://localhost:3001/api';
+    
+    // Global state
+    let currentPage = 'home';
+    let searchParams = {
+      term: '',
+      field: 'all',
+      dateFrom: '',
+      dateTo: '',
+      page: 1
+    };
+    let advancedSearchParams = {
+      terms: [''],
+      operator: 'AND',
+      page: 1
+    };
+    let currentLetterSearchTerm = '';
+    
+    // DOM Elements
+    const pages = {
+      home: document.getElementById('home-page'),
+      search: document.getElementById('search-page'),
+      advancedSearch: document.getElementById('advanced-search-page')
+    };
+    
+    // Helper functions
+    function showPage(pageName) {
+      currentPage = pageName;
+      
+      // Hide all pages
+      Object.values(pages).forEach(page => {
+        page.classList.add('hidden');
+      });
+      
+      // Show the selected page
+      pages[pageName].classList.remove('hidden');
+      
+      // Update navigation highlighting
+      document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.dataset.page === pageName) {
+          link.classList.add('font-bold');
+        } else {
+          link.classList.remove('font-bold');
+        }
+      });
+      
+      // Load page-specific data if needed
+      if (pageName === 'home') {
+        loadDashboardData();
+      } else if (pageName === 'search') {
+        loadIssuingOffices();
+      }
+    }
+    
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      
+      // Try to format the date
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch {
+        return dateString;
+      }
+    }
+    
+    function highlightText(text, term) {
+      if (!term || !text) return text;
+      
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedTerm, 'gi');
+      
+      return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+    }
+    
+    function showLoading(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.innerHTML = '<div class="flex justify-center items-center py-6"><div class="loading-spinner"></div><span>Loading...</span></div>';
+      }
+    }
+    
+    // API functions
+    async function fetchAPI(endpoint, options = {}) {
+      try {
+        const response = await fetch(`${API_URL}${endpoint}`, options);
+        
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return null;
+      }
+    }
+    
+    // Dashboard functions
+    async function loadDashboardData() {
+      const stats = await fetchAPI('/stats');
+      
+      if (stats) {
+        // Update dashboard stats
+        document.getElementById('total-letters').textContent = stats.totalLetters.toLocaleString();
+        document.getElementById('date-range').textContent = `${formatDate(stats.dateRange.earliest)} - ${formatDate(stats.dateRange.latest)}`;
+        
+        // Top office
+        if (stats.topOffices && stats.topOffices.length > 0) {
+          const topOffice = stats.topOffices[0];
+          document.getElementById('top-office').textContent = `${topOffice.office} (${topOffice.count} letters)`;
+        } else {
+          document.getElementById('top-office').textContent = 'No data available';
+        }
+        
+        // Recent letters
+        const recentLettersEl = document.getElementById('recent-letters');
+        
+        if (stats.recentLetters && stats.recentLetters.length > 0) {
+          recentLettersEl.innerHTML = stats.recentLetters.map(letter => `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${letter.letterId || letter.id || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(letter.letterIssueDate)}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${letter.companyName || 'N/A'}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">${letter.subject || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-blue-600 hover:text-blue-900 view-letter" data-id="${letter.id || letter.letterId}">View</button>
+              </td>
+            </tr>
+          `).join('');
+          
+          // Add event listeners to view buttons
+          recentLettersEl.querySelectorAll('.view-letter').forEach(button => {
+            button.addEventListener('click', () => viewLetter(button.dataset.id));
+          });
+        } else {
+          recentLettersEl.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No recent letters available</td></tr>';
+        }
+      } else {
+        // Show error message
+        document.getElementById('total-letters').textContent = 'Error';
+        document.getElementById('date-range').textContent = 'Error loading data';
+        document.getElementById('top-office').textContent = 'Error loading data';
+        document.getElementById('recent-letters').innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Error loading data</td></tr>';
+      }
+    }
+    
+    // Search functions
+    async function loadIssuingOffices() {
+      const issuingOfficeEl = document.getElementById('issuing-office');
+      
+      if (issuingOfficeEl.children.length <= 1) {
+        const offices = await fetchAPI('/issuing-offices');
+        
+        if (offices && offices.length > 0) {
+          const optionsHtml = offices.map(office => `
+            <option value="${office}">${office}</option>
+          `).join('');
+          
+          issuingOfficeEl.innerHTML += optionsHtml;
+        }
+      }
+    }
+    
+    async function performSearch(params = {}) {
+      // Show loading state
+      document.getElementById('search-results').classList.remove('hidden');
+      showLoading('results-table');
+      
+      // Build query string
+      const queryParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) queryParams.append(key, value);
+      });
+      
+      // Fetch results
+      const data = await fetchAPI(`/search?${queryParams.toString()}`);
+      
+      if (data && data.results) {
+        // Update results count
+        document.getElementById('results-count').textContent = `${data.pagination.totalResults} letters found`;
+        
+        // Populate results table
+        const resultsTableEl = document.getElementById('results-table');
+        
+        if (data.results.length > 0) {
+          resultsTableEl.innerHTML = data.results.map(letter => `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${letter.letterId || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(letter.letterIssueDate)}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${letter.companyName || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${letter.issuingOffice || 'N/A'}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">${letter.subject || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-blue-600 hover:text-blue-900 view-letter" data-id="${letter.id || letter.letterId}">View</button>
+              </td>
+            </tr>
+          `).join('');
+          
+          // Add event listeners to view buttons
+          resultsTableEl.querySelectorAll('.view-letter').forEach(button => {
+            button.addEventListener('click', () => viewLetter(button.dataset.id, params.term));
+          });
+        } else {
+          resultsTableEl.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No letters found matching your search criteria</td></tr>';
+        }
+        
+        // Update pagination
+        updatePagination(data.pagination, params, 'pagination', 'pagination-info', 'pagination-controls');
+      } else {
+        // Show error
+        document.getElementById('results-count').textContent = 'Error loading results';
+        document.getElementById('results-table').innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Error loading search results</td></tr>';
+        document.getElementById('pagination').classList.add('hidden');
+      }
+    }
+    
+    async function performAdvancedSearch(params = {}) {
+      // Show loading state
+      document.getElementById('advanced-search-results').classList.remove('hidden');
+      showLoading('advanced-results-table');
+      
+      // Fetch results
+      const data = await fetchAPI('/advanced-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+      });
+      
+      if (data && data.results) {
+        // Update results count
+        document.getElementById('advanced-results-count').textContent = `${data.pagination.totalResults} letters found`;
+        
+        // Populate results table
+        const resultsTableEl = document.getElementById('advanced-results-table');
+        
+        if (data.results.length > 0) {
+          resultsTableEl.innerHTML = data.results.map(letter => `
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${letter.letterId || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(letter.letterIssueDate)}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${letter.companyName || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${letter.issuingOffice || 'N/A'}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">${letter.subject || 'N/A'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-blue-600 hover:text-blue-900 view-letter" data-id="${letter.id || letter.letterId}">View</button>
+              </td>
+            </tr>
+          `).join('');
+          
+          // Add event listeners to view buttons
+          resultsTableEl.querySelectorAll('.view-letter').forEach(button => {
+            button.addEventListener('click', () => {
+              // Join terms with spaces for highlighting
+              const searchTermForHighlighting = params.terms.join(' ');
+              viewLetter(button.dataset.id, searchTermForHighlighting);
+            });
+          });
+        } else {
+          resultsTableEl.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No letters found matching your search criteria</td></tr>';
+        }
+        
+        // Update pagination
+        updatePagination(
+          data.pagination, 
+          params, 
+          'advanced-pagination',
+          'advanced-pagination-info',
+          'advanced-pagination-controls',
+          true // is advanced search
+        );
+      } else {
+        // Show error
+        document.getElementById('advanced-results-count').textContent = 'Error loading results';
+        document.getElementById('advanced-results-table').innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Error loading search results</td></tr>';
+        document.getElementById('advanced-pagination').classList.add('hidden');
+      }
+    }
+    
+    function updatePagination(pagination, params, paginationId, infoId, controlsId, isAdvanced = false) {
+      const { currentPage, totalPages, totalResults, perPage } = pagination;
+      const paginationEl = document.getElementById(paginationId);
+      const paginationInfoEl = document.getElementById(infoId);
+      const paginationControlsEl = document.getElementById(controlsId);
+      
+      if (totalPages <= 1) {
+        paginationEl.classList.add('hidden');
+        return;
+      }
+      
+      paginationEl.classList.remove('hidden');
+      
+      // Update pagination info
+      const startItem = (currentPage - 1) * perPage + 1;
+      const endItem = Math.min(currentPage * perPage, totalResults);
+      paginationInfoEl.textContent = `Showing ${startItem} to ${endItem} of ${totalResults} results`;
+      
+      // Update pagination controls
+      let paginationControlsHTML = '';
+      
+      // Previous button
+      paginationControlsHTML += `
+        <button 
+          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" 
+          ${currentPage === 1 ? 'disabled' : `onclick="changePage(${currentPage - 1}, ${isAdvanced})"`}
+        >
+          <span class="sr-only">Previous</span>
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      `;
+      
+      // Page buttons (with ellipsis for large ranges)
+      const maxButtonsToShow = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxButtonsToShow / 2));
+      let endPage = Math.min(totalPages, startPage + maxButtonsToShow - 1);
+      
+      if (endPage - startPage + 1 < maxButtonsToShow) {
+        startPage = Math.max(1, endPage - maxButtonsToShow + 1);
+      }
+      
+      // First page button (if not in range)
+      if (startPage > 1) {
+        paginationControlsHTML += `
+          <button onclick="changePage(1, ${isAdvanced})" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            1
+          </button>
+        `;
+        
+        // Ellipsis after first (if needed)
+        if (startPage > 2) {
+          paginationControlsHTML += `
+            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+              ...
+            </span>
+          `;
+        }
+      }
+      
+      // Page buttons
+      for (let i = startPage; i <= endPage; i++) {
+        paginationControlsHTML += `
+          <button 
+            onclick="changePage(${i}, ${isAdvanced})" 
+            class="relative inline-flex items-center px-4 py-2 border ${i === currentPage ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'} text-sm font-medium"
+            ${i === currentPage ? 'aria-current="page"' : ''}
+          >
+            ${i}
+          </button>
+        `;
+      }
+      
+      // Ellipsis before last (if needed)
+      if (endPage < totalPages - 1) {
+        paginationControlsHTML += `
+          <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+            ...
+          </span>
+        `;
+      }
+      
+      // Last page button (if not in range)
+      if (endPage < totalPages) {
+        paginationControlsHTML += `
+          <button onclick="changePage(${totalPages}, ${isAdvanced})" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            ${totalPages}
+          </button>
+        `;
+      }
+      
+      // Next button
+      paginationControlsHTML += `
+        <button 
+          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" 
+          ${currentPage === totalPages ? 'disabled' : `onclick="changePage(${currentPage + 1}, ${isAdvanced})"`}
+        >
+          <span class="sr-only">Next</span>
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      `;
+      
+      paginationControlsEl.innerHTML = paginationControlsHTML;
+      
+      // Update mobile pagination buttons
+      const prevMobileBtn = document.getElementById(isAdvanced ? 'advanced-prev-page-mobile' : 'prev-page-mobile');
+      const nextMobileBtn = document.getElementById(isAdvanced ? 'advanced-next-page-mobile' : 'next-page-mobile');
+      
+      if (prevMobileBtn) {
+        prevMobileBtn.disabled = currentPage === 1;
+        prevMobileBtn.classList.toggle('opacity-50', currentPage === 1);
+        prevMobileBtn.classList.toggle('cursor-not-allowed', currentPage === 1);
+        if (currentPage > 1) {
+          prevMobileBtn.onclick = () => changePage(currentPage - 1, isAdvanced);
+        } else {
+          prevMobileBtn.onclick = null;
+        }
+      }
+      
+      if (nextMobileBtn) {
+        nextMobileBtn.disabled = currentPage === totalPages;
+        nextMobileBtn.classList.toggle('opacity-50', currentPage === totalPages);
+        nextMobileBtn.classList.toggle('cursor-not-allowed', currentPage === totalPages);
+        if (currentPage < totalPages) {
+          nextMobileBtn.onclick = () => changePage(currentPage + 1, isAdvanced);
+        } else {
+          nextMobileBtn.onclick = null;
+        }
+      }
+    }
+    
+    async function viewLetter(letterId, searchTerm = '') {
+      // Store search term for highlighting
+      currentLetterSearchTerm = searchTerm;
+      
+      // Show modal
+      const modal = document.getElementById('letter-modal');
+      modal.classList.remove('hidden');
+      
+      // Show loading state and hide content
+      document.getElementById('letter-loading').classList.remove('hidden');
+      document.getElementById('letter-content').classList.add('hidden');
+      
+      // Fetch letter details
+      const letter = await fetchAPI(`/letter/${letterId}`);
+      
+      if (letter) {
+        // Hide loading and show content
+        document.getElementById('letter-loading').classList.add('hidden');
+        document.getElementById('letter-content').classList.remove('hidden');
+        
+        // Update modal title
+        document.getElementById('letter-modal-title').textContent = letter.companyName || 'Warning Letter Details';
+        
+        // Populate letter details
+        document.getElementById('letter-id').textContent = letter.letterId || letter.id || 'N/A';
+        document.getElementById('letter-date').textContent = formatDate(letter.letterIssueDate);
+        document.getElementById('letter-office').textContent = letter.issuingOffice || 'N/A';
+        document.getElementById('letter-subject').textContent = letter.subject || 'N/A';
+        document.getElementById('letter-posted-date').textContent = formatDate(letter.postedDate);
+        
+        // Recipient info
+        let recipientHtml = '';
+        
+        if (letter.recipientInfo) {
+          const recipientInfo = typeof letter.recipientInfo === 'string' 
+            ? JSON.parse(letter.recipientInfo) 
+            : letter.recipientInfo;
+            
+          if (recipientInfo.address) {
+            recipientHtml += `<p>${recipientInfo.address}</p>`;
+          }
+          
+          if (recipientInfo.emails && recipientInfo.emails.length > 0) {
+            recipientHtml += `<p>Email: ${recipientInfo.emails.join(', ')}</p>`;
+          }
+        } else {
+          recipientHtml = '<p>No recipient information available</p>';
+        }
+        
+        document.getElementById('letter-recipient-info').innerHTML = recipientHtml;
+        
+        // Letter content with highlighting if search term provided
+        const letterContentEl = document.getElementById('letter-full-content');
+        if (letter.fullContent) {
+          if (searchTerm) {
+            letterContentEl.innerHTML = highlightText(letter.fullContent, searchTerm);
+          } else {
+            letterContentEl.textContent = letter.fullContent;
+          }
+        } else {
+          letterContentEl.textContent = 'No letter content available';
+        }
+        
+        // Source link
+        const sourceLinkEl = document.getElementById('letter-source-link');
+        if (letter.companyUrl) {
+          sourceLinkEl.href = letter.companyUrl;
+          sourceLinkEl.classList.remove('hidden');
+        } else {
+          sourceLinkEl.classList.add('hidden');
+        }
+      } else {
+        // Show error
+        document.getElementById('letter-loading').classList.add('hidden');
+        document.getElementById('letter-content').classList.remove('hidden');
+        document.getElementById('letter-content').innerHTML = '<div class="text-red-500">Error loading letter details.</div>';
+      }
+    }
+    
+    // Event listeners and initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      // Navigation
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          showPage(link.dataset.page);
+        });
+      });
+      
+      // Close modal button
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('letter-modal').classList.add('hidden');
+      });
+      
+      // Close modal when clicking outside
+      document.getElementById('letter-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('letter-modal')) {
+          document.getElementById('letter-modal').classList.add('hidden');
+        }
+      });
+      
+      // Escape key to close modal
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !document.getElementById('letter-modal').classList.contains('hidden')) {
+          document.getElementById('letter-modal').classList.add('hidden');
+        }
+      });
+      
+      // Search form submit
+      document.getElementById('search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(e.target);
+        const params = {
+          term: formData.get('term'),
+          field: formData.get('field'),
+          dateFrom: formData.get('dateFrom'),
+          dateTo: formData.get('dateTo'),
+          issuingOffice: formData.get('issuingOffice'),
+          page: 1
+        };
+        
+        // Update global search params
+        searchParams = params;
+        console.log(params)
+        
+        // Perform search
+        performSearch(params);
+      });
+      
+      // Reset search form
+      document.getElementById('reset-search').addEventListener('click', () => {
+        document.getElementById('search-form').reset();
+      });
+      
+      // Advanced search form
+      const addTermBtn = document.getElementById('add-term');
+      addTermBtn.addEventListener('click', () => {
+        const container = document.getElementById('search-terms-container');
+        const newRow = document.createElement('div');
+        newRow.className = 'search-term-row flex items-center space-x-4';
+        newRow.innerHTML = `
+          <input type="text" name="terms[]" placeholder="Enter search term" class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button type="button" class="remove-term px-2 py-1 text-red-600 border border-red-300 rounded hover:bg-red-50">
+            Remove
+          </button>
+        `;
+        
+        container.appendChild(newRow);
+        
+        // Show remove buttons if there are multiple rows
+        if (container.children.length > 1) {
+          container.querySelectorAll('.remove-term').forEach(btn => {
+            btn.classList.remove('hidden');
+          });
+        }
+        
+        // Add event listener to remove button
+        const removeBtn = newRow.querySelector('.remove-term');
+        removeBtn.addEventListener('click', () => {
+          newRow.remove();
+          
+          // Hide remove buttons if only one row left
+          if (container.children.length === 1) {
+            container.querySelector('.remove-term').classList.add('hidden');
+          }
+        });
+      });
+      
+      // Advanced search form submit
+      document.getElementById('advanced-search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(e.target);
+        const terms = formData.getAll('terms[]').filter(term => term.trim() !== '');
+        const operator = formData.get('operator') || 'AND';
+        
+        if (terms.length === 0) {
+          alert('Please enter at least one search term');
+          return;
+        }
+        
+        // Update advanced search params
+        advancedSearchParams = {
+          terms,
+          operator,
+          page: 1
+        };
+        
+        // Perform advanced search
+        performAdvancedSearch(advancedSearchParams);
+      });
+      
+      // Reset advanced search form
+      document.getElementById('reset-advanced-search').addEventListener('click', () => {
+        document.getElementById('advanced-search-form').reset();
+        
+        // Reset term rows
+        const container = document.getElementById('search-terms-container');
+        while (container.children.length > 1) {
+          container.removeChild(container.lastChild);
+        }
+        
+        // Reset the first row's input
+        const firstInput = container.querySelector('input[name="terms[]"]');
+        if (firstInput) {
+          firstInput.value = '';
+        }
+        
+        // Hide the remove button for the first row
+        const firstRemoveBtn = container.querySelector('.remove-term');
+        if (firstRemoveBtn) {
+          firstRemoveBtn.classList.add('hidden');
+        }
+      });
+      
+      // Initialize page
+      showPage('home');
+    });
+    
+    // Global functions for pagination (needs to be accessible from inline onclick)
+    function changePage(page, isAdvanced = false) {
+      if (isAdvanced) {
+        advancedSearchParams.page = page;
+        performAdvancedSearch(advancedSearchParams);
+      } else {
+        searchParams.page = page;
+        performSearch(searchParams);
+      }
+      
+      // Scroll to top of results
+      const resultSection = document.getElementById(isAdvanced ? 'advanced-search-results' : 'search-results');
+      resultSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
