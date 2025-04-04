@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDA Inspection Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+        
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .badge-nai {
+            background-color: #10b981;
+        }
+        
+        .badge-vai {
+            background-color: #f59e0b;
+        }
+        
+        .badge-oai {
+            background-color: #ef4444;
+        }
+        
+        body {
+            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/fabricjs/5.3.1/assets/mesh-gradient.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+    <!-- Navbar -->
+    <nav class="glass-dark sticky top-0 z-50 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold">FDA Inspection Hub</div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="./final.html" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300 active-nav" data-section="home">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </a>
+                        <a href="./wl.html" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="warning-letters">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Warning Letters
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Home Section -->
+        <section id="home-section" class="space-y-6">
+            <!-- Search & Filter Bar -->
+            <div class="glass rounded-xl p-4 md:p-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                placeholder="Search by company name, drug, or condition..." 
+                                class="w-full py-3 px-4 pr-10 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            >
+                            <span class="absolute right-3 top-3 text-slate-400">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <select id="filter-project-area" class="py-3 px-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">All Project Areas</option>
+                        </select>
+                        <select id="filter-classification" class="py-3 px-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">All Classifications</option>
+                            <option value="NAI">NAI</option>
+                            <option value="VAI">VAI</option>
+                            <option value="OAI">OAI</option>
+                        </select>
+                        <button id="filter-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Total Inspections</h3>
+                            <p class="text-3xl font-bold mt-1" id="total-inspections">0</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Total inspections in database</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Recent Inspections</h3>
+                            <p class="text-3xl font-bold mt-1" id="recent-inspections">0</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full text-green-600">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Inspections in the last quarter</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">OAI Results</h3>
+                            <p class="text-3xl font-bold mt-1" id="oai-count">0</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full text-red-600">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Official Action Indicated results</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Countries</h3>
+                            <p class="text-3xl font-bold mt-1" id="countries-count">0</p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Countries with inspections</p>
+                </div>
+            </div>
+
+            <!-- Intelligent Summary -->
+            <div id="intelligent-summary" class="glass rounded-xl p-6 hidden">
+                <h2 class="text-xl font-bold mb-4">Intelligent Summary</h2>
+                <div id="summary-content" class="prose max-w-none">
+                    <!-- Content will be dynamically inserted -->
+                </div>
+            </div>
+
+            <!-- Data Tables -->
+            <div class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Recent Inspections</h2>
+                        <div class="text-sm text-slate-500" id="recent-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Record Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">FEI Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-table" class="divide-y divide-slate-200">
+                            <!-- Table content will be dynamically inserted -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-recent" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="recent-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass rounded-xl overflow-hidden mt-8">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Historical Inspection Data</h2>
+                        <div class="text-sm text-slate-500" id="historical-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">End Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Project Area</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Classification</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historical-table" class="divide-y divide-slate-200">
+                            <!-- Table content will be dynamically inserted -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-historical" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="historical-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Warning Letters Section -->
+        <section id="warning-letters-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">FDA Warning Letters</h2>
+                <p class="mb-6">
+                    Warning Letters are issued by the FDA when they find that a manufacturer has significantly violated FDA regulations. 
+                    These letters are meant to establish prior notice of violations and request prompt corrective action.
+                </p>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-yellow-700">
+                                Warning letters related to recent inspections will appear here. Currently analyzing the data for warning letter information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold mb-3">Common Warning Letter Topics</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white/70 p-4 rounded-lg">
+                            <h4 class="font-medium text-red-600">cGMP Violations</h4>
+                            <p class="text-sm mt-2">Current Good Manufacturing Practice violations, including quality control issues.</p>
+                        </div>
+                        <div class="bg-white/70 p-4 rounded-lg">
+                            <h4 class="font-medium text-red-600">Data Integrity</h4>
+                            <p class="text-sm mt-2">Issues with proper record keeping, data manipulation, or incomplete records.</p>
+                        </div>
+                        <div class="bg-white/70 p-4 rounded-lg">
+                            <h4 class="font-medium text-red-600">Adulteration/Misbranding</h4>
+                            <p class="text-sm mt-2">Products that don't meet specifications or have misleading labeling.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="fixed inset-0 bg-black/50" id="modal-overlay"></div>
+        <div class="glass-dark rounded-xl w-full max-w-4xl text-white relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <h3 class="text-xl font-bold" id="modal-title">Inspection Details</h3>
+                <button id="close-modal" class="text-white/70 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto p-6" id="modal-content">
+                <!-- Content will be dynamically inserted -->
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end space-x-4">
+                                    <a id="modal-download" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition hidden inline-flex items-center" target="_blank">
+                        <i class="fas fa-download mr-2"></i>Download Report
+                    </a>
+                    <a id="modal-view" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition hidden inline-flex items-center" target="_blank">
+                        <i class="fas fa-external-link-alt mr-2"></i>View on FDA Website
+                    </a>
+                <button id="close-modal-btn" class="bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let recentInspections = [];
+        let historicalInspections = [];
+        let projectAreas = [];
+        let filteredRecent = [];
+        let filteredHistorical = [];
+        let searchTerm = '';
+        let selectedProjectArea = '';
+        let selectedClassification = '';
+
+        // Pagination
+        const ITEMS_PER_PAGE = 10;
+        let recentPage = 1;
+        let historicalPage = 1;
+
+        // Elements
+        const searchInput = document.getElementById('search-input');
+        const filterProjectArea = document.getElementById('filter-project-area');
+        const filterClassification = document.getElementById('filter-classification');
+        const filterButton = document.getElementById('filter-button');
+        const recentTable = document.getElementById('recent-table');
+        const historicalTable = document.getElementById('historical-table');
+        const intelligentSummary = document.getElementById('intelligent-summary');
+        const summaryContent = document.getElementById('summary-content');
+        const detailModal = document.getElementById('detail-modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModal = document.getElementById('close-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalDownload = document.getElementById('modal-download');
+        const themeToggle = document.getElementById('theme-toggle');
+        const recentCount = document.getElementById('recent-count');
+        const historicalCount = document.getElementById('historical-count');
+        const loadMoreRecent = document.getElementById('load-more-recent');
+        const loadMoreHistorical = document.getElementById('load-more-historical');
+        const recentPagination = document.getElementById('recent-pagination');
+        const historicalPagination = document.getElementById('historical-pagination');
+        
+        const totalInspectionsEl = document.getElementById('total-inspections');
+        const recentInspectionsEl = document.getElementById('recent-inspections');
+        const oaiCountEl = document.getElementById('oai-count');
+        const countriesCountEl = document.getElementById('countries-count');
+
+        // Navigation
+        const navLinks = document.querySelectorAll('[data-section]');
+        const homeSection = document.getElementById('home-section');
+        const warningLettersSection = document.getElementById('warning-letters-section');
+
+        // Initialize Data
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/inspection-data');
+                const data = await response.json();
+                
+                recentInspections = data.recentInspections || [];
+                historicalInspections = data.historicalInspections || [];
+                console.log(data)
+                projectAreas = data.projectAreas || [];
+                
+                filteredRecent = [...recentInspections];
+                filteredHistorical = [...historicalInspections];
+                
+                // Populate project areas dropdown
+                populateProjectAreas();
+                
+                // Update dashboard
+                updateDashboard();
+                
+                // Render tables
+                renderRecentTable();
+                renderHistoricalTable();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                // For demo purposes, load sample data
+                loadSampleData();
+            }
+        }
+
+        function loadSampleData() {
+            // Sample recent inspections
+            recentInspections = [
+                {
+                    "Record Date": "2023-09-15",
+                    "Legal Name": "Pharma Solutions Inc.",
+                    "Record Type": "Form 483",
+                    "FEI Number": "3011234567",
+                    "Download": "https://www.fda.gov/media/sample-link-1"
+                },
+                {
+                    "Record Date": "2023-08-22",
+                    "Legal Name": "BioResearch Labs",
+                    "Record Type": "Form 483",
+                    "FEI Number": "3012345678",
+                    "Download": "https://www.fda.gov/media/sample-link-2"
+                },
+                {
+                    "Record Date": "2023-07-18",
+                    "Legal Name": "Clinical Research Partners",
+                    "Record Type": "Establishment Inspection Report",
+                    "FEI Number": "3013456789",
+                    "Download": "https://www.fda.gov/media/sample-link-3"
+                },
+                {
+                    "Record Date": "2023-06-30",
+                    "Legal Name": "Global Pharmaceutical Manufacturing",
+                    "Record Type": "Form 483",
+                    "FEI Number": "3014567890",
+                    "Download": "https://www.fda.gov/media/sample-link-4"
+                },
+                {
+                    "Record Date": "2023-05-12",
+                    "Legal Name": "Innovative Therapeutics",
+                    "Record Type": "Warning Letter",
+                    "FEI Number": "3015678901",
+                    "Download": "https://www.fda.gov/media/sample-link-5"
+                }
+            ];
+            
+            // Sample historical inspections
+            historicalInspections = [
+                {
+                    "District": "Northeast",
+                    "Firm Name": "Advanced Biotech Labs",
+                    "City": "Boston",
+                    "State": "MA",
+                    "Zip": "02110",
+                    "Country/Area": "United States",
+                    "Inspection End Date": "06/15/2022",
+                    "Project Area": "Quality Control",
+                    "Center/Program Area": "CDER",
+                    "Inspection Classification": "NAI"
+                },
+                {
+                    "District": "Pacific",
+                    "Firm Name": "Western Research Institute",
+                    "City": "San Francisco",
+                    "State": "CA",
+                    "Zip": "94107",
+                    "Country/Area": "United States",
+                    "Inspection End Date": "03/22/2022",
+                    "Project Area": "GLP Compliance",
+                    "Center/Program Area": "CDER",
+                    "Inspection Classification": "VAI"
+                },
+                {
+                    "District": "Central",
+                    "Firm Name": "Midwest Labs Inc.",
+                    "City": "Chicago",
+                    "State": "IL",
+                    "Zip": "60601",
+                    "Country/Area": "United States",
+                    "Inspection End Date": "11/30/2021",
+                    "Project Area": "Manufacturing",
+                    "Center/Program Area": "CBER",
+                    "Inspection Classification": "OAI"
+                },
+                {
+                    "District": "EU",
+                    "Firm Name": "European Pharmaceutical",
+                    "City": "Munich",
+                    "State": "",
+                    "Zip": "80331",
+                    "Country/Area": "Germany",
+                    "Inspection End Date": "09/05/2021",
+                    "Project Area": "Data Integrity",
+                    "Center/Program Area": "CDER",
+                    "Inspection Classification": "VAI"
+                },
+                {
+                    "District": "Southeast",
+                    "Firm Name": "Southern Medical Research",
+                    "City": "Atlanta",
+                    "State": "GA",
+                    "Zip": "30303",
+                    "Country/Area": "United States",
+                    "Inspection End Date": "07/12/2021",
+                    "Project Area": "Laboratory Controls",
+                    "Center/Program Area": "CDRH",
+                    "Inspection Classification": "NAI"
+                }
+            ];
+            
+            // Sample project areas
+            projectAreas = [
+                "Quality Control",
+                "GLP Compliance",
+                "Manufacturing",
+                "Data Integrity",
+                "Laboratory Controls",
+                "Sterile Manufacturing",
+                "Product Testing",
+                "Clinical Research"
+            ];
+            
+            filteredRecent = [...recentInspections];
+            filteredHistorical = [...historicalInspections];
+            
+            // Populate project areas dropdown
+            populateProjectAreas();
+            
+            // Update dashboard
+            updateDashboard();
+            
+            // Render tables
+            renderRecentTable();
+            renderHistoricalTable();
+        }
+
+        function populateProjectAreas() {
+            // Clear existing options except the default
+            filterProjectArea.innerHTML = '<option value="">All Project Areas</option>';
+            
+            // Add project areas
+            projectAreas.sort().forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                filterProjectArea.appendChild(option);
+            });
+        }
+
+        function updateDashboard() {
+            // Update summary statistics
+            totalInspectionsEl.textContent = (recentInspections.length + historicalInspections.length).toLocaleString();
+            
+            // Calculate recent inspections (last quarter)
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+            
+            const recentCount = historicalInspections.filter(inspection => {
+                const inspDate = parseDate(inspection["Inspection End Date"]);
+                return inspDate >= threeMonthsAgo;
+            }).length;
+            
+            recentInspectionsEl.textContent = recentCount.toLocaleString();
+            
+            // Calculate OAI count
+            const oaiCount = historicalInspections.filter(
+                inspection => inspection["Inspection Classification"] === "OAI"
+            ).length;
+            
+            oaiCountEl.textContent = oaiCount.toLocaleString();
+            
+            // Calculate unique countries
+            const countries = new Set();
+            historicalInspections.forEach(inspection => {
+                if (inspection["Country/Area"]) {
+                    countries.add(inspection["Country/Area"]);
+                }
+            });
+            
+            countriesCountEl.textContent = countries.size.toLocaleString();
+        }
+
+        function renderRecentTable() {
+            recentTable.innerHTML = '';
+            
+            const start = (recentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const paginatedData = filteredRecent.slice(start, end);
+            
+            if (paginatedData.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = `
+                    <td colspan="5" class="px-6 py-4 text-center text-slate-500">
+                        No data available
+                    </td>
+                `;
+                recentTable.appendChild(noDataRow);
+            } else {
+                paginatedData.forEach(inspection => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/50 transition';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${formatDate(inspection["Record Date"])}</td>
+                        <td class="px-6 py-4">${inspection["Legal Name"]}</td>
+                        <td class="px-6 py-4">${inspection["Record Type"]}</td>
+                        <td class="px-6 py-4">${inspection["FEI Number"]}</td>
+                        <td class="px-6 py-4">
+                            <button class="view-details text-blue-600 hover:text-blue-800 font-medium" data-type="recent" data-index="${recentInspections.indexOf(inspection)}">
+                                <i class="fas fa-eye mr-1"></i> View
+                            </button>
+                        </td>
+                    `;
+                    recentTable.appendChild(row);
+                });
+            }
+            
+            // Update count and pagination
+            const totalPages = Math.ceil(filteredRecent.length / ITEMS_PER_PAGE);
+            recentCount.textContent = `Showing ${Math.min(filteredRecent.length, paginatedData.length)} of ${filteredRecent.length} entries`;
+            recentPagination.textContent = `${recentPage} of ${totalPages || 1}`;
+            
+            // Hide/show load more button
+            loadMoreRecent.style.display = recentPage < totalPages ? 'block' : 'none';
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('#recent-table .view-details').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = button.getAttribute('data-index');
+                    showInspectionDetails('recent', index);
+                });
+            });
+        }
+
+        function renderHistoricalTable() {
+            console.log(filteredHistorical)
+            historicalTable.innerHTML = '';
+            
+            const start = (historicalPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const paginatedData = filteredHistorical.slice(start, end);
+            
+            if (paginatedData.length === 0) {
+                const noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = `
+                    <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                        No data available
+                    </td>
+                `;
+                historicalTable.appendChild(noDataRow);
+            } else {
+                paginatedData.forEach(inspection => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/50 transition';
+                    
+                    // Determine classification badge color
+                    let classificationBadge = '';
+                    if (inspection["Inspection Classification"]) {
+                        const classification = inspection["Inspection Classification"];
+                        let badgeClass = '';
+                        
+                        if (classification === 'NAI') {
+                            badgeClass = 'badge-nai';
+                        } else if (classification === 'VAI') {
+                            badgeClass = 'badge-vai';
+                        } else if (classification === 'OAI') {
+                            badgeClass = 'badge-oai';
+                        }
+                        
+                        classificationBadge = `
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${badgeClass}">
+                                ${classification}
+                            </span>
+                        `;
+                    }
+                    
+                    // Format location
+                    let location = '';
+                    if (inspection["City"]) {
+                        location += inspection["City"];
+                        if (inspection["State"]) {
+                            location += `, ${inspection["State"]}`;
+                        }
+                        if (inspection["Country/Area"] && inspection["Country/Area"] !== 'United States') {
+                            location += `, ${inspection["Country/Area"]}`;
+                        }
+                    } else if (inspection["Country/Area"]) {
+                        location = inspection["Country/Area"];
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${formatDate(inspection["Inspection End Date"])}</td>
+                        <td class="px-6 py-4">${inspection["Firm Name"]}</td>
+                        <td class="px-6 py-4">${location}</td>
+                        <td class="px-6 py-4">${inspection["Project Area"] || ''}</td>
+                        <td class="px-6 py-4">${classificationBadge || ''}</td>
+                        <td class="px-6 py-4">
+                            <button class="view-details text-blue-600 hover:text-blue-800 font-medium" data-type="historical" data-index="${historicalInspections.indexOf(inspection)}">
+                                <i class="fas fa-eye mr-1"></i> View
+                            </button>
+                        </td>
+                    `;
+                    historicalTable.appendChild(row);
+                });
+            }
+            
+            // Update count and pagination
+            const totalPages = Math.ceil(filteredHistorical.length / ITEMS_PER_PAGE);
+            historicalCount.textContent = `Showing ${Math.min(filteredHistorical.length, paginatedData.length)} of ${filteredHistorical.length} entries`;
+            historicalPagination.textContent = `${historicalPage} of ${totalPages || 1}`;
+            
+            // Hide/show load more button
+            loadMoreHistorical.style.display = historicalPage < totalPages ? 'block' : 'none';
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('#historical-table .view-details').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = button.getAttribute('data-index');
+                    showInspectionDetails('historical', index);
+                });
+            });
+        }
+
+        function showInspectionDetails(type, index) {
+            let inspection;
+            let modalHtml = '';
+            
+            if (type === 'recent') {
+                inspection = recentInspections[index];
+                modalTitle.textContent = `${inspection["Legal Name"]} - Inspection Details`;
+                
+                // Show download and view buttons if available
+                const modalView = document.getElementById('modal-view');
+                if (inspection["Download"]) {
+                    const downloadUrl = inspection["Download"];
+                    modalDownload.href = downloadUrl;
+                    modalDownload.classList.remove('hidden');
+                    
+                    // Set up the view link to the same URL
+                    modalView.href = downloadUrl;
+                    modalView.classList.remove('hidden');
+                } else {
+                    modalDownload.classList.add('hidden');
+                    modalView.classList.add('hidden');
+                }
+                
+                modalHtml = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3">Inspection Information</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-white/60 text-sm">Record Date</p>
+                                    <p>${formatDate(inspection["Record Date"])}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">Record Type</p>
+                                    <p>${inspection["Record Type"]}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">FEI Number</p>
+                                    <p>${inspection["FEI Number"]}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3">Company Information</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-white/60 text-sm">Legal Name</p>
+                                    <p>${inspection["Legal Name"]}</p>
+                                </div>
+                                <div class="p-4 bg-blue-900/30 rounded-lg mt-4">
+                                    <p class="text-sm">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        To view the complete inspection report, click the Download Report button below.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                inspection = historicalInspections[index];
+                modalTitle.textContent = `${inspection["Firm Name"]} - Inspection Details`;
+                
+                // Hide download and view buttons
+                const modalView = document.getElementById('modal-view');
+                modalDownload.classList.add('hidden');
+                modalView.classList.add('hidden');
+                
+                // Determine classification badge color
+                let classificationBadge = '';
+                if (inspection["Inspection Classification"]) {
+                    const classification = inspection["Inspection Classification"];
+                    let badgeClass = '';
+                    let explanation = '';
+                    
+                    if (classification === 'NAI') {
+                        badgeClass = 'badge-nai';
+                        explanation = 'No Action Indicated - No objectionable conditions were found during the inspection.';
+                    } else if (classification === 'VAI') {
+                        badgeClass = 'badge-vai';
+                        explanation = 'Voluntary Action Indicated - Objectionable conditions were found but do not warrant regulatory action.';
+                    } else if (classification === 'OAI') {
+                        badgeClass = 'badge-oai';
+                        explanation = 'Official Action Indicated - Significant objectionable conditions were found and regulatory action is recommended.';
+                    }
+                    
+                    classificationBadge = `
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${badgeClass}">
+                            ${classification}
+                        </span>
+                        <p class="mt-2 text-sm">${explanation}</p>
+                    `;
+                }
+                
+                // Format location
+                let location = '';
+                if (inspection["City"]) {
+                    location += inspection["City"];
+                    if (inspection["State"]) {
+                        location += `, ${inspection["State"]}`;
+                    }
+                    if (inspection["Zip"]) {
+                        location += ` ${inspection["Zip"]}`;
+                    }
+                    if (inspection["Country/Area"] && inspection["Country/Area"] !== 'United States') {
+                        location += `, ${inspection["Country/Area"]}`;
+                    }
+                } else if (inspection["Country/Area"]) {
+                    location = inspection["Country/Area"];
+                }
+                
+                modalHtml = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3">Inspection Information</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-white/60 text-sm">Inspection End Date</p>
+                                    <p>${formatDate(inspection["Inspection End Date"])}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">District/Office</p>
+                                    <p>${inspection["District"] || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">Project Area</p>
+                                    <p>${inspection["Project Area"] || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">Center/Program Area</p>
+                                    <p>${inspection["Center/Program Area"] || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold mb-3">Company Information</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-white/60 text-sm">Firm Name</p>
+                                    <p>${inspection["Firm Name"]}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">Location</p>
+                                    <p>${location || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-white/60 text-sm">Inspection Classification</p>
+                                    <div>${classificationBadge || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modalContent.innerHTML = modalHtml;
+            detailModal.classList.add('active');
+        }
+
+        function filterData() {
+            searchTerm = searchInput.value.toLowerCase();
+            selectedProjectArea = filterProjectArea.value;
+            selectedClassification = filterClassification.value;
+            
+            // Reset pagination
+            recentPage = 1;
+            historicalPage = 1;
+            
+            // Filter recent inspections
+            filteredRecent = recentInspections.filter(inspection => {
+                return (
+                    (searchTerm === '' || 
+                     (inspection["Legal Name"] && inspection["Legal Name"].toLowerCase().includes(searchTerm)) ||
+                     (inspection["Record Type"] && inspection["Record Type"].toString().toLowerCase().includes(searchTerm)) ||
+                     (inspection["FEI Number"] && inspection["FEI Number"].toString().toLowerCase().includes(searchTerm)))
+                );
+            });
+            
+            // Filter historical inspections
+            filteredHistorical = historicalInspections.filter(inspection => {
+                return (
+                    (searchTerm === '' || 
+                     (inspection["Firm Name"] && inspection["Firm Name"].toLowerCase().includes(searchTerm)) ||
+                     (inspection["Project Area"] && inspection["Project Area"].toLowerCase().includes(searchTerm)) ||
+                     (inspection["City"] && inspection["City"].toLowerCase().includes(searchTerm)) ||
+                     (inspection["State"] && inspection["State"].toLowerCase().includes(searchTerm)) ||
+                     (inspection["Country/Area"] && inspection["Country/Area"].toLowerCase().includes(searchTerm))) &&
+                    (selectedProjectArea === '' || 
+                     (inspection["Project Area"] && inspection["Project Area"] === selectedProjectArea)) &&
+                    (selectedClassification === '' || 
+                     (inspection["Inspection Classification"] && 
+                      inspection["Inspection Classification"] === selectedClassification))
+                );
+            });
+            
+            // Render tables
+            renderRecentTable();
+            renderHistoricalTable();
+            
+            // Show/hide intelligent summary
+            if (searchTerm && searchTerm.length > 2) {
+                generateIntelligentSummary(searchTerm);
+                intelligentSummary.classList.remove('hidden');
+            } else {
+                intelligentSummary.classList.add('hidden');
+            }
+        }
+
+        function generateIntelligentSummary(term) {
+            // Get relevant data
+            const recentMatches = filteredRecent.length;
+            const historicalMatches = filteredHistorical.length;
+            
+            // Count classifications
+            const classifications = {
+                NAI: 0,
+                VAI: 0,
+                OAI: 0
+            };
+            
+            filteredHistorical.forEach(inspection => {
+                if (inspection["Inspection Classification"]) {
+                    classifications[inspection["Inspection Classification"]] = 
+                        (classifications[inspection["Inspection Classification"]] || 0) + 1;
+                }
+            });
+            
+            // Get most common project areas
+            const projectAreaCounts = {};
+            filteredHistorical.forEach(inspection => {
+                if (inspection["Project Area"]) {
+                    projectAreaCounts[inspection["Project Area"]] = 
+                        (projectAreaCounts[inspection["Project Area"]] || 0) + 1;
+                }
+            });
+            
+            const sortedProjectAreas = Object.entries(projectAreaCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([area, count]) => ({ area, count }));
+            
+            // Generate HTML
+            let html = `
+                <p>Your search for <strong>"${term}"</strong> found ${recentMatches + historicalMatches} total results across all inspection data.</p>
+                
+                <div class="mt-4">
+                    <h3 class="font-semibold text-lg">Key Insights:</h3>
+                    <ul class="mt-2 space-y-1">
+            `;
+            
+            if (historicalMatches > 0) {
+                html += `<li><i class="fas fa-chart-bar text-blue-600 mr-2"></i> Inspection outcomes: `;
+                
+                if (classifications.NAI > 0) {
+                    html += `<span class="font-medium">${classifications.NAI}</span> with no action required (NAI), `;
+                }
+                
+                if (classifications.VAI > 0) {
+                    html += `<span class="font-medium">${classifications.VAI}</span> requiring voluntary action (VAI), `;
+                }
+                
+                if (classifications.OAI > 0) {
+                    html += `<span class="font-medium text-red-600">${classifications.OAI}</span> requiring official action (OAI)`;
+                }
+                
+                html += `</li>`;
+                
+                if (sortedProjectAreas.length > 0) {
+                    html += `<li><i class="fas fa-project-diagram text-blue-600 mr-2"></i> Most common inspection areas: `;
+                    
+                    sortedProjectAreas.forEach((item, index) => {
+                        html += `<span class="font-medium">${item.area}</span> (${item.count})`;
+                        
+                        if (index < sortedProjectAreas.length - 1) {
+                            html += `, `;
+                        }
+                    });
+                    
+                    html += `</li>`;
+                }
+            }
+            
+            html += `
+                    </ul>
+                </div>
+            `;
+            
+            summaryContent.innerHTML = html;
+        }
+
+        // Helper functions
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            
+            // Check if the date is in ISO format (YYYY-MM-DD)
+            if (dateStr.includes('-')) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+            
+            // Check if the date is in MM/DD/YYYY format
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    const date = new Date(parts[2], parts[0] - 1, parts[1]);
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                }
+            }
+            
+            return dateStr;
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            // Check if the date is in ISO format (YYYY-MM-DD)
+            if (dateStr.includes('-')) {
+                return new Date(dateStr);
+            }
+            
+            // Check if the date is in MM/DD/YYYY format
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    // If year is 2-digit, assume 2000s
+                    let year = parseInt(parts[2]);
+                    if (year < 100) {
+                        year += 2000;
+                    }
+                    return new Date(year, parts[0] - 1, parts[1]);
+                }
+            }
+            
+            return null;
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch data
+            fetchData();
+            
+            // Search and filter
+            filterButton.addEventListener('click', filterData);
+            
+            searchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    filterData();
+                }
+            });
+            
+            // Modal controls
+            closeModal.addEventListener('click', () => {
+                detailModal.classList.remove('active');
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                detailModal.classList.remove('active');
+            });
+            
+            modalOverlay.addEventListener('click', () => {
+                detailModal.classList.remove('active');
+            });
+            
+            // Load more buttons
+            loadMoreRecent.addEventListener('click', () => {
+                recentPage++;
+                renderRecentTable();
+            });
+            
+            loadMoreHistorical.addEventListener('click', () => {
+                historicalPage++;
+                renderHistoricalTable();
+            });
+            
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active-nav'));
+                    
+                    // Add active class to clicked link
+                    link.classList.add('active-nav');
+                    
+                    // Show appropriate section
+                    const section = link.getAttribute('data-section');
+                    
+                    if (section === 'home') {
+                        homeSection.classList.remove('hidden');
+                        warningLettersSection.classList.add('hidden');
+                    } else if (section === 'warning-letters') {
+                        homeSection.classList.add('hidden');
+                        warningLettersSection.classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                const icon = themeToggle.querySelector('i');
+                
+                if (document.body.classList.contains('dark')) {
+                    document.body.classList.remove('dark');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    document.body.classList.add('dark');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
