@@ -259,6 +259,123 @@
             </div>
         </div>
 
+
+
+        <!-- PubMed Section (Initially Hidden) -->
+<section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-gray-800">PubMed Articles</h2>
+      <div class="text-sm text-gray-500" id="pubmedResultCount"></div>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="pubmedLoading" class="hidden">
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+      <p class="text-center text-gray-500">Searching PubMed database...</p>
+    </div>
+    
+    <!-- Error State -->
+    <div id="pubmedError" class="hidden">
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-lg">Error fetching PubMed articles</p>
+        <p class="mt-2 text-sm" id="pubmedErrorMessage">Please try again later.</p>
+      </div>
+    </div>
+    
+    <!-- Empty State -->
+    <div id="pubmedEmpty" class="hidden">
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <p class="text-lg">No PubMed articles found</p>
+        <p class="mt-2 text-sm">Try a different search term or broaden your search criteria.</p>
+      </div>
+    </div>
+    
+    <!-- PubMed Summary Section (will appear at the top of results) -->
+<div id="pubmedSummary" class="hidden mb-6 bg-white rounded-lg shadow-md p-4">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Research Summary</h3>
+    
+    <!-- Loading State for Summary -->
+    <div id="pubmedSummaryLoading" class="py-3">
+      <div class="flex items-center space-x-2">
+        <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
+        <p class="text-sm text-gray-500">Analyzing research trends...</p>
+      </div>
+    </div>
+    
+    <!-- Summary Content -->
+    <div id="pubmedSummaryContent" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Research Focus Areas -->
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Key Research Areas</h4>
+          <div id="pubmedKeyAreas" class="text-sm"></div>
+        </div>
+        
+        <!-- Publication Timeline -->
+        <div class="bg-gray-50 p-3 rounded-md">
+            <h4 class="font-medium text-gray-700 mb-2">Publication Timeline</h4>
+            <div id="pubmedTimeline" class="text-sm">
+              <table class="w-full text-xs">
+                <tbody id="pubmedTimelineTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+        <!-- Common Topics -->
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Common Topics</h4>
+          <div id="pubmedTopics" class="text-sm">
+            <div id="pubmedTopicsCloud" class="flex flex-wrap gap-1 mt-1"></div>
+          </div>
+        </div>
+        
+        <!-- Notable Findings -->
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Notable Journals</h4>
+          <div id="pubmedJournals" class="text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- Articles List -->
+    <div id="pubmedArticles" class="hidden">
+      <div class="mb-4 flex justify-between items-center">
+        <div>
+          <select id="pubmedSort" class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm">
+            <option value="relevance">Sort by Relevance</option>
+            <option value="date">Sort by Date (Newest)</option>
+            <option value="citationCount">Sort by Citation Count</option>
+          </select>
+        </div>
+        <div>
+          <label class="inline-flex items-center text-sm">
+            <input type="checkbox" id="pubmedFullTextOnly" class="rounded border-gray-300 text-primary focus:ring-primary">
+            <span class="ml-2">Full text only</span>
+          </label>
+        </div>
+      </div>
+      
+      <div id="pubmedArticlesList" class="space-y-4">
+        <!-- Articles will be inserted here dynamically -->
+      </div>
+      
+      <div class="mt-6 text-center" id="pubmedPagination">
+        <button id="pubmedLoadMore" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out">
+          Load More Articles
+        </button>
+      </div>
+    </div>
+  </section>
+
+
 <!-- EMA Data Section -->
 <section id="emaDataSection" class=" hidden mb-6">
   <div class="bg-white rounded-lg shadow-md p-6">
@@ -1087,8 +1204,8 @@
 
     <script>
         // API Base URL - Use our local backend
-        const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-        //  const API_BASE_URL = 'http://localhost:3000/api';
+        // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
+         const API_BASE_URL = 'http://localhost:3000/api';
 
         // State management
         const appState = {
@@ -15900,6 +16017,11 @@ function createStatisticalSummaryTable(outcomes) {
 // }
 
 
+
+  
+
+
+
 async function handleSearch() {
     elements.placeholderMessage.innerHTML = `
                 <div class="text-center">
@@ -16017,7 +16139,15 @@ async function handleSearch() {
       EmaDataModule.searchDrug(drug);
       displayLoading(false);
         
-        
+      let pubmedSearchTerm = drug;
+  
+  if (condition) {
+    pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
+  }
+  
+  if (pubmedSearchTerm) {
+    PubMedModule.searchPubMed(pubmedSearchTerm);
+  }
         
         // Fetch study details for studies with results
         appState.studyDetails = {};
@@ -21619,8 +21749,431 @@ document.addEventListener('DOMContentLoaded', function() {
   
 });
 
+// PubMed Module
+const PubMedModule = (function() {
+  const elements = {
+    pubmedSection: document.getElementById('pubmedSection'),
+    pubmedLoading: document.getElementById('pubmedLoading'),
+    pubmedError: document.getElementById('pubmedError'),
+    pubmedErrorMessage: document.getElementById('pubmedErrorMessage'),
+    pubmedEmpty: document.getElementById('pubmedEmpty'),
+    pubmedArticles: document.getElementById('pubmedArticles'),
+    pubmedArticlesList: document.getElementById('pubmedArticlesList'),
+    pubmedResultCount: document.getElementById('pubmedResultCount'),
+    pubmedSort: document.getElementById('pubmedSort'),
+    pubmedFullTextOnly: document.getElementById('pubmedFullTextOnly'),
+    pubmedLoadMore: document.getElementById('pubmedLoadMore'),
+    pubmedPagination: document.getElementById('pubmedPagination'),
+  pubmedSummary: document.getElementById('pubmedSummary'),
+  pubmedSummaryLoading: document.getElementById('pubmedSummaryLoading'),
+  pubmedSummaryContent: document.getElementById('pubmedSummaryContent'),
+  pubmedKeyAreas: document.getElementById('pubmedKeyAreas'),
+  pubmedTimeline: document.getElementById('pubmedTimeline'),
+  pubmedTopics: document.getElementById('pubmedTopics'),
+  pubmedTopicsCloud: document.getElementById('pubmedTopicsCloud'),
+  pubmedJournals: document.getElementById('pubmedJournals')
+  };
+
+  let state = {
+    term: '',
+    articles: [],
+    currentPage: 1,
+    totalResults: 0,
+    isLoading: false,
+    sortBy: 'relevance',
+    fullTextOnly: false
+  };
+  
+  function showComponent(component, isVisible) {
+    if (isVisible) {
+      component.classList.remove('hidden');
+    } else {
+      component.classList.add('hidden');
+    }
+  }
+  
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+  
+  function createArticleElement(article) {
+    const articleElement = document.createElement('div');
+    articleElement.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition duration-150 ease-in-out';
+    
+    const hasDOI = article.doi && article.doi.trim() !== '';
+    const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
+    
+    articleElement.innerHTML = `
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+      <div class="text-sm text-gray-600 mb-2">
+        ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
+      </div>
+      <div class="text-sm text-gray-500 mb-3">
+        <span class="font-medium">${article.journal || 'Journal not specified'}</span> • 
+        ${formatDate(article.pubDate)} • 
+        ${article.citationCount !== undefined ? `<span class="text-primary">${article.citationCount} citations</span> • ` : ''}
+        PMID: ${article.pmid}
+      </div>
+      <p class="text-gray-700 text-sm mb-3">${article.abstract.substring(0, 200)}${article.abstract.length > 200 ? '...' : ''}</p>
+      <div class="flex flex-wrap gap-2 mb-3">
+        ${article.keywords.map(keyword => 
+          `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
+        ).join('')}
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">View on PubMed</a>
+        ${hasDOI ? 
+          `<a href="https://doi.org/${article.doi}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">DOI</a>` : ''}
+        ${hasFullText ? 
+          `<a href="${article.fullTextUrl}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">Full Text</a>` : ''}
+      </div>
+    `;
+    
+    return articleElement;
+  }
+  
+  function renderArticles() {
+    elements.pubmedArticlesList.innerHTML = '';
+    
+    state.articles.forEach(article => {
+      const articleElement = createArticleElement(article);
+      elements.pubmedArticlesList.appendChild(articleElement);
+    });
+    
+    elements.pubmedResultCount.textContent = `${state.totalResults} articles found`;
+    
+    // Show/hide load more button based on whether there are more results
+    const hasMoreResults = state.articles.length < state.totalResults;
+    showComponent(elements.pubmedPagination, hasMoreResults);
+  }
+  
+
+  // Add to the PubMedModule
+
+function generateSummary(articles) {
+  // Show loading state
+  showComponent(elements.pubmedSummary, true);
+  showComponent(elements.pubmedSummaryLoading, true);
+  showComponent(elements.pubmedSummaryContent, false);
+  
+  // Process in setTimeout to not block UI
+  setTimeout(() => {
+    try {
+      // Extract publication years
+    //   const years = {};
+    //   articles.forEach(article => {
+    //     const date = new Date(article.pubDate);
+    //     const year = date.getFullYear();
+    //     if (!isNaN(year)) {
+    //       years[year] = (years[year] || 0) + 1;
+    //     }
+    //   });
+      
+    //   // Sort years and format for display
+    //   const sortedYears = Object.entries(years)
+    //     .sort(([yearA], [yearB]) => parseInt(yearA) - parseInt(yearB));
+      
+    //   let timelineHtml = '';
+    //   if (sortedYears.length > 0) {
+    //     timelineHtml = `
+    //       <div class="flex items-end h-20 space-x-1 mb-1">
+    //         ${sortedYears.map(([year, count]) => {
+    //           const height = Math.max(20, Math.min(80, count * 10));
+    //           return `
+    //             <div class="group relative">
+    //               <div class="bg-primary h-[${height}%] w-5" title="${count} articles in ${year}"></div>
+    //               <div class="absolute bottom-0 left-0 transform -rotate-45 origin-bottom-left text-xs text-gray-500 mt-1">${year}</div>
+    //             </div>
+    //           `;
+    //         }).join('')}
+    //       </div>
+    //       <p class="text-xs text-gray-500 mt-3">Publications by year (${sortedYears.length} years represented)</p>
+    //     `;
+    //   } else {
+    //     timelineHtml = '<p>Timeline data not available</p>';
+    //   }
+      
 
 
+      // Update the timeline generation in the generateSummary function
+// Replace the existing timeline code with this:
+
+// Extract publication years
+const years = {};
+articles.forEach(article => {
+  const date = new Date(article.pubDate);
+  const year = date.getFullYear();
+  if (!isNaN(year)) {
+    years[year] = (years[year] || 0) + 1;
+  }
+});
+
+// Sort years and format for display
+const sortedYears = Object.entries(years)
+  .sort(([yearA], [yearB]) => parseInt(yearA) - parseInt(yearB));
+
+let timelineHtml = '';
+if (sortedYears.length > 0) {
+  // Find max count for scaling
+  const maxCount = Math.max(...sortedYears.map(([, count]) => count));
+  
+  timelineHtml = `
+    <table class="w-full">
+      <tbody>
+        ${sortedYears.map(([year, count]) => {
+          // Calculate width percentage (minimum 10%, maximum 100%)
+          const widthPercent = Math.max(10, Math.min(100, (count / maxCount) * 100));
+          
+          return `
+            <tr class="border-b border-gray-100">
+              <td class="py-1 pr-2 text-right font-medium">${year}</td>
+              <td class="py-1 w-full">
+                <div class="flex items-center">
+                  <div class="bg-primary h-5 rounded-sm" style="width: ${widthPercent}%"></div>
+                  <span class="ml-2">${count}</span>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+    <p class="text-xs text-gray-500 mt-2">Publications by year</p>
+  `;
+} else {
+  timelineHtml = '<p>Timeline data not available</p>';
+}
+
+elements.pubmedTimeline.innerHTML = timelineHtml;
+
+
+      // Extract journals
+      const journals = {};
+      articles.forEach(article => {
+        if (article.journal) {
+          journals[article.journal] = (journals[article.journal] || 0) + 1;
+        }
+      });
+      
+      // Get top journals
+      const topJournals = Object.entries(journals)
+        .sort(([,countA], [,countB]) => countB - countA)
+        .slice(0, 5);
+      
+      let journalsHtml = '';
+      if (topJournals.length > 0) {
+        journalsHtml = `
+          <ul class="list-disc list-inside">
+            ${topJournals.map(([journal, count]) => 
+              `<li>${journal} <span class="text-gray-500">(${count} article${count !== 1 ? 's' : ''})</span></li>`
+            ).join('')}
+          </ul>
+        `;
+      } else {
+        journalsHtml = '<p>Journal data not available</p>';
+      }
+      
+      // Extract keywords/topics
+      const topics = {};
+      articles.forEach(article => {
+        article.keywords.forEach(keyword => {
+          if (keyword && keyword.length > 3) {
+            topics[keyword] = (topics[keyword] || 0) + 1;
+          }
+        });
+      });
+      
+      // Get top topics
+      const topTopics = Object.entries(topics)
+        .sort(([,countA], [,countB]) => countB - countA)
+        .slice(0, 15);
+      
+      let topicsHtml = '';
+      if (topTopics.length > 0) {
+        topicsHtml = topTopics.map(([topic, count]) => {
+          const fontSize = Math.max(0.7, Math.min(1.5, 0.8 + (count / 5) * 0.5));
+          return `<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs" 
+                      style="font-size: ${fontSize}rem">${topic}</span>`;
+        }).join(' ');
+      } else {
+        topicsHtml = '<p>No common topics identified</p>';
+      }
+      
+      // Determine key research areas by analyzing abstracts
+      // This is a simplified approach - in a real app, you might use NLP
+      const researchAreas = new Set();
+      const commonPhrases = [
+        'clinical trial', 'meta-analysis', 'systematic review', 'case study', 
+        'randomized controlled', 'double-blind', 'placebo-controlled',
+        'efficacy', 'safety', 'mechanism', 'pathophysiology', 'treatment outcome',
+        'adverse effects', 'drug therapy', 'dosage', 'comparative study'
+      ];
+      
+      articles.forEach(article => {
+        const text = (article.title + ' ' + article.abstract).toLowerCase();
+        commonPhrases.forEach(phrase => {
+          if (text.includes(phrase)) {
+            researchAreas.add(phrase);
+          }
+        });
+      });
+      
+      let areasHtml = '';
+      if (researchAreas.size > 0) {
+        areasHtml = `
+          <ul class="list-disc list-inside">
+            ${Array.from(researchAreas).slice(0, 6).map(area => 
+              `<li class="capitalize">${area}</li>`
+            ).join('')}
+          </ul>
+        `;
+      } else {
+        areasHtml = '<p>Research focus areas could not be determined</p>';
+      }
+      
+      // Update the DOM
+    //   elements.pubmedTimeline.innerHTML = timelineHtml;
+      elements.pubmedJournals.innerHTML = journalsHtml;
+      elements.pubmedTopicsCloud.innerHTML = topicsHtml;
+      elements.pubmedKeyAreas.innerHTML = areasHtml;
+      
+      // Hide loading, show content
+      showComponent(elements.pubmedSummaryLoading, false);
+      showComponent(elements.pubmedSummaryContent, true);
+      
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      elements.pubmedSummary.innerHTML = `
+        <p class="text-sm text-gray-500">Could not generate research summary: ${error.message}</p>
+      `;
+    }
+  }, 100);
+}
+
+
+
+
+
+// Add pubmedSummary element to the elements object
+
+
+  async function searchPubMed(term, options = {}) {
+    state.isLoading = true;
+    state.term = term;
+    state.currentPage = options.page || 1;
+    state.sortBy = options.sortBy || state.sortBy;
+    state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
+    
+    // Show the pubmed section and loading state
+    showComponent(elements.pubmedSection, true);
+    showComponent(elements.pubmedLoading, true);
+    showComponent(elements.pubmedError, false);
+    showComponent(elements.pubmedEmpty, false);
+    showComponent(elements.pubmedArticles, false);
+    
+    try {
+      const params = new URLSearchParams({
+        term: term,
+        page: state.currentPage,
+        sortBy: state.sortBy,
+        fullTextOnly: state.fullTextOnly
+      });
+      
+      const response = await fetch(`/api/pubmed?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Update state with fetched data
+      if (state.currentPage === 1) {
+        state.articles = data.articles;
+      } else {
+        state.articles = [...state.articles, ...data.articles];
+      }
+
+
+      state.totalResults = data.totalResults;
+      
+      // Hide loading state
+      showComponent(elements.pubmedLoading, false);
+      
+      if (state.articles.length === 0) {
+      showComponent(elements.pubmedEmpty, true);
+      showComponent(elements.pubmedSummary, false);
+    } else {
+      showComponent(elements.pubmedArticles, true);
+      renderArticles();
+      
+      // Generate and show summary for first page results
+      if (state.currentPage === 1) {
+        generateSummary(state.articles);
+      }
+    }
+    
+      
+    } catch (error) {
+      console.error('Error fetching PubMed data:', error);
+      showComponent(elements.pubmedLoading, false);
+      showComponent(elements.pubmedError, true);
+      elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+      showComponent(elements.pubmedSummary, false);
+    }
+    
+    state.isLoading = false;
+  }
+  
+  function initEventListeners() {
+    elements.pubmedSort.addEventListener('change', () => {
+      searchPubMed(state.term, { 
+        page: 1, 
+        sortBy: elements.pubmedSort.value,
+        fullTextOnly: elements.pubmedFullTextOnly.checked 
+      });
+    });
+    
+    elements.pubmedFullTextOnly.addEventListener('change', () => {
+      searchPubMed(state.term, { 
+        page: 1, 
+        sortBy: elements.pubmedSort.value,
+        fullTextOnly: elements.pubmedFullTextOnly.checked 
+      });
+    });
+    
+    elements.pubmedLoadMore.addEventListener('click', () => {
+      if (!state.isLoading) {
+        searchPubMed(state.term, { 
+          page: state.currentPage + 1,
+          sortBy: elements.pubmedSort.value,
+          fullTextOnly: elements.pubmedFullTextOnly.checked
+        });
+      }
+    });
+  }
+  
+  function init() {
+    initEventListeners();
+  }
+  
+  return {
+    init,
+    searchPubMed
+  };
+})();
+
+
+
+
+
+
+// Initialize the PubMed module
+document.addEventListener('DOMContentLoaded', () => {
+  PubMedModule.init();
+});
 
 // Initialize the module when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
