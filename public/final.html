@@ -16078,6 +16078,8 @@ async function handleSearch() {
         
         // Filter for TRD-specific studies if requested
         let filteredStudies = studies;
+                
+      let pubmedSearchTerm = drug;
         // if (trdFocusOnly) {
         //     filteredStudies = filterTRDSpecificStudies(studies);
         //     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
@@ -16102,6 +16104,13 @@ async function handleSearch() {
             if (!drug) {
         // alert('Please enter a drug name to search.');
         displayFdaClinicalData(condition);
+        if (condition) {
+    pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
+  }
+  
+  if (pubmedSearchTerm) {
+    PubMedModule.searchPubMed(pubmedSearchTerm);
+  }
         // EmaClinicalDataModule.init();
         // EmaClinicalDataModule.searchCondition(condition);
         displayLoading(false);
@@ -16138,8 +16147,7 @@ async function handleSearch() {
       EmaDataModule.init();
       EmaDataModule.searchDrug(drug);
       displayLoading(false);
-        
-      let pubmedSearchTerm = drug;
+
   
   if (condition) {
     pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
