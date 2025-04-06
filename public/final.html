@@ -17104,7 +17104,8 @@ async function handleSearch() {
             if (condition) {
                 console.log(`Getting additional condition data for: ${condition}`);
                 displayFdaClinicalData(condition);
-                EmaDataModule.searchCondition(condition);
+                EmaClinicalDataModule.init();
+            EmaClinicalDataModule.searchCondition(condition);
             }
         } else if (condition) {
             // 5. HANDLE CONDITION-ONLY SEARCH
