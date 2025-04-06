@@ -18368,7 +18368,8 @@ const TrialDashboard = (function() {
         }
     }
 
-    function createDashboardStructure(containerId = 'trial-dashboard') {
+// Create a modified version of the trials table section to be hidden by default
+function createDashboardStructure(containerId = 'trial-dashboard') {
     const container = document.getElementById(containerId);
     if (!container) return;
     
@@ -18506,17 +18507,26 @@ const TrialDashboard = (function() {
             </div>
         </div>
         
-        <!-- Trials table -->
+        <!-- Trials table with toggle button -->
         <div class="bg-white p-5 rounded-lg shadow trial-card">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Trial Details</h2>
-                <div class="flex items-center">
-                    <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="flex items-center space-x-3">
+                    <button id="toggle-trials-table" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+                        <span id="toggle-text">Show Trials</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1" id="toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <div class="overflow-x-auto" id="trials-table-container">
-                <table class="min-w-full divide-y divide-gray-200">
-                   <thead class="bg-gray-50">
+            <div id="trials-table-section" class="hidden">
+                <div class="mb-4">
+                    <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64">
+                </div>
+                <div class="overflow-x-auto" id="trials-table-container">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
@@ -18534,6 +18544,29 @@ const TrialDashboard = (function() {
             </div>
         </div>
     `;
+    
+    // Add toggle functionality for trials table
+    const toggleButton = document.getElementById('toggle-trials-table');
+    const tableSection = document.getElementById('trials-table-section');
+    const toggleText = document.getElementById('toggle-text');
+    const toggleIcon = document.getElementById('toggle-icon');
+    
+    if (toggleButton && tableSection) {
+        toggleButton.addEventListener('click', function() {
+            const isHidden = tableSection.classList.contains('hidden');
+            
+            // Toggle visibility
+            if (isHidden) {
+                tableSection.classList.remove('hidden');
+                toggleText.textContent = 'Hide Trials';
+                toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
+            } else {
+                tableSection.classList.add('hidden');
+                toggleText.textContent = 'Show Trials';
+                toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />';
+            }
+        });
+    }
     
     // Add search functionality
     const searchInput = document.getElementById('trial-search');
@@ -18553,6 +18586,192 @@ const TrialDashboard = (function() {
         });
     }
 }
+
+//     function createDashboardStructure(containerId = 'trial-dashboard') {
+//     const container = document.getElementById(containerId);
+//     if (!container) return;
+    
+//     container.innerHTML = `
+//         <!-- Dashboard header and summary metrics -->
+//         <div class="dashboard-header w-full p-6 mb-6 rounded-lg">
+//             <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+//                 <div>
+//                     <h1 class="text-3xl font-bold text-gray-800">Clinical Trials Dashboard</h1>
+//                     <p class="text-gray-600">Comprehensive analysis of trial outcomes and metrics</p>
+//                 </div>
+//                 <div class="flex items-center mt-4 md:mt-0">
+//                     <div class="bg-white rounded-full shadow-sm px-4 py-2 flex items-center">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+//                         </svg>
+//                         <span class="font-medium text-gray-700" id="trials-count">Analyzing trials...</span>
+//                     </div>
+//                 </div>
+//             </div>
+//             <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="summary-metrics">
+//                 <!-- Summary metrics will be inserted here -->
+//             </div>
+//         </div>
+        
+//         <!-- Success score charts (binomial and distribution) -->
+//         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Success Scores Distribution</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Binomial distribution of success scores across trials</span>
+//                     </div>
+//                 </div>
+//                 <div class="h-72"><canvas id="successScoresChart"></canvas></div>
+//             </div>
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Success Score Normal Distribution</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Probability distribution of success scores with mean and standard deviation</span>
+//                     </div>
+//                 </div>
+//                 <div class="h-72"><canvas id="successDistributionChart"></canvas></div>
+//             </div>
+//         </div>
+        
+//         <!-- Phase and status charts -->
+//         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Trial Phase Distribution</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Distribution of trials by clinical phase</span>
+//                     </div>
+//                 </div>
+//                 <div class="h-72"><canvas id="phaseDistributionChart"></canvas></div>
+//             </div>
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Trial Status Overview</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Current status of all trials in the dataset</span>
+//                     </div>
+//                 </div>
+//                 <div class="h-72"><canvas id="statusDistributionChart"></canvas></div>
+//             </div>
+//         </div>
+        
+//         <!-- Effect size and response/remission -->
+//         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Effect Size Analysis</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Cohen's d effect sizes across trials with available data</span>
+//                     </div>
+//                 </div>
+//                 <p class="text-sm text-gray-500 mb-3" id="effect-size-desc">Analyzing effect sizes across trials...</p>
+//                 <div class="h-64"><canvas id="effectSizeChart"></canvas></div>
+//             </div>
+//             <div class="bg-white p-5 rounded-lg shadow trial-card">
+//                 <div class="flex justify-between items-center mb-4">
+//                     <h2 class="text-lg font-semibold text-gray-800">Response & Remission Rates</h2>
+//                     <div class="tooltip">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <span class="tooltip-text">Average difference in response and remission rates between treatment and control groups</span>
+//                     </div>
+//                 </div>
+//                 <div class="h-64" id="response-remission-chart-container">
+//                     <canvas id="responseRemissionChart"></canvas>
+//                 </div>
+//             </div>
+//         </div>
+        
+//         <!-- Conclusions section -->
+//         <div class="bg-white p-5 rounded-lg shadow trial-card mb-6">
+//             <div class="flex justify-between items-center mb-4">
+//                 <h2 class="text-lg font-semibold text-gray-800">Key Insights & Conclusions</h2>
+//                 <div class="tooltip">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                     </svg>
+//                     <span class="tooltip-text">Summary of findings from all analyzed trials</span>
+//                 </div>
+//             </div>
+//             <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+//                 <div>
+//                     <ul class="space-y-3" id="conclusions-list">
+//                         <li class="flex items-start">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                             </svg>
+//                             <span>Analyzing trial data...</span>
+//                         </li>
+//                     </ul>
+//                 </div>
+//             </div>
+//         </div>
+        
+//         <!-- Trials table -->
+//         <div class="bg-white p-5 rounded-lg shadow trial-card">
+//             <div class="flex justify-between items-center mb-4">
+//                 <h2 class="text-lg font-semibold text-gray-800">Trial Details</h2>
+//                 <div class="flex items-center">
+//                     <input type="text" id="trial-search" placeholder="Search trials..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+//                 </div>
+//             </div>
+//             <div class="overflow-x-auto" id="trials-table-container">
+//                 <table class="min-w-full divide-y divide-gray-200">
+//                    <thead class="bg-gray-50">
+//                             <tr>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial</th>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sponsor</th>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+//                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Effect Size</th>
+//                             </tr>
+//                         </thead>
+//                         <tbody class="bg-white divide-y divide-gray-200" id="trial-summary-body">
+//                             <!-- Trial data rows will go here -->
+//                         </tbody>
+//                     </table>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+    
+//     // Add search functionality
+//     const searchInput = document.getElementById('trial-search');
+//     if (searchInput) {
+//         searchInput.addEventListener('input', function(e) {
+//             const searchTerm = e.target.value.toLowerCase();
+//             const rows = document.querySelectorAll('#trial-summary-body tr');
+            
+//             rows.forEach(row => {
+//                 const text = row.textContent.toLowerCase();
+//                 if (text.includes(searchTerm)) {
+//                     row.style.display = '';
+//                 } else {
+//                     row.style.display = 'none';
+//                 }
+//             });
+//         });
+//     }
+// }
 
 // Helper function to get distribution curve data for a given mean and standard deviation
 function getNormalDistributionPoints(mean, stdDev, min, max, step) {
