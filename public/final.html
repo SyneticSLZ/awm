@@ -265,7 +265,7 @@
 <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-bold text-gray-800">PubMed Articles</h2>
-      <div class="text-sm text-gray-500" id="pubmedResultCount"></div>
+      <div class="text-sm text-gray-500" id="pubmedResultCount" ></div>
     </div>
     
     <!-- Loading State -->
@@ -452,7 +452,7 @@
       <div id="ema-approval-content" class="ema-tab-pane active">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Marketing Authorizations</h3>
-          <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="emaApprovalCount">0 approvals</span>
+          <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="emaApprovalCount" style="display: none;">0 approvals</span>
         </div>
         <div class="ema-data-container" id="emaApprovalData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -468,7 +468,7 @@
       <div id="ema-orphan-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Orphan Drug Designations</h3>
-          <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full" id="emaOrphanCount">0 designations</span>
+          <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full" id="emaOrphanCount" style="display: none;">0 designations</span>
         </div>
         <div class="ema-data-container" id="emaOrphanData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -484,7 +484,7 @@
       <div id="ema-safety-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Safety Communications (DHPCs)</h3>
-          <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="emaSafetyCount">0 communications</span>
+          <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="emaSafetyCount" style="display: none;">0 communications</span>
         </div>
         <div class="ema-data-container" id="emaSafetyData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -500,7 +500,7 @@
       <div id="ema-psusa-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Periodic Safety Update Reports</h3>
-          <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full" id="emaPsusaCount">0 reports</span>
+          <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full" id="emaPsusaCount" style="display: none;">0 reports</span>
         </div>
         <div class="ema-data-container" id="emaPsusaData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -516,7 +516,7 @@
       <div id="ema-referrals-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Referral Procedures</h3>
-          <span class="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full" id="emaReferralsCount">0 referrals</span>
+          <span class="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full" id="emaReferralsCount" style="display: none;">0 referrals</span>
         </div>
         <div class="ema-data-container" id="emaReferralsData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -532,7 +532,7 @@
       <div id="ema-shortages-content" class="ema-tab-pane hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-medium">Medicine Shortages</h3>
-          <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full" id="emaShortagesCount">0 shortages</span>
+          <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full" id="emaShortagesCount" style="display: none;">0 shortages</span>
         </div>
         <div class="ema-data-container" id="emaShortagesData">
           <div class="flex justify-center items-center py-8 text-gray-500">
@@ -907,7 +907,7 @@
               <div class="mb-6">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-medium">FDA Documents</h3>
-                  <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="fdaDocCount">0 documents</span>
+                  <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="fdaDocCount" style="display: none;">0 documents</span>
                 </div>
                 <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="fdaDocuments">
                   <div class="flex justify-center items-center py-8 text-gray-500">
@@ -922,7 +922,7 @@
               <div class="mb-6">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-medium">Orange Book Information</h3>
-                  <span class="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full" id="orangeBookCount">0 entries</span>
+                  <span class="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full" id="orangeBookCount" style="display: none;">0 entries</span>
                 </div>
                 <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="orangeBookData">
                   <div class="flex justify-center items-center py-8 text-gray-500">
@@ -937,7 +937,7 @@
               <div class="mb-6">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-medium">DailyMed Information</h3>
-                  <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full" id="dailyMedCount">0 entries</span>
+                  <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full" id="dailyMedCount" style="display: none;">0 entries</span>
                 </div>
                 <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="dailyMedData">
                   <div class="flex justify-center items-center py-8 text-gray-500">
@@ -952,7 +952,7 @@
               <div class="mb-3">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-medium">FDA Warning Letters</h3>
-                  <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount">0 letters</span>
+                  <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount" style="display: none;">0 letters</span>
                 </div>
                 <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="warningLettersData">
                   <div class="flex justify-center items-center py-8 text-gray-500">
@@ -10673,9 +10673,7 @@ function displayWarningLetters(data, searchTerm) {
       <!-- Filter controls -->
       <div class="mb-4">
         <div class="flex flex-wrap items-center justify-between">
-          <div class="flex-1 min-w-0 mb-2 sm:mb-0">
-            <h4 class="text-sm font-medium text-gray-700">Found ${totalCount} warning letters related to "${searchTerm}"</h4>
-          </div>
+
           <div class="flex space-x-2">
             <div>
               <select id="warning-letters-type-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
