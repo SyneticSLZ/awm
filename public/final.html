@@ -20512,7 +20512,7 @@ const EmaDataModule = (function() {
         console.log(data)
         displayEmaData(data);
       } else {
-        showError('Error searching EMA data');
+        showError(`No EMA data found for ${drugName}`);
         console.error('Error searching EMA data:', data.error);
         
         // Show empty state for all data containers
@@ -22074,7 +22074,7 @@ const EmaClinicalDataModule = (function() {
         console.log(data);
         displayEmaClinicalData(data, condition);
       } else {
-        showError(`Error searching EMA data for ${condition}`);
+        showError(`No EMA data found for ${condition}`);
         console.error('Error searching EMA data:', data.error);
         showEmptyState(elements.approvalData, `No EMA approval data found for ${condition}.`);
         showEmptyState(elements.orphanData, `No orphan designation data found for ${condition}.`);
