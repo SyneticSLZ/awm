@@ -6038,114 +6038,615 @@ function displayStudiesWithEntityTimeline(studies, entityName, entityType) {
     // Create a wrapper for both drug and condition views
     displayStudiesWithTimeline(studies, entityName, entityType);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Add these to your state management
+const ITEMS_PER_PAGE = 20; // Adjust as needed
 
-
-
-// Function to display studies in the UI
+// Modify your displayStudies function to handle pagination
 function displayStudies(studies, drug, condition) {
-elements.studiesList.innerHTML = '';
-elements.studyCount.textContent = studies.length;
+    // Store all studies in an app state variable for pagination
+    appState.allStudies = studies;
+    appState.currentPage = 1;
+    
+    elements.studyCount.textContent = studies.length;
 
-if (studies.length === 0) {
-    elements.studiesList.innerHTML = `
-        <div class="text-center p-4 text-gray-500">
-            <p>No studies found matching the current filters.</p>
-        </div>
-    `;
-    return;
-}
+    if (studies.length === 0) {
+        elements.studiesList.innerHTML = `
+            <div class="text-center p-4 text-gray-500">
+                <p>No studies found matching the current filters.</p>
+            </div>
+        `;
+        // Hide pagination controls when no results
+        if (elements.paginationControls) {
+            elements.paginationControls.classList.add('hidden');
+        }
+        return;
+    }
 
+    // Sort studies by phase (keep your existing sorting logic)
+    const phaseOrder = { 
+        "PRE_PHASE": 0, 
+        "PHASE1": 1, 
+        "PHASE1_PHASE2": 1.5,
+        "PHASE2": 2, 
+        "PHASE3": 3, 
+        "PHASE4": 4 
+    };
 
-const existingTimeline = document.getElementById('drug-usage-timeline');
+    studies.sort((a, b) => {
+        const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
+    });
+
+    // Timeline visualization logic remains the same
+    const existingTimeline = document.getElementById('drug-usage-timeline');
     if (existingTimeline) {
         existingTimeline.remove();
     }
     
-if (!drug){
-  displayStudiesWithTimeline(studies, condition , 'condition');
+    if (!drug){
+        displayStudiesWithTimeline(studies, condition, 'condition');
+    }
+    displayStudiesWithTimeline(studies, drug, 'drug');
+
+    // Display the first page of studies
+    displayStudiesPage(1);
+    
+    // Set up pagination controls
+    setupPaginationControls(studies.length);
 }
-    displayStudiesWithTimeline(studies, drug, 'drug' );
+
+// New function to display a specific page of studies
+function displayStudiesPage(page) {
+    const studies = appState.allStudies;
+    elements.studiesList.innerHTML = '';
+    
+    // Calculate start and end index for current page
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, studies.length);
+    
+    // Display only the current page of studies
+    for (let i = startIndex; i < endIndex; i++) {
+        const study = studies[i];
         
-        // Update browser history and URL parameters
-        // updateUrlParameters(drug, condition, hasResultsOnly, trdFocusOnly);
-
-// Sort studies by phase
-const phaseOrder = { 
-    "PRE_PHASE": 0, 
-    "PHASE1": 1, 
-    "PHASE1_PHASE2": 1.5,
-    "PHASE2": 2, 
-    "PHASE3": 3, 
-    "PHASE4": 4 
-};
-
-studies.sort((a, b) => {
-    const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
-    const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
-    return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
-});
-
-studies.forEach(study => {
-    const nctId = study.protocolSection?.identificationModule?.nctId;
-    const title = study.protocolSection?.identificationModule?.briefTitle;
-    const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
-    const status = study.protocolSection?.statusModule?.overallStatus;
-    const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
-    const hasResults = study.hasResults;
-    
-    // Determine if this is a TRD-specific study
-    const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
-    const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
-    const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
-    
-    const trdTerms = [
-        'treatment-resistant depression', 
-        'treatment resistant depression',
-        'trd',
-        'refractory depression'
-    ];
-    
-    const isTRDSpecific = trdTerms.some(term => 
-        briefTitle.includes(term) || 
-        officialTitle.includes(term) || 
-        briefSummary.includes(term)
-    );
-    
-    const card = document.createElement('div');
-    card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
-    card.innerHTML = `
-        <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
-            <div class="flex gap-2 items-center flex-wrap">
-                <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
-                <span class="text-sm font-medium">${formatPhase(phase)}</span>
-                ${getStatusBadge(status)}
-                ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        const title = study.protocolSection?.identificationModule?.briefTitle;
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+        const status = study.protocolSection?.statusModule?.overallStatus;
+        const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+        const hasResults = study.hasResults;
+        
+        // Determine if this is a TRD-specific study
+        const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+        const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+        const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+        
+        const trdTerms = [
+            'treatment-resistant depression', 
+            'treatment resistant depression',
+            'trd',
+            'refractory depression'
+        ];
+        
+        const isTRDSpecific = trdTerms.some(term => 
+            briefTitle.includes(term) || 
+            officialTitle.includes(term) || 
+            briefSummary.includes(term)
+        );
+        
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+        card.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
+                <div class="flex gap-2 items-center flex-wrap">
+                    <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
+                    <span class="text-sm font-medium">${formatPhase(phase)}</span>
+                    ${getStatusBadge(status)}
+                    ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+                </div>
+                <div>
+                    <span class="text-xs text-gray-500">${nctId}</span>
+                    ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
+                </div>
             </div>
-            <div>
-                <span class="text-xs text-gray-500">${nctId}</span>
-                ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
-            </div>
-        </div>
-        <h3 class="text-lg font-medium mb-2">${title}</h3>
-        <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
-        <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            View Study Details
-        </button>
-    `;
-    elements.studiesList.appendChild(card);
+            <h3 class="text-lg font-medium mb-2">${title}</h3>
+            <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
+            <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Study Details
+            </button>
+        `;
+        elements.studiesList.appendChild(card);
+        
+        // Add event listener to the view button
+        card.querySelector('.view-study-btn').addEventListener('click', () => {
+            viewStudyDetails(nctId);
+        });
+    }
     
-    // Add event listener to the view button
-    card.querySelector('.view-study-btn').addEventListener('click', () => {
-        viewStudyDetails(nctId);
-    });
-});
+    // Update current page in app state
+    appState.currentPage = page;
+    
+    // Update active pagination button
+    updateActivePaginationButton(page);
 }
 
-        async function viewStudyDetails(nctId) {
+// Function to set up pagination controls
+function setupPaginationControls(totalItems) {
+    // First ensure we have a container for pagination controls
+    if (!elements.paginationControls) {
+        elements.paginationControls = document.createElement('div');
+        elements.paginationControls.className = 'flex justify-center items-center mt-6 space-x-2';
+        elements.studiesList.parentNode.appendChild(elements.paginationControls);
+    } else {
+        elements.paginationControls.innerHTML = '';
+        elements.paginationControls.classList.remove('hidden');
+    }
+    
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    
+    // Don't show pagination for a single page
+    if (totalPages <= 1) {
+        elements.paginationControls.classList.add('hidden');
+        return;
+    }
+    
+    // Previous button
+    const prevButton = document.createElement('button');
+    prevButton.className = 'px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
+    prevButton.innerHTML = '&laquo; Prev';
+    prevButton.disabled = true; // Disabled initially on page 1
+    prevButton.addEventListener('click', () => {
+        if (appState.currentPage > 1) {
+            displayStudiesPage(appState.currentPage - 1);
+        }
+    });
+    elements.paginationControls.appendChild(prevButton);
+    
+    // Page number buttons
+    // For simplicity, show max 7 page buttons with ellipsis for large number of pages
+    const maxVisibleButtons = 7;
+    const pages = [];
+    
+    if (totalPages <= maxVisibleButtons) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+        }
+    } else {
+        // Complex pagination with ellipsis
+        if (appState.currentPage <= 3) {
+            // Near start
+            for (let i = 1; i <= 5; i++) {
+                pages.push(i);
+            }
+            pages.push('...');
+            pages.push(totalPages);
+        } else if (appState.currentPage >= totalPages - 2) {
+            // Near end
+            pages.push(1);
+            pages.push('...');
+            for (let i = totalPages - 4; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Middle
+            pages.push(1);
+            pages.push('...');
+            for (let i = appState.currentPage - 1; i <= appState.currentPage + 1; i++) {
+                pages.push(i);
+            }
+            pages.push('...');
+            pages.push(totalPages);
+        }
+    }
+    
+    // Add page buttons to DOM
+    pages.forEach(page => {
+        if (page === '...') {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-3 py-1';
+            ellipsis.textContent = '...';
+            elements.paginationControls.appendChild(ellipsis);
+        } else {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = 'px-3 py-1 rounded border border-gray-300 hover:bg-gray-100';
+            pageBtn.textContent = page;
+            if (page === 1) {
+                pageBtn.classList.add('bg-blue-100', 'border-blue-300');
+            }
+            pageBtn.addEventListener('click', () => {
+                displayStudiesPage(page);
+            });
+            elements.paginationControls.appendChild(pageBtn);
+        }
+    });
+    
+    // Next button
+    const nextButton = document.createElement('button');
+    nextButton.className = 'px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
+    nextButton.innerHTML = 'Next &raquo;';
+    nextButton.addEventListener('click', () => {
+        if (appState.currentPage < totalPages) {
+            displayStudiesPage(appState.currentPage + 1);
+        }
+    });
+    elements.paginationControls.appendChild(nextButton);
+    
+    // Store references to prev/next buttons in app state for easier access
+    appState.prevButton = prevButton;
+    appState.nextButton = nextButton;
+}
+
+// Function to update active pagination button
+function updateActivePaginationButton(currentPage) {
+    if (!elements.paginationControls) return;
+    
+    // Update prev/next button disabled states
+    const totalPages = Math.ceil(appState.allStudies.length / ITEMS_PER_PAGE);
+    appState.prevButton.disabled = currentPage === 1;
+    appState.nextButton.disabled = currentPage === totalPages;
+    
+    // Update active page button
+    const pageButtons = elements.paginationControls.querySelectorAll('button:not(:first-child):not(:last-child)');
+    pageButtons.forEach(button => {
+        if (button.textContent === currentPage.toString()) {
+            button.classList.add('bg-blue-100', 'border-blue-300');
+        } else {
+            button.classList.remove('bg-blue-100', 'border-blue-300');
+        }
+    });
+}
+
+// Add search functionality to search within results
+function addStudySearch() {
+    // Create search input if it doesn't exist
+    if (!elements.studySearch) {
+        const searchContainer = document.createElement('div');
+        searchContainer.className = 'mb-4';
+        searchContainer.innerHTML = `
+            <label class="block text-sm font-medium text-gray-700 mb-1">Search within results</label>
+            <div class="relative">
+                <input id="study-search" type="text" placeholder="Search by title, NCT ID, or sponsor..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <button id="clear-search" class="absolute right-2 top-2 text-gray-400 hover:text-gray-600 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        // Insert search before the studies list
+        elements.studiesList.parentNode.insertBefore(searchContainer, elements.studiesList);
+        
+        // Store reference to the search input
+        elements.studySearch = document.getElementById('study-search');
+        elements.clearSearch = document.getElementById('clear-search');
+        
+        // Add event listeners
+        elements.studySearch.addEventListener('input', debounce(handleStudySearch, 300));
+        elements.clearSearch.addEventListener('click', clearStudySearch);
+    }
+}
+
+// Debounce function to prevent too many search operations
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Handle study search
+function handleStudySearch() {
+    const searchTerm = elements.studySearch.value.toLowerCase().trim();
+    
+    // Show/hide clear button
+    elements.clearSearch.classList.toggle('hidden', !searchTerm);
+    
+    // If search term is empty, show all studies (paginated)
+    if (!searchTerm) {
+        appState.filteredStudies = null;
+        displayStudiesPage(1);
+        setupPaginationControls(appState.allStudies.length);
+        return;
+    }
+    
+    // Filter studies based on search term
+    const filteredStudies = appState.allStudies.filter(study => {
+        const nctId = study.protocolSection?.identificationModule?.nctId?.toLowerCase() || '';
+        const title = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+        const sponsor = study.protocolSection?.identificationModule?.organization?.fullName?.toLowerCase() || '';
+        
+        return nctId.includes(searchTerm) || 
+               title.includes(searchTerm) || 
+               sponsor.includes(searchTerm);
+    });
+    
+    // Store filtered studies in app state
+    appState.filteredStudies = filteredStudies;
+    
+    // Update display with filtered studies
+    elements.studyCount.textContent = `${filteredStudies.length} (filtered from ${appState.allStudies.length})`;
+    
+    // If no results after filtering
+    if (filteredStudies.length === 0) {
+        elements.studiesList.innerHTML = `
+            <div class="text-center p-4 text-gray-500">
+                <p>No studies found matching "${searchTerm}".</p>
+                <button id="reset-search" class="mt-2 text-blue-600 hover:underline">Reset search</button>
+            </div>
+        `;
+        elements.paginationControls.classList.add('hidden');
+        
+        // Add event listener to reset button
+        document.getElementById('reset-search').addEventListener('click', clearStudySearch);
+        return;
+    }
+    
+    // Display first page of filtered results
+    displayFilteredStudiesPage(1);
+    setupPaginationControls(filteredStudies.length);
+}
+
+// Clear study search
+function clearStudySearch() {
+    elements.studySearch.value = '';
+    elements.clearSearch.classList.add('hidden');
+    appState.filteredStudies = null;
+    
+    // Reset to show all studies
+    elements.studyCount.textContent = appState.allStudies.length;
+    displayStudiesPage(1);
+    setupPaginationControls(appState.allStudies.length);
+}
+
+// Display page of filtered studies
+// Function to display a specific page of filtered studies
+function displayFilteredStudiesPage(page) {
+    const studies = appState.filteredStudies || appState.allStudies;
+    elements.studiesList.innerHTML = '';
+    
+    // Calculate start and end index for current page
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, studies.length);
+    
+    // Display the studies for this page
+    for (let i = startIndex; i < endIndex; i++) {
+        const study = studies[i];
+        
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        const title = study.protocolSection?.identificationModule?.briefTitle;
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+        const status = study.protocolSection?.statusModule?.overallStatus;
+        const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+        const hasResults = study.hasResults;
+        
+        // Determine if this is a TRD-specific study
+        const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+        const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+        const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+        
+        const trdTerms = [
+            'treatment-resistant depression', 
+            'treatment resistant depression',
+            'trd',
+            'refractory depression'
+        ];
+        
+        const isTRDSpecific = trdTerms.some(term => 
+            briefTitle.includes(term) || 
+            officialTitle.includes(term) || 
+            briefSummary.includes(term)
+        );
+        
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+        card.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
+                <div class="flex gap-2 items-center flex-wrap">
+                    <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
+                    <span class="text-sm font-medium">${formatPhase(phase)}</span>
+                    ${getStatusBadge(status)}
+                    ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+                </div>
+                <div>
+                    <span class="text-xs text-gray-500">${nctId}</span>
+                    ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
+                </div>
+            </div>
+            <h3 class="text-lg font-medium mb-2">${title}</h3>
+            <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
+            <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View Study Details
+            </button>
+        `;
+        elements.studiesList.appendChild(card);
+        
+        // Add event listener to the view button
+        card.querySelector('.view-study-btn').addEventListener('click', () => {
+            viewStudyDetails(nctId);
+        });
+    }
+    
+    // Update current page in app state
+    appState.currentPage = page;
+    
+    // Update active pagination button
+    updateActivePaginationButton(page);
+    
+    // Update the results info message
+    const resultsInfo = document.createElement('div');
+    resultsInfo.className = 'text-sm text-gray-600 mt-2';
+    
+    if (studies.length > 0) {
+        resultsInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${studies.length} results`;
+    } else {
+        resultsInfo.textContent = 'No results found';
+    }
+    
+    // Replace any existing results info
+    const existingInfo = document.querySelector('.results-info');
+    if (existingInfo) {
+        existingInfo.replaceWith(resultsInfo);
+    } else {
+        // Insert before the studies list
+        elements.studiesList.parentNode.insertBefore(resultsInfo, elements.studiesList);
+    }
+    resultsInfo.classList.add('results-info');
+    
+    // Check if there's any data to show page controls
+    if (studies.length <= ITEMS_PER_PAGE) {
+        // If we have 1 page or less, hide pagination controls
+        if (elements.paginationControls) {
+            elements.paginationControls.classList.add('hidden');
+        }
+    } else {
+        // Make sure pagination controls are visible
+        if (elements.paginationControls) {
+            elements.paginationControls.classList.remove('hidden');
+        }
+    }
+}
+
+// Initialize new features when page loads
+function initPaginationAndSearch() {
+    // Add these to your init function or document ready callback
+    addStudySearch();
+    
+    // Make sure appState has required properties
+    if (!appState) {
+        appState = {};
+    }
+    
+    appState.allStudies = [];
+    appState.currentPage = 1;
+    appState.filteredStudies = null;
+}
+
+// Call this when your app initializes
+document.addEventListener('DOMContentLoaded', initPaginationAndSearch);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// // Function to display studies in the UI
+// function displayStudies(studies, drug, condition) {
+// elements.studiesList.innerHTML = '';
+// elements.studyCount.textContent = studies.length;
+
+// if (studies.length === 0) {
+//     elements.studiesList.innerHTML = `
+//         <div class="text-center p-4 text-gray-500">
+//             <p>No studies found matching the current filters.</p>
+//         </div>
+//     `;
+//     return;
+// }
+
+
+// const existingTimeline = document.getElementById('drug-usage-timeline');
+//     if (existingTimeline) {
+//         existingTimeline.remove();
+//     }
+    
+// if (!drug){
+//   displayStudiesWithTimeline(studies, condition , 'condition');
+// }
+//     displayStudiesWithTimeline(studies, drug, 'drug' );
+        
+//         // Update browser history and URL parameters
+//         // updateUrlParameters(drug, condition, hasResultsOnly, trdFocusOnly);
+
+// // Sort studies by phase
+// const phaseOrder = { 
+//     "PRE_PHASE": 0, 
+//     "PHASE1": 1, 
+//     "PHASE1_PHASE2": 1.5,
+//     "PHASE2": 2, 
+//     "PHASE3": 3, 
+//     "PHASE4": 4 
+// };
+
+// studies.sort((a, b) => {
+//     const phaseA = a.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+//     const phaseB = b.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+//     return (phaseOrder[phaseA] || 0) - (phaseOrder[phaseB] || 0);
+// });
+
+// studies.forEach(study => {
+//     const nctId = study.protocolSection?.identificationModule?.nctId;
+//     const title = study.protocolSection?.identificationModule?.briefTitle;
+//     const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+//     const status = study.protocolSection?.statusModule?.overallStatus;
+//     const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+//     const hasResults = study.hasResults;
+    
+//     // Determine if this is a TRD-specific study
+//     const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+//     const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+//     const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+    
+//     const trdTerms = [
+//         'treatment-resistant depression', 
+//         'treatment resistant depression',
+//         'trd',
+//         'refractory depression'
+//     ];
+    
+//     const isTRDSpecific = trdTerms.some(term => 
+//         briefTitle.includes(term) || 
+//         officialTitle.includes(term) || 
+//         briefSummary.includes(term)
+//     );
+    
+//     const card = document.createElement('div');
+//     card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition duration-200';
+//     card.innerHTML = `
+//         <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between mb-3">
+//             <div class="flex gap-2 items-center flex-wrap">
+//                 <span class="inline-block w-3 h-3 rounded-full" style="background-color: ${getPhaseColor(phase)}"></span>
+//                 <span class="text-sm font-medium">${formatPhase(phase)}</span>
+//                 ${getStatusBadge(status)}
+//                 ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+//             </div>
+//             <div>
+//                 <span class="text-xs text-gray-500">${nctId}</span>
+//                 ${hasResults ? '<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Has Results</span>' : ''}
+//             </div>
+//         </div>
+//         <h3 class="text-lg font-medium mb-2">${title}</h3>
+//         <p class="text-sm text-gray-600 mb-3">Sponsor: ${sponsor || 'Unknown'}</p>
+//         <button data-nctid="${nctId}" class="view-study-btn text-primary hover:text-blue-700 text-sm font-medium flex items-center">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+//             </svg>
+//             View Study Details
+//         </button>
+//     `;
+//     elements.studiesList.appendChild(card);
+    
+//     // Add event listener to the view button
+//     card.querySelector('.view-study-btn').addEventListener('click', () => {
+//         viewStudyDetails(nctId);
+//     });
+// });
+// }
+
+        
+
+async function viewStudyDetails(nctId) {
             appState.currentStudyId = nctId;
             displayLoading(true);
             
@@ -7020,20 +7521,220 @@ function formatParamType(paramType) {
 
 
 
+// function collectAllTrialOutcomes() {
+//     console.log("Collecting all trial outcomes data...");
+//     appState.allTrialOutcomes = [];
+    
+//     // Get all studies with results
+//     const studiesWithResults = appState.studies.filter(study => study.hasResults);
+//     console.log(`Found ${studiesWithResults.length} studies with results`);
+    
+//     // For each study, collect the outcome measures
+//     studiesWithResults.forEach(study => {
+//         const nctId = study.protocolSection?.identificationModule?.nctId;
+//         const studyDetails = appState.studyDetails[nctId];
+        
+//         if (!studyDetails || !studyDetails.resultsSection?.outcomeMeasuresModule?.outcomeMeasures) {
+//             console.warn(`No outcome measures found for study ${nctId}`);
+//             return;
+//         }
+        
+//         const phase = study.protocolSection?.designModule?.phases?.[0] || 'N/A';
+//         const studyTitle = study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study';
+//         const outcomes = studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures;
+        
+//         console.log(`Processing ${outcomes.length} outcomes for study ${nctId} (${studyTitle})`);
+        
+//         // Store basic study info
+//         const studyInfo = {
+//             nctId,
+//             title: studyTitle,
+//             phase,
+//             sponsor: study.protocolSection?.identificationModule?.organization?.fullName || 'Unknown',
+//             status: study.protocolSection?.statusModule?.overallStatus || 'Unknown',
+//             outcomes: []
+//         };
+        
+//         // Process each outcome measure
+//         outcomes.forEach(outcome => {
+//             if (!outcome.classes || !outcome.classes[0]?.categories) {
+//                 console.warn(`Skipping outcome with no categories: ${outcome.title}`);
+//                 return;
+//             }
+            
+//             const outcomeType = outcome.type?.toLowerCase() || 'other';
+//             const outcomeTitle = outcome.title || 'Unknown Outcome';
+//             const timeFrame = outcome.timeFrame || 'Not specified';
+            
+//             // Process each measurement class and category
+//             outcome.classes.forEach(cls => {
+//                 cls.categories.forEach(cat => {
+//                     const categoryData = {
+//                         title: cat.title || '',
+//                         measurements: []
+//                     };
+                    
+//                     // Extract all measurements
+//                     cat.measurements.forEach(measurement => {
+//                         const value = parseFloat(measurement.value);
+//                         if (isNaN(value)) return;
+                        
+//                         const group = outcome.groups.find(g => g.id === measurement.groupId);
+//                         if (!group) return;
+                        
+//                         const groupTitle = group.title || 'Unknown Group';
+//                         const isControlGroup = 
+//                             groupTitle.toLowerCase().includes('placebo') || 
+//                             groupTitle.toLowerCase().includes('control') ||
+//                             groupTitle.toLowerCase().includes('sham');
+                        
+//                         // Calculate standard error or other statistics if available
+//                         let standardError = null;
+//                         let dispersion = null;
+//                         let dispersionType = null;
+                        
+//                         if (measurement.dispersion && measurement.dispersion !== 'null') {
+//                             dispersion = parseFloat(measurement.dispersion);
+//                             dispersionType = measurement.dispersionType?.toLowerCase() || '';
+                            
+//                             if (!isNaN(dispersion)) {
+//                                 if (dispersionType === 'standard_error') {
+//                                     standardError = dispersion;
+//                                 } else if (dispersionType === 'standard_deviation') {
+//                                     // Convert SD to SE if sample size is available
+//                                     const sampleSize = group.participantsAnalyzedList?.[0]?.count;
+//                                     if (sampleSize && !isNaN(sampleSize) && sampleSize > 0) {
+//                                         standardError = dispersion / Math.sqrt(sampleSize);
+//                                     }
+//                                 }
+//                             }
+//                         }
+                        
+//                         // Add measurement data
+//                         categoryData.measurements.push({
+//                             value,
+//                             groupId: measurement.groupId,
+//                             groupTitle,
+//                             isControlGroup,
+//                             sampleSize: group.participantsAnalyzedList?.[0]?.count || 0,
+//                             standardError,
+//                             dispersion,
+//                             dispersionType
+//                         });
+//                     });
+                    
+//                     // Only add categories with measurements
+//                     if (categoryData.measurements.length > 0) {
+//                         // Calculate effect size if we have both experimental and control groups
+//                         const experimentalMeasurements = categoryData.measurements.filter(m => !m.isControlGroup);
+//                         const controlMeasurements = categoryData.measurements.filter(m => m.isControlGroup);
+                        
+//                         let effectSize = null;
+//                         let experimentalValue = null;
+//                         let controlValue = null;
+//                         let experimentalSampleSize = 0;
+//                         let controlSampleSize = 0;
+                        
+//                         if (experimentalMeasurements.length > 0) {
+//                             // Calculate weighted average for experimental group
+//                             const expTotal = experimentalMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
+//                             experimentalSampleSize = experimentalMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
+//                             experimentalValue = experimentalSampleSize > 0 ? expTotal / experimentalSampleSize : null;
+//                         }
+                        
+//                         if (controlMeasurements.length > 0) {
+//                             // Calculate weighted average for control group
+//                             const ctrlTotal = controlMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
+//                             controlSampleSize = controlMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
+//                             controlValue = controlSampleSize > 0 ? ctrlTotal / controlSampleSize : null;
+//                         }
+                        
+//                         // Calculate effect size if both values exist
+//                         if (experimentalValue !== null && controlValue !== null) {
+//                             // Standardize the effect based on outcome metric
+//                             effectSize = standardizeOutcomeValue(experimentalValue - controlValue, outcomeTitle);
+//                         }
+                        
+//                         // Add the processed outcome data
+//                         studyInfo.outcomes.push({
+//                             title: outcomeTitle,
+//                             type: outcomeType,
+//                             timeFrame,
+//                             category: categoryData.title,
+//                             measurements: categoryData.measurements,
+//                             experimentalValue,
+//                             controlValue,
+//                             effectSize,
+//                             experimentalSampleSize,
+//                             controlSampleSize
+//                         });
+//                     }
+//                 });
+//             });
+//         });
+        
+//         // Add this study's info to the collection if it has outcomes
+//         if (studyInfo.outcomes.length > 0) {
+//             appState.allTrialOutcomes.push(studyInfo);
+//         }
+//     });
+    
+//     console.log(`Collected outcome data from ${appState.allTrialOutcomes.length} studies`);
+//     console.log("All outcomes data:", appState.allTrialOutcomes);
+//     TrialDashboard.loadData(appState.allTrialOutcomes);
+
+//     console.log( "td" , appState.allTrialOutcomes)
+//     a =  appState.allTrialOutcomes
+//     TrialDashboard.loadData(a);
+    
+//     // Now that we have all the data, create the visualizations
+//     // createAggregateVisualizations();
+// }
+
+
+
+// Function to create all visualizations from the collected data
+
 function collectAllTrialOutcomes() {
     console.log("Collecting all trial outcomes data...");
     appState.allTrialOutcomes = [];
     
+    // Ensure studies property exists and has valid data
+    if (!appState.studies || !Array.isArray(appState.studies) || appState.studies.length === 0) {
+        console.log("No studies to collect outcomes from");
+        return;
+    }
+    
     // Get all studies with results
-    const studiesWithResults = appState.studies.filter(study => study.hasResults);
+    const studiesWithResults = appState.studies.filter(study => study && study.hasResults);
     console.log(`Found ${studiesWithResults.length} studies with results`);
     
     // For each study, collect the outcome measures
     studiesWithResults.forEach(study => {
-        const nctId = study.protocolSection?.identificationModule?.nctId;
+        // First make sure the basic study properties exist
+        if (!study || !study.protocolSection || !study.protocolSection.identificationModule) {
+            console.warn("Study missing required properties - skipping");
+            return;
+        }
+        
+        const nctId = study.protocolSection.identificationModule.nctId;
+        if (!nctId) {
+            console.warn("Study missing NCT ID - skipping");
+            return;
+        }
+        
+        // Check if we have study details with outcome data
+        if (!appState.studyDetails || !appState.studyDetails[nctId]) {
+            console.warn(`No study details found for ${nctId} - skipping`);
+            return;
+        }
+        
         const studyDetails = appState.studyDetails[nctId];
         
-        if (!studyDetails || !studyDetails.resultsSection?.outcomeMeasuresModule?.outcomeMeasures) {
+        // Make sure we have valid outcome measures data
+        if (!studyDetails.resultsSection || 
+            !studyDetails.resultsSection.outcomeMeasuresModule || 
+            !studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures) {
             console.warn(`No outcome measures found for study ${nctId}`);
             return;
         }
@@ -7056,8 +7757,9 @@ function collectAllTrialOutcomes() {
         
         // Process each outcome measure
         outcomes.forEach(outcome => {
-            if (!outcome.classes || !outcome.classes[0]?.categories) {
-                console.warn(`Skipping outcome with no categories: ${outcome.title}`);
+            // Make sure outcome has classes with categories
+            if (!outcome.classes || !outcome.classes[0] || !outcome.classes[0].categories) {
+                console.warn(`Skipping outcome with no categories: ${outcome.title || 'unknown'}`);
                 return;
             }
             
@@ -7067,7 +7769,17 @@ function collectAllTrialOutcomes() {
             
             // Process each measurement class and category
             outcome.classes.forEach(cls => {
+                if (!cls.categories || !Array.isArray(cls.categories)) {
+                    console.warn(`Invalid categories in outcome class for ${nctId} - skipping`);
+                    return;
+                }
+                
                 cls.categories.forEach(cat => {
+                    if (!cat.measurements || !Array.isArray(cat.measurements)) {
+                        console.warn(`Invalid measurements in category for ${nctId} - skipping`);
+                        return;
+                    }
+                    
                     const categoryData = {
                         title: cat.title || '',
                         measurements: []
@@ -7075,8 +7787,19 @@ function collectAllTrialOutcomes() {
                     
                     // Extract all measurements
                     cat.measurements.forEach(measurement => {
+                        // Validate measurement data
+                        if (!measurement || !measurement.value || !measurement.groupId) {
+                            return;
+                        }
+                        
+                        // Try to parse the value
                         const value = parseFloat(measurement.value);
                         if (isNaN(value)) return;
+                        
+                        // Validate that the group exists
+                        if (!outcome.groups || !Array.isArray(outcome.groups)) {
+                            return;
+                        }
                         
                         const group = outcome.groups.find(g => g.id === measurement.groupId);
                         if (!group) return;
@@ -7151,7 +7874,12 @@ function collectAllTrialOutcomes() {
                         // Calculate effect size if both values exist
                         if (experimentalValue !== null && controlValue !== null) {
                             // Standardize the effect based on outcome metric
-                            effectSize = standardizeOutcomeValue(experimentalValue - controlValue, outcomeTitle);
+                            try {
+                                effectSize = standardizeOutcomeValue(experimentalValue - controlValue, outcomeTitle);
+                            } catch (error) {
+                                console.warn(`Error calculating effect size for ${nctId}:`, error);
+                                effectSize = experimentalValue - controlValue; // Fallback to raw difference
+                            }
                         }
                         
                         // Add the processed outcome data
@@ -7180,17 +7908,45 @@ function collectAllTrialOutcomes() {
     
     console.log(`Collected outcome data from ${appState.allTrialOutcomes.length} studies`);
     console.log("All outcomes data:", appState.allTrialOutcomes);
-    TrialDashboard.loadData(appState.allTrialOutcomes);
-
-    console.log( "td" , appState.allTrialOutcomes)
-    a =  appState.allTrialOutcomes
-    TrialDashboard.loadData(a);
+    
+    // Try to initialize the TrialDashboard if it exists
+    if (typeof TrialDashboard !== 'undefined' && appState.allTrialOutcomes) {
+        try {
+            console.log("Loading data into TrialDashboard");
+            TrialDashboard.loadData(appState.allTrialOutcomes);
+        } catch (error) {
+            console.error("Error loading data into TrialDashboard:", error);
+        }
+    }
     
     // Now that we have all the data, create the visualizations
-    // createAggregateVisualizations();
+    try {
+        createAggregateVisualizations();
+    } catch (error) {
+        console.error("Error creating aggregate visualizations:", error);
+    }
 }
 
-// Function to create all visualizations from the collected data
+// Fallback function for standardizeOutcomeValue in case it's not defined
+function standardizeOutcomeValue(value, outcomeTitle) {
+    if (typeof window.standardizeOutcomeValue === 'function') {
+        return window.standardizeOutcomeValue(value, outcomeTitle);
+    }
+    
+    // Simple fallback - higher positive values are better unless the title suggests otherwise
+    const lowerIsBetter = 
+        outcomeTitle.toLowerCase().includes('score') || 
+        outcomeTitle.toLowerCase().includes('scale') ||
+        outcomeTitle.toLowerCase().includes('severity') ||
+        outcomeTitle.toLowerCase().includes('pain') ||
+        outcomeTitle.toLowerCase().includes('depression') ||
+        outcomeTitle.toLowerCase().includes('anxiety') ||
+        outcomeTitle.toLowerCase().includes('symptom');
+    
+    return lowerIsBetter ? -value : value;
+}
+
+
 function createAggregateVisualizations() {
     // Skip if we don't have data
     if (appState.allTrialOutcomes.length === 0) {
@@ -16022,21 +16778,218 @@ function createStatisticalSummaryTable(outcomes) {
 
 
 
+// async function handleSearch() {
+//     elements.placeholderMessage.innerHTML = `
+//                 <div class="text-center">
+//         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+//             </svg>
+//             <p class="text-lg">Enter a drug name and click "Search" to analyze clinical trials</p>
+//             <p class="mt-2 text-sm">Example searches: Ketamine, Psilocybin, Esketamine, PCN-101, COMP360</p>
+// </div>`
+//     const drug = elements.drugSearch.value.trim();
+//     const condition = elements.conditionSearch.value.trim();
+//     const hasResultsOnly = elements.hasResultsOnly.checked;
+//     const trdFocusOnly = elements.trdFocusOnly.checked;
+    
+
+    
+//     // Update state
+//     appState.hasResultsOnly = hasResultsOnly;
+//     appState.trdFocusOnly = trdFocusOnly;
+//     appState.currentPhaseFilter = 'all';
+//     appState.studies = [];
+//     appState.studyDetails = {};
+//     appState.failedStudyIds.clear(); // Reset failed study IDs
+    
+//     // Reset FDA data
+//     appState.fdaData = {
+//         documents: [],
+//         orangeBook: [],
+//         dailyMed: [],
+//         warningLetters: []
+//     };
+    
+//     // Reset phase filter buttons
+//     document.querySelectorAll('.phase-filter').forEach(btn => {
+//         btn.classList.remove('bg-primary', 'text-white');
+//         btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+//     });
+//     document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
+//     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
+    
+//     // Hide sections and show loading
+//     showSection(elements.resultsOverview, false);
+//     showSection(elements.studiesSection, false);
+//     showSection(elements.studyDetailSection, false);
+//     showSection(elements.fdaDataSection, false);
+//     displayLoading(true);
+    
+//     try {
+//         console.log(`Searching for studies - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
+        
+//         // Fetch studies
+//         const studies = await fetchStudies(drug, condition, hasResultsOnly);
+//         console.log(`Retrieved ${studies.length} studies`);
+        
+//         // Filter for TRD-specific studies if requested
+//         let filteredStudies = studies;
+                
+//       let pubmedSearchTerm = drug;
+//         // if (trdFocusOnly) {
+//         //     filteredStudies = filterTRDSpecificStudies(studies);
+//         //     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+//         // }
+        
+//         appState.studies = filteredStudies;
+//         collectAllTrialOutcomes()
+
+//         if (filteredStudies.length === 0) {
+//             elements.placeholderMessage.innerHTML = `
+//                 <div class="text-center">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                     </svg>
+//                     <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
+//                     <p class="mt-2 text-sm">Try another drug name${trdFocusOnly ? ' or disable the TRD-specific filter' : ''}.</p>
+//                 </div>
+//             `;
+//             // Still show FDA data even if no studies are found
+           
+            
+//             if (!drug) {
+//         // alert('Please enter a drug name to search.');
+//         displayFdaClinicalData(condition);
+//         if (condition) {
+//     pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
+//   }
+  
+//   if (pubmedSearchTerm) {
+//     PubMedModule.searchPubMed(pubmedSearchTerm);
+//   }
+//         // EmaClinicalDataModule.init();
+//         // EmaClinicalDataModule.searchCondition(condition);
+//         displayLoading(false);
+//     } 
+//       console.log("disalying data ")
+//       displayFdaData(drug);
+//       EmaDataModule.init();
+//       EmaDataModule.searchDrug(drug);
+//       displayLoading(false);
+    
+
+//             return;
+//         }
+        
+//         // Display results summary
+//         displayResultsSummary(filteredStudies);
+//         showSection(elements.resultsOverview, true);
+        
+//         // Display studies list
+//         displayStudies(filteredStudies, drug, condition);
+//         showSection(elements.studiesSection, true);
+        
+//         // Display FDA data section
+//         // displayFdaData(drug, condition);
+//         if (!drug) {
+//         // alert('Please enter a drug name to search.');
+//         displayFdaClinicalData(condition);
+//         // EmaClinicalDataModule.init();
+//         // EmaClinicalDataModule.searchCondition(condition);
+//         displayLoading(false);
+//     } 
+//       console.log("disalying data ")
+//       displayFdaData(drug);
+//       EmaDataModule.init();
+//       EmaDataModule.searchDrug(drug);
+//       displayLoading(false);
+
+  
+//   if (condition) {
+//     pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
+//   }
+  
+//   if (pubmedSearchTerm) {
+//     PubMedModule.searchPubMed(pubmedSearchTerm);
+//   }
+        
+//         // Fetch study details for studies with results
+//         appState.studyDetails = {};
+//         const studiesWithResults = filteredStudies.filter(study => study.hasResults);
+//         console.log(`Fetching details for ${studiesWithResults.length} studies with results`);
+        
+//         // Use a semaphore to limit concurrent API calls
+//         const MAX_CONCURRENT_REQUESTS = 5;
+//         let activeRequests = 0;
+//         let requestQueue = [...studiesWithResults];
+//         let completedRequests = 0;
+        
+//         const processQueue = async () => {
+//             if (requestQueue.length === 0) return;
+            
+//             while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length > 0) {
+//                 activeRequests++;
+//                 const study = requestQueue.shift();
+//                 const nctId = study.protocolSection.identificationModule.nctId;
+                
+//                 fetchStudyDetails(nctId).then(details => {
+//                     if (details) {
+//                         appState.studyDetails[nctId] = details;
+//                     }
+                    
+//                     activeRequests--;
+//                     completedRequests++;
+                    
+//                     // Update progress if we have a lot of studies
+//                     if (studiesWithResults.length > 10 && completedRequests % 5 === 0) {
+//                         const progressPercent = Math.round((completedRequests / studiesWithResults.length) * 100);
+//                         console.log(`Study details progress: ${progressPercent}% (${completedRequests}/${studiesWithResults.length})`);
+//                     }
+                    
+//                     // Process more from queue
+//                     processQueue();
+                    
+//                     // If all requests are complete
+//                     if (activeRequests === 0 && requestQueue.length === 0) {
+//                         console.log('All study details fetched');
+//                         collectAllTrialOutcomes()
+//                         displayLoading(false);
+//                     }
+//                 });
+//             }
+//         };
+        
+//         // Start processing the queue
+//         await processQueue();
+        
+//         // If no studies with results, hide loading
+//         if (studiesWithResults.length === 0) {
+//             displayLoading(false);
+//         }
+        
+//     } catch (error) {
+//         console.error('Error during search:', error);
+//         elements.placeholderMessage.innerHTML = `
+//             <div class="text-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                 </svg>
+//                 <p class="text-lg">Error searching for studies</p>
+//                 <p class="mt-2 text-sm">Please try again later.</p>
+//                 <p class="mt-2 text-xs text-gray-500">${error.message}</p>
+//             </div>
+//         `;
+//         displayLoading(false);
+//     }
+// }
+
+
 async function handleSearch() {
-    elements.placeholderMessage.innerHTML = `
-                <div class="text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <p class="text-lg">Enter a drug name and click "Search" to analyze clinical trials</p>
-            <p class="mt-2 text-sm">Example searches: Ketamine, Psilocybin, Esketamine, PCN-101, COMP360</p>
-</div>`
+    // Get search parameters
     const drug = elements.drugSearch.value.trim();
     const condition = elements.conditionSearch.value.trim();
     const hasResultsOnly = elements.hasResultsOnly.checked;
     const trdFocusOnly = elements.trdFocusOnly.checked;
-    
-
     
     // Update state
     appState.hasResultsOnly = hasResultsOnly;
@@ -16062,154 +17015,173 @@ async function handleSearch() {
     document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
     
-    // Hide sections and show loading
+    // 1. HIDE ABSOLUTELY EVERYTHING FIRST
     showSection(elements.resultsOverview, false);
     showSection(elements.studiesSection, false);
     showSection(elements.studyDetailSection, false);
     showSection(elements.fdaDataSection, false);
+    showSection(elements.placeholderMessage, false);
+    // Hide any other sections that might be visible
+    document.querySelectorAll('.results-section').forEach(section => {
+        section.style.display = 'none';
+    });
     displayLoading(true);
     
-    try {
-        console.log(`Searching for studies - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
-        
-        // Fetch studies
-        const studies = await fetchStudies(drug, condition, hasResultsOnly);
-        console.log(`Retrieved ${studies.length} studies`);
-        
-        // Filter for TRD-specific studies if requested
-        let filteredStudies = studies;
-                
-      let pubmedSearchTerm = drug;
-        // if (trdFocusOnly) {
-        //     filteredStudies = filterTRDSpecificStudies(studies);
-        //     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-        // }
-        
-        appState.studies = filteredStudies;
-        collectAllTrialOutcomes()
-
-        if (filteredStudies.length === 0) {
-            elements.placeholderMessage.innerHTML = `
-                <div class="text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
-                    <p class="mt-2 text-sm">Try another drug name${trdFocusOnly ? ' or disable the TRD-specific filter' : ''}.</p>
-                </div>
-            `;
-            // Still show FDA data even if no studies are found
-           
-            
-            if (!drug) {
-        // alert('Please enter a drug name to search.');
-        displayFdaClinicalData(condition);
-        if (condition) {
-    pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
-  }
-  
-  if (pubmedSearchTerm) {
-    PubMedModule.searchPubMed(pubmedSearchTerm);
-  }
-        // EmaClinicalDataModule.init();
-        // EmaClinicalDataModule.searchCondition(condition);
-        displayLoading(false);
-    } 
-      console.log("disalying data ")
-      displayFdaData(drug);
-      EmaDataModule.init();
-      EmaDataModule.searchDrug(drug);
-      displayLoading(false);
+    // Now show the placeholder for user feedback
+    showSection(elements.placeholderMessage, true);
     
-
-            return;
+    // Set placeholder message
+    elements.placeholderMessage.innerHTML = `
+        <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <p class="text-lg">Searching for data...</p>
+        </div>`;
+    
+    try {
+        console.log(`Searching - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
+        
+        // 2. DETERMINE SEARCH TERMS FOR PUBMED
+        let pubmedSearchTerm = drug;
+        if (condition) {
+            pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
         }
         
-        // Display results summary
-        displayResultsSummary(filteredStudies);
-        showSection(elements.resultsOverview, true);
+        // 3. HANDLE CLINICAL TRIALS SEARCH IF DRUG IS PROVIDED
+        let filteredStudies = [];
         
-        // Display studies list
-        displayStudies(filteredStudies, drug, condition);
-        showSection(elements.studiesSection, true);
-        
-        // Display FDA data section
-        // displayFdaData(drug, condition);
-        if (!drug) {
-        // alert('Please enter a drug name to search.');
-        displayFdaClinicalData(condition);
-        // EmaClinicalDataModule.init();
-        // EmaClinicalDataModule.searchCondition(condition);
-        displayLoading(false);
-    } 
-      console.log("disalying data ")
-      displayFdaData(drug);
-      EmaDataModule.init();
-      EmaDataModule.searchDrug(drug);
-      displayLoading(false);
-
-  
-  if (condition) {
-    pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
-  }
-  
-  if (pubmedSearchTerm) {
-    PubMedModule.searchPubMed(pubmedSearchTerm);
-  }
-        
-        // Fetch study details for studies with results
-        appState.studyDetails = {};
-        const studiesWithResults = filteredStudies.filter(study => study.hasResults);
-        console.log(`Fetching details for ${studiesWithResults.length} studies with results`);
-        
-        // Use a semaphore to limit concurrent API calls
-        const MAX_CONCURRENT_REQUESTS = 5;
-        let activeRequests = 0;
-        let requestQueue = [...studiesWithResults];
-        let completedRequests = 0;
-        
-        const processQueue = async () => {
-            if (requestQueue.length === 0) return;
+        if (drug) {
+            // Fetch studies
+            const studies = await fetchStudies(drug, condition, hasResultsOnly);
+            console.log(`Retrieved ${studies.length} studies`);
             
-            while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length > 0) {
-                activeRequests++;
-                const study = requestQueue.shift();
-                const nctId = study.protocolSection.identificationModule.nctId;
-                
-                fetchStudyDetails(nctId).then(details => {
-                    if (details) {
-                        appState.studyDetails[nctId] = details;
-                    }
-                    
-                    activeRequests--;
-                    completedRequests++;
-                    
-                    // Update progress if we have a lot of studies
-                    if (studiesWithResults.length > 10 && completedRequests % 5 === 0) {
-                        const progressPercent = Math.round((completedRequests / studiesWithResults.length) * 100);
-                        console.log(`Study details progress: ${progressPercent}% (${completedRequests}/${studiesWithResults.length})`);
-                    }
-                    
-                    // Process more from queue
-                    processQueue();
-                    
-                    // If all requests are complete
-                    if (activeRequests === 0 && requestQueue.length === 0) {
-                        console.log('All study details fetched');
-                        collectAllTrialOutcomes()
-                        displayLoading(false);
-                    }
-                });
+            // Filter for TRD-specific studies if requested
+            filteredStudies = studies;
+            if (trdFocusOnly) {
+                filteredStudies = filterTRDSpecificStudies(studies);
+                console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
             }
-        };
-        
-        // Start processing the queue
-        await processQueue();
-        
-        // If no studies with results, hide loading
-        if (studiesWithResults.length === 0) {
-            displayLoading(false);
+            
+            appState.studies = filteredStudies;
+            collectAllTrialOutcomes();
+            
+            // Display study-related sections if studies are found
+            if (filteredStudies.length > 0) {
+                // Display results summary
+                displayResultsSummary(filteredStudies);
+                showSection(elements.resultsOverview, true);
+                
+                // Display studies list
+                displayStudies(filteredStudies, drug, condition);
+                showSection(elements.studiesSection, true);
+                
+                // Fetch study details for studies with results
+                await fetchAllStudyDetails(filteredStudies);
+            } else {
+                // No studies found - show message
+                elements.placeholderMessage.innerHTML = `
+                    <div class="text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
+                        <p class="mt-2 text-sm">Other data is displayed below.</p>
+                    </div>`;
+            }
+            
+            // 4. ALWAYS DISPLAY ALL DATA FOR DRUG SEARCHES
+            
+            // FDA Data
+            displayFdaData(drug);
+            showSection(elements.fdaDataSection, true);
+            
+            // EMA Data
+            EmaDataModule.init();
+            EmaDataModule.searchDrug(drug);
+            
+            // If we also have a condition, get condition-specific data too
+            if (condition) {
+                console.log(`Getting additional condition data for: ${condition}`);
+                displayFdaClinicalData(condition);
+                EmaDataModule.searchCondition(condition);
+            }
+        } else if (condition) {
+            // 5. HANDLE CONDITION-ONLY SEARCH
+            
+            // Fetch studies for condition
+            try {
+                const studies = await fetchStudies("", condition, hasResultsOnly);
+                console.log(`Retrieved ${studies.length} studies for condition: ${condition}`);
+                
+                // Filter for TRD-specific studies if requested
+                filteredStudies = studies;
+                if (trdFocusOnly) {
+                    filteredStudies = filterTRDSpecificStudies(studies);
+                    console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+                }
+                
+                appState.studies = filteredStudies;
+                collectAllTrialOutcomes();
+                
+                // Display study-related sections if studies are found
+                if (filteredStudies.length > 0) {
+                    // Display results summary
+                    displayResultsSummary(filteredStudies);
+                    showSection(elements.resultsOverview, true);
+                    
+                    // Display studies list
+                    displayStudies(filteredStudies, "", condition);
+                    showSection(elements.studiesSection, true);
+                    
+                    // Fetch study details for studies with results
+                    await fetchAllStudyDetails(filteredStudies);
+                } else {
+                    // No studies found - show message
+                    elements.placeholderMessage.innerHTML = `
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for condition: "${condition}".</p>
+                            <p class="mt-2 text-sm">Other condition data is displayed below.</p>
+                        </div>`;
+                }
+            } catch (error) {
+                console.error(`Error fetching studies for condition ${condition}:`, error);
+                elements.placeholderMessage.innerHTML = `
+                    <div class="text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-lg">Error searching for condition studies</p>
+                        <p class="mt-2 text-sm">Displaying other condition data below.</p>
+                    </div>`;
+            }
+            
+            // Always display condition data regardless of study results
+            displayFdaClinicalData(condition);
+            
+            // Make sure all appropriate sections are shown for condition-only searches
+            EmaClinicalDataModule.init();
+            EmaClinicalDataModule.searchCondition(condition);
+            
+            // Show FDA data section for condition
+            showSection(elements.fdaDataSection, true);
         }
+        
+        // 6. ALWAYS SEARCH PUBMED IF TERMS ARE AVAILABLE
+        if (pubmedSearchTerm) {
+            PubMedModule.searchPubMed(pubmedSearchTerm);
+        }
+        
+        // 7. ENSURE ALL APPROPRIATE SECTIONS ARE VISIBLE AND FINISH LOADING
+        if (drug || condition) {
+            // Always show FDA section if we have any search criteria
+            showSection(elements.fdaDataSection, true);
+        }
+        
+        displayLoading(false);
         
     } catch (error) {
         console.error('Error during search:', error);
@@ -16221,11 +17193,64 @@ async function handleSearch() {
                 <p class="text-lg">Error searching for studies</p>
                 <p class="mt-2 text-sm">Please try again later.</p>
                 <p class="mt-2 text-xs text-gray-500">${error.message}</p>
-            </div>
-        `;
+            </div>`;
         displayLoading(false);
     }
 }
+
+// Helper function to fetch all study details with a semaphore to limit concurrent requests
+async function fetchAllStudyDetails(studies) {
+    appState.studyDetails = {};
+    const studiesWithResults = studies.filter(study => study.hasResults);
+    console.log(`Fetching details for ${studiesWithResults.length} studies with results`);
+    
+    if (studiesWithResults.length === 0) return;
+    
+    // Use a semaphore to limit concurrent API calls
+    const MAX_CONCURRENT_REQUESTS = 5;
+    let activeRequests = 0;
+    let requestQueue = [...studiesWithResults];
+    let completedRequests = 0;
+    
+    const processQueue = async () => {
+        if (requestQueue.length === 0) return;
+        
+        while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length > 0) {
+            activeRequests++;
+            const study = requestQueue.shift();
+            const nctId = study.protocolSection.identificationModule.nctId;
+            
+            fetchStudyDetails(nctId).then(details => {
+                if (details) {
+                    appState.studyDetails[nctId] = details;
+                }
+                
+                activeRequests--;
+                completedRequests++;
+                
+                // Update progress if we have a lot of studies
+                if (studiesWithResults.length > 10 && completedRequests % 5 === 0) {
+                    const progressPercent = Math.round((completedRequests / studiesWithResults.length) * 100);
+                    console.log(`Study details progress: ${progressPercent}% (${completedRequests}/${studiesWithResults.length})`);
+                }
+                
+                // Process more from queue
+                processQueue();
+                
+                // If all requests are complete
+                if (activeRequests === 0 && requestQueue.length === 0) {
+                    console.log('All study details fetched');
+                    collectAllTrialOutcomes();
+                }
+            });
+        }
+    };
+    
+    // Start processing the queue
+    return processQueue();
+}
+
+
 
 function extractCommonDepressionMeasures() {
     if (appState.allTrialOutcomes.length === 0) return [];
