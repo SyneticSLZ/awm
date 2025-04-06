@@ -23065,7 +23065,7 @@ const PubMedModule = (function() {
       <div class="text-sm text-gray-500 mb-3">
         <span class="font-medium">${article.journal || 'Journal not specified'}</span> • 
         ${formatDate(article.pubDate)} • 
-        ${article.citationCount !== undefined ? `<span class="text-primary">${article.citationCount} citations</span> • ` : ''}
+      
         PMID: ${article.pmid}
       </div>
       <p class="text-gray-700 text-sm mb-3">${article.abstract.substring(0, 200)}${article.abstract.length > 200 ? '...' : ''}</p>
