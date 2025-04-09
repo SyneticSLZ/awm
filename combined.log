@@ -1,0 +1,813 @@
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:32:36.088Z"}
+{"level":"info","message":"Processing drug search for: ibuprofen","timestamp":"2025-04-08T09:33:14.485Z"}
+{"level":"info","message":"Drug search for \"ibuprofen\" returned 100 results","timestamp":"2025-04-08T09:33:15.331Z"}
+{"level":"error","message":"Search error: json is not defined","stack":"ReferenceError: json is not defined\n    at C:\\Users\\sinis\\Desktop\\awm\\dailymed.js:102:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-08T09:33:15.333Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:34:18.051Z"}
+{"level":"info","message":"Processing drug search for: ibuprofen","timestamp":"2025-04-08T09:34:24.039Z"}
+{"level":"info","message":"Drug search for \"ibuprofen\" returned 100 results","timestamp":"2025-04-08T09:34:24.771Z"}
+{"level":"info","message":"Processing condition search for: depression","timestamp":"2025-04-08T09:34:45.613Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:37:52.575Z"}
+{"level":"info","message":"Processing condition search for: depression","timestamp":"2025-04-08T09:38:03.009Z"}
+{"level":"info","message":"Processed page 1 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:03.537Z"}
+{"level":"info","message":"Processed page 2 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:03.635Z"}
+{"level":"info","message":"Processed page 3 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:03.735Z"}
+{"level":"info","message":"Processed page 4 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:03.833Z"}
+{"level":"info","message":"Processed page 5 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:03.932Z"}
+{"level":"info","message":"Processed page 6 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.031Z"}
+{"level":"info","message":"Processed page 7 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.130Z"}
+{"level":"info","message":"Processed page 8 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.229Z"}
+{"level":"info","message":"Processed page 9 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.330Z"}
+{"level":"info","message":"Processed page 10 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.431Z"}
+{"level":"info","message":"Processed page 11 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.530Z"}
+{"level":"info","message":"Processed page 12 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.628Z"}
+{"level":"info","message":"Processed page 13 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.728Z"}
+{"level":"info","message":"Processed page 14 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.827Z"}
+{"level":"info","message":"Processed page 15 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:04.923Z"}
+{"level":"info","message":"Processed page 16 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.023Z"}
+{"level":"info","message":"Processed page 17 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.119Z"}
+{"level":"info","message":"Processed page 18 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.216Z"}
+{"level":"info","message":"Processed page 19 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.314Z"}
+{"level":"info","message":"Processed page 20 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.413Z"}
+{"level":"info","message":"Processed page 21 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.513Z"}
+{"level":"info","message":"Processed page 22 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.616Z"}
+{"level":"info","message":"Processed page 23 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.714Z"}
+{"level":"info","message":"Processed page 24 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.812Z"}
+{"level":"info","message":"Processed page 25 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:05.916Z"}
+{"level":"info","message":"Processed page 26 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.014Z"}
+{"level":"info","message":"Processed page 27 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.119Z"}
+{"level":"info","message":"Processed page 28 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.222Z"}
+{"level":"info","message":"Processed page 29 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.332Z"}
+{"level":"info","message":"Processed page 30 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.433Z"}
+{"level":"info","message":"Processed page 31 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.535Z"}
+{"level":"info","message":"Processed page 32 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.635Z"}
+{"level":"info","message":"Processed page 33 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.735Z"}
+{"level":"info","message":"Processed page 34 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.837Z"}
+{"level":"info","message":"Processed page 35 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:06.934Z"}
+{"level":"info","message":"Processed page 36 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.032Z"}
+{"level":"info","message":"Processed page 37 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.137Z"}
+{"level":"info","message":"Processed page 38 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.236Z"}
+{"level":"info","message":"Processed page 39 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.333Z"}
+{"level":"info","message":"Processed page 40 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.431Z"}
+{"level":"info","message":"Processed page 41 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.536Z"}
+{"level":"info","message":"Processed page 42 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.636Z"}
+{"level":"info","message":"Processed page 43 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.738Z"}
+{"level":"info","message":"Processed page 44 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.838Z"}
+{"level":"info","message":"Processed page 45 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:07.936Z"}
+{"level":"info","message":"Processed page 46 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:08.037Z"}
+{"level":"info","message":"Processed page 47 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:08.138Z"}
+{"level":"info","message":"Processed page 48 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:08.236Z"}
+{"level":"info","message":"Processed page 49 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:08.334Z"}
+{"level":"info","message":"Processed page 50 for \"depression\": found 0 matches, total 0","timestamp":"2025-04-08T09:38:08.434Z"}
+{"level":"info","message":"No results found for condition \"depression\" after scanning up to 5000 SPLs","timestamp":"2025-04-08T09:38:08.435Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:45:11.729Z"}
+{"level":"info","message":"Connected to SQLite database","timestamp":"2025-04-08T09:45:11.735Z"}
+{"level":"info","message":"Database connection closed","timestamp":"2025-04-08T09:49:31.571Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:49:33.471Z"}
+{"level":"info","message":"Connected to SQLite database","timestamp":"2025-04-08T09:54:43.275Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:54:43.303Z"}
+{"level":"info","message":"Manual cache refresh requested","timestamp":"2025-04-08T09:55:01.833Z"}
+{"level":"info","message":"Caching page 1 with 100 SPLs","timestamp":"2025-04-08T09:55:02.364Z"}
+{"level":"warn","message":"Failed to fetch SPL 015384e7-4ac5-4782-a309-e40cd1421c5b: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.462Z"}
+{"level":"warn","message":"Failed to fetch SPL 0f222059-1ece-44f3-ae7f-d277e5bcaba4: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.618Z"}
+{"level":"warn","message":"Failed to fetch SPL 1d67cb3c-1173-4dce-a79b-a3c36934ab2e: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.629Z"}
+{"level":"warn","message":"Failed to fetch SPL 29928ab0-4467-57cb-e063-6394a90ac4d3: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.630Z"}
+{"level":"warn","message":"Failed to fetch SPL 20bda486-cb9a-4d67-8c41-50e9fd066434: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.631Z"}
+{"level":"info","message":"Processed batch 1 of page 1","timestamp":"2025-04-08T09:55:02.631Z"}
+{"level":"warn","message":"Failed to fetch SPL 2deeb243-a064-88ad-e063-6394a90a455c: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.731Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a0d88-c178-cf09-e063-6294a90aa4e7: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.732Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d925b1e-668f-a959-e063-6294a90a3514: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.733Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d90de91-a46b-3bb9-e063-6394a90aba51: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.734Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d901bf9-b71d-06b5-e063-6294a90a5e4a: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.735Z"}
+{"level":"info","message":"Processed batch 2 of page 1","timestamp":"2025-04-08T09:55:02.735Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6be9ef-ad61-8f01-e063-6294a90a9775: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.831Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6db742-7f2d-ee6b-e063-6294a90aea2d: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.832Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e682051-2d61-1578-e063-6394a90a5e99: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.833Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1aac7f-de14-3530-e063-6294a90a44e9: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.834Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a4d9d-aa21-f82d-e063-6294a90ac9e6: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.835Z"}
+{"level":"info","message":"Processed batch 3 of page 1","timestamp":"2025-04-08T09:55:02.835Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e8259e9-087f-8e19-e063-6294a90ab084: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.929Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e9437ae-59fa-c646-e063-6294a90ac0f6: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.930Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7bc230-8a37-9975-e063-6294a90a15e7: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.932Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6e7960-b502-54c6-e063-6394a90add70: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.933Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7ce2b6-9eb8-30a0-e063-6294a90a73bc: Request failed with status code 415","timestamp":"2025-04-08T09:55:02.935Z"}
+{"level":"info","message":"Processed batch 4 of page 1","timestamp":"2025-04-08T09:55:02.935Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6e08d8-a6f9-c049-e063-6394a90a6df1: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.029Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef5a641-e45a-bafc-e063-6394a90a1b5d: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.030Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6d9587-7185-7fef-e063-6394a90aa6fd: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.032Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef717a5-30b6-1b89-e063-6294a90a37dc: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.034Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f33ca27-9175-5f16-e063-6394a90afb85: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.036Z"}
+{"level":"info","message":"Processed batch 5 of page 1","timestamp":"2025-04-08T09:55:03.036Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6fc4bd-699d-71cb-e063-6394a90a4205: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.140Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6f3f24-ceff-3194-e063-6394a90a72e4: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.141Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6e7940-e5a8-e805-e063-6394a90a61c5: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.142Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f7125d7-34d5-07ab-e063-6394a90ac791: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.143Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f807fd9-9f9f-5978-e063-6394a90a67f5: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.143Z"}
+{"level":"info","message":"Processed batch 6 of page 1","timestamp":"2025-04-08T09:55:03.144Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f80cfae-5f8c-7cbf-e063-6394a90a43fd: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.243Z"}
+{"level":"warn","message":"Failed to fetch SPL 31400cb2-fe85-ef74-e063-6294a90a11fb: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.244Z"}
+{"level":"warn","message":"Failed to fetch SPL 312ba573-4008-83e6-e063-6294a90a4a6d: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.245Z"}
+{"level":"warn","message":"Failed to fetch SPL 2fa9ffdb-138c-56d4-e063-6394a90a1d14: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.246Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f82818a-fc34-75e5-e063-6394a90a0301: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.246Z"}
+{"level":"info","message":"Processed batch 7 of page 1","timestamp":"2025-04-08T09:55:03.246Z"}
+{"level":"warn","message":"Failed to fetch SPL 31a715eb-7be8-8bad-e063-6394a90aba79: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.341Z"}
+{"level":"warn","message":"Failed to fetch SPL 31a29bdd-a218-247a-e063-6294a90a8cee: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.342Z"}
+{"level":"warn","message":"Failed to fetch SPL 317755a5-85fb-d1bb-e063-6394a90af51d: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.345Z"}
+{"level":"warn","message":"Failed to fetch SPL 316c61e9-7cdf-a548-e063-6294a90ab7c3: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.346Z"}
+{"level":"warn","message":"Failed to fetch SPL 31572a16-5f60-565f-e063-6394a90ab8c9: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.347Z"}
+{"level":"info","message":"Processed batch 8 of page 1","timestamp":"2025-04-08T09:55:03.348Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bc45c7-ba92-bad0-e063-6394a90a9af8: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.438Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bbcbfa-dc74-99e2-e063-6394a90aa608: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.441Z"}
+{"level":"warn","message":"Failed to fetch SPL 31b8ad0a-3637-03db-e063-6394a90acdc3: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.443Z"}
+{"level":"warn","message":"Failed to fetch SPL 31baefe1-2521-9ef3-e063-6294a90a450e: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.445Z"}
+{"level":"warn","message":"Failed to fetch SPL 31af9365-e1a3-7203-e063-6294a90a8ade: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.447Z"}
+{"level":"info","message":"Processed batch 9 of page 1","timestamp":"2025-04-08T09:55:03.447Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c92743-d3e2-a4ca-e063-6294a90aa481: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.537Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ccef91-ca32-61be-e063-6394a90a1065: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.538Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c7490c-bcef-5e58-e063-6394a90ac8db: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.538Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bfa962-5e3b-c5d2-e063-6294a90ac177: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.540Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c7b6f2-9256-8c69-e063-6394a90a749c: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.540Z"}
+{"level":"info","message":"Processed batch 10 of page 1","timestamp":"2025-04-08T09:55:03.541Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce9b5c-d388-8e1d-e063-6294a90a2fb8: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.635Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce5c80-152f-12a1-e063-6394a90ab119: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.636Z"}
+{"level":"warn","message":"Failed to fetch SPL 31cecf1e-1d6b-0033-e063-6294a90a7b8e: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.638Z"}
+{"level":"warn","message":"Failed to fetch SPL 31cdc900-fe17-2d5f-e063-6294a90a0fda: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.638Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce185e-07b7-d837-e063-6394a90a1fb0: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.639Z"}
+{"level":"info","message":"Processed batch 11 of page 1","timestamp":"2025-04-08T09:55:03.639Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d24067-3c25-0f1a-e063-6394a90a9f1d: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.730Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d2cd00-e534-6755-e063-6394a90ab8bb: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.731Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d00820-1c20-d52b-e063-6394a90ac312: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.732Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d01fae-4085-d84a-e063-6294a90ab981: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.732Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d2794a-ca4b-246a-e063-6394a90a1954: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.738Z"}
+{"level":"info","message":"Processed batch 12 of page 1","timestamp":"2025-04-08T09:55:03.738Z"}
+{"level":"warn","message":"Failed to fetch SPL 31db47da-ca12-a171-e063-6294a90a6726: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.830Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d5a70d-d1fd-a5cd-e063-6394a90ac2f9: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.832Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dbc4ca-e479-dfe0-e063-6294a90a4314: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.832Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d4876a-87c3-c0ab-e063-6294a90ada57: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.833Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d7c204-fb74-fb28-e063-6294a90ab330: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.834Z"}
+{"level":"info","message":"Processed batch 13 of page 1","timestamp":"2025-04-08T09:55:03.835Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dc720d-7d7b-8dea-e063-6394a90aaa58: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.928Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dc62c6-ea76-7e45-e063-6394a90a93f1: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.929Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e376b4-098f-34d7-e063-6394a90a1772: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.930Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e2e5cd-d33e-f058-e063-6394a90af7d2: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.931Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e32e9c-9e0b-b678-e063-6294a90a66f5: Request failed with status code 415","timestamp":"2025-04-08T09:55:03.932Z"}
+{"level":"info","message":"Processed batch 14 of page 1","timestamp":"2025-04-08T09:55:03.932Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e509f2-dcb6-5ae0-e063-6394a90a70c1: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.026Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e4756d-8604-6e75-e063-6294a90aebe1: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.027Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e4d9ae-f532-f9f5-e063-6294a90a8d39: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.029Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e57817-b8c4-8178-e063-6294a90a0149: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.029Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e6005b-492e-7936-e063-6394a90ad801: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.030Z"}
+{"level":"info","message":"Processed batch 15 of page 1","timestamp":"2025-04-08T09:55:04.030Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e6ac7a-fa3e-4dd4-e063-6294a90a29af: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.119Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e7caf6-0a8b-f343-e063-6294a90ad729: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.121Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e71ee7-c4b5-6c1c-e063-6294a90a1513: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.122Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e63a95-9e62-01c8-e063-6294a90af0e1: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.123Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e63876-3e39-adc6-e063-6394a90ab146: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.124Z"}
+{"level":"info","message":"Processed batch 16 of page 1","timestamp":"2025-04-08T09:55:04.125Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f59d10-d821-2291-e063-6294a90ac518: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.215Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e976a2-0623-0dca-e063-6394a90a08da: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.217Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f4b641-e9c0-786e-e063-6394a90aa253: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.218Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f54a79-70b7-def5-e063-6294a90a709b: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.219Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ee4645-0f64-f7a0-e063-6394a90a1736: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.220Z"}
+{"level":"info","message":"Processed batch 17 of page 1","timestamp":"2025-04-08T09:55:04.221Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f61d5c-a3a3-3d47-e063-6394a90afb62: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.312Z"}
+{"level":"warn","message":"Failed to fetch SPL 436aaff1-47d1-4a8f-b580-8ede724071f9: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.314Z"}
+{"level":"warn","message":"Failed to fetch SPL 3e8acd31-bbc7-48d5-956d-6cb04cbdc96c: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.316Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f66910-b092-aa75-e063-6294a90a1bb0: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.317Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f5bbe4-5f6e-3bef-e063-6294a90a2646: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.319Z"}
+{"level":"info","message":"Processed batch 18 of page 1","timestamp":"2025-04-08T09:55:04.319Z"}
+{"level":"warn","message":"Failed to fetch SPL 57f09129-7151-4a75-9d73-9dd32f74ba43: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.411Z"}
+{"level":"warn","message":"Failed to fetch SPL 52141b63-f412-488a-8213-198482f3eef4: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.413Z"}
+{"level":"warn","message":"Failed to fetch SPL 49fcf429-332f-43b3-aab0-d2a5b95f4571: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.415Z"}
+{"level":"warn","message":"Failed to fetch SPL 671d5a85-4146-43b4-9d7d-ca53268eb2a6: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.416Z"}
+{"level":"warn","message":"Failed to fetch SPL 57873587-6754-4f87-865a-8cda83d83dd0: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.418Z"}
+{"level":"info","message":"Processed batch 19 of page 1","timestamp":"2025-04-08T09:55:04.418Z"}
+{"level":"warn","message":"Failed to fetch SPL 7f92609c-b1d5-4166-92a1-86163b5aa3db: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.511Z"}
+{"level":"warn","message":"Failed to fetch SPL 8f00b059-6729-4fae-8e8c-e14fe8838c59: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.513Z"}
+{"level":"warn","message":"Failed to fetch SPL 81a71322-d74f-a348-e053-2991aa0af67c: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.514Z"}
+{"level":"warn","message":"Failed to fetch SPL 84e6747f-9f5c-4766-9d45-9ec24b12be6b: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.517Z"}
+{"level":"warn","message":"Failed to fetch SPL 67a4b949-ce8a-4841-a965-fcc94165135c: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.518Z"}
+{"level":"info","message":"Processed batch 20 of page 1","timestamp":"2025-04-08T09:55:04.518Z"}
+{"level":"info","message":"Progress: Cached 100 SPLs so far","timestamp":"2025-04-08T09:55:04.519Z"}
+{"level":"info","message":"Caching page 2 with 100 SPLs","timestamp":"2025-04-08T09:55:04.702Z"}
+{"level":"warn","message":"Failed to fetch SPL 9a7e7f85-bfd0-44a0-beda-3bcfa8215c64: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.793Z"}
+{"level":"warn","message":"Failed to fetch SPL a0a92717-c1cb-40eb-a95a-1c5dfd32cfc0: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.794Z"}
+{"level":"warn","message":"Failed to fetch SPL abeab169-e38e-433a-b8a9-f1dab31518c8: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.796Z"}
+{"level":"warn","message":"Failed to fetch SPL 9ed710e1-47f4-4d04-a509-12c8c97c192c: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.797Z"}
+{"level":"warn","message":"Failed to fetch SPL c9b46759-b8df-4ff4-815e-8e032c2635c0: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.798Z"}
+{"level":"info","message":"Processed batch 1 of page 2","timestamp":"2025-04-08T09:55:04.798Z"}
+{"level":"warn","message":"Failed to fetch SPL ddb6845f-e50e-432f-90a6-85ea0f722749: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.893Z"}
+{"level":"warn","message":"Failed to fetch SPL 094de23b-d433-487d-8364-6f245c8117c6: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.895Z"}
+{"level":"warn","message":"Failed to fetch SPL d4d556c1-b64b-4b8e-8e4b-4f40eda24250: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.896Z"}
+{"level":"warn","message":"Failed to fetch SPL db8c69b0-4697-433e-98c7-b0b2d2c52a83: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.897Z"}
+{"level":"warn","message":"Failed to fetch SPL fa9f0d28-c525-4a1e-acec-84c82e10b9a2: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.898Z"}
+{"level":"info","message":"Processed batch 2 of page 2","timestamp":"2025-04-08T09:55:04.898Z"}
+{"level":"warn","message":"Failed to fetch SPL 0dc5a72f-1cc4-4cfc-a969-0ed781f7aa6f: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.995Z"}
+{"level":"warn","message":"Failed to fetch SPL 10e3ad07-0d41-7b15-e063-6294a90a0407: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.996Z"}
+{"level":"warn","message":"Failed to fetch SPL 13028f61-3f62-22cc-e063-6394a90a6bf1: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.998Z"}
+{"level":"warn","message":"Failed to fetch SPL 154602ca-91c4-4030-ae77-9bf179cc95e8: Request failed with status code 415","timestamp":"2025-04-08T09:55:04.998Z"}
+{"level":"warn","message":"Failed to fetch SPL 159266a8-94fa-e2ff-e063-6394a90a9a77: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.000Z"}
+{"level":"info","message":"Processed batch 3 of page 2","timestamp":"2025-04-08T09:55:05.001Z"}
+{"level":"warn","message":"Failed to fetch SPL 1592d29d-e275-a44d-e063-6294a90ab17d: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.093Z"}
+{"level":"warn","message":"Failed to fetch SPL 2425badb-e196-e9f8-e063-6294a90a7bf4: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.099Z"}
+{"level":"warn","message":"Failed to fetch SPL 1cbcc648-f2e1-af60-e063-6294a90ad4bb: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.121Z"}
+{"level":"warn","message":"Failed to fetch SPL 19fe26a9-eb1a-4c5b-a5e4-65223ee56ad1: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.121Z"}
+{"level":"warn","message":"Failed to fetch SPL 23f50b88-52c3-2029-e063-6394a90ac73e: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.122Z"}
+{"level":"info","message":"Processed batch 4 of page 2","timestamp":"2025-04-08T09:55:05.123Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e5d1b21-6b32-0c8d-e063-6294a90a8431: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.215Z"}
+{"level":"warn","message":"Failed to fetch SPL 29b6b4ca-aeef-1295-e063-6394a90a21b9: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.216Z"}
+{"level":"warn","message":"Failed to fetch SPL 24345ccf-c96f-31b0-e063-6294a90a82b5: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.218Z"}
+{"level":"warn","message":"Failed to fetch SPL 2434f9cf-74aa-17af-e063-6294a90a56d9: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.219Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ccf602f-734a-4b2d-8d89-c410293f9eb9: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.220Z"}
+{"level":"info","message":"Processed batch 5 of page 2","timestamp":"2025-04-08T09:55:05.221Z"}
+{"level":"warn","message":"Failed to fetch SPL 303097a0-8eb0-3e1c-e063-6394a90afab3: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.317Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bf4f7f-8228-7433-e063-6394a90a2f5f: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.320Z"}
+{"level":"warn","message":"Failed to fetch SPL 3997dda6-89ea-49df-abda-ab420327a473: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.322Z"}
+{"level":"warn","message":"Failed to fetch SPL 312cd403-b211-64ef-e063-6394a90aab88: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.324Z"}
+{"level":"warn","message":"Failed to fetch SPL 316bf6f8-7d30-2560-e063-6294a90afb8a: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.325Z"}
+{"level":"info","message":"Processed batch 6 of page 2","timestamp":"2025-04-08T09:55:05.325Z"}
+{"level":"warn","message":"Failed to fetch SPL 426b2f92-561d-476b-959c-cdd0fa37be56: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.420Z"}
+{"level":"warn","message":"Failed to fetch SPL 4df6548f-c4ad-4eb2-a54f-19766a3d90ca: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.421Z"}
+{"level":"warn","message":"Failed to fetch SPL 4af800f9-bcb3-4320-8d32-f1bfd54ee5e9: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.422Z"}
+{"level":"warn","message":"Failed to fetch SPL 3fc13c65-be74-464b-9d99-a68c0a209b39: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.423Z"}
+{"level":"warn","message":"Failed to fetch SPL 3f2fe98a-ab42-4bec-bf97-c090567f9ad6: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.424Z"}
+{"level":"info","message":"Processed batch 7 of page 2","timestamp":"2025-04-08T09:55:05.425Z"}
+{"level":"warn","message":"Failed to fetch SPL 71256b03-867f-4c5e-aa5d-75d1bb705fcb: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.518Z"}
+{"level":"warn","message":"Failed to fetch SPL 74450a05-cd1f-44cd-8d65-8d9b370ac44f: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.519Z"}
+{"level":"warn","message":"Failed to fetch SPL 72dc2b60-29a4-48a8-848a-1a5086cfdd58: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.519Z"}
+{"level":"warn","message":"Failed to fetch SPL 57b71a0b-c2bf-4326-9c26-0f2fe56bf5bc: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.520Z"}
+{"level":"warn","message":"Failed to fetch SPL 7101b241-0e0d-4bdf-b9fd-3d0970ebd14e: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.521Z"}
+{"level":"info","message":"Processed batch 8 of page 2","timestamp":"2025-04-08T09:55:05.521Z"}
+{"level":"warn","message":"Failed to fetch SPL 8edfcc08-a14e-4579-bd44-045267de5b79: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.613Z"}
+{"level":"warn","message":"Failed to fetch SPL 88909dc6-502a-61b1-b8e1-22a42da65847: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.615Z"}
+{"level":"warn","message":"Failed to fetch SPL 885a674b-3457-4dfe-a801-529094b00499: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.616Z"}
+{"level":"warn","message":"Failed to fetch SPL 76b17622-bdb9-41ea-b962-c2acc0df71f7: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.618Z"}
+{"level":"warn","message":"Failed to fetch SPL 7f882f1a-fe75-4592-9df5-f0e4bf1d232e: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.619Z"}
+{"level":"info","message":"Processed batch 9 of page 2","timestamp":"2025-04-08T09:55:05.619Z"}
+{"level":"warn","message":"Failed to fetch SPL b303b554-c457-4f2b-9931-48f30943178b: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.713Z"}
+{"level":"warn","message":"Failed to fetch SPL 9141b9d3-8d4d-43ec-acf9-e1b620590c4b: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.714Z"}
+{"level":"warn","message":"Failed to fetch SPL bd415342-90e1-411b-b6c9-652e9532c611: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.714Z"}
+{"level":"warn","message":"Failed to fetch SPL aa937596-2378-469f-a0e1-9700044e83b3: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.715Z"}
+{"level":"warn","message":"Failed to fetch SPL 919375cd-7646-4958-9e2b-cec2e1b2bd49: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.715Z"}
+{"level":"info","message":"Processed batch 10 of page 2","timestamp":"2025-04-08T09:55:05.716Z"}
+{"level":"warn","message":"Failed to fetch SPL db52fdc0-765a-4fad-a8f9-ef98c6e4b898: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.805Z"}
+{"level":"warn","message":"Failed to fetch SPL c9472b82-d345-4531-bf07-bd55c94876ab: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.806Z"}
+{"level":"warn","message":"Failed to fetch SPL d905dc8d-917f-4ea3-a4ee-a1ecf6967d4e: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.806Z"}
+{"level":"warn","message":"Failed to fetch SPL c6fd147f-a77e-4a0b-9280-e82ecc41b4be: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.807Z"}
+{"level":"warn","message":"Failed to fetch SPL c0ca008e-0e28-412e-a58f-70f63817713b: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.807Z"}
+{"level":"info","message":"Processed batch 11 of page 2","timestamp":"2025-04-08T09:55:05.807Z"}
+{"level":"warn","message":"Failed to fetch SPL e8d19915-8996-42df-a47b-2ce00d2bbe68: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.902Z"}
+{"level":"warn","message":"Failed to fetch SPL e7695a21-abb6-47ac-93f8-0ece5a9c4409: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.904Z"}
+{"level":"warn","message":"Failed to fetch SPL e533a008-b437-401e-ab50-bda31e6662d3: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.905Z"}
+{"level":"warn","message":"Failed to fetch SPL e6e5cbf7-a958-4ef8-abcc-a7491edb9520: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.907Z"}
+{"level":"warn","message":"Failed to fetch SPL ec947855-d77b-46ad-88bd-cf05b6ff004b: Request failed with status code 415","timestamp":"2025-04-08T09:55:05.921Z"}
+{"level":"info","message":"Processed batch 12 of page 2","timestamp":"2025-04-08T09:55:05.921Z"}
+{"level":"warn","message":"Failed to fetch SPL ee54a472-6783-41df-b8bb-9c3e4c996907: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.014Z"}
+{"level":"warn","message":"Failed to fetch SPL f620ef44-f30c-4cc9-bc82-28dc4a47a8da: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.016Z"}
+{"level":"warn","message":"Failed to fetch SPL f2629794-4845-4ca6-8668-a21a56f182cb: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.018Z"}
+{"level":"warn","message":"Failed to fetch SPL f6f6e219-4ef6-be3b-e053-6294a90a660d: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.019Z"}
+{"level":"warn","message":"Failed to fetch SPL f37f17f7-f084-4b74-8361-178d2315a476: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.021Z"}
+{"level":"info","message":"Processed batch 13 of page 2","timestamp":"2025-04-08T09:55:06.021Z"}
+{"level":"warn","message":"Failed to fetch SPL f8db59e2-8052-413b-9f9f-07cd9eea07ec: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.116Z"}
+{"level":"warn","message":"Failed to fetch SPL 08ba9ea8-73fd-472b-9cc4-67df167352ec: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.119Z"}
+{"level":"warn","message":"Failed to fetch SPL 04cec275-161a-41d2-b171-33d11f15d324: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.120Z"}
+{"level":"warn","message":"Failed to fetch SPL 00a037f6-b17f-4d21-9a9a-0e682f68d483: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.121Z"}
+{"level":"warn","message":"Failed to fetch SPL 024bb864-4214-1d8b-e063-6394a90aa573: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.122Z"}
+{"level":"info","message":"Processed batch 14 of page 2","timestamp":"2025-04-08T09:55:06.122Z"}
+{"level":"warn","message":"Failed to fetch SPL 0993b354-d936-472b-bafc-114f0f81bfb0: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.215Z"}
+{"level":"warn","message":"Failed to fetch SPL 11f191cd-1a69-4cef-a92b-ef0a0eacdc0d: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.217Z"}
+{"level":"warn","message":"Failed to fetch SPL 23a88257-d545-4d34-94c3-760fb2e915c0: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.218Z"}
+{"level":"warn","message":"Failed to fetch SPL 2110eec5-949d-4718-ad6d-3629e5db8a07: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.220Z"}
+{"level":"warn","message":"Failed to fetch SPL 247ed6ce-13fe-1f95-e063-6394a90aa7c7: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.221Z"}
+{"level":"info","message":"Processed batch 15 of page 2","timestamp":"2025-04-08T09:55:06.222Z"}
+{"level":"warn","message":"Failed to fetch SPL 247ed877-2926-1fd9-e063-6394a90aa153: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.314Z"}
+{"level":"warn","message":"Failed to fetch SPL 24a0144d-cbfc-4d2f-873d-86adfa0468ca: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.316Z"}
+{"level":"warn","message":"Failed to fetch SPL 25f32a1c-0687-45e9-8142-96cf63599090: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.317Z"}
+{"level":"warn","message":"Failed to fetch SPL 2760fbbc-ec68-4df8-e063-6394a90a15f5: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.318Z"}
+{"level":"warn","message":"Failed to fetch SPL 25f468a9-71d4-40f2-97bb-1c3ff5d4b728: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.320Z"}
+{"level":"info","message":"Processed batch 16 of page 2","timestamp":"2025-04-08T09:55:06.321Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f75ebf7-d6b6-45c6-ad5b-61739d260ff7: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.415Z"}
+{"level":"warn","message":"Failed to fetch SPL 3276a2a4-61c7-4de6-b519-3aa8b62da88f: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.417Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce20a2-95ae-e424-e063-6394a90af18a: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.418Z"}
+{"level":"warn","message":"Failed to fetch SPL 31cf90e5-0f21-903d-e063-6394a90a075d: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.420Z"}
+{"level":"warn","message":"Failed to fetch SPL 3379f247-4a29-4373-9843-0b7f044c2276: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.421Z"}
+{"level":"info","message":"Processed batch 17 of page 2","timestamp":"2025-04-08T09:55:06.422Z"}
+{"level":"warn","message":"Failed to fetch SPL 3965ca55-a5ff-4ed0-940c-363d74683fab: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.518Z"}
+{"level":"warn","message":"Failed to fetch SPL 495bc176-b292-448f-a5a6-00de2e475e54: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.519Z"}
+{"level":"warn","message":"Failed to fetch SPL 3fdfc0e5-56a2-48a0-8ee6-390a194a29f3: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.521Z"}
+{"level":"warn","message":"Failed to fetch SPL 34708cc1-b0b2-4fd0-b9f3-7f008b457fc9: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.522Z"}
+{"level":"warn","message":"Failed to fetch SPL 3a53668c-adda-44c2-a743-e79e467437e3: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.524Z"}
+{"level":"info","message":"Processed batch 18 of page 2","timestamp":"2025-04-08T09:55:06.525Z"}
+{"level":"warn","message":"Failed to fetch SPL 5c234b28-29e7-4149-9505-e2818a692bca: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.617Z"}
+{"level":"warn","message":"Failed to fetch SPL 4ce98db3-c7a6-4627-88c5-9de302a53188: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.619Z"}
+{"level":"warn","message":"Failed to fetch SPL 53023b16-8d64-4dfc-bc75-b4f248425c4d: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.620Z"}
+{"level":"warn","message":"Failed to fetch SPL 50ca19cb-0f43-4d7b-8c9e-8b3aaded0546: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.621Z"}
+{"level":"warn","message":"Failed to fetch SPL 512b20f0-60c8-47d4-a732-22fc999980d3: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.622Z"}
+{"level":"info","message":"Processed batch 19 of page 2","timestamp":"2025-04-08T09:55:06.622Z"}
+{"level":"warn","message":"Failed to fetch SPL 65b37b00-8efc-4e04-ab97-a03e8af27d33: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.717Z"}
+{"level":"warn","message":"Failed to fetch SPL 67330eef-c976-4862-b1ae-20f30f43df76: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.718Z"}
+{"level":"warn","message":"Failed to fetch SPL 6a9597a1-f024-4497-bc52-3d5482758822: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.720Z"}
+{"level":"warn","message":"Failed to fetch SPL 67ba9f32-bbf4-4c14-9e97-08f1cb7d3996: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.721Z"}
+{"level":"warn","message":"Failed to fetch SPL 696f678d-8f76-4087-a52e-efe3c9f814d0: Request failed with status code 415","timestamp":"2025-04-08T09:55:06.722Z"}
+{"level":"info","message":"Processed batch 20 of page 2","timestamp":"2025-04-08T09:55:06.723Z"}
+{"level":"info","message":"Progress: Cached 200 SPLs so far","timestamp":"2025-04-08T09:55:06.723Z"}
+{"level":"info","message":"Caching page 3 with 100 SPLs","timestamp":"2025-04-08T09:55:06.910Z"}
+{"level":"warn","message":"Failed to fetch SPL 6f0e22e2-92be-4a66-95aa-692260f01fa6: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.006Z"}
+{"level":"warn","message":"Failed to fetch SPL 7799042a-d2de-480e-a8a3-827b3dc27907: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.012Z"}
+{"level":"warn","message":"Failed to fetch SPL 817e804c-e55e-4d77-9ab9-ff54ae794725: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.014Z"}
+{"level":"warn","message":"Failed to fetch SPL 8350791d-5cf2-4358-9f85-9384d35be9f4: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.016Z"}
+{"level":"warn","message":"Failed to fetch SPL 829bbcbf-fb27-4484-aff6-a7e7467670af: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.019Z"}
+{"level":"info","message":"Processed batch 1 of page 3","timestamp":"2025-04-08T09:55:07.019Z"}
+{"level":"warn","message":"Failed to fetch SPL 8b9f4dfc-9469-449d-9434-656aeccc4fd6: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.113Z"}
+{"level":"warn","message":"Failed to fetch SPL 9108b999-4b99-469d-99a8-5ef0fa4ca00a: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.115Z"}
+{"level":"warn","message":"Failed to fetch SPL 87c9f15f-1196-477c-b5d2-3b875bea61d0: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.117Z"}
+{"level":"warn","message":"Failed to fetch SPL 960e2104-18c3-4cfa-abf6-f1b30c452918: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.118Z"}
+{"level":"warn","message":"Failed to fetch SPL 85882893-0661-46c2-a5f2-a73f6ea4fb5a: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.120Z"}
+{"level":"info","message":"Processed batch 2 of page 3","timestamp":"2025-04-08T09:55:07.120Z"}
+{"level":"warn","message":"Failed to fetch SPL a53f1aa5-d3d1-45af-8728-8f36090f49da: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.218Z"}
+{"level":"warn","message":"Failed to fetch SPL b31257ef-489b-4067-9cc6-8a593d983958: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.220Z"}
+{"level":"warn","message":"Failed to fetch SPL a139e495-3dbf-4998-e053-2a95a90ac136: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.221Z"}
+{"level":"warn","message":"Failed to fetch SPL 9e22e1d8-04ec-4b67-92ea-b09c706f2703: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.222Z"}
+{"level":"warn","message":"Failed to fetch SPL 962b2e1a-ba9d-4b39-b6d1-203947166482: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.224Z"}
+{"level":"info","message":"Processed batch 3 of page 3","timestamp":"2025-04-08T09:55:07.224Z"}
+{"level":"warn","message":"Failed to fetch SPL e046e0b7-f510-4318-9884-034d683864d4: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.320Z"}
+{"level":"warn","message":"Failed to fetch SPL d7e97b99-83db-42d0-8521-b87fe6467a67: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.323Z"}
+{"level":"warn","message":"Failed to fetch SPL b6c37efa-cbf5-db3d-e053-2995a90aa46a: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.325Z"}
+{"level":"warn","message":"Failed to fetch SPL d6b8015c-f8fe-45cb-891f-566fb319b46b: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.326Z"}
+{"level":"warn","message":"Failed to fetch SPL d74e6a3f-bb2b-4571-91c4-ad6cd3724d04: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.328Z"}
+{"level":"info","message":"Processed batch 4 of page 3","timestamp":"2025-04-08T09:55:07.328Z"}
+{"level":"warn","message":"Failed to fetch SPL e9360698-bffb-4c91-b019-22e1e56704ee: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.421Z"}
+{"level":"warn","message":"Failed to fetch SPL e906713f-16d4-40bf-b665-e59f77c35064: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.422Z"}
+{"level":"warn","message":"Failed to fetch SPL e991a50a-2af8-496d-8082-00f579eeaae6: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.424Z"}
+{"level":"warn","message":"Failed to fetch SPL ebf5bd51-2589-4848-86fa-0891db0775f9: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.425Z"}
+{"level":"warn","message":"Failed to fetch SPL e593552f-9817-4cb5-b491-31ea57dea4b8: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.426Z"}
+{"level":"info","message":"Processed batch 5 of page 3","timestamp":"2025-04-08T09:55:07.426Z"}
+{"level":"warn","message":"Failed to fetch SPL fe9d6a6e-38a1-44ae-a30f-596c5ec7d057: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.522Z"}
+{"level":"warn","message":"Failed to fetch SPL f2b9a49d-e91f-416d-a031-15bbde005d2f: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.524Z"}
+{"level":"warn","message":"Failed to fetch SPL f5c08f69-03fa-43d9-b1ad-fdc760d0ff92: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.525Z"}
+{"level":"warn","message":"Failed to fetch SPL 0f8d39d7-173b-7750-e063-6394a90ade82: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.526Z"}
+{"level":"warn","message":"Failed to fetch SPL 0c0f0c0c-10c2-47eb-aad6-bbffb6e16799: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.528Z"}
+{"level":"info","message":"Processed batch 6 of page 3","timestamp":"2025-04-08T09:55:07.528Z"}
+{"level":"warn","message":"Failed to fetch SPL 195e06db-b76c-4470-b6a5-a3979c25046d: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.622Z"}
+{"level":"warn","message":"Failed to fetch SPL 11f37a57-47ce-4175-e063-6394a90a92ee: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.624Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ae0f300-154e-44c8-bcc3-b5c334e661ac: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.625Z"}
+{"level":"warn","message":"Failed to fetch SPL 13fc72e9-7178-4a8b-9fe8-d88ba591dac8: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.627Z"}
+{"level":"warn","message":"Failed to fetch SPL 282ac8d3-2caf-42de-b347-450e9c7a9e50: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.628Z"}
+{"level":"info","message":"Processed batch 7 of page 3","timestamp":"2025-04-08T09:55:07.629Z"}
+{"level":"warn","message":"Failed to fetch SPL 5e39bf80-ada6-4194-bf3d-2c044c3389da: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.722Z"}
+{"level":"warn","message":"Failed to fetch SPL 3b0dccd6-dee1-49dd-8c6d-82df5c7ee36c: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.724Z"}
+{"level":"warn","message":"Failed to fetch SPL 6cf3328b-da8f-4f6b-8237-16a4d6b9c833: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.725Z"}
+{"level":"warn","message":"Failed to fetch SPL 6566dcbe-3e25-4828-9c10-3d041000bc77: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.726Z"}
+{"level":"warn","message":"Failed to fetch SPL 486f53ce-e3c6-48b0-a6ef-9d08cde387e3: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.727Z"}
+{"level":"info","message":"Processed batch 8 of page 3","timestamp":"2025-04-08T09:55:07.728Z"}
+{"level":"warn","message":"Failed to fetch SPL 7cac266a-4de8-4af1-8324-b01823a3989a: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.818Z"}
+{"level":"warn","message":"Failed to fetch SPL 87048fa9-3391-4f30-801d-b96ca0132f56: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.820Z"}
+{"level":"warn","message":"Failed to fetch SPL 77da899e-fa5b-476c-a7b3-5fa635e5ea4c: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.822Z"}
+{"level":"warn","message":"Failed to fetch SPL 6f17cc91-86b3-42e3-9bf2-935dd360c3eb: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.823Z"}
+{"level":"warn","message":"Failed to fetch SPL 81470dfe-f063-9d16-e053-2a91aa0a1829: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.825Z"}
+{"level":"info","message":"Processed batch 9 of page 3","timestamp":"2025-04-08T09:55:07.825Z"}
+{"level":"warn","message":"Failed to fetch SPL db5d4cf8-762a-4111-971e-91c704bc3643: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.916Z"}
+{"level":"warn","message":"Failed to fetch SPL a14ca126-fada-c903-e053-2995a90ae72d: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.917Z"}
+{"level":"warn","message":"Failed to fetch SPL dd0a7ed2-d112-4b96-e053-2995a90ac6b6: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.919Z"}
+{"level":"warn","message":"Failed to fetch SPL bc816597-a85a-4143-9f99-bb0699ca57c5: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.920Z"}
+{"level":"warn","message":"Failed to fetch SPL a7831b84-1f51-9258-e053-2a95a90a901e: Request failed with status code 415","timestamp":"2025-04-08T09:55:07.921Z"}
+{"level":"info","message":"Processed batch 10 of page 3","timestamp":"2025-04-08T09:55:07.921Z"}
+{"level":"warn","message":"Failed to fetch SPL f6ad4729-b291-42c4-8483-99385d8043db: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.014Z"}
+{"level":"warn","message":"Failed to fetch SPL e12e3bcb-4c3d-41be-8e2b-12a817c8b367: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.015Z"}
+{"level":"warn","message":"Failed to fetch SPL eb3f58d4-0c69-4377-be45-c36099c98d33: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.017Z"}
+{"level":"warn","message":"Failed to fetch SPL ec24da65-23c1-419d-9603-08348d3b9cc7: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.018Z"}
+{"level":"warn","message":"Failed to fetch SPL e84245ca-957f-e85b-e053-2a95a90a836b: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.019Z"}
+{"level":"info","message":"Processed batch 11 of page 3","timestamp":"2025-04-08T09:55:08.020Z"}
+{"level":"warn","message":"Failed to fetch SPL ff2c761f-1a82-467b-9a5f-a2cdbd2be935: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.111Z"}
+{"level":"warn","message":"Failed to fetch SPL 1cd497b4-d97e-447a-9251-710d2fddbf23: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.113Z"}
+{"level":"warn","message":"Failed to fetch SPL f8bfc874-53be-41e8-b59c-d538825761a8: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.115Z"}
+{"level":"warn","message":"Failed to fetch SPL fb089d15-daa4-477a-be83-ecd55c3283d4: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.117Z"}
+{"level":"warn","message":"Failed to fetch SPL 00747bd8-ac58-43ff-be46-7317c822cd24: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.118Z"}
+{"level":"info","message":"Processed batch 12 of page 3","timestamp":"2025-04-08T09:55:08.118Z"}
+{"level":"warn","message":"Failed to fetch SPL 2c233b3f-83de-40c4-9f1d-81f901f89459: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.211Z"}
+{"level":"warn","message":"Failed to fetch SPL 445e59a6-8886-48e7-8116-253a82144934: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.213Z"}
+{"level":"warn","message":"Failed to fetch SPL 29e59387-120c-4367-9f87-75cb53b6460d: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.215Z"}
+{"level":"warn","message":"Failed to fetch SPL 1f74b23d-f2eb-4c18-a583-d608b7713694: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.216Z"}
+{"level":"warn","message":"Failed to fetch SPL 29eacc40-cbec-4cc9-8556-773346617e85: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.218Z"}
+{"level":"info","message":"Processed batch 13 of page 3","timestamp":"2025-04-08T09:55:08.218Z"}
+{"level":"warn","message":"Failed to fetch SPL 6e3b04a8-47a4-425e-931e-9a4fa260b303: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.311Z"}
+{"level":"warn","message":"Failed to fetch SPL 44fb27d3-5125-4511-84d2-76555bc46e66: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.312Z"}
+{"level":"warn","message":"Failed to fetch SPL 6b2cceb6-7c1f-8716-e053-2991aa0a6a5f: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.314Z"}
+{"level":"warn","message":"Failed to fetch SPL 6b2d073a-8ab4-7ae8-e053-2991aa0ae479: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.315Z"}
+{"level":"warn","message":"Failed to fetch SPL 5b88717a-e90c-4e74-ae2a-29270e14a3cc: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.316Z"}
+{"level":"info","message":"Processed batch 14 of page 3","timestamp":"2025-04-08T09:55:08.317Z"}
+{"level":"warn","message":"Failed to fetch SPL 75862805-2cfc-fb45-e053-2991aa0a1403: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.408Z"}
+{"level":"warn","message":"Failed to fetch SPL 7fa03f76-0205-4115-b576-d006836ccf81: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.410Z"}
+{"level":"warn","message":"Failed to fetch SPL 75fbeab1-ce8d-4999-a875-472174be5cc6: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.411Z"}
+{"level":"warn","message":"Failed to fetch SPL 7cb11d48-6bb9-437b-bc7f-382050a2d3e6: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.413Z"}
+{"level":"warn","message":"Failed to fetch SPL 73669354-babc-4687-a4fe-ad0fc1f863ba: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.415Z"}
+{"level":"info","message":"Processed batch 15 of page 3","timestamp":"2025-04-08T09:55:08.415Z"}
+{"level":"warn","message":"Failed to fetch SPL b6fcbd3a-f5ba-e70d-e053-2995a90a8769: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.511Z"}
+{"level":"warn","message":"Failed to fetch SPL 9c4a7aec-daef-4961-ba77-92f4b58be780: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.513Z"}
+{"level":"warn","message":"Failed to fetch SPL ac5c3e79-52f7-434e-92ae-24bd32b45edc: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.515Z"}
+{"level":"warn","message":"Failed to fetch SPL ae095073-27d1-0aa5-e053-2a95a90a86d4: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.517Z"}
+{"level":"warn","message":"Failed to fetch SPL 85304d4f-78b9-499e-8e1d-9202d9cde33d: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.518Z"}
+{"level":"info","message":"Processed batch 16 of page 3","timestamp":"2025-04-08T09:55:08.519Z"}
+{"level":"warn","message":"Failed to fetch SPL c01b78d7-ea96-4139-9ef6-fb75f760d625: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.614Z"}
+{"level":"warn","message":"Failed to fetch SPL ba0da07a-107b-2c66-e053-2995a90ab96a: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.615Z"}
+{"level":"warn","message":"Failed to fetch SPL c76c4235-92d4-4384-8ddc-ceed0b928c48: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.617Z"}
+{"level":"warn","message":"Failed to fetch SPL d5d49146-665e-4a93-e053-2995a90aca59: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.618Z"}
+{"level":"warn","message":"Failed to fetch SPL c8fa858c-7e42-4134-9fc6-604a11a66fe2: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.619Z"}
+{"level":"info","message":"Processed batch 17 of page 3","timestamp":"2025-04-08T09:55:08.620Z"}
+{"level":"warn","message":"Failed to fetch SPL eeb18068-75c8-42d0-a006-1b134648333f: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.713Z"}
+{"level":"warn","message":"Failed to fetch SPL e3b5fc92-9189-6944-e053-2a95a90a1c9f: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.716Z"}
+{"level":"warn","message":"Failed to fetch SPL e86eb765-ac9c-4ed9-bce8-819151559394: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.717Z"}
+{"level":"warn","message":"Failed to fetch SPL e20ea714-663d-c4ac-e053-2a95a90a5ecc: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.731Z"}
+{"level":"warn","message":"Failed to fetch SPL edf75607-d285-45e5-912e-280d13acbc2b: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.733Z"}
+{"level":"info","message":"Processed batch 18 of page 3","timestamp":"2025-04-08T09:55:08.734Z"}
+{"level":"warn","message":"Failed to fetch SPL f0e9ac7c-a840-2e05-e053-2a95a90a33f1: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.830Z"}
+{"level":"warn","message":"Failed to fetch SPL 00ee1dc6-b4f3-4ae3-890c-8e37f6d3fe3a: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.832Z"}
+{"level":"warn","message":"Failed to fetch SPL f0ebc1c6-93fb-efd6-e053-2995a90a25bb: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.834Z"}
+{"level":"warn","message":"Failed to fetch SPL f646187a-6f78-436c-a397-7541a2c691b8: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.835Z"}
+{"level":"warn","message":"Failed to fetch SPL f0ec5f47-2f8e-0558-e053-2a95a90aa7ca: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.836Z"}
+{"level":"info","message":"Processed batch 19 of page 3","timestamp":"2025-04-08T09:55:08.837Z"}
+{"level":"warn","message":"Failed to fetch SPL 24b19a98-143d-4634-b2b3-4d02dfd57987: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.930Z"}
+{"level":"warn","message":"Failed to fetch SPL 2811f7de-13bf-45cd-8413-5b04d11f40ff: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.933Z"}
+{"level":"warn","message":"Failed to fetch SPL 3e688309-880a-4890-bf00-90afd19084f6: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.935Z"}
+{"level":"warn","message":"Failed to fetch SPL 3b6c5ebd-a8bc-4502-8b66-f4e58914815b: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.936Z"}
+{"level":"warn","message":"Failed to fetch SPL 398fbd9c-3a7f-4210-bedb-dfe2e7cbc43e: Request failed with status code 415","timestamp":"2025-04-08T09:55:08.938Z"}
+{"level":"info","message":"Processed batch 20 of page 3","timestamp":"2025-04-08T09:55:08.938Z"}
+{"level":"info","message":"Progress: Cached 300 SPLs so far","timestamp":"2025-04-08T09:55:08.939Z"}
+{"level":"info","message":"Caching page 4 with 100 SPLs","timestamp":"2025-04-08T09:55:09.037Z"}
+{"level":"warn","message":"Failed to fetch SPL 4dd56001-4941-4ff0-9f30-02a1bcc4fe7e: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.131Z"}
+{"level":"warn","message":"Failed to fetch SPL 5569d607-f1cb-4f1d-8a00-d50433ec05d3: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.133Z"}
+{"level":"warn","message":"Failed to fetch SPL 51913a5a-1cab-4b9e-b2c2-e0174062df73: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.134Z"}
+{"level":"warn","message":"Failed to fetch SPL 42478c55-9056-487a-89a9-d36904beea12: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.136Z"}
+{"level":"warn","message":"Failed to fetch SPL 59bb84d6-6fd3-4586-bccf-7dc45cbbb39c: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.137Z"}
+{"level":"info","message":"Processed batch 1 of page 4","timestamp":"2025-04-08T09:55:09.137Z"}
+{"level":"warn","message":"Failed to fetch SPL 70454f5a-b5ca-8d30-e053-2991aa0a1afc: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.231Z"}
+{"level":"warn","message":"Failed to fetch SPL 64a37c73-a5f0-4e93-b269-ed12f0d77175: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.233Z"}
+{"level":"warn","message":"Failed to fetch SPL 7a7c67be-6800-4ec3-9072-1e0e390a854b: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.234Z"}
+{"level":"warn","message":"Failed to fetch SPL 68f51f88-95f2-83ac-e053-2a91aa0a1b8a: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.236Z"}
+{"level":"warn","message":"Failed to fetch SPL 7646a1cb-537e-4259-bf2a-937ac252a440: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.238Z"}
+{"level":"info","message":"Processed batch 2 of page 4","timestamp":"2025-04-08T09:55:09.238Z"}
+{"level":"warn","message":"Failed to fetch SPL a8b46ae5-67bc-494d-850e-b4e4ed5a33b3: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.342Z"}
+{"level":"warn","message":"Failed to fetch SPL 8cbac6dc-ef1d-6662-e053-2995a90af13f: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.343Z"}
+{"level":"warn","message":"Failed to fetch SPL b3b70d6f-dc44-4a54-b39b-2762f37d5575: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.345Z"}
+{"level":"warn","message":"Failed to fetch SPL b2f7da34-ad78-4db3-9af1-bdd341e09f16: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.346Z"}
+{"level":"warn","message":"Failed to fetch SPL a38ff367-983b-42db-ae5e-c9f75f7ace13: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.348Z"}
+{"level":"info","message":"Processed batch 3 of page 4","timestamp":"2025-04-08T09:55:09.348Z"}
+{"level":"warn","message":"Failed to fetch SPL cdbc8dc0-ac22-46af-a516-a3b5ca358197: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.451Z"}
+{"level":"warn","message":"Failed to fetch SPL c59cbf0e-1381-4dd2-e053-2a95a90a853a: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.452Z"}
+{"level":"warn","message":"Failed to fetch SPL b86a2e37-fbc0-7c31-e053-2a95a90ad5d0: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.454Z"}
+{"level":"warn","message":"Failed to fetch SPL bc525ae4-9843-4038-a1b7-0d3543e2282c: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.455Z"}
+{"level":"warn","message":"Failed to fetch SPL b79efcf4-6016-4a1f-b83f-be00baa25c21: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.457Z"}
+{"level":"info","message":"Processed batch 4 of page 4","timestamp":"2025-04-08T09:55:09.457Z"}
+{"level":"warn","message":"Failed to fetch SPL f6912712-ce9b-44aa-8953-b9a8d420f458: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.550Z"}
+{"level":"warn","message":"Failed to fetch SPL f3a5ec24-63c3-4d83-b1c0-6c550fbe7ae2: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.552Z"}
+{"level":"warn","message":"Failed to fetch SPL d01d4f0f-5164-4ea3-b772-72b97961c6fb: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.553Z"}
+{"level":"warn","message":"Failed to fetch SPL e809e1d3-0a6d-730d-e053-2a95a90aedb9: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.554Z"}
+{"level":"warn","message":"Failed to fetch SPL eb946d81-b4f4-42e9-aa7a-31d76d15629c: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.556Z"}
+{"level":"info","message":"Processed batch 5 of page 4","timestamp":"2025-04-08T09:55:09.556Z"}
+{"level":"warn","message":"Failed to fetch SPL 083841e8-482d-4e5b-90ab-1139b576d691: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.649Z"}
+{"level":"warn","message":"Failed to fetch SPL 437868f5-1c9e-4b0f-8a03-77df8ac0900d: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.651Z"}
+{"level":"warn","message":"Failed to fetch SPL 433cdc7d-465a-4ad4-bd84-cabd37e15f51: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.652Z"}
+{"level":"warn","message":"Failed to fetch SPL 0efc3a89-211a-4496-baab-e8265e07de2b: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.653Z"}
+{"level":"warn","message":"Failed to fetch SPL 1ea62b65-8138-4a88-8a33-4060ececa42f: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.655Z"}
+{"level":"info","message":"Processed batch 6 of page 4","timestamp":"2025-04-08T09:55:09.655Z"}
+{"level":"warn","message":"Failed to fetch SPL 6f3ce597-64c1-4204-a67a-8b6f6e7e8bca: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.747Z"}
+{"level":"warn","message":"Failed to fetch SPL 7bdc2236-3a1a-4210-a9fb-38f860227aa7: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.749Z"}
+{"level":"warn","message":"Failed to fetch SPL 570696d5-7c4e-4f89-b288-e3e09e3b32cc: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.750Z"}
+{"level":"warn","message":"Failed to fetch SPL 7f34de0a-eeb3-4b71-9abd-53d03266d993: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.752Z"}
+{"level":"warn","message":"Failed to fetch SPL 5c5a00ca-d662-46e6-b9ac-a07e9cfcc0a8: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.753Z"}
+{"level":"info","message":"Processed batch 7 of page 4","timestamp":"2025-04-08T09:55:09.753Z"}
+{"level":"warn","message":"Failed to fetch SPL bc3fde41-2f24-44e2-815d-15fe55bd68b3: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.848Z"}
+{"level":"warn","message":"Failed to fetch SPL b66fbf8d-07be-1308-e053-2995a90a8409: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.850Z"}
+{"level":"warn","message":"Failed to fetch SPL b5a68154-8003-4b80-81e2-e926524fb72c: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.851Z"}
+{"level":"warn","message":"Failed to fetch SPL afb4149a-0714-4a85-b9e8-2379a8e6a302: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.852Z"}
+{"level":"warn","message":"Failed to fetch SPL abeb13eb-66a5-4030-9bc2-5981acd196b9: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.854Z"}
+{"level":"info","message":"Processed batch 8 of page 4","timestamp":"2025-04-08T09:55:09.854Z"}
+{"level":"warn","message":"Failed to fetch SPL c08b37c3-5f01-47ed-9508-02813bbd008b: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.945Z"}
+{"level":"warn","message":"Failed to fetch SPL e5652804-29c4-40d7-aeb2-0142ed2a7b5b: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.947Z"}
+{"level":"warn","message":"Failed to fetch SPL ca37576a-09aa-4ee8-9dc4-8ad76b999fcf: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.948Z"}
+{"level":"warn","message":"Failed to fetch SPL edfec590-a303-4763-95a6-dfcc7602325d: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.949Z"}
+{"level":"warn","message":"Failed to fetch SPL c9d380f0-aab6-4fdc-8b7a-502ad109ce5f: Request failed with status code 415","timestamp":"2025-04-08T09:55:09.951Z"}
+{"level":"info","message":"Processed batch 9 of page 4","timestamp":"2025-04-08T09:55:09.951Z"}
+{"level":"warn","message":"Failed to fetch SPL 13839d4f-6acf-4ffb-a128-79df59319273: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.042Z"}
+{"level":"warn","message":"Failed to fetch SPL 59af8153-4cf8-4f22-9000-f239798d52d1: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.043Z"}
+{"level":"warn","message":"Failed to fetch SPL 0c4b59f1-92a8-44f8-8b4c-691f35777460: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.045Z"}
+{"level":"warn","message":"Failed to fetch SPL 2bbd8f48-fdf9-45cb-8305-124a03f7a52c: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.046Z"}
+{"level":"warn","message":"Failed to fetch SPL 6158a1f5-a6bc-4a3e-9d1d-0a310d9dc561: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.048Z"}
+{"level":"info","message":"Processed batch 10 of page 4","timestamp":"2025-04-08T09:55:10.048Z"}
+{"level":"warn","message":"Failed to fetch SPL 88c5e2f0-9f7e-62d1-e053-2995a90a9014: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.139Z"}
+{"level":"warn","message":"Failed to fetch SPL 81243958-cc5a-4ec0-a64d-71682f949d5f: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.140Z"}
+{"level":"warn","message":"Failed to fetch SPL 64ac283c-fe6a-49f0-ae85-90ab98e38272: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.142Z"}
+{"level":"warn","message":"Failed to fetch SPL 766b73f2-67bd-4d5c-805c-1057b3981ebf: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.143Z"}
+{"level":"warn","message":"Failed to fetch SPL 7900b6f2-a563-831c-e053-2a91aa0a558d: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.144Z"}
+{"level":"info","message":"Processed batch 11 of page 4","timestamp":"2025-04-08T09:55:10.144Z"}
+{"level":"warn","message":"Failed to fetch SPL 8e0ed6e8-51fc-7c5b-e053-2a95a90a35a9: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.237Z"}
+{"level":"warn","message":"Failed to fetch SPL b9dd4e89-0023-4552-bdd6-1c046ce3bd87: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.238Z"}
+{"level":"warn","message":"Failed to fetch SPL 9f3d91cd-a959-4e07-a51b-8a4e9ba9ece2: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.239Z"}
+{"level":"warn","message":"Failed to fetch SPL 9571a031-179d-7dfb-e053-2995a90aa016: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.240Z"}
+{"level":"warn","message":"Failed to fetch SPL 9aefb755-268a-1d8b-e053-2a95a90a1df7: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.241Z"}
+{"level":"info","message":"Processed batch 12 of page 4","timestamp":"2025-04-08T09:55:10.241Z"}
+{"level":"warn","message":"Failed to fetch SPL e87d2206-9c06-438c-947b-10b29a879d7b: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.332Z"}
+{"level":"warn","message":"Failed to fetch SPL cb8e8155-5505-44d5-9dee-525e2e45b95d: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.334Z"}
+{"level":"warn","message":"Failed to fetch SPL e5db854a-1c77-4faf-9e60-daf9c9b6cfa0: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.335Z"}
+{"level":"warn","message":"Failed to fetch SPL bff3f426-44fc-4dbf-96df-df44011103e8: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.336Z"}
+{"level":"warn","message":"Failed to fetch SPL eb34e6dc-9459-41ac-ae10-78650284b2bc: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.342Z"}
+{"level":"info","message":"Processed batch 13 of page 4","timestamp":"2025-04-08T09:55:10.343Z"}
+{"level":"warn","message":"Failed to fetch SPL 2256f7e4-b7e6-433f-941e-bf78ddcd55b2: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.431Z"}
+{"level":"warn","message":"Failed to fetch SPL f4dad3d6-1366-4bdf-99eb-370ab74a6b9e: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.433Z"}
+{"level":"warn","message":"Failed to fetch SPL 039f144b-891b-4ab0-e063-6394a90aa4c8: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.434Z"}
+{"level":"warn","message":"Failed to fetch SPL f2908870-a517-491f-8771-4100d11b4b64: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.434Z"}
+{"level":"warn","message":"Failed to fetch SPL f1e4b28a-ed74-4eff-bd10-b2bfaf7483b0: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.435Z"}
+{"level":"info","message":"Processed batch 14 of page 4","timestamp":"2025-04-08T09:55:10.436Z"}
+{"level":"warn","message":"Failed to fetch SPL 775885f9-0580-4eca-94d8-44fce1dcdccd: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.525Z"}
+{"level":"warn","message":"Failed to fetch SPL 49821f58-a5a6-47c5-96d1-f673ef2f4bd5: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.525Z"}
+{"level":"warn","message":"Failed to fetch SPL 258975d2-d8e8-407d-9804-df3b37a184e4: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.526Z"}
+{"level":"warn","message":"Failed to fetch SPL 23a5de40-76d0-4117-8d31-2b2f8a6b0a28: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.526Z"}
+{"level":"warn","message":"Failed to fetch SPL 43d07956-90ba-4e96-b265-aec03eced19b: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.527Z"}
+{"level":"info","message":"Processed batch 15 of page 4","timestamp":"2025-04-08T09:55:10.527Z"}
+{"level":"warn","message":"Failed to fetch SPL 98d4f767-06e3-4d9b-b1ad-4b31f7e36130: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.614Z"}
+{"level":"warn","message":"Failed to fetch SPL 976d9dd0-4f11-4439-b84e-0c0f0e018d8b: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.615Z"}
+{"level":"warn","message":"Failed to fetch SPL 8339b394-4339-422a-b1c9-23bc6b41ba69: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.617Z"}
+{"level":"warn","message":"Failed to fetch SPL 7f2f1b30-497a-4c53-accc-8455169b17b3: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.618Z"}
+{"level":"warn","message":"Failed to fetch SPL 7be33f47-03de-458d-81b9-5a8d94052075: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.618Z"}
+{"level":"info","message":"Processed batch 16 of page 4","timestamp":"2025-04-08T09:55:10.619Z"}
+{"level":"warn","message":"Failed to fetch SPL a8b57027-a4b8-4149-93e8-aa3e7a6d6dc3: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.707Z"}
+{"level":"warn","message":"Failed to fetch SPL be7cff09-ecff-48bd-96d4-dc7d47db7656: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.708Z"}
+{"level":"warn","message":"Failed to fetch SPL d92ab90b-b960-3df2-e053-2a95a90ace89: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.710Z"}
+{"level":"warn","message":"Failed to fetch SPL b5fddd8f-a380-6e88-e053-2a95a90a6b89: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.710Z"}
+{"level":"warn","message":"Failed to fetch SPL bb02f7f0-8844-4a12-bb9a-69301440dbeb: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.710Z"}
+{"level":"info","message":"Processed batch 17 of page 4","timestamp":"2025-04-08T09:55:10.711Z"}
+{"level":"warn","message":"Failed to fetch SPL f72774dd-c7eb-41f9-9837-02baf77cc523: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.803Z"}
+{"level":"warn","message":"Failed to fetch SPL e3d77092-dad6-4df5-ac39-ff9dc8f5758c: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.804Z"}
+{"level":"warn","message":"Failed to fetch SPL 0f07aa1a-97be-44af-92d8-a10777e24e0a: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.805Z"}
+{"level":"warn","message":"Failed to fetch SPL e14f4365-2728-4a9d-b07a-3929d5dd20e2: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.806Z"}
+{"level":"warn","message":"Failed to fetch SPL e024b80b-c22f-44bc-b273-f9398f840ed0: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.807Z"}
+{"level":"info","message":"Processed batch 18 of page 4","timestamp":"2025-04-08T09:55:10.807Z"}
+{"level":"warn","message":"Failed to fetch SPL 1e5aed0c-bd51-4ac8-9877-71bf18050dfd: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.899Z"}
+{"level":"warn","message":"Failed to fetch SPL aacf276b-e133-4199-ad3f-67b894744c04: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.900Z"}
+{"level":"warn","message":"Failed to fetch SPL 7c3af5aa-2223-463a-e053-2a91aa0a16f9: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.901Z"}
+{"level":"warn","message":"Failed to fetch SPL 584df95a-7fc7-4b4b-b703-c423248444ed: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.902Z"}
+{"level":"warn","message":"Failed to fetch SPL 3051aa96-b12a-4a1d-947d-9b769bca8dc8: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.903Z"}
+{"level":"info","message":"Processed batch 19 of page 4","timestamp":"2025-04-08T09:55:10.903Z"}
+{"level":"warn","message":"Failed to fetch SPL e8c8dd18-9d95-4068-9762-bec1eb1bc25c: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.996Z"}
+{"level":"warn","message":"Failed to fetch SPL 230914e6-fe0c-45be-8b2e-e066c71d004c: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.997Z"}
+{"level":"warn","message":"Failed to fetch SPL af6fe4a9-2d18-4fed-b952-0a7866f65251: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.998Z"}
+{"level":"warn","message":"Failed to fetch SPL b8fbd105-90ae-4af4-9313-61834aaf4a2c: Request failed with status code 415","timestamp":"2025-04-08T09:55:10.999Z"}
+{"level":"warn","message":"Failed to fetch SPL acb84610-5e26-4b0c-89e5-42bc0f8fa00d: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.000Z"}
+{"level":"info","message":"Processed batch 20 of page 4","timestamp":"2025-04-08T09:55:11.001Z"}
+{"level":"info","message":"Progress: Cached 400 SPLs so far","timestamp":"2025-04-08T09:55:11.001Z"}
+{"level":"info","message":"Caching page 5 with 100 SPLs","timestamp":"2025-04-08T09:55:11.181Z"}
+{"level":"warn","message":"Failed to fetch SPL a0a2eff7-b7de-42fe-8e5a-0cfbed38bb4b: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.272Z"}
+{"level":"warn","message":"Failed to fetch SPL eaa5b1bd-0927-46e4-b941-32fcc492d258: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.273Z"}
+{"level":"warn","message":"Failed to fetch SPL 6fc9c8e2-6f34-aa43-e053-2a91aa0ac377: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.274Z"}
+{"level":"warn","message":"Failed to fetch SPL e6c61658-275b-4764-8df5-9d5afc3531c5: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.276Z"}
+{"level":"warn","message":"Failed to fetch SPL c7f05046-3641-4d7b-8399-f5c7c3e9ed33: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.277Z"}
+{"level":"info","message":"Processed batch 1 of page 5","timestamp":"2025-04-08T09:55:11.277Z"}
+{"level":"warn","message":"Failed to fetch SPL 07732845-c9ce-47bb-8b63-36a3d5ddf8b7: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.368Z"}
+{"level":"warn","message":"Failed to fetch SPL 00ee09dd-2de0-4dc4-85f6-b51ed6eabd5b: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.368Z"}
+{"level":"warn","message":"Failed to fetch SPL ee4a4632-cb95-49e3-b46a-47f251e6e6d9: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.369Z"}
+{"level":"warn","message":"Failed to fetch SPL ed756746-4cbb-4196-a972-5a8c23702b2a: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.375Z"}
+{"level":"warn","message":"Failed to fetch SPL 34a647f5-8728-451b-b918-94c8acd15974: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.376Z"}
+{"level":"info","message":"Processed batch 2 of page 5","timestamp":"2025-04-08T09:55:11.376Z"}
+{"level":"warn","message":"Failed to fetch SPL 78ff93d3-5c77-b951-e053-2a91aa0adda9: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.482Z"}
+{"level":"warn","message":"Failed to fetch SPL 38e9820a-6edc-4bf5-b5e4-034b9e48b583: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.483Z"}
+{"level":"warn","message":"Failed to fetch SPL 6515b35c-49cb-41b4-9eb5-46dee482079e: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.484Z"}
+{"level":"warn","message":"Failed to fetch SPL 3d282998-ff0c-480a-bd80-155606ef0a65: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.485Z"}
+{"level":"warn","message":"Failed to fetch SPL 5dde1889-a217-4493-9a71-9fd39ed04630: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.485Z"}
+{"level":"info","message":"Processed batch 3 of page 5","timestamp":"2025-04-08T09:55:11.485Z"}
+{"level":"warn","message":"Failed to fetch SPL c354b3bf-86c0-4bb8-8b1f-be2164942698: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.604Z"}
+{"level":"warn","message":"Failed to fetch SPL be5b7a6f-9ee3-4453-807e-4761fffff60c: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.605Z"}
+{"level":"warn","message":"Failed to fetch SPL 8a3d204c-be26-49e0-8599-0ac12a272e81: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.606Z"}
+{"level":"warn","message":"Failed to fetch SPL 9cbe26c7-7313-4cd6-9514-9190af1de763: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.607Z"}
+{"level":"warn","message":"Failed to fetch SPL a6ca2871-9a9d-4f03-a5ff-ddb28c6ff945: Request failed with status code 415","timestamp":"2025-04-08T09:55:11.607Z"}
+{"level":"info","message":"Processed batch 4 of page 5","timestamp":"2025-04-08T09:55:11.607Z"}
+{"level":"info","message":"Database connection closed","timestamp":"2025-04-08T09:55:11.653Z"}
+{"level":"info","message":"Connected to SQLite database","timestamp":"2025-04-08T09:59:39.705Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T09:59:39.717Z"}
+{"level":"info","message":"Manual cache refresh requested","timestamp":"2025-04-08T09:59:44.365Z"}
+{"level":"info","message":"Caching page 1 with 100 SPLs","timestamp":"2025-04-08T09:59:44.866Z"}
+{"level":"warn","message":"Failed to fetch SPL 015384e7-4ac5-4782-a309-e40cd1421c5b: Request failed with status code 415","timestamp":"2025-04-08T09:59:44.967Z"}
+{"level":"warn","message":"Failed to fetch SPL 0f222059-1ece-44f3-ae7f-d277e5bcaba4: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.126Z"}
+{"level":"warn","message":"Failed to fetch SPL 29928ab0-4467-57cb-e063-6394a90ac4d3: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.128Z"}
+{"level":"warn","message":"Failed to fetch SPL 20bda486-cb9a-4d67-8c41-50e9fd066434: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.130Z"}
+{"level":"warn","message":"Failed to fetch SPL 1d67cb3c-1173-4dce-a79b-a3c36934ab2e: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.131Z"}
+{"level":"info","message":"Processed batch 1 of page 1, success: 5/5","timestamp":"2025-04-08T09:59:45.132Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d925b1e-668f-a959-e063-6294a90a3514: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.737Z"}
+{"level":"warn","message":"Failed to fetch SPL 2deeb243-a064-88ad-e063-6394a90a455c: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.738Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d90de91-a46b-3bb9-e063-6394a90aba51: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.739Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d901bf9-b71d-06b5-e063-6294a90a5e4a: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.741Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a0d88-c178-cf09-e063-6294a90aa4e7: Request failed with status code 415","timestamp":"2025-04-08T09:59:45.743Z"}
+{"level":"info","message":"Processed batch 2 of page 1, success: 5/5","timestamp":"2025-04-08T09:59:45.743Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6be9ef-ad61-8f01-e063-6294a90a9775: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.345Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6db742-7f2d-ee6b-e063-6294a90aea2d: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.347Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a4d9d-aa21-f82d-e063-6294a90ac9e6: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.348Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1aac7f-de14-3530-e063-6294a90a44e9: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.349Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e682051-2d61-1578-e063-6394a90a5e99: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.350Z"}
+{"level":"info","message":"Processed batch 3 of page 1, success: 5/5","timestamp":"2025-04-08T09:59:46.350Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e9437ae-59fa-c646-e063-6294a90ac0f6: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.944Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e8259e9-087f-8e19-e063-6294a90ab084: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.945Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7ce2b6-9eb8-30a0-e063-6294a90a73bc: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.946Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6e7960-b502-54c6-e063-6394a90add70: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.948Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7bc230-8a37-9975-e063-6294a90a15e7: Request failed with status code 415","timestamp":"2025-04-08T09:59:46.948Z"}
+{"level":"info","message":"Processed batch 4 of page 1, success: 5/5","timestamp":"2025-04-08T09:59:46.949Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6e08d8-a6f9-c049-e063-6394a90a6df1: Request failed with status code 415","timestamp":"2025-04-08T09:59:47.552Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f33ca27-9175-5f16-e063-6394a90afb85: Request failed with status code 415","timestamp":"2025-04-08T09:59:47.553Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6d9587-7185-7fef-e063-6394a90aa6fd: Request failed with status code 415","timestamp":"2025-04-08T09:59:47.558Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef717a5-30b6-1b89-e063-6294a90a37dc: Request failed with status code 415","timestamp":"2025-04-08T09:59:47.559Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef5a641-e45a-bafc-e063-6394a90a1b5d: Request failed with status code 415","timestamp":"2025-04-08T09:59:47.560Z"}
+{"level":"info","message":"Processed batch 5 of page 1, success: 5/5","timestamp":"2025-04-08T09:59:47.560Z"}
+{"level":"info","message":"Database connection closed","timestamp":"2025-04-08T09:59:47.902Z"}
+{"level":"info","message":"Connected to SQLite database","timestamp":"2025-04-08T10:13:42.148Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-08T10:13:42.167Z"}
+{"level":"info","message":"Connected to SQLite database","timestamp":"2025-04-09T14:51:29.787Z"}
+{"level":"info","message":"Server running at http://localhost:3000","timestamp":"2025-04-09T14:51:29.800Z"}
+{"level":"info","message":"Processing drug search for: RISPERIDONE","timestamp":"2025-04-09T14:52:51.642Z"}
+{"level":"info","message":"Cache empty, populating now...","timestamp":"2025-04-09T14:52:51.643Z"}
+{"level":"info","message":"Caching page 1 with 100 SPLs","timestamp":"2025-04-09T14:52:52.292Z"}
+{"level":"warn","message":"Failed to fetch SPL 0199a50f-f367-40e7-8af0-745a959d3fde: Request failed with status code 415","timestamp":"2025-04-09T14:52:52.418Z"}
+{"level":"warn","message":"Failed to fetch SPL 322a3670-e9b1-9734-e063-6394a90a00bd: Request failed with status code 415","timestamp":"2025-04-09T14:52:52.636Z"}
+{"level":"warn","message":"Failed to fetch SPL 310ae23f-9f48-206d-e063-6394a90a6ce2: Request failed with status code 415","timestamp":"2025-04-09T14:52:52.639Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f5e8c4-523f-4596-e063-6294a90a6a12: Request failed with status code 415","timestamp":"2025-04-09T14:52:52.642Z"}
+{"level":"warn","message":"Failed to fetch SPL 3227bdc9-9323-68eb-e063-6294a90a29d2: Request failed with status code 415","timestamp":"2025-04-09T14:52:52.645Z"}
+{"level":"info","message":"Processed batch 1 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:52.646Z"}
+{"level":"warn","message":"Failed to fetch SPL a9d7c5ef-daf9-4f97-8673-7f4a2007f408: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.272Z"}
+{"level":"warn","message":"Failed to fetch SPL 3225ea47-0848-3dc0-e063-6394a90aba56: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.275Z"}
+{"level":"warn","message":"Failed to fetch SPL 1fa1aa80-1c59-44d4-9841-b6c52882651b: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.277Z"}
+{"level":"warn","message":"Failed to fetch SPL 984c4bee-0d44-4e0f-a057-0d54400c4cac: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.279Z"}
+{"level":"warn","message":"Failed to fetch SPL 7cc02a26-5c22-445b-ad8f-3e7570c143d3: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.282Z"}
+{"level":"info","message":"Processed batch 2 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:53.283Z"}
+{"level":"warn","message":"Failed to fetch SPL 32263e5d-b664-4e93-e063-6294a90a3f38: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.911Z"}
+{"level":"warn","message":"Failed to fetch SPL dea325b5-3cb8-4ffb-84e9-782f0e3f6b0e: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.913Z"}
+{"level":"warn","message":"Failed to fetch SPL 10ecae6f-386f-e199-e063-6294a90a680b: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.915Z"}
+{"level":"warn","message":"Failed to fetch SPL 81a71322-d74f-a348-e053-2991aa0af67c: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.917Z"}
+{"level":"warn","message":"Failed to fetch SPL f0943b4e-6bdc-48c1-8ecd-39cf732e16f5: Request failed with status code 415","timestamp":"2025-04-09T14:52:53.920Z"}
+{"level":"info","message":"Processed batch 3 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:53.920Z"}
+{"level":"warn","message":"Failed to fetch SPL 791a2461-971c-4191-8905-5a449c600a49: Request failed with status code 415","timestamp":"2025-04-09T14:52:54.540Z"}
+{"level":"warn","message":"Failed to fetch SPL 1c8fbf40-17c1-4ee9-a2b9-ca4a08e08293: Request failed with status code 415","timestamp":"2025-04-09T14:52:54.542Z"}
+{"level":"warn","message":"Failed to fetch SPL c7d3a74e-37c4-4c49-861c-64ef363d5a53: Request failed with status code 415","timestamp":"2025-04-09T14:52:54.545Z"}
+{"level":"warn","message":"Failed to fetch SPL f61bd9f3-cd3d-4c76-a110-0f1dcba610af: Request failed with status code 415","timestamp":"2025-04-09T14:52:54.546Z"}
+{"level":"warn","message":"Failed to fetch SPL 14051537-9d6c-4f73-a6e9-5eed554bbf65: Request failed with status code 415","timestamp":"2025-04-09T14:52:54.549Z"}
+{"level":"info","message":"Processed batch 4 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:54.549Z"}
+{"level":"warn","message":"Failed to fetch SPL 34e5aa53-3943-4e2f-93aa-b5a4d779a703: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.175Z"}
+{"level":"warn","message":"Failed to fetch SPL c77c8feb-0240-4ea3-9c89-3b972feb0538: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.177Z"}
+{"level":"warn","message":"Failed to fetch SPL 51452b31-ff68-4e0c-b982-c15502ebf1d3: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.179Z"}
+{"level":"warn","message":"Failed to fetch SPL 177daa65-2e7d-4ff4-887e-b927d6ed8825: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.181Z"}
+{"level":"warn","message":"Failed to fetch SPL 216d5b7f-4236-4882-b899-be17cb1a1584: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.183Z"}
+{"level":"info","message":"Processed batch 5 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:55.184Z"}
+{"level":"warn","message":"Failed to fetch SPL 20bda486-cb9a-4d67-8c41-50e9fd066434: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.813Z"}
+{"level":"warn","message":"Failed to fetch SPL 015384e7-4ac5-4782-a309-e40cd1421c5b: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.819Z"}
+{"level":"warn","message":"Failed to fetch SPL 29928ab0-4467-57cb-e063-6394a90ac4d3: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.820Z"}
+{"level":"warn","message":"Failed to fetch SPL 1d67cb3c-1173-4dce-a79b-a3c36934ab2e: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.822Z"}
+{"level":"warn","message":"Failed to fetch SPL 0f222059-1ece-44f3-ae7f-d277e5bcaba4: Request failed with status code 415","timestamp":"2025-04-09T14:52:55.823Z"}
+{"level":"info","message":"Processed batch 6 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:55.824Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a0d88-c178-cf09-e063-6294a90aa4e7: Request failed with status code 415","timestamp":"2025-04-09T14:52:56.451Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d90de91-a46b-3bb9-e063-6394a90aba51: Request failed with status code 415","timestamp":"2025-04-09T14:52:56.452Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d925b1e-668f-a959-e063-6294a90a3514: Request failed with status code 415","timestamp":"2025-04-09T14:52:56.454Z"}
+{"level":"warn","message":"Failed to fetch SPL 2d901bf9-b71d-06b5-e063-6294a90a5e4a: Request failed with status code 415","timestamp":"2025-04-09T14:52:56.457Z"}
+{"level":"warn","message":"Failed to fetch SPL 2deeb243-a064-88ad-e063-6394a90a455c: Request failed with status code 415","timestamp":"2025-04-09T14:52:56.460Z"}
+{"level":"info","message":"Processed batch 7 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:56.460Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6db742-7f2d-ee6b-e063-6294a90aea2d: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.082Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1a4d9d-aa21-f82d-e063-6294a90ac9e6: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.084Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e682051-2d61-1578-e063-6394a90a5e99: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.086Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6be9ef-ad61-8f01-e063-6294a90a9775: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.087Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e1aac7f-de14-3530-e063-6294a90a44e9: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.089Z"}
+{"level":"info","message":"Processed batch 8 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:57.090Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7bc230-8a37-9975-e063-6294a90a15e7: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.701Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e7ce2b6-9eb8-30a0-e063-6294a90a73bc: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.702Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e8259e9-087f-8e19-e063-6294a90ab084: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.703Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e9437ae-59fa-c646-e063-6294a90ac0f6: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.704Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e6e7960-b502-54c6-e063-6394a90add70: Request failed with status code 415","timestamp":"2025-04-09T14:52:57.705Z"}
+{"level":"info","message":"Processed batch 9 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:57.705Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef717a5-30b6-1b89-e063-6294a90a37dc: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.323Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ef5a641-e45a-bafc-e063-6394a90a1b5d: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.325Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6d9587-7185-7fef-e063-6394a90aa6fd: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.328Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f33ca27-9175-5f16-e063-6394a90afb85: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.329Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6e08d8-a6f9-c049-e063-6394a90a6df1: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.331Z"}
+{"level":"info","message":"Processed batch 10 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:58.331Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f807fd9-9f9f-5978-e063-6394a90a67f5: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.950Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6f3f24-ceff-3194-e063-6394a90a72e4: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.953Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6e7940-e5a8-e805-e063-6394a90a61c5: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.954Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f6fc4bd-699d-71cb-e063-6394a90a4205: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.956Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f7125d7-34d5-07ab-e063-6394a90ac791: Request failed with status code 415","timestamp":"2025-04-09T14:52:58.957Z"}
+{"level":"info","message":"Processed batch 11 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:58.958Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f80cfae-5f8c-7cbf-e063-6394a90a43fd: Request failed with status code 415","timestamp":"2025-04-09T14:52:59.586Z"}
+{"level":"warn","message":"Failed to fetch SPL 2fa9ffdb-138c-56d4-e063-6394a90a1d14: Request failed with status code 415","timestamp":"2025-04-09T14:52:59.588Z"}
+{"level":"warn","message":"Failed to fetch SPL 2f82818a-fc34-75e5-e063-6394a90a0301: Request failed with status code 415","timestamp":"2025-04-09T14:52:59.589Z"}
+{"level":"warn","message":"Failed to fetch SPL 312ba573-4008-83e6-e063-6294a90a4a6d: Request failed with status code 415","timestamp":"2025-04-09T14:52:59.592Z"}
+{"level":"warn","message":"Failed to fetch SPL 31400cb2-fe85-ef74-e063-6294a90a11fb: Request failed with status code 415","timestamp":"2025-04-09T14:52:59.594Z"}
+{"level":"info","message":"Processed batch 12 of page 1, success: 5/5","timestamp":"2025-04-09T14:52:59.595Z"}
+{"level":"warn","message":"Failed to fetch SPL 31572a16-5f60-565f-e063-6394a90ab8c9: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.214Z"}
+{"level":"warn","message":"Failed to fetch SPL 316c61e9-7cdf-a548-e063-6294a90ab7c3: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.216Z"}
+{"level":"warn","message":"Failed to fetch SPL 31a29bdd-a218-247a-e063-6294a90a8cee: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.220Z"}
+{"level":"warn","message":"Failed to fetch SPL 317755a5-85fb-d1bb-e063-6394a90af51d: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.221Z"}
+{"level":"warn","message":"Failed to fetch SPL 31a715eb-7be8-8bad-e063-6394a90aba79: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.223Z"}
+{"level":"info","message":"Processed batch 13 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:00.224Z"}
+{"level":"warn","message":"Failed to fetch SPL 31b8ad0a-3637-03db-e063-6394a90acdc3: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.840Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bbcbfa-dc74-99e2-e063-6394a90aa608: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.844Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bc45c7-ba92-bad0-e063-6394a90a9af8: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.845Z"}
+{"level":"warn","message":"Failed to fetch SPL 31baefe1-2521-9ef3-e063-6294a90a450e: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.847Z"}
+{"level":"warn","message":"Failed to fetch SPL 31af9365-e1a3-7203-e063-6294a90a8ade: Request failed with status code 415","timestamp":"2025-04-09T14:53:00.849Z"}
+{"level":"info","message":"Processed batch 14 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:00.849Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c7b6f2-9256-8c69-e063-6394a90a749c: Request failed with status code 415","timestamp":"2025-04-09T14:53:01.474Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c7490c-bcef-5e58-e063-6394a90ac8db: Request failed with status code 415","timestamp":"2025-04-09T14:53:01.476Z"}
+{"level":"warn","message":"Failed to fetch SPL 31c92743-d3e2-a4ca-e063-6294a90aa481: Request failed with status code 415","timestamp":"2025-04-09T14:53:01.478Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ccef91-ca32-61be-e063-6394a90a1065: Request failed with status code 415","timestamp":"2025-04-09T14:53:01.479Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bfa962-5e3b-c5d2-e063-6294a90ac177: Request failed with status code 415","timestamp":"2025-04-09T14:53:01.481Z"}
+{"level":"info","message":"Processed batch 15 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:01.481Z"}
+{"level":"warn","message":"Failed to fetch SPL 31cecf1e-1d6b-0033-e063-6294a90a7b8e: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.099Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce185e-07b7-d837-e063-6394a90a1fb0: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.101Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce9b5c-d388-8e1d-e063-6294a90a2fb8: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.102Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ce5c80-152f-12a1-e063-6394a90ab119: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.104Z"}
+{"level":"warn","message":"Failed to fetch SPL 31cdc900-fe17-2d5f-e063-6294a90a0fda: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.107Z"}
+{"level":"info","message":"Processed batch 16 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:02.107Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d2794a-ca4b-246a-e063-6394a90a1954: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.735Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d2cd00-e534-6755-e063-6394a90ab8bb: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.737Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d24067-3c25-0f1a-e063-6394a90a9f1d: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.738Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d01fae-4085-d84a-e063-6294a90ab981: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.740Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d00820-1c20-d52b-e063-6394a90ac312: Request failed with status code 415","timestamp":"2025-04-09T14:53:02.742Z"}
+{"level":"info","message":"Processed batch 17 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:02.742Z"}
+{"level":"warn","message":"Failed to fetch SPL 31db47da-ca12-a171-e063-6294a90a6726: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.356Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d7c204-fb74-fb28-e063-6294a90ab330: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.358Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d5a70d-d1fd-a5cd-e063-6394a90ac2f9: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.359Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dbc4ca-e479-dfe0-e063-6294a90a4314: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.361Z"}
+{"level":"warn","message":"Failed to fetch SPL 31d4876a-87c3-c0ab-e063-6294a90ada57: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.362Z"}
+{"level":"info","message":"Processed batch 18 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:03.363Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dc720d-7d7b-8dea-e063-6394a90aaa58: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.974Z"}
+{"level":"warn","message":"Failed to fetch SPL 31dc62c6-ea76-7e45-e063-6394a90a93f1: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.980Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e32e9c-9e0b-b678-e063-6294a90a66f5: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.981Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e2e5cd-d33e-f058-e063-6394a90af7d2: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.983Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e376b4-098f-34d7-e063-6394a90a1772: Request failed with status code 415","timestamp":"2025-04-09T14:53:03.984Z"}
+{"level":"info","message":"Processed batch 19 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:03.985Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e4756d-8604-6e75-e063-6294a90aebe1: Request failed with status code 415","timestamp":"2025-04-09T14:53:04.597Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e509f2-dcb6-5ae0-e063-6394a90a70c1: Request failed with status code 415","timestamp":"2025-04-09T14:53:04.601Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e6005b-492e-7936-e063-6394a90ad801: Request failed with status code 415","timestamp":"2025-04-09T14:53:04.602Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e4d9ae-f532-f9f5-e063-6294a90a8d39: Request failed with status code 415","timestamp":"2025-04-09T14:53:04.604Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e57817-b8c4-8178-e063-6294a90a0149: Request failed with status code 415","timestamp":"2025-04-09T14:53:04.605Z"}
+{"level":"info","message":"Processed batch 20 of page 1, success: 5/5","timestamp":"2025-04-09T14:53:04.606Z"}
+{"level":"info","message":"Progress: Cached 100/100 SPLs so far","timestamp":"2025-04-09T14:53:05.122Z"}
+{"level":"info","message":"Caching page 2 with 100 SPLs","timestamp":"2025-04-09T14:53:05.343Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e63876-3e39-adc6-e063-6394a90ab146: Request failed with status code 415","timestamp":"2025-04-09T14:53:05.458Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e6ac7a-fa3e-4dd4-e063-6294a90a29af: Request failed with status code 415","timestamp":"2025-04-09T14:53:05.462Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e63a95-9e62-01c8-e063-6294a90af0e1: Request failed with status code 415","timestamp":"2025-04-09T14:53:05.463Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e71ee7-c4b5-6c1c-e063-6294a90a1513: Request failed with status code 415","timestamp":"2025-04-09T14:53:05.465Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e7caf6-0a8b-f343-e063-6294a90ad729: Request failed with status code 415","timestamp":"2025-04-09T14:53:05.466Z"}
+{"level":"info","message":"Processed batch 1 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:05.467Z"}
+{"level":"warn","message":"Failed to fetch SPL 31e976a2-0623-0dca-e063-6394a90a08da: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.091Z"}
+{"level":"warn","message":"Failed to fetch SPL 31ee4645-0f64-f7a0-e063-6394a90a1736: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.095Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f4b641-e9c0-786e-e063-6394a90aa253: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.096Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f54a79-70b7-def5-e063-6294a90a709b: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.098Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f59d10-d821-2291-e063-6294a90ac518: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.100Z"}
+{"level":"info","message":"Processed batch 2 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:06.100Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f61d5c-a3a3-3d47-e063-6394a90afb62: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.721Z"}
+{"level":"warn","message":"Failed to fetch SPL 436aaff1-47d1-4a8f-b580-8ede724071f9: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.723Z"}
+{"level":"warn","message":"Failed to fetch SPL 3e8acd31-bbc7-48d5-956d-6cb04cbdc96c: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.724Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f66910-b092-aa75-e063-6294a90a1bb0: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.725Z"}
+{"level":"warn","message":"Failed to fetch SPL 31f5bbe4-5f6e-3bef-e063-6294a90a2646: Request failed with status code 415","timestamp":"2025-04-09T14:53:06.726Z"}
+{"level":"info","message":"Processed batch 3 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:06.727Z"}
+{"level":"warn","message":"Failed to fetch SPL 49fcf429-332f-43b3-aab0-d2a5b95f4571: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.352Z"}
+{"level":"warn","message":"Failed to fetch SPL 57873587-6754-4f87-865a-8cda83d83dd0: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.354Z"}
+{"level":"warn","message":"Failed to fetch SPL 671d5a85-4146-43b4-9d7d-ca53268eb2a6: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.357Z"}
+{"level":"warn","message":"Failed to fetch SPL 52141b63-f412-488a-8213-198482f3eef4: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.358Z"}
+{"level":"warn","message":"Failed to fetch SPL 57f09129-7151-4a75-9d73-9dd32f74ba43: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.359Z"}
+{"level":"info","message":"Processed batch 4 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:07.359Z"}
+{"level":"warn","message":"Failed to fetch SPL 67a4b949-ce8a-4841-a965-fcc94165135c: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.977Z"}
+{"level":"warn","message":"Failed to fetch SPL 84e6747f-9f5c-4766-9d45-9ec24b12be6b: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.979Z"}
+{"level":"warn","message":"Failed to fetch SPL 7f92609c-b1d5-4166-92a1-86163b5aa3db: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.981Z"}
+{"level":"warn","message":"Failed to fetch SPL 8f00b059-6729-4fae-8e8c-e14fe8838c59: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.982Z"}
+{"level":"warn","message":"Failed to fetch SPL 9a7e7f85-bfd0-44a0-beda-3bcfa8215c64: Request failed with status code 415","timestamp":"2025-04-09T14:53:07.985Z"}
+{"level":"info","message":"Processed batch 5 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:07.985Z"}
+{"level":"warn","message":"Failed to fetch SPL a0a92717-c1cb-40eb-a95a-1c5dfd32cfc0: Request failed with status code 415","timestamp":"2025-04-09T14:53:08.602Z"}
+{"level":"warn","message":"Failed to fetch SPL 9ed710e1-47f4-4d04-a509-12c8c97c192c: Request failed with status code 415","timestamp":"2025-04-09T14:53:08.604Z"}
+{"level":"warn","message":"Failed to fetch SPL c9b46759-b8df-4ff4-815e-8e032c2635c0: Request failed with status code 415","timestamp":"2025-04-09T14:53:08.607Z"}
+{"level":"warn","message":"Failed to fetch SPL abeab169-e38e-433a-b8a9-f1dab31518c8: Request failed with status code 415","timestamp":"2025-04-09T14:53:08.609Z"}
+{"level":"warn","message":"Failed to fetch SPL d4d556c1-b64b-4b8e-8e4b-4f40eda24250: Request failed with status code 415","timestamp":"2025-04-09T14:53:08.611Z"}
+{"level":"info","message":"Processed batch 6 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:08.611Z"}
+{"level":"warn","message":"Failed to fetch SPL fa9f0d28-c525-4a1e-acec-84c82e10b9a2: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.225Z"}
+{"level":"warn","message":"Failed to fetch SPL db8c69b0-4697-433e-98c7-b0b2d2c52a83: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.226Z"}
+{"level":"warn","message":"Failed to fetch SPL ddb6845f-e50e-432f-90a6-85ea0f722749: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.227Z"}
+{"level":"warn","message":"Failed to fetch SPL 094de23b-d433-487d-8364-6f245c8117c6: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.229Z"}
+{"level":"warn","message":"Failed to fetch SPL 0dc5a72f-1cc4-4cfc-a969-0ed781f7aa6f: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.230Z"}
+{"level":"info","message":"Processed batch 7 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:09.230Z"}
+{"level":"warn","message":"Failed to fetch SPL 159266a8-94fa-e2ff-e063-6394a90a9a77: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.847Z"}
+{"level":"warn","message":"Failed to fetch SPL 10e3ad07-0d41-7b15-e063-6294a90a0407: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.849Z"}
+{"level":"warn","message":"Failed to fetch SPL 1592d29d-e275-a44d-e063-6294a90ab17d: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.850Z"}
+{"level":"warn","message":"Failed to fetch SPL 154602ca-91c4-4030-ae77-9bf179cc95e8: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.851Z"}
+{"level":"warn","message":"Failed to fetch SPL 13028f61-3f62-22cc-e063-6394a90a6bf1: Request failed with status code 415","timestamp":"2025-04-09T14:53:09.852Z"}
+{"level":"info","message":"Processed batch 8 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:09.853Z"}
+{"level":"warn","message":"Failed to fetch SPL 1cbcc648-f2e1-af60-e063-6294a90ad4bb: Request failed with status code 415","timestamp":"2025-04-09T14:53:10.465Z"}
+{"level":"warn","message":"Failed to fetch SPL 23f50b88-52c3-2029-e063-6394a90ac73e: Request failed with status code 415","timestamp":"2025-04-09T14:53:10.467Z"}
+{"level":"warn","message":"Failed to fetch SPL 24345ccf-c96f-31b0-e063-6294a90a82b5: Request failed with status code 415","timestamp":"2025-04-09T14:53:10.469Z"}
+{"level":"warn","message":"Failed to fetch SPL 19fe26a9-eb1a-4c5b-a5e4-65223ee56ad1: Request failed with status code 415","timestamp":"2025-04-09T14:53:10.471Z"}
+{"level":"warn","message":"Failed to fetch SPL 2425badb-e196-e9f8-e063-6294a90a7bf4: Request failed with status code 415","timestamp":"2025-04-09T14:53:10.472Z"}
+{"level":"info","message":"Processed batch 9 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:10.472Z"}
+{"level":"warn","message":"Failed to fetch SPL 2434f9cf-74aa-17af-e063-6294a90a56d9: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.093Z"}
+{"level":"warn","message":"Failed to fetch SPL 2ccf602f-734a-4b2d-8d89-c410293f9eb9: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.094Z"}
+{"level":"warn","message":"Failed to fetch SPL 303097a0-8eb0-3e1c-e063-6394a90afab3: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.094Z"}
+{"level":"warn","message":"Failed to fetch SPL 2e5d1b21-6b32-0c8d-e063-6294a90a8431: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.098Z"}
+{"level":"warn","message":"Failed to fetch SPL 29b6b4ca-aeef-1295-e063-6394a90a21b9: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.100Z"}
+{"level":"info","message":"Processed batch 10 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:11.100Z"}
+{"level":"warn","message":"Failed to fetch SPL 31bf4f7f-8228-7433-e063-6394a90a2f5f: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.715Z"}
+{"level":"warn","message":"Failed to fetch SPL 316bf6f8-7d30-2560-e063-6294a90afb8a: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.716Z"}
+{"level":"warn","message":"Failed to fetch SPL 3997dda6-89ea-49df-abda-ab420327a473: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.717Z"}
+{"level":"warn","message":"Failed to fetch SPL 312cd403-b211-64ef-e063-6394a90aab88: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.719Z"}
+{"level":"warn","message":"Failed to fetch SPL 3f2fe98a-ab42-4bec-bf97-c090567f9ad6: Request failed with status code 415","timestamp":"2025-04-09T14:53:11.720Z"}
+{"level":"info","message":"Processed batch 11 of page 2, success: 5/5","timestamp":"2025-04-09T14:53:11.721Z"}
+{"level":"info","message":"Database connection closed","timestamp":"2025-04-09T14:53:11.995Z"}

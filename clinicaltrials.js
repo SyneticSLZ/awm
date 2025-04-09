@@ -2,6 +2,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const { DOMParser } = require('xmldom');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
@@ -16,6 +17,7 @@ const pdfParse = require('pdf-parse');
 const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
+// const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
 
 const { OpenAI } = require('openai');
 
@@ -3095,98 +3097,578 @@ function processEndpointResults(endpointName, results, searchTerm) {
 }
 
 
-app.get('/api/fda/dailymed/:ingredient', async (req, res) => {
-  console.log("497")
-  const { ingredient } = req.params;
+/**
+ * DailyMed API search endpoint
+ * 
+ * This endpoint searches for drug information from the DailyMed API
+ * based on a drug name provided in the URL parameter
+ */
+
+/**
+ * DailyMed API search endpoint
+ * 
+ * This endpoint searches for drug information from the DailyMed API
+ * based on a drug name provided in the URL parameter
+ */
+
+/**
+ * Enhanced DailyMed API search endpoint
+ * 
+ * This endpoint searches for drug information from the DailyMed API
+ * and formats it properly for the frontend display
+ */
+
+/**
+ * DailyMed API search endpoint
+ * 
+ * This endpoint searches for drug information from the DailyMed API
+ * and formats it properly for the frontend display
+ */
+
+// Add the DailyMed route
+// app.get('/api/fda/dailymed/:drugName', handleDailyMedRequest);
+
+
+// Drug API route
+app.get('/api/fda/dailymed', async (req, res) => {
+  const drugName = req.query.name;
+  
+  if (!drugName) {
+    return res.status(400).json({ error: 'Drug name is required' });
+  }
   
   try {
-    // For better results, clean up the ingredient name 
-    // by removing any dosage information or parentheses
-    const cleanIngredient = ingredient
-      .replace(/\s*\(.*?\)\s*/g, '') // Remove parentheses and their content
-      .replace(/\d+\s*mg|\d+\s*mcg|\d+\s*mL/gi, '') // Remove dosages
-      .trim();
+    const drugsData = await getAllDrugDataByName(drugName);
     
-    const response = await axios.get(`${DAILYMED_API_URL}/spls.json?ingredient=${encodeURIComponent(cleanIngredient)}`);
-    const data = response.data;
-    
-    if (!data.data || data.data.length === 0) {
-      return res.json({ error: 'No DailyMed data found' });
+    if (drugsData && drugsData.length > 0) {
+      return res.status(200).json(drugsData);
+    } else {
+      return res.status(404).json({ error: `No data found for drug: ${drugName}` });
     }
-    
-    const labelInfo = await Promise.all(
-      data.data.slice(0, 5).map(async (label) => {
-        try {
-          // Use proper Accept header to avoid 415 errors
-          const detailsResponse = await axios.get(`${DAILYMED_API_URL}/spls/${label.setid}.json`, {
-            headers: { 
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
-          });
-          const details = detailsResponse.data;
-          
-          // Format the published date properly
-          let formattedDate = label.published;
-          try {
-            if (label.published) {
-              const pubDate = new Date(label.published);
-              if (!isNaN(pubDate.getTime())) {
-                // Format as YYYY-MM-DD
-                formattedDate = pubDate.toISOString().split('T')[0];
-              }
-            }
-          } catch (e) {
-            console.error("Error formatting DailyMed date:", e);
-          }
-          
-          return {
-            setId: label.setid,
-            title: details.title || label.title,
-            published: formattedDate,
-            labelUrl: `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${label.setid}`,
-            packageUrl: details.packaging_uris?.[0] 
-              ? `https://dailymed.nlm.nih.gov/dailymed/image.cfm?setid=${label.setid}&type=img`
-              : null,
-            activeIngredients: details.active_ingredients || [],
-            ndc: details.package_ndc?.join(', ') || 'N/A',
-            rxcui: details.rxcui || 'N/A',
-            // Add more useful information if available
-            manufacturer: details.labeler || 'N/A',
-            dosageForm: details.dosage_forms_and_strengths || 'N/A'
-          };
-        } catch (error) {
-          console.error(`Error fetching details for label ${label.setid}:`, error.message);
-          
-          // Format the published date even when detail fetch fails
-          let formattedDate = label.published;
-          try {
-            if (label.published) {
-              const pubDate = new Date(label.published);
-              if (!isNaN(pubDate.getTime())) {
-                formattedDate = pubDate.toISOString().split('T')[0];
-              }
-            }
-          } catch (e) {
-            console.error("Error formatting DailyMed date:", e);
-          }
-          
-          // Return basic info when detailed fetch fails
-          return {
-            setId: label.setid,
-            title: label.title,
-            published: formattedDate,
-            labelUrl: `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${label.setid}`
-          };
-        }
-      })
-    );
-    
-    res.json({ label_info: labelInfo });
   } catch (error) {
-    handleApiError(error, res, 'Error fetching DailyMed data');
+    console.error(`Error processing request for ${drugName}:`, error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Main function to get all drug data by name
+async function getAllDrugDataByName(drugName) {
+  try {
+    // Step 1: Search for the drug to get all SPL IDs
+    const splIds = await searchAndGetAllSplIds(drugName);
+    
+    if (!splIds || splIds.length === 0) {
+      console.error(`No results found for drug name: ${drugName}`);
+      return [];
+    }
+    
+    console.log(`Found ${splIds.length} SPL IDs for ${drugName}`);
+    
+    // Step 2: Get detailed data for each SPL ID
+    const drugsDataPromises = splIds.map(splId => getDrugDataById(splId));
+    const drugsData = await Promise.all(drugsDataPromises);
+    
+    // Filter out any null results
+    return drugsData.filter(data => data !== null);
+    
+  } catch (error) {
+    console.error(`Error getting data for ${drugName}:`, error);
+    throw error;
+  }
+}
+
+// Function to search DailyMed and return all matching SPL IDs
+function searchAndGetAllSplIds(drugName) {
+  return new Promise((resolve, reject) => {
+    const encodedQuery = encodeURIComponent(drugName);
+    const requestUrl = `https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.xml?drug_name=${encodedQuery}`;
+    
+    https.get(requestUrl, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`HTTP error! Status: ${response.statusCode}`));
+        return;
+      }
+      
+      let data = '';
+      
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      response.on('end', () => {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(data, "text/xml");
+          
+          // Get all SPL IDs from the search results
+          const splElements = xmlDoc.getElementsByTagName('setid');
+          const splIds = [];
+          
+          for (let i = 0; i < splElements.length; i++) {
+            const splId = splElements[i].textContent.trim();
+            if (splId) {
+              splIds.push(splId);
+            }
+          }
+          
+          resolve(splIds);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }).on('error', (error) => {
+      reject(error);
+    });
+  });
+}
+
+// Function to get detailed drug data using SPL ID
+function getDrugDataById(splId) {
+  return new Promise((resolve, reject) => {
+    const requestUrl = `https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/${splId}.xml`;
+    
+    https.get(requestUrl, (response) => {
+      if (response.statusCode !== 200) {
+        console.warn(`HTTP error for SPL ID ${splId}! Status: ${response.statusCode}`);
+        resolve(null); // Don't reject, just return null for this ID
+        return;
+      }
+      
+      let data = '';
+      
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      response.on('end', () => {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(data, "text/xml");
+          
+          // Extract the relevant information
+          const drugInfo = extractDrugInfo(xmlDoc, splId);
+          resolve(drugInfo);
+        } catch (error) {
+          console.warn(`Error parsing data for SPL ID ${splId}:`, error);
+          resolve(null); // Don't reject, just return null for this ID
+        }
+      });
+    }).on('error', (error) => {
+      console.warn(`Network error for SPL ID ${splId}:`, error);
+      resolve(null); // Don't reject, just return null for this ID
+    });
+  });
+}
+
+// Function to extract drug information from the XML document
+function extractDrugInfo(xmlDoc, splId) {
+  try {
+    // Helper function to safely get text content
+    const getTextContent = (element) => {
+      if (!element) return null;
+      return element.textContent.trim();
+    };
+    
+    // Helper function to get all matching elements and extract their text content
+    const getAllTextContent = (elements) => {
+      const result = [];
+      for (let i = 0; i < elements.length; i++) {
+        const text = elements[i].textContent.trim();
+        if (text) result.push(text);
+      }
+      return result;
+    };
+    
+    // Extract basic information
+    const titleElements = xmlDoc.getElementsByTagName('title');
+    let title = "Unknown";
+    
+    // Look for the document title, which is typically one of the first title elements
+    for (let i = 0; i < Math.min(5, titleElements.length); i++) {
+      const text = getTextContent(titleElements[i]);
+      if (text && text.length > 10) { // Assuming a meaningful title has at least 10 chars
+        title = text;
+        break;
+      }
+    }
+    
+    // Try to get more specific product name
+    const productNameElements = xmlDoc.getElementsByTagName('name');
+    let productName = null;
+    
+    for (let i = 0; i < productNameElements.length; i++) {
+      const parent = productNameElements[i].parentNode;
+      if (parent && (parent.nodeName === 'manufacturedProduct' || parent.nodeName === 'product')) {
+        productName = getTextContent(productNameElements[i]);
+        if (productName) break;
+      }
+    }
+    
+    if (!productName) {
+      for (let i = 0; i < Math.min(3, productNameElements.length); i++) {
+        productName = getTextContent(productNameElements[i]);
+        if (productName) break;
+      }
+    }
+    
+    // Extract manufacturer (may be in different places in the XML)
+    let manufacturer = null;
+    const manufacturerOrgElements = xmlDoc.getElementsByTagName('manufacturerOrganization');
+    for (let i = 0; i < manufacturerOrgElements.length; i++) {
+      const nameElement = manufacturerOrgElements[i].getElementsByTagName('name')[0];
+      if (nameElement) {
+        manufacturer = getTextContent(nameElement);
+        break;
+      }
+    }
+    
+    // If no manufacturer found, try alternative approach
+    if (!manufacturer) {
+      const orgElements = xmlDoc.getElementsByTagName('organization');
+      for (let i = 0; i < orgElements.length; i++) {
+        const nameElement = orgElements[i].getElementsByTagName('name')[0];
+        if (nameElement) {
+          manufacturer = getTextContent(nameElement);
+          break;
+        }
+      }
+    }
+    
+    // Extract active ingredients
+    const ingredientElements = xmlDoc.getElementsByTagName('ingredient');
+    const activeIngredients = [];
+    
+    for (let i = 0; i < ingredientElements.length; i++) {
+      const ingredient = ingredientElements[i];
+      const classCode = ingredient.getAttribute('classCode');
+      
+      if (classCode === 'ACTIB' || classCode === 'ACTIM') {
+        const substanceElements = ingredient.getElementsByTagName('ingredientSubstance');
+        if (substanceElements.length > 0) {
+          const nameElement = substanceElements[0].getElementsByTagName('name')[0];
+          if (nameElement) {
+            activeIngredients.push(getTextContent(nameElement));
+          }
+        }
+      }
+    }
+    
+    // Extract dosage forms
+    const formCodeElements = xmlDoc.getElementsByTagName('formCode');
+    const dosageForms = [];
+    
+    for (let i = 0; i < formCodeElements.length; i++) {
+      const displayName = formCodeElements[i].getAttribute('displayName');
+      if (displayName && !dosageForms.includes(displayName)) {
+        dosageForms.push(displayName);
+      }
+    }
+    
+    // Extract sections
+    const sectionElements = xmlDoc.getElementsByTagName('section');
+    let indications = "Not specified";
+    let warnings = "Not specified";
+    let dosage = "Not specified";
+    let contraindications = "Not specified";
+    let adverseReactions = "Not specified";
+    let drugInteractions = "Not specified";
+    
+    for (let i = 0; i < sectionElements.length; i++) {
+      const section = sectionElements[i];
+      const titleElement = section.getElementsByTagName('title')[0];
+      
+      if (!titleElement) continue;
+      
+      const title = getTextContent(titleElement);
+      const textElement = section.getElementsByTagName('text')[0];
+      
+      if (!textElement) continue;
+      
+      const text = getTextContent(textElement);
+      
+      if (title && text) {
+        if (title.includes('INDICATIONS AND USAGE') || title.includes('USES')) {
+          indications = text;
+        } else if (title.includes('WARNINGS') || title.includes('BOXED WARNING')) {
+          warnings = text;
+        } else if (title.includes('DOSAGE AND ADMINISTRATION') || title.includes('DOSAGE')) {
+          dosage = text;
+        } else if (title.includes('CONTRAINDICATIONS')) {
+          contraindications = text;
+        } else if (title.includes('ADVERSE REACTIONS') || title.includes('SIDE EFFECTS')) {
+          adverseReactions = text;
+        } else if (title.includes('DRUG INTERACTIONS')) {
+          drugInteractions = text;
+        }
+      }
+    }
+    
+    // Extract document effective time (when the label was approved/updated)
+    const effectiveTimeElements = xmlDoc.getElementsByTagName('effectiveTime');
+    let effectiveTime = null;
+    
+    for (let i = 0; i < effectiveTimeElements.length; i++) {
+      const valueElement = effectiveTimeElements[i].getAttribute('value');
+      if (valueElement) {
+        // Format YYYYMMDD to YYYY-MM-DD
+        if (valueElement.length === 8) {
+          effectiveTime = `${valueElement.substring(0, 4)}-${valueElement.substring(4, 6)}-${valueElement.substring(6, 8)}`;
+          break;
+        } else {
+          effectiveTime = valueElement;
+          break;
+        }
+      }
+    }
+    
+    // Return structured data
+    return {
+      splId: splId,
+      title: title,
+      productName: productName || title,
+      manufacturer: manufacturer || "Unknown",
+      activeIngredients: activeIngredients.length > 0 ? activeIngredients : ["Unknown"],
+      dosageForms: dosageForms.length > 0 ? dosageForms : ["Unknown"],
+      indications: indications,
+      warnings: warnings,
+      dosage: dosage,
+      contraindications: contraindications,
+      adverseReactions: adverseReactions,
+      drugInteractions: drugInteractions,
+      effectiveTime: effectiveTime || "Unknown",
+      labelUrl: `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${splId}`
+    };
+  } catch (error) {
+    console.error("Error extracting drug info:", error);
+    return {
+      splId: splId,
+      error: "Failed to extract complete information"
+    };
+  }
+}
+
+
+
+
+
+// app.get('/api/fda/dailymed/:drug', async (req, res) => {
+//   try {
+//     const drugName = req.params.drug;
+    
+//     // Base URL for DailyMed API
+//     const baseUrl = 'https://dailymed.nlm.nih.gov/dailymed/services/v2';
+    
+//     console.log(`[DailyMed] Searching for: ${drugName}`);
+    
+//     // Search for drug by name - explicitly request JSON format
+//     const searchUrl = `${baseUrl}/drugnames.json?drug_name=${encodeURIComponent(drugName)}`;
+    
+//     const response = await fetch(searchUrl);
+    
+//     if (!response.ok) {
+//       console.error(`[DailyMed] API error: ${response.status}`);
+//       return res.json({ 
+//         label_info: [] 
+//       });
+//     }
+    
+//     const data = await response.json();
+//     console.log(`[DailyMed] Found ${data.data?.length || 0} results`);
+    
+//     // If no results found
+//     if (!data.data || data.data.length === 0) {
+//       return res.json({ 
+//         label_info: [] 
+//       });
+//     }
+    
+//     // Transform the data to match frontend expectations
+//     const labelInfo = [];
+//     const processedSetIds = new Set(); // Track unique setIds to avoid duplicates
+    
+//     for (const drugInfo of data.data) {
+//       // Skip if no setid or we've already processed this setId
+//       if (!drugInfo.setid || processedSetIds.has(drugInfo.setid)) {
+//         continue;
+//       }
+      
+//       processedSetIds.add(drugInfo.setid);
+      
+//       // Create an entry with drug search information
+//       const entry = {
+//         title: drugInfo.drug_name || "Unknown Drug",
+//         published: "N/A",
+//         setId: drugInfo.setid,
+//         // Use the correct URL format for direct link to drug info
+//         labelUrl: `https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${drugInfo.setid}`,
+//         // Add direct PDF download link
+//         pdfUrl: `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${drugInfo.setid}`
+//       };
+      
+//       // Add to our results
+//       labelInfo.push(entry);
+//     }
+    
+//     // Return the data in the format expected by the frontend
+//     console.log(`[DailyMed] Returning ${labelInfo.length} formatted results`);
+//     return res.json({
+//       label_info: labelInfo
+//     });
+    
+//   } catch (error) {
+//     console.error('[DailyMed] Error:', error);
+//     return res.json({ 
+//       label_info: [],
+//       error: true,
+//       message: error.message
+//     });
+//   }
+// });
+
+// Optional: Additional endpoint to get all available information for a drug by setId
+app.get('/api/fda/dailymed/details/:setId', async (req, res) => {
+  try {
+    const setId = req.params.setId;
+    const baseUrl = 'https://dailymed.nlm.nih.gov/dailymed/services/v2';
+    
+    // Get detailed SPL information
+    const splUrl = `${baseUrl}/spls/${setId}.json`;
+    const splResponse = await fetch(splUrl);
+    
+    if (!splResponse.ok) {
+      throw new Error(`DailyMed API returned status: ${splResponse.status}`);
+    }
+    
+    const splData = await splResponse.json();
+    
+    // Get NDC codes
+    const ndcUrl = `${baseUrl}/spls/${setId}/ndcs.json`;
+    const ndcResponse = await fetch(ndcUrl);
+    const ndcData = ndcResponse.ok ? await ndcResponse.json() : { data: [] };
+    
+    // Get packaging information
+    const packagingUrl = `${baseUrl}/spls/${setId}/packaging.json`;
+    const packagingResponse = await fetch(packagingUrl);
+    const packagingData = packagingResponse.ok ? await packagingResponse.json() : { data: [] };
+    
+    // Get version history
+    const historyUrl = `${baseUrl}/spls/${setId}/history.json`;
+    const historyResponse = await fetch(historyUrl);
+    const historyData = historyResponse.ok ? await historyResponse.json() : { data: [] };
+    
+    // Return all collected data
+    res.json({
+      success: true,
+      spl: splData.data,
+      ndcs: ndcData.data,
+      packaging: packagingData.data,
+      history: historyData.data,
+      pdfLink: `https://dailymed.nlm.nih.gov/dailymed/downloadpdffile.cfm?setId=${setId}`,
+      zipLink: `https://dailymed.nlm.nih.gov/dailymed/downloadzipfile.cfm?setId=${setId}`
+    });
+    
+  } catch (error) {
+    console.error('Error fetching detailed drug information:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching detailed drug information',
+      error: error.message
+    });
+  }
+});
+
+// app.get('/api/fda/dailymed/:ingredient', async (req, res) => {
+//   console.log("497")
+//   const { ingredient } = req.params;
+  
+//   try {
+//     // For better results, clean up the ingredient name 
+//     // by removing any dosage information or parentheses
+//     const cleanIngredient = ingredient
+//       .replace(/\s*\(.*?\)\s*/g, '') // Remove parentheses and their content
+//       .replace(/\d+\s*mg|\d+\s*mcg|\d+\s*mL/gi, '') // Remove dosages
+//       .trim();
+    
+//     const response = await axios.get(`${DAILYMED_API_URL}/spls.json?ingredient=${encodeURIComponent(cleanIngredient)}`);
+//     const data = response.data;
+    
+//     if (!data.data || data.data.length === 0) {
+//       return res.json({ error: 'No DailyMed data found' });
+//     }
+    
+//     const labelInfo = await Promise.all(
+//       data.data.slice(0, 5).map(async (label) => {
+//         try {
+//           // Use proper Accept header to avoid 415 errors
+//           const detailsResponse = await axios.get(`${DAILYMED_API_URL}/spls/${label.setid}.json`, {
+//             headers: { 
+//               'Accept': 'application/json',
+//               'Content-Type': 'application/json'
+//             }
+//           });
+//           const details = detailsResponse.data;
+          
+//           // Format the published date properly
+//           let formattedDate = label.published;
+//           try {
+//             if (label.published) {
+//               const pubDate = new Date(label.published);
+//               if (!isNaN(pubDate.getTime())) {
+//                 // Format as YYYY-MM-DD
+//                 formattedDate = pubDate.toISOString().split('T')[0];
+//               }
+//             }
+//           } catch (e) {
+//             console.error("Error formatting DailyMed date:", e);
+//           }
+          
+//           return {
+//             setId: label.setid,
+//             title: details.title || label.title,
+//             published: formattedDate,
+//             labelUrl: `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${label.setid}`,
+//             packageUrl: details.packaging_uris?.[0] 
+//               ? `https://dailymed.nlm.nih.gov/dailymed/image.cfm?setid=${label.setid}&type=img`
+//               : null,
+//             activeIngredients: details.active_ingredients || [],
+//             ndc: details.package_ndc?.join(', ') || 'N/A',
+//             rxcui: details.rxcui || 'N/A',
+//             // Add more useful information if available
+//             manufacturer: details.labeler || 'N/A',
+//             dosageForm: details.dosage_forms_and_strengths || 'N/A'
+//           };
+//         } catch (error) {
+//           console.error(`Error fetching details for label ${label.setid}:`, error.message);
+          
+//           // Format the published date even when detail fetch fails
+//           let formattedDate = label.published;
+//           try {
+//             if (label.published) {
+//               const pubDate = new Date(label.published);
+//               if (!isNaN(pubDate.getTime())) {
+//                 formattedDate = pubDate.toISOString().split('T')[0];
+//               }
+//             }
+//           } catch (e) {
+//             console.error("Error formatting DailyMed date:", e);
+//           }
+          
+//           // Return basic info when detailed fetch fails
+//           return {
+//             setId: label.setid,
+//             title: label.title,
+//             published: formattedDate,
+//             labelUrl: `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${label.setid}`
+//           };
+//         }
+//       })
+//     );
+    
+//     res.json({ label_info: labelInfo });
+//   } catch (error) {
+//     handleApiError(error, res, 'Error fetching DailyMed data');
+//   }
+// });
 
 
 
@@ -3409,21 +3891,21 @@ app.get('/api/fda/approval/:drugName', async (req, res) => {
 /**
  * Endpoint to get DailyMed labeling information
  */
-app.get('/api/dailymed/:drugName', async (req, res) => {
-  try {
-    const { drugName } = req.params;
-    console.log(`🔍 Fetching DailyMed info for: ${drugName}`);
+// app.get('/api/dailymed/:drugName', async (req, res) => {
+//   try {
+//     const { drugName } = req.params;
+//     console.log(`🔍 Fetching DailyMed info for: ${drugName}`);
     
-    const labelInfo = await DailyMed.getLabelInfo(drugName);
+//     const labelInfo = await DailyMed.getLabelInfo(drugName);
     
-    res.json({
-      success: true,
-      data: labelInfo
-    });
-  } catch (error) {
-    handleApiError(error, res);
-  }
-});
+//     res.json({
+//       success: true,
+//       data: labelInfo
+//     });
+//   } catch (error) {
+//     handleApiError(error, res);
+//   }
+// });
 
 /**
  * Endpoint to get Orange Book patent information

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyMed Drug Info</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">DailyMed Drug Information</h1>
+    
+    <form id="drug-search-form" class="mb-6">
+      <div class="flex">
+        <input 
+          type="text" 
+          id="drug-name" 
+          placeholder="Enter drug name (e.g., Metformin, Lisinopril)" 
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        >
+        <button 
+          type="submit" 
+          class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Search
+        </button>
+      </div>
+    </form>
+    
+    <div id="result" class="mt-4"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchForm = document.getElementById("drug-search-form");
+      const resultDiv = document.getElementById("result");
+      
+      searchForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const drugName = document.getElementById("drug-name").value.trim();
+        if (!drugName) return;
+        
+        resultDiv.innerHTML = "Searching...";
+        
+        try {
+          const response = await fetch(`http://localhost:3000/api/drug?name=${encodeURIComponent(drugName)}`);
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to fetch data');
+          }
+          
+          const drugData = await response.json();
+          displayDrugData(drugData, resultDiv);
+          
+        } catch (error) {
+          resultDiv.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        }
+      });
+    });
+
+    // Function to display the drug data in the UI
+    function displayDrugData(data, container) {
+      container.innerHTML = `
+        <div class="bg-white p-4 rounded shadow-md">
+          <h2 class="text-xl font-bold mb-4">${data.productName}</h2>
+          <p class="mb-2"><strong>Manufacturer:</strong> ${data.manufacturer}</p>
+          
+          <div class="mb-3">
+            <strong>Active Ingredients:</strong>
+            <ul class="list-disc pl-5 mt-1">
+              ${data.activeIngredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Dosage Forms:</strong>
+            <ul class="list-disc pl-5 mt-1">
+              ${data.dosageForms.map(form => `<li>${form}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Indications:</strong>
+            <div class="mt-1 pl-3 border-l-2 border-gray-300">
+              ${formatTextContent(data.indications)}
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Dosage:</strong>
+            <div class="mt-1 pl-3 border-l-2 border-gray-300">
+              ${formatTextContent(data.dosage)}
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <strong>Warnings:</strong>
+            <div class="mt-1 pl-3 border-l-2 border-gray-300 text-red-700">
+              ${formatTextContent(data.warnings)}
+            </div>
+          </div>
+          
+          <p class="text-sm text-gray-500 mt-4">SPL ID: ${data.splId}</p>
+        </div>
+      `;
+    }
+
+    // Helper function to format text content with paragraphs
+    function formatTextContent(text) {
+      if (!text || text === "Not specified") return "<p>Not specified</p>";
+      
+      // Split by double newlines for paragraphs
+      const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+      
+      if (paragraphs.length === 0) return `<p>${text}</p>`;
+      
+      return paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+    }
+  </script>
+</body>
+</html>
