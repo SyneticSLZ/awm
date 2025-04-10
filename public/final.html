@@ -263,38 +263,101 @@
 
         <!-- PubMed Section (Initially Hidden) -->
 <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
+<!-- Loading state -->
+<div id="pubmedLoading" class="flex justify-center items-center py-12 hidden">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+</div>
 
-     <!-- Filter bar that appears when conditions are detected -->
+<!-- Error state -->
+<div id="pubmedError" class="bg-red-50 p-6 rounded-lg text-center hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-red-800 font-medium text-lg">An error occurred</div>
+    <div id="pubmedErrorMessage" class="text-red-700 mt-1"></div>
+    <button onclick="window.location.reload()" class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-150">
+        Try Again
+    </button>
+</div>
+
+<!-- Empty state -->
+<div id="pubmedEmpty" class="bg-gray-50 p-8 rounded-lg text-center hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-gray-700 font-medium text-lg">No articles found</div>
+    <div class="text-gray-600 mt-1">Try adjusting your search terms or filters</div>
+</div>
+
+<!-- Treatments section (replaces the summary) -->
+<div id="pubmedTreatments" class="mb-8 hidden">
+    <div id="pubmedTreatmentsLoading" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+    </div>
+    
+    <div id="pubmedTreatmentsContent" class="hidden"></div>
+</div>
+
+<!-- Drug information section -->
+<div id="pubmedDrugInfo" class="mb-8 hidden">
+    <div id="pubmedDrugInfoLoading" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+    </div>
+    
+    <div id="pubmedDrugInfoContent" class="hidden"></div>
+</div>
+
+<!-- Articles section -->
+<div id="pubmedArticles" class="hidden">
+    <div class="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+        <div id="pubmedResultCount" class="text-gray-600 font-medium"></div>
+        
+        <div class="flex items-center space-x-2">
+            <!-- We're keeping sorting/filtering in the advanced options now -->
+        </div>
+    </div>
+    
+    <div id="pubmedArticlesList" class="space-y-4 optimize-render"></div>
+    
+    <div id="pubmedPagination" class="mt-6 flex justify-center hidden">
+        <button id="pubmedLoadMore" class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors duration-200 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            Load More Results
+        </button>
+    </div>
+</div>
+</div>
+     <!-- Filter bar that appears when conditions are detected
      <div id="pubmedFilterBar" class="flex flex-wrap gap-2 mb-4 hidden">
         <span class="text-sm font-medium text-gray-700">Filter by condition:</span>
-        <!-- Condition filters will be added dynamically -->
+      
       </div>
       
-      <!-- Loading state -->
+    
       <div id="pubmedLoading" class="flex justify-center items-center py-12 hidden">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
       
-      <!-- Error state -->
+   
       <div id="pubmedError" class="bg-red-50 p-4 rounded-lg text-center hidden">
         <div class="text-red-600 font-medium">An error occurred</div>
         <div id="pubmedErrorMessage" class="text-red-500 text-sm mt-1"></div>
       </div>
-      
-      <!-- Empty state -->
+
       <div id="pubmedEmpty" class="bg-gray-50 p-8 rounded-lg text-center hidden">
         <div class="text-gray-600 font-medium">No articles found</div>
         <div class="text-gray-500 text-sm mt-1">Try adjusting your search terms or filters</div>
       </div>
-      
-      <!-- Toggle Summary Button -->
+     
       <div class="flex justify-end mb-4">
         <button id="pubmedToggleSummary" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition">
           Hide Summary
         </button>
       </div>
       
-      <!-- Summary section - can be toggled or completely removed -->
+   
       <div id="pubmedSummary" class="mb-8 hidden">
         <div id="pubmedSummaryLoading" class="flex justify-center items-center py-6 hidden">
           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
@@ -325,7 +388,7 @@
         </div>
       </div>
       
-      <!-- Treatments section -->
+     
       <div id="pubmedTreatments" class="mb-8 hidden">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Treatments by Condition</h2>
         
@@ -336,7 +399,6 @@
         <div id="pubmedTreatmentsContent" class="hidden"></div>
       </div>
       
-      <!-- Articles section -->
       <div id="pubmedArticles" class="hidden">
         <div class="flex justify-between items-center mb-4">
           <div id="pubmedResultCount" class="text-gray-600 font-medium"></div>
@@ -362,7 +424,7 @@
             Load More
           </button>
         </div>
-      </div>
+      </div> -->
 
     <!-- <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-bold text-gray-800">PubMed Articles</h2>
@@ -1305,8 +1367,8 @@
 
     <script>
         // API Base URL - Use our local backend
-        const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-        //  const API_BASE_URL = 'http://localhost:3000/api';
+        // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
+         const API_BASE_URL = 'http://localhost:3000/api';
 
         // State management
         const appState = {
@@ -12833,7 +12895,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
                   id="applications-tab" 
                   data-tab="applications-content"
                   aria-selected="true">
-            Drug Applications (${endpointsData.drugsFda?.count || 0})
+            Drug Applications 
           </button>
         </li>
         <li class="mr-2" role="presentation">
@@ -12841,7 +12903,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
                   id="label-tab" 
                   data-tab="label-content"
                   aria-selected="false">
-            Labeling (${endpointsData.label?.count || 0})
+            Labeling 
           </button>
         </li>
         <li class="mr-2" role="presentation">
@@ -12849,7 +12911,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
                   id="ndc-tab" 
                   data-tab="ndc-content"
                   aria-selected="false">
-            NDC (${endpointsData.ndc?.count || 0})
+            NDC 
           </button>
         </li>
         <li class="mr-2" role="presentation">
@@ -12857,7 +12919,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
                   id="events-tab" 
                   data-tab="events-content"
                   aria-selected="false">
-            Adverse Events (${endpointsData.event?.count || 0})
+            Adverse Events 
           </button>
         </li>
         <li role="presentation">
@@ -12865,7 +12927,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
                   id="enforcement-tab" 
                   data-tab="enforcement-content"
                   aria-selected="false">
-            Enforcement (${endpointsData.enforcement?.count || 0})
+            Enforcement 
           </button>
         </li>
       </ul>
@@ -18896,6 +18958,15 @@ async function handleSearch() {
         
         // 2. DETERMINE SEARCH TERMS FOR PUBMED
         let pubmedSearchTerm = drug;
+//         const pubmedOptions = {
+//   sortBy: 'relevance',
+//   fullTextOnly: false,
+//   yearFilter: '',
+//   journalFilter: ''
+// };
+
+
+
         if (condition) {
             pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
         }
@@ -18952,6 +19023,25 @@ async function handleSearch() {
             EmaDataModule.init();
             EmaDataModule.searchDrug(drug);
             
+            // For drug search
+// PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+if (drug && typeof PubMedModule !== 'undefined') {
+  try {
+    const pubmedOptions = {
+      sortBy: 'relevance',
+      fullTextOnly: false
+    };
+    console.log("Searching PubMed for drug:", drug);
+    if (PubMedModule.searchPubMedByDrug) {
+      PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+    } else if (PubMedModule.searchPubMed) {
+      // Fallback to general search if specialized function isn't available
+      PubMedModule.searchPubMed(drug, pubmedOptions);
+    }
+  } catch (pubmedError) {
+    console.error("Error in PubMed drug search:", pubmedError);
+  }
+}
             // If we also have a condition, get condition-specific data too
             if (condition) {
                 console.log(`Getting additional condition data for: ${condition}`);
@@ -18959,6 +19049,7 @@ async function handleSearch() {
                 EmaClinicalDataModule.init();
             EmaClinicalDataModule.searchCondition(condition);
             }
+
         } else if (condition) {
             // 5. HANDLE CONDITION-ONLY SEARCH
             
@@ -19019,14 +19110,38 @@ async function handleSearch() {
             EmaClinicalDataModule.init();
             EmaClinicalDataModule.searchCondition(condition);
             
+// For condition search
+// PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+
+
+// For condition search
+if (condition && typeof PubMedModule !== 'undefined') {
+  try {
+    const pubmedOptions = {
+      sortBy: 'relevance',
+      fullTextOnly: false
+    };
+    console.log("Searching PubMed for condition:", condition);
+    if (PubMedModule.searchPubMedByCondition) {
+      PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+    } else if (PubMedModule.searchPubMed) {
+      // Fallback to general search if specialized function isn't available
+      PubMedModule.searchPubMed(condition, pubmedOptions);
+    }
+  } catch (pubmedError) {
+    console.error("Error in PubMed condition search:", pubmedError);
+  }
+}
+
+
             // Show FDA data section for condition
             showSection(elements.fdaDataSection, true);
         }
         
         // 6. ALWAYS SEARCH PUBMED IF TERMS ARE AVAILABLE
-        if (pubmedSearchTerm) {
-            PubMedModule.searchPubMed(pubmedSearchTerm);
-        }
+        // if (pubmedSearchTerm) {
+        //     PubMedModule.searchPubMed(pubmedSearchTerm);
+        // }
         
         // 7. ENSURE ALL APPROPRIATE SECTIONS ARE VISIBLE AND FINISH LOADING
         if (drug || condition) {
@@ -25272,49 +25387,733 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// PubMed Module
+// // PubMed Module 2nd iteration
+// const PubMedModule = (function() {
+//   const elements = {
+//     pubmedSection: document.getElementById('pubmedSection'),
+//     pubmedLoading: document.getElementById('pubmedLoading'),
+//     pubmedError: document.getElementById('pubmedError'),
+//     pubmedErrorMessage: document.getElementById('pubmedErrorMessage'),
+//     pubmedEmpty: document.getElementById('pubmedEmpty'),
+//     pubmedArticles: document.getElementById('pubmedArticles'),
+//     pubmedArticlesList: document.getElementById('pubmedArticlesList'),
+//     pubmedResultCount: document.getElementById('pubmedResultCount'),
+//     pubmedSort: document.getElementById('pubmedSort'),
+//     pubmedFullTextOnly: document.getElementById('pubmedFullTextOnly'),
+//     pubmedLoadMore: document.getElementById('pubmedLoadMore'),
+//     pubmedPagination: document.getElementById('pubmedPagination'),
+//     pubmedSummary: document.getElementById('pubmedSummary'),
+//     pubmedSummaryLoading: document.getElementById('pubmedSummaryLoading'),
+//     pubmedSummaryContent: document.getElementById('pubmedSummaryContent'),
+//     pubmedKeyAreas: document.getElementById('pubmedKeyAreas'),
+//     pubmedTimeline: document.getElementById('pubmedTimeline'),
+//     pubmedTopics: document.getElementById('pubmedTopics'),
+//     pubmedTopicsCloud: document.getElementById('pubmedTopicsCloud'),
+//     pubmedJournals: document.getElementById('pubmedJournals'),
+//     pubmedTreatments: document.getElementById('pubmedTreatments'),
+//     pubmedTreatmentsLoading: document.getElementById('pubmedTreatmentsLoading'),
+//     pubmedTreatmentsContent: document.getElementById('pubmedTreatmentsContent'),
+//     pubmedToggleSummary: document.getElementById('pubmedToggleSummary'),
+//     pubmedFilterBar: document.getElementById('pubmedFilterBar')
+//   };
+
+//   let state = {
+//     term: '',
+//     articles: [],
+//     currentPage: 1,
+//     totalResults: 0,
+//     isLoading: false,
+//     sortBy: 'relevance',
+//     fullTextOnly: false,
+//     showSummary: true,
+//     conditions: [],
+//     treatments: {}
+//   };
+  
+//   function showComponent(component, isVisible) {
+//     if (!component) return;
+    
+//     if (isVisible) {
+//       component.classList.remove('hidden');
+//     } else {
+//       component.classList.add('hidden');
+//     }
+//   }
+  
+//   function formatDate(dateString) {
+//     if (!dateString) return 'N/A';
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+//   }
+  
+//   function createArticleElement(article) {
+//     const articleElement = document.createElement('div');
+//     articleElement.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition duration-150 ease-in-out mb-4';
+    
+//     const hasDOI = article.doi && article.doi.trim() !== '';
+//     const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
+    
+//     // Extract potential condition and treatment information
+//     const conditions = extractConditions(article);
+//     const treatments = extractTreatments(article);
+    
+//     let conditionsTreatmentsHTML = '';
+//     if (conditions.length > 0 || treatments.length > 0) {
+//       conditionsTreatmentsHTML = `
+//         <div class="border-t border-gray-200 mt-3 pt-3">
+//           ${conditions.length > 0 ? 
+//             `<div class="mb-2">
+//               <span class="text-xs font-medium text-gray-700">Conditions: </span>
+//               <span class="text-xs text-gray-600">${conditions.join(', ')}</span>
+//             </div>` : ''
+//           }
+//           ${treatments.length > 0 ? 
+//             `<div>
+//               <span class="text-xs font-medium text-gray-700">Treatments: </span>
+//               <span class="text-xs text-gray-600">${treatments.join(', ')}</span>
+//             </div>` : ''
+//           }
+//         </div>
+//       `;
+//     }
+    
+//     articleElement.innerHTML = `
+//       <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+//       <div class="text-sm text-gray-600 mb-2">
+//         ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
+//       </div>
+//       <div class="text-sm text-gray-500 mb-3">
+//         <span class="font-medium">${article.journal || 'Journal not specified'}</span> • 
+//         ${formatDate(article.pubDate)} • 
+//         PMID: ${article.pmid}
+//       </div>
+//       <p class="text-gray-700 text-sm mb-3">${article.abstract.substring(0, 200)}${article.abstract.length > 200 ? '...' : ''}</p>
+//       <div class="flex flex-wrap gap-2 mb-3">
+//         ${article.keywords.map(keyword => 
+//           `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
+//         ).join('')}
+//       </div>
+//       ${conditionsTreatmentsHTML}
+//       <div class="flex flex-wrap gap-2 mt-2">
+//         <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">View on PubMed</a>
+//         ${hasDOI ? 
+//           `<a href="https://doi.org/${article.doi}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">DOI</a>` : ''}
+//         ${hasFullText ? 
+//           `<a href="${article.fullTextUrl}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">Full Text</a>` : ''}
+//       </div>
+//     `;
+    
+//     return articleElement;
+//   }
+  
+//   function renderArticles() {
+//     elements.pubmedArticlesList.innerHTML = '';
+    
+//     state.articles.forEach(article => {
+//       const articleElement = createArticleElement(article);
+//       elements.pubmedArticlesList.appendChild(articleElement);
+//     });
+    
+//     elements.pubmedResultCount.textContent = `${state.totalResults} articles found`;
+    
+//     // Show/hide load more button based on whether there are more results
+//     const hasMoreResults = state.articles.length < state.totalResults;
+//     showComponent(elements.pubmedPagination, hasMoreResults);
+//   }
+  
+//   function extractConditions(article) {
+//     const conditions = [];
+//     const commonConditions = [
+//       'diabetes', 'hypertension', 'cancer', 'asthma', 'arthritis', 
+//       'alzheimer', 'parkinson', 'obesity', 'depression', 'anxiety',
+//       'copd', 'hepatitis', 'hiv', 'stroke', 'heart disease', 'heart failure',
+//       'multiple sclerosis', 'fibromyalgia', 'leukemia', 'epilepsy'
+//     ];
+    
+//     // Check title, abstract, and keywords
+//     const textToCheck = (article.title + ' ' + article.abstract + ' ' + article.keywords.join(' ')).toLowerCase();
+    
+//     commonConditions.forEach(condition => {
+//       if (textToCheck.includes(condition)) {
+//         // Capitalize first letter of each word
+//         const formattedCondition = condition.replace(/\b\w/g, l => l.toUpperCase());
+//         conditions.push(formattedCondition);
+        
+//         // Add to global state for treatment mapping
+//         if (!state.conditions.includes(formattedCondition)) {
+//           state.conditions.push(formattedCondition);
+//         }
+//       }
+//     });
+    
+//     return conditions;
+//   }
+  
+//   function extractTreatments(article) {
+//     const treatments = [];
+//     const commonTreatments = [
+//       'metformin', 'insulin', 'statins', 'aspirin', 'ibuprofen',
+//       'prednisone', 'albuterol', 'fluoxetine', 'amoxicillin',
+//       'lisinopril', 'losartan', 'warfarin', 'heparin', 'atorvastatin',
+//       'levothyroxine', 'omeprazole', 'gabapentin', 'amlodipine', 'metoprolol'
+//     ];
+    
+//     // Check abstract and title
+//     const textToCheck = (article.title + ' ' + article.abstract).toLowerCase();
+    
+//     commonTreatments.forEach(treatment => {
+//       if (textToCheck.includes(treatment)) {
+//         // Capitalize first letter
+//         const formattedTreatment = treatment.charAt(0).toUpperCase() + treatment.slice(1);
+//         treatments.push(formattedTreatment);
+        
+//         // Build treatment-condition relationships
+//         extractConditions(article).forEach(condition => {
+//           if (!state.treatments[condition]) {
+//             state.treatments[condition] = [];
+//           }
+//           if (!state.treatments[condition].includes(formattedTreatment)) {
+//             state.treatments[condition].push(formattedTreatment);
+//           }
+//         });
+//       }
+//     });
+    
+//     return treatments;
+//   }
+
+//   function generateAccurateSummary(articles) {
+//     // Show loading state
+//     showComponent(elements.pubmedSummary, true);
+//     showComponent(elements.pubmedSummaryLoading, true);
+//     showComponent(elements.pubmedSummaryContent, false);
+    
+//     // Process in setTimeout to not block UI
+//     setTimeout(() => {
+//       try {
+//         // Extract publication years with accurate counting
+//         const years = {};
+//         articles.forEach(article => {
+//           if (!article.pubDate) return;
+          
+//           const date = new Date(article.pubDate);
+//           const year = date.getFullYear();
+//           if (!isNaN(year)) {
+//             years[year] = (years[year] || 0) + 1;
+//           }
+//         });
+        
+//         // Sort years chronologically
+//         const sortedYears = Object.entries(years)
+//           .sort(([yearA], [yearB]) => parseInt(yearA) - parseInt(yearB));
+        
+//         // Generate accurate timeline visualization
+//         let timelineHtml = '';
+//         if (sortedYears.length > 0) {
+//           // Find max count for accurate scaling
+//           const maxCount = Math.max(...sortedYears.map(([, count]) => count));
+          
+//           timelineHtml = `
+//             <div class="overflow-x-auto">
+//               <table class="w-full min-w-full">
+//                 <tbody>
+//                   ${sortedYears.map(([year, count]) => {
+//                     // Calculate width percentage (minimum 5%, maximum 95%)
+//                     const widthPercent = Math.max(5, Math.min(95, (count / maxCount) * 100));
+                    
+//                     return `
+//                       <tr class="border-b border-gray-100">
+//                         <td class="py-1 pr-2 text-right font-medium text-sm w-16">${year}</td>
+//                         <td class="py-1 w-full">
+//                           <div class="flex items-center">
+//                             <div class="bg-primary h-5 rounded-sm" style="width: ${widthPercent}%"></div>
+//                             <span class="ml-2 text-sm">${count}</span>
+//                           </div>
+//                         </td>
+//                       </tr>
+//                     `;
+//                   }).join('')}
+//                 </tbody>
+//               </table>
+//             </div>
+//             <p class="text-xs text-gray-500 mt-2">Publications by year (based on all ${articles.length} articles)</p>
+//           `;
+//         } else {
+//           timelineHtml = '<p class="text-sm text-gray-500">Timeline data not available for these articles</p>';
+//         }
+        
+//         // Extract journals with accurate counting
+//         const journals = {};
+//         let journalsWithArticles = 0;
+        
+//         articles.forEach(article => {
+//           if (article.journal && article.journal.trim() !== '') {
+//             journals[article.journal] = (journals[article.journal] || 0) + 1;
+//             journalsWithArticles++;
+//           }
+//         });
+        
+//         // Get top journals, sorted by frequency
+//         const topJournals = Object.entries(journals)
+//           .sort(([,countA], [,countB]) => countB - countA)
+//           .slice(0, 5);
+        
+//         let journalsHtml = '';
+//         if (topJournals.length > 0) {
+//           journalsHtml = `
+//             <ul class="list-disc list-inside">
+//               ${topJournals.map(([journal, count]) => 
+//                 `<li class="mb-1">${journal} 
+//                   <span class="text-gray-500 text-sm">(${count} article${count !== 1 ? 's' : ''}, 
+//                   ${Math.round((count / journalsWithArticles) * 100)}% of those with journal data)</span>
+//                 </li>`
+//               ).join('')}
+//             </ul>
+//             <p class="text-xs text-gray-500 mt-2">Top journals from ${Object.keys(journals).length} unique sources</p>
+//           `;
+//         } else {
+//           journalsHtml = '<p class="text-sm text-gray-500">Journal data not available for these articles</p>';
+//         }
+        
+//         // Extract keywords/topics with accurate counting
+//         const topics = {};
+//         let topicsMentioned = 0;
+        
+//         articles.forEach(article => {
+//           // Process both keywords and extract meaningful terms from title/abstract
+//           const processKeywords = keyword => {
+//             if (keyword && keyword.trim().length > 3) {
+//               // Normalize keyword (lowercase, trim)
+//               const normalizedKeyword = keyword.trim().toLowerCase();
+//               if (normalizedKeyword) {
+//                 topics[normalizedKeyword] = (topics[normalizedKeyword] || 0) + 1;
+//                 topicsMentioned++;
+//               }
+//             }
+//           };
+          
+//           // Process explicit keywords
+//           article.keywords.forEach(processKeywords);
+          
+//           // Extract potential topics from title that aren't in keywords
+//           const titleWords = article.title.split(/\s+/).filter(word => word.length > 5);
+//           titleWords.forEach(processKeywords);
+//         });
+        
+//         // Get top topics, accurately sorted by frequency
+//         const topTopics = Object.entries(topics)
+//           .sort(([,countA], [,countB]) => countB - countA)
+//           .slice(0, 20);
+        
+//         let topicsHtml = '';
+//         if (topTopics.length > 0) {
+//           // More accurate font scaling based on frequency
+//           const maxTopicCount = Math.max(...topTopics.map(([, count]) => count));
+          
+//           topicsHtml = `<div class="flex flex-wrap gap-2">`;
+//           topicsHtml += topTopics.map(([topic, count]) => {
+//             // Scale font size: 0.8rem (min) to 1.3rem (max)
+//             const fontSize = 0.8 + (count / maxTopicCount) * 0.5;
+//             // Calculate relative percentage
+//             const percentage = Math.round((count / topicsMentioned) * 100);
+            
+//             return `<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full cursor-help" 
+//                         style="font-size: ${fontSize}rem" 
+//                         title="${count} occurrences (${percentage}% of topic mentions)">${topic}</span>`;
+//           }).join(' ');
+//           topicsHtml += `</div>`;
+//           topicsHtml += `<p class="text-xs text-gray-500 mt-2">Based on keywords and title analysis across all articles</p>`;
+//         } else {
+//           topicsHtml = '<p class="text-sm text-gray-500">No common topics identified in these articles</p>';
+//         }
+        
+//         // Update the DOM with accurate data
+//         elements.pubmedTimeline.innerHTML = timelineHtml;
+//         elements.pubmedJournals.innerHTML = journalsHtml;
+//         elements.pubmedTopicsCloud.innerHTML = topicsHtml;
+        
+//         // Generate accurate research areas
+//         generateAccurateResearchAreas(articles);
+        
+//         // Hide loading, show content
+//         showComponent(elements.pubmedSummaryLoading, false);
+//         showComponent(elements.pubmedSummaryContent, true);
+        
+//       } catch (error) {
+//         console.error('Error generating summary:', error);
+//         elements.pubmedSummary.innerHTML = `
+//           <p class="text-sm text-gray-500">Could not generate research summary: ${error.message}</p>
+//         `;
+//       }
+//     }, 100);
+//   }
+  
+//   function generateAccurateResearchAreas(articles) {
+//     // Create a more accurate approach to finding key research areas
+//     // Count frequencies of meaningful research-related terms
+//     const researchTerms = {};
+    
+//     const commonPhrases = [
+//       'clinical trial', 'meta-analysis', 'systematic review', 'randomized controlled trial',
+//       'cohort study', 'case-control', 'double-blind', 'placebo-controlled', 'prospective study',
+//       'retrospective study', 'cross-sectional', 'longitudinal study', 'observational study',
+//       'efficacy', 'safety', 'mechanism', 'pathophysiology', 'etiology', 'diagnosis',
+//       'prevention', 'treatment outcome', 'prognosis', 'epidemiology', 'genetics',
+//       'biomarkers', 'pharmacology', 'therapeutic use', 'adverse effects', 
+//       'drug therapy', 'comparative study', 'drug resistance', 'pathology'
+//     ];
+    
+//     // More accurate analysis using context
+//     articles.forEach(article => {
+//       const text = (article.title + ' ' + article.abstract).toLowerCase();
+      
+//       commonPhrases.forEach(phrase => {
+//         // Look for whole phrases, not partial matches
+//         const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+//         const matches = text.match(regex);
+        
+//         if (matches && matches.length > 0) {
+//           researchTerms[phrase] = (researchTerms[phrase] || 0) + matches.length;
+//         }
+//       });
+//     });
+    
+//     // Sort by frequency and take top areas
+//     const topResearchAreas = Object.entries(researchTerms)
+//       .sort(([,countA], [,countB]) => countB - countA)
+//       .slice(0, 8);
+    
+//     let areasHtml = '';
+//     if (topResearchAreas.length > 0) {
+//       areasHtml = `
+//         <ul class="list-disc list-inside">
+//           ${topResearchAreas.map(([area, count]) => 
+//             `<li class="capitalize mb-1">
+//               ${area}
+//               <span class="text-gray-500 text-sm">(${count} mention${count !== 1 ? 's' : ''})</span>
+//             </li>`
+//           ).join('')}
+//         </ul>
+//         <p class="text-xs text-gray-500 mt-2">Based on methodology and focus analysis of all articles</p>
+//       `;
+//     } else {
+//       areasHtml = '<p class="text-sm text-gray-500">Research focus areas could not be determined for these articles</p>';
+//     }
+    
+//     elements.pubmedKeyAreas.innerHTML = areasHtml;
+//   }
+  
+//   function generateTreatmentsDisplay() {
+//     if (!elements.pubmedTreatments) return;
+    
+//     showComponent(elements.pubmedTreatments, true);
+//     showComponent(elements.pubmedTreatmentsLoading, true);
+//     showComponent(elements.pubmedTreatmentsContent, false);
+    
+//     setTimeout(() => {
+//       try {
+//         // Generate HTML for conditions and treatments
+//         let treatmentsHtml = '';
+        
+//         if (Object.keys(state.treatments).length > 0) {
+//           treatmentsHtml = `
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               ${Object.entries(state.treatments)
+//                 .sort(([condA], [condB]) => condA.localeCompare(condB))
+//                 .map(([condition, treatments]) => `
+//                   <div class="bg-gray-50 p-4 rounded-lg">
+//                     <h3 class="font-semibold text-gray-800 mb-2">${condition}</h3>
+//                     <div class="flex flex-wrap gap-2">
+//                       ${treatments
+//                         .sort((a, b) => a.localeCompare(b))
+//                         .map(treatment => 
+//                           `<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+//                             ${treatment}
+//                           </span>`
+//                         ).join('')}
+//                     </div>
+//                   </div>
+//                 `).join('')}
+//             </div>
+//           `;
+//         } else {
+//           treatmentsHtml = `
+//             <div class="text-center p-6">
+//               <p class="text-gray-500">No treatment information was identified in the current articles.</p>
+//               <p class="text-sm text-gray-400 mt-2">Try searching for a specific condition to find related treatments.</p>
+//             </div>
+//           `;
+//         }
+        
+//         elements.pubmedTreatmentsContent.innerHTML = treatmentsHtml;
+        
+//         showComponent(elements.pubmedTreatmentsLoading, false);
+//         showComponent(elements.pubmedTreatmentsContent, true);
+        
+//       } catch (error) {
+//         console.error('Error generating treatments display:', error);
+//         elements.pubmedTreatmentsContent.innerHTML = `
+//           <p class="text-sm text-gray-500">Could not generate treatments information: ${error.message}</p>
+//         `;
+//         showComponent(elements.pubmedTreatmentsLoading, false);
+//         showComponent(elements.pubmedTreatmentsContent, true);
+//       }
+//     }, 100);
+//   }
+
+//   async function searchPubMed(term, options = {}) {
+//     state.isLoading = true;
+//     state.term = term;
+//     state.currentPage = options.page || 1;
+//     state.sortBy = options.sortBy || state.sortBy;
+//     state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
+    
+//     // Reset treatments data if this is a new search
+//     if (state.currentPage === 1) {
+//       state.conditions = [];
+//       state.treatments = {};
+//     }
+    
+//     // Show the pubmed section and loading state
+//     showComponent(elements.pubmedSection, true);
+//     showComponent(elements.pubmedLoading, true);
+//     showComponent(elements.pubmedError, false);
+//     showComponent(elements.pubmedEmpty, false);
+//     showComponent(elements.pubmedArticles, false);
+//     showComponent(elements.pubmedSummary, false);
+//     showComponent(elements.pubmedTreatments, false);
+    
+//     try {
+//       const params = new URLSearchParams({
+//         term: term,
+//         page: state.currentPage,
+//         sortBy: state.sortBy,
+//         fullTextOnly: state.fullTextOnly
+//       });
+      
+//       const response = await fetch(`/api/pubmed?${params}`);
+      
+//       if (!response.ok) {
+//         throw new Error(`Server responded with status ${response.status}`);
+//       }
+      
+//       const data = await response.json();
+      
+//       // Update state with fetched data
+//       if (state.currentPage === 1) {
+//         state.articles = data.articles;
+//       } else {
+//         state.articles = [...state.articles, ...data.articles];
+//       }
+      
+//       state.totalResults = data.totalResults;
+      
+//       // Hide loading state
+//       showComponent(elements.pubmedLoading, false);
+      
+//       if (state.articles.length === 0) {
+//         showComponent(elements.pubmedEmpty, true);
+//       } else {
+//         showComponent(elements.pubmedArticles, true);
+//         renderArticles();
+        
+//         // Generate treatments display
+//         generateTreatmentsDisplay();
+        
+//         // Show or hide summary based on user preference
+//         if (state.showSummary && state.currentPage === 1) {
+//           generateAccurateSummary(state.articles);
+//         }
+//       }
+      
+//     } catch (error) {
+//       console.error('Error fetching PubMed data:', error);
+//       showComponent(elements.pubmedLoading, false);
+//       showComponent(elements.pubmedError, true);
+//       elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+//     }
+    
+//     state.isLoading = false;
+//   }
+  
+//   function initEventListeners() {
+//     // Existing event listeners
+//     if (elements.pubmedSort) {
+//       elements.pubmedSort.addEventListener('change', () => {
+//         searchPubMed(state.term, { 
+//           page: 1, 
+//           sortBy: elements.pubmedSort.value,
+//           fullTextOnly: elements.pubmedFullTextOnly.checked 
+//         });
+//       });
+//     }
+    
+//     if (elements.pubmedFullTextOnly) {
+//       elements.pubmedFullTextOnly.addEventListener('change', () => {
+//         searchPubMed(state.term, { 
+//           page: 1, 
+//           sortBy: elements.pubmedSort.value,
+//           fullTextOnly: elements.pubmedFullTextOnly.checked 
+//         });
+//       });
+//     }
+    
+//     if (elements.pubmedLoadMore) {
+//       elements.pubmedLoadMore.addEventListener('click', () => {
+//         if (!state.isLoading) {
+//           searchPubMed(state.term, { 
+//             page: state.currentPage + 1,
+//             sortBy: elements.pubmedSort.value,
+//             fullTextOnly: elements.pubmedFullTextOnly.checked
+//           });
+//         }
+//       });
+//     }
+    
+//     // New event listener for toggling summary
+//     if (elements.pubmedToggleSummary) {
+//       elements.pubmedToggleSummary.addEventListener('click', () => {
+//         state.showSummary = !state.showSummary;
+        
+//         // Update button text
+//         if (elements.pubmedToggleSummary.textContent) {
+//           elements.pubmedToggleSummary.textContent = state.showSummary ? 'Hide Summary' : 'Show Summary';
+//         }
+        
+//         // Show/hide summary section
+//         showComponent(elements.pubmedSummary, state.showSummary);
+        
+//         // Generate summary if it's being shown and wasn't before
+//         if (state.showSummary && state.articles.length > 0) {
+//           generateAccurateSummary(state.articles);
+//         }
+//       });
+//     }
+    
+//     // Add filter for specific conditions
+//     if (elements.pubmedFilterBar) {
+//       elements.pubmedFilterBar.addEventListener('click', (e) => {
+//         if (e.target.classList.contains('condition-filter')) {
+//           const condition = e.target.dataset.condition;
+//           if (condition) {
+//             // Add condition to search term
+//             const newTerm = state.term.includes(condition) ? 
+//               state.term : `${state.term} ${condition}`;
+            
+//             searchPubMed(newTerm, { page: 1 });
+//           }
+//         }
+//       });
+//     }
+//   }
+  
+//   function init() {
+//     initEventListeners();
+//   }
+  
+//   return {
+//     init,
+//     searchPubMed,
+//     toggleSummary: function(show) {
+//       state.showSummary = show;
+//       showComponent(elements.pubmedSummary, show);
+//     }
+//   };
+// })();
+
+// Advanced PubMed Module with Specialized Condition & Drug Search
 const PubMedModule = (function() {
   const elements = {
-    pubmedSection: document.getElementById('pubmedSection'),
-    pubmedLoading: document.getElementById('pubmedLoading'),
-    pubmedError: document.getElementById('pubmedError'),
+    // Main containers
+    // pubmedSection: document.getElementById('pubmedSection'),
+    // pubmedLoading: document.getElementById('pubmedLoading'),
+    // pubmedError: document.getElementById('pubmedError'),
+    pubmedSection: safeGetElement('pubmedSection'),
+  pubmedLoading: safeGetElement('pubmedLoading'),
+  pubmedError: safeGetElement('pubmedError'),
+
     pubmedErrorMessage: document.getElementById('pubmedErrorMessage'),
     pubmedEmpty: document.getElementById('pubmedEmpty'),
+    
+    // Search related elements
+    pubmedSearchBox: document.getElementById('pubmedSearchBox'),
+    pubmedSearchByCondition: document.getElementById('pubmedSearchByCondition'),
+    pubmedSearchByDrug: document.getElementById('pubmedSearchByDrug'),
+    pubmedAdvancedToggle: document.getElementById('pubmedAdvancedToggle'),
+    pubmedAdvancedOptions: document.getElementById('pubmedAdvancedOptions'),
+    
+    // Filter and sorting elements
+    pubmedSort: document.getElementById('pubmedSort'),
+    pubmedFullTextOnly: document.getElementById('pubmedFullTextOnly'),
+    pubmedYearFilter: document.getElementById('pubmedYearFilter'),
+    pubmedJournalFilter: document.getElementById('pubmedJournalFilter'),
+    
+    // Results elements
     pubmedArticles: document.getElementById('pubmedArticles'),
     pubmedArticlesList: document.getElementById('pubmedArticlesList'),
     pubmedResultCount: document.getElementById('pubmedResultCount'),
-    pubmedSort: document.getElementById('pubmedSort'),
-    pubmedFullTextOnly: document.getElementById('pubmedFullTextOnly'),
     pubmedLoadMore: document.getElementById('pubmedLoadMore'),
     pubmedPagination: document.getElementById('pubmedPagination'),
-    pubmedSummary: document.getElementById('pubmedSummary'),
-    pubmedSummaryLoading: document.getElementById('pubmedSummaryLoading'),
-    pubmedSummaryContent: document.getElementById('pubmedSummaryContent'),
-    pubmedKeyAreas: document.getElementById('pubmedKeyAreas'),
-    pubmedTimeline: document.getElementById('pubmedTimeline'),
-    pubmedTopics: document.getElementById('pubmedTopics'),
-    pubmedTopicsCloud: document.getElementById('pubmedTopicsCloud'),
-    pubmedJournals: document.getElementById('pubmedJournals'),
+    
+    // Treatment results (replaces summary)
     pubmedTreatments: document.getElementById('pubmedTreatments'),
     pubmedTreatmentsLoading: document.getElementById('pubmedTreatmentsLoading'),
     pubmedTreatmentsContent: document.getElementById('pubmedTreatmentsContent'),
-    pubmedToggleSummary: document.getElementById('pubmedToggleSummary'),
-    pubmedFilterBar: document.getElementById('pubmedFilterBar')
+    
+    // Drug information results
+    pubmedDrugInfo: document.getElementById('pubmedDrugInfo'),
+    pubmedDrugInfoLoading: document.getElementById('pubmedDrugInfoLoading'),
+    pubmedDrugInfoContent: document.getElementById('pubmedDrugInfoContent'),
+    
+    // Rare condition input
+    pubmedRareConditionInput: document.getElementById('pubmedRareConditionInput'),
+    pubmedAddRareCondition: document.getElementById('pubmedAddRareCondition')
   };
 
+  // State management for the module
   let state = {
     term: '',
+    searchType: 'general', // 'general', 'condition', or 'drug'
     articles: [],
     currentPage: 1,
     totalResults: 0,
     isLoading: false,
     sortBy: 'relevance',
     fullTextOnly: false,
-    showSummary: true,
-    conditions: [],
-    treatments: {}
+    yearFilter: '',
+    journalFilter: '',
+    medicalDatabase: {
+      conditions: [],
+      drugs: [],
+      conditionDrugMap: {},
+      drugConditionMap: {},
+      drugClasses: {},
+      articleEvidence: {},
+      recentUpdated: null
+    }
   };
-  
+
+  // Common drug classes for classification
+  const drugClasses = {
+    "Antibiotics": ["penicillin", "amoxicillin", "azithromycin", "ciprofloxacin", "doxycycline", "vancomycin"],
+    "Antidepressants": ["fluoxetine", "sertraline", "escitalopram", "bupropion", "venlafaxine", "trazodone"],
+    "Antihypertensives": ["lisinopril", "losartan", "amlodipine", "hydrochlorothiazide", "metoprolol", "valsartan"],
+    "Anti-inflammatories": ["ibuprofen", "naproxen", "celecoxib", "prednisone", "dexamethasone", "methylprednisolone"],
+    "Antidiabetics": ["metformin", "insulin", "glipizide", "sitagliptin", "empagliflozin", "liraglutide"],
+    "Anticoagulants": ["warfarin", "apixaban", "rivaroxaban", "dabigatran", "heparin", "enoxaparin"],
+    "Antipsychotics": ["risperidone", "olanzapine", "quetiapine", "aripiprazole", "haloperidol", "clozapine"],
+    "Anticonvulsants": ["levetiracetam", "lamotrigine", "valproic acid", "carbamazepine", "phenytoin", "gabapentin"],
+    "Biologics": ["adalimumab", "etanercept", "infliximab", "ustekinumab", "secukinumab", "rituximab"],
+    "Statins": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin", "lovastatin", "fluvastatin"],
+    "Bronchodilators": ["albuterol", "salmeterol", "formoterol", "tiotropium", "ipratropium", "theophylline"],
+    "Antihistamines": ["loratadine", "cetirizine", "fexofenadine", "diphenhydramine", "hydroxyzine", "desloratadine"],
+    "Proton Pump Inhibitors": ["omeprazole", "esomeprazole", "pantoprazole", "lansoprazole", "rabeprazole", "dexlansoprazole"],
+    "Opioid Analgesics": ["morphine", "oxycodone", "hydrocodone", "tramadol", "fentanyl", "codeine"],
+    "Immunosuppressants": ["cyclosporine", "tacrolimus", "mycophenolate", "azathioprine", "sirolimus", "methotrexate"],
+    "Chemotherapy": ["cisplatin", "carboplatin", "doxorubicin", "paclitaxel", "fluorouracil", "gemcitabine"]
+  };
+
+  // Utility function to show/hide components
   function showComponent(component, isVisible) {
     if (!component) return;
     
@@ -25325,37 +26124,380 @@ const PubMedModule = (function() {
     }
   }
   
+  // Utility function to format date
   function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
+
+  // Advanced function to detect conditions from text using NLP-like techniques
+  function extractConditions(article) {
+    const text = (article.title + ' ' + article.abstract).toLowerCase();
+    const extractedConditions = [];
+    
+    // Common condition patterns
+    const conditionPatterns = [
+      // "Patients with X", "diagnosed with X", etc.
+      /(?:patients? with|diagnosed with|cases? of|subjects? with|suffering from|presented with)\s+([a-z0-9\-\s]+)(?:,|\.|;|\s+and|\s+or|\s+were|\s+was|\s+had|\s+have)/gi,
+      
+      // "Treatment of X", "Management of X", etc.
+      /(?:treatment of|management of|therapy for|intervention for)\s+([a-z0-9\-\s]+)(?:,|\.|;|\s+was|\s+is|\s+has|\s+have)/gi,
+      
+      // Common disease/disorder patterns
+      /([a-z0-9\-\s]{3,50})\s+(?:syndrome|disease|disorder|cancer|infection|deficiency)/gi,
+      
+      // Match conditions with suffixes
+      /([a-z0-9\-\s]{3,40})(?:itis|emia|pathy|plasia|oma|trophy|toxicity|lysis)/gi
+    ];
+    
+    // Extract using patterns
+    conditionPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const condition = match[1].trim();
+        
+        // Filter out non-conditions
+        if (
+          condition.length > 3 && 
+          !/^(the|this|that|these|those|some|any|our|their|other|many|various|different|several|each|every|all|both|either|neither|few|one|two|three|four|five|ten)$/i.test(condition) &&
+          !extractedConditions.includes(condition)
+        ) {
+          // Format: capitalize first letter of each word
+          const formattedCondition = condition.replace(/\b\w/g, c => c.toUpperCase());
+          extractedConditions.push(formattedCondition);
+        }
+      }
+    });
+    
+    // Keywords are often a good source of conditions
+    if (article.keywords && Array.isArray(article.keywords)) {
+      article.keywords.forEach(keyword => {
+        const keywordLower = keyword.toLowerCase();
+        
+        // Keywords with these terms are likely conditions
+        if (
+          keywordLower.includes('disease') || 
+          keywordLower.includes('syndrome') || 
+          keywordLower.includes('disorder') || 
+          keywordLower.includes('deficiency') ||
+          keywordLower.includes('cancer') ||
+          keywordLower.includes('infection') ||
+          (keywordLower.length > 5 && !extractedConditions.includes(keyword))
+        ) {
+          const formattedKeyword = keyword.replace(/\b\w/g, c => c.toUpperCase());
+          extractedConditions.push(formattedKeyword);
+        }
+      });
+    }
+    
+    // MeSH terms (if present) are very reliable for conditions
+    if (article.meshTerms && Array.isArray(article.meshTerms)) {
+      article.meshTerms.forEach(term => {
+        if (
+          term.includes('Disease') || 
+          term.includes('Syndrome') || 
+          term.includes('Disorder') || 
+          term.includes('Infection')
+        ) {
+          if (!extractedConditions.includes(term)) {
+            extractedConditions.push(term);
+          }
+        }
+      });
+    }
+    
+    return [...new Set(extractedConditions)]; // Remove duplicates
+  }
+
+  // Advanced function to extract drugs/treatments from text
+  function extractDrugs(article) {
+    const text = (article.title + ' ' + article.abstract).toLowerCase();
+    const extractedDrugs = [];
+    
+    // Common drug/treatment patterns
+    const drugPatterns = [
+      // "Treated with X", "administered X", etc.
+      /(?:treated with|treatment with|administered|given|received|therapy with|medication with)\s+([a-z0-9\-\s]+)(?:,|\.|;|\s+and|\s+or|\s+were|\s+was|\s+had|\s+have)/gi,
+      
+      // Dosage patterns
+      /(?:dose of|doses of|dosage of|mg of|mcg of|g of)\s+([a-z0-9\-\s]+)(?:,|\.|;|\s+was|\s+were|\s+is|\s+are)/gi,
+      
+      // "X therapy", "X treatment", etc.
+      /([a-z0-9\-\s]{3,40})\s+(?:therapy|treatment|administration|infusion|injection|medication)/gi
+    ];
+    
+    // Extract using patterns
+    drugPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        const drug = match[1].trim();
+        
+        // Filter out non-drugs
+        if (
+          drug.length > 3 && 
+          !/^(the|this|that|these|those|some|any|our|their|other|many|various|different|several|each|every|all|both|either|neither|few|one|two|three|four|five|ten|standard|conventional|usual|current|intensive|maintenance)$/i.test(drug) &&
+          !extractedDrugs.includes(drug)
+        ) {
+          // Format: capitalize first letter of each word
+          const formattedDrug = drug.replace(/\b\w/g, c => c.toUpperCase());
+          extractedDrugs.push(formattedDrug);
+        }
+      }
+    });
+    
+    // Check for drug class mentions
+    Object.entries(drugClasses).forEach(([className, drugs]) => {
+      // Check for the class name itself
+      if (text.includes(className.toLowerCase())) {
+        extractedDrugs.push(className);
+      }
+      
+      // Check for specific drugs in this class
+      drugs.forEach(drug => {
+        if (new RegExp(`\\b${drug}\\b`, 'i').test(text)) {
+          // Format: capitalize first letter
+          const formattedDrug = drug.charAt(0).toUpperCase() + drug.slice(1);
+          if (!extractedDrugs.includes(formattedDrug)) {
+            extractedDrugs.push(formattedDrug);
+          }
+        }
+      });
+    });
+    
+    // Keywords can also indicate drugs/treatments
+    if (article.keywords && Array.isArray(article.keywords)) {
+      article.keywords.forEach(keyword => {
+        const keywordLower = keyword.toLowerCase();
+        
+        // Keywords with these terms are likely treatments
+        if (
+          keywordLower.includes('therapy') || 
+          keywordLower.includes('treatment') || 
+          keywordLower.includes('medication') || 
+          keywordLower.includes('drug') ||
+          keywordLower.includes('inhibitor') ||
+          keywordLower.includes('antagonist')
+        ) {
+          const formattedKeyword = keyword.replace(/\b\w/g, c => c.toUpperCase());
+          if (!extractedDrugs.includes(formattedKeyword)) {
+            extractedDrugs.push(formattedKeyword);
+          }
+        }
+      });
+    }
+    
+    return [...new Set(extractedDrugs)]; // Remove duplicates
+  }
+
+  // Function to map conditions to drugs based on proximity and context
+  function mapConditionsToDrugs(article, conditions, drugs) {
+    const text = (article.title + ' ' + article.abstract).toLowerCase();
+    const conditionDrugMap = {};
+    const drugConditionMap = {};
+    
+    // Initialize maps
+    conditions.forEach(condition => conditionDrugMap[condition] = []);
+    drugs.forEach(drug => drugConditionMap[drug] = []);
+    
+    // For each condition, check proximity to drugs in the text
+    conditions.forEach(condition => {
+      const conditionLower = condition.toLowerCase();
+      
+      // Find position of this condition in text
+      const conditionIndex = text.indexOf(conditionLower);
+      if (conditionIndex === -1) return; // Skip if not found
+      
+      // Check each drug
+      drugs.forEach(drug => {
+        const drugLower = drug.toLowerCase();
+        const drugIndex = text.indexOf(drugLower);
+        if (drugIndex === -1) return; // Skip if not found
+        
+        // If drug and condition are "close" to each other (within 150 chars)
+        // This is a simplistic proximity heuristic
+        if (Math.abs(drugIndex - conditionIndex) < 150) {
+          // Add to maps if not already present
+          if (!conditionDrugMap[condition].includes(drug)) {
+            conditionDrugMap[condition].push(drug);
+          }
+          if (!drugConditionMap[drug].includes(condition)) {
+            drugConditionMap[drug].push(condition);
+          }
+        }
+      });
+    });
+    
+    // For each condition-drug pair, collect evidence
+    Object.entries(conditionDrugMap).forEach(([condition, mappedDrugs]) => {
+      mappedDrugs.forEach(drug => {
+        const evidenceKey = `${condition}|||${drug}`;
+        if (!state.medicalDatabase.articleEvidence[evidenceKey]) {
+          state.medicalDatabase.articleEvidence[evidenceKey] = [];
+        }
+        
+        // Add this article as evidence if not already present
+        const alreadyAdded = state.medicalDatabase.articleEvidence[evidenceKey].some(
+          evidence => evidence.pmid === article.pmid
+        );
+        
+        if (!alreadyAdded) {
+          state.medicalDatabase.articleEvidence[evidenceKey].push({
+            pmid: article.pmid,
+            title: article.title,
+            date: article.pubDate,
+            journal: article.journal,
+            excerpt: findRelevantExcerpt(text, condition, drug)
+          });
+        }
+      });
+    });
+    
+    return { conditionDrugMap, drugConditionMap };
+  }
   
+  // Find relevant text excerpt that mentions both condition and drug
+  function findRelevantExcerpt(text, condition, drug) {
+    const conditionLower = condition.toLowerCase();
+    const drugLower = drug.toLowerCase();
+    
+    // Find positions
+    const conditionIndex = text.indexOf(conditionLower);
+    const drugIndex = text.indexOf(drugLower);
+    
+    if (conditionIndex === -1 || drugIndex === -1) return ""; // Not found
+    
+    // Find the middle point between condition and drug mentions
+    const midPoint = (conditionIndex + drugIndex) / 2;
+    
+    // Extract a snippet around the mentions (up to 150 chars)
+    const start = Math.max(0, midPoint - 75);
+    const end = Math.min(text.length, midPoint + 75);
+    
+    return text.substring(start, end).trim() + "...";
+  }
+
+  // Process articles to extract medical knowledge
+  function processMedicalKnowledge(articles) {
+    let updatedDatabase = {
+      conditions: [...state.medicalDatabase.conditions],
+      drugs: [...state.medicalDatabase.drugs],
+      conditionDrugMap: {...state.medicalDatabase.conditionDrugMap},
+      drugConditionMap: {...state.medicalDatabase.drugConditionMap},
+      drugClasses: {...state.medicalDatabase.drugClasses},
+      articleEvidence: {...state.medicalDatabase.articleEvidence},
+      recentUpdated: new Date().toISOString()
+    };
+    
+    articles.forEach(article => {
+      // Extract conditions and drugs
+      const conditions = extractConditions(article);
+      const drugs = extractDrugs(article);
+      
+      // Skip if no conditions or drugs found
+      if (conditions.length === 0 || drugs.length === 0) return;
+      
+      // Map conditions to drugs and vice versa
+      const { conditionDrugMap, drugConditionMap } = mapConditionsToDrugs(article, conditions, drugs);
+      
+      // Update database with new conditions
+      conditions.forEach(condition => {
+        if (!updatedDatabase.conditions.includes(condition)) {
+          updatedDatabase.conditions.push(condition);
+        }
+        
+        // Initialize or merge condition-drug mapping
+        if (!updatedDatabase.conditionDrugMap[condition]) {
+          updatedDatabase.conditionDrugMap[condition] = [];
+        }
+        
+        // Add drugs for this condition
+        if (conditionDrugMap[condition]) {
+          conditionDrugMap[condition].forEach(drug => {
+            if (!updatedDatabase.conditionDrugMap[condition].includes(drug)) {
+              updatedDatabase.conditionDrugMap[condition].push(drug);
+            }
+          });
+        }
+      });
+      
+      // Update database with new drugs
+      drugs.forEach(drug => {
+        if (!updatedDatabase.drugs.includes(drug)) {
+          updatedDatabase.drugs.push(drug);
+        }
+        
+        // Initialize or merge drug-condition mapping
+        if (!updatedDatabase.drugConditionMap[drug]) {
+          updatedDatabase.drugConditionMap[drug] = [];
+        }
+        
+        // Add conditions for this drug
+        if (drugConditionMap[drug]) {
+          drugConditionMap[drug].forEach(condition => {
+            if (!updatedDatabase.drugConditionMap[drug].includes(condition)) {
+              updatedDatabase.drugConditionMap[drug].push(condition);
+            }
+          });
+        }
+        
+        // Categorize drug into drug classes
+        Object.entries(drugClasses).forEach(([className, classDrugs]) => {
+          if (classDrugs.some(classDrug => drug.toLowerCase().includes(classDrug))) {
+            if (!updatedDatabase.drugClasses[drug]) {
+              updatedDatabase.drugClasses[drug] = [];
+            }
+            if (!updatedDatabase.drugClasses[drug].includes(className)) {
+              updatedDatabase.drugClasses[drug].push(className);
+            }
+          }
+        });
+      });
+    });
+    
+    return updatedDatabase;
+  }
+
+  // Create article element for display
   function createArticleElement(article) {
     const articleElement = document.createElement('div');
-    articleElement.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition duration-150 ease-in-out mb-4';
+    articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
     
     const hasDOI = article.doi && article.doi.trim() !== '';
     const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
     
-    // Extract potential condition and treatment information
+    // Extract medical information
     const conditions = extractConditions(article);
-    const treatments = extractTreatments(article);
+    const drugs = extractDrugs(article);
     
-    let conditionsTreatmentsHTML = '';
-    if (conditions.length > 0 || treatments.length > 0) {
-      conditionsTreatmentsHTML = `
-        <div class="border-t border-gray-200 mt-3 pt-3">
+    // Determine if this contains rare conditions (not in our predefined lists)
+    const isRareCondition = conditions.some(condition => 
+      !Object.keys(drugClasses).includes(condition)
+    );
+    
+    // Create HTML for medical findings section
+    let medicalFindings = '';
+    if (conditions.length > 0 || drugs.length > 0) {
+      medicalFindings = `
+        <div class="border-t border-gray-100 mt-3 pt-3">
           ${conditions.length > 0 ? 
             `<div class="mb-2">
               <span class="text-xs font-medium text-gray-700">Conditions: </span>
-              <span class="text-xs text-gray-600">${conditions.join(', ')}</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${conditions.map(condition => 
+                  `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
+                ).join('')}
+              </div>
             </div>` : ''
           }
-          ${treatments.length > 0 ? 
+          ${drugs.length > 0 ? 
             `<div>
               <span class="text-xs font-medium text-gray-700">Treatments: </span>
-              <span class="text-xs text-gray-600">${treatments.join(', ')}</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${drugs.map(drug => 
+                  `<span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
+                ).join('')}
+              </div>
             </div>` : ''
           }
         </div>
@@ -25363,35 +26505,69 @@ const PubMedModule = (function() {
     }
     
     articleElement.innerHTML = `
-      <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+      <div class="flex justify-between">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+        ${isRareCondition ? 
+          `<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 h-6 rounded-full">Rare Condition</span>` : 
+          ''
+        }
+      </div>
       <div class="text-sm text-gray-600 mb-2">
         ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
       </div>
-      <div class="text-sm text-gray-500 mb-3">
-        <span class="font-medium">${article.journal || 'Journal not specified'}</span> • 
-        ${formatDate(article.pubDate)} • 
-        PMID: ${article.pmid}
+      <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
+        <span class="font-medium">${article.journal || 'Journal not specified'}</span>
+        <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+        <span>${formatDate(article.pubDate)}</span>
+        <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+        <span>PMID: ${article.pmid}</span>
       </div>
       <p class="text-gray-700 text-sm mb-3">${article.abstract.substring(0, 200)}${article.abstract.length > 200 ? '...' : ''}</p>
-      <div class="flex flex-wrap gap-2 mb-3">
-        ${article.keywords.map(keyword => 
-          `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
-        ).join('')}
-      </div>
-      ${conditionsTreatmentsHTML}
-      <div class="flex flex-wrap gap-2 mt-2">
-        <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">View on PubMed</a>
+      ${article.keywords && article.keywords.length > 0 ? 
+        `<div class="flex flex-wrap gap-1 mb-3">
+          ${article.keywords.map(keyword => 
+            `<span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
+          ).join('')}
+        </div>` : ''
+      }
+      ${medicalFindings}
+      <div class="flex flex-wrap gap-2 mt-3">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
+           class="text-primary hover:text-primary-dark text-sm flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          View on PubMed
+        </a>
         ${hasDOI ? 
-          `<a href="https://doi.org/${article.doi}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">DOI</a>` : ''}
+          `<a href="https://doi.org/${article.doi}" target="_blank" 
+              class="text-primary hover:text-primary-dark text-sm flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
+            </svg>
+            DOI
+          </a>` : ''
+        }
         ${hasFullText ? 
-          `<a href="${article.fullTextUrl}" target="_blank" class="text-primary hover:text-primary-dark text-sm underline">Full Text</a>` : ''}
+          `<a href="${article.fullTextUrl}" target="_blank" 
+              class="text-primary hover:text-primary-dark text-sm flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Full Text
+          </a>` : ''
+        }
       </div>
     `;
     
     return articleElement;
   }
-  
+
+  // Render articles in the list
   function renderArticles() {
+    if (!elements.pubmedArticlesList) return;
+    
     elements.pubmedArticlesList.innerHTML = '';
     
     state.articles.forEach(article => {
@@ -25399,296 +26575,17 @@ const PubMedModule = (function() {
       elements.pubmedArticlesList.appendChild(articleElement);
     });
     
-    elements.pubmedResultCount.textContent = `${state.totalResults} articles found`;
+    if (elements.pubmedResultCount) {
+      elements.pubmedResultCount.textContent = `${state.totalResults} articles found`;
+    }
     
     // Show/hide load more button based on whether there are more results
     const hasMoreResults = state.articles.length < state.totalResults;
     showComponent(elements.pubmedPagination, hasMoreResults);
   }
-  
-  function extractConditions(article) {
-    const conditions = [];
-    const commonConditions = [
-      'diabetes', 'hypertension', 'cancer', 'asthma', 'arthritis', 
-      'alzheimer', 'parkinson', 'obesity', 'depression', 'anxiety',
-      'copd', 'hepatitis', 'hiv', 'stroke', 'heart disease', 'heart failure',
-      'multiple sclerosis', 'fibromyalgia', 'leukemia', 'epilepsy'
-    ];
-    
-    // Check title, abstract, and keywords
-    const textToCheck = (article.title + ' ' + article.abstract + ' ' + article.keywords.join(' ')).toLowerCase();
-    
-    commonConditions.forEach(condition => {
-      if (textToCheck.includes(condition)) {
-        // Capitalize first letter of each word
-        const formattedCondition = condition.replace(/\b\w/g, l => l.toUpperCase());
-        conditions.push(formattedCondition);
-        
-        // Add to global state for treatment mapping
-        if (!state.conditions.includes(formattedCondition)) {
-          state.conditions.push(formattedCondition);
-        }
-      }
-    });
-    
-    return conditions;
-  }
-  
-  function extractTreatments(article) {
-    const treatments = [];
-    const commonTreatments = [
-      'metformin', 'insulin', 'statins', 'aspirin', 'ibuprofen',
-      'prednisone', 'albuterol', 'fluoxetine', 'amoxicillin',
-      'lisinopril', 'losartan', 'warfarin', 'heparin', 'atorvastatin',
-      'levothyroxine', 'omeprazole', 'gabapentin', 'amlodipine', 'metoprolol'
-    ];
-    
-    // Check abstract and title
-    const textToCheck = (article.title + ' ' + article.abstract).toLowerCase();
-    
-    commonTreatments.forEach(treatment => {
-      if (textToCheck.includes(treatment)) {
-        // Capitalize first letter
-        const formattedTreatment = treatment.charAt(0).toUpperCase() + treatment.slice(1);
-        treatments.push(formattedTreatment);
-        
-        // Build treatment-condition relationships
-        extractConditions(article).forEach(condition => {
-          if (!state.treatments[condition]) {
-            state.treatments[condition] = [];
-          }
-          if (!state.treatments[condition].includes(formattedTreatment)) {
-            state.treatments[condition].push(formattedTreatment);
-          }
-        });
-      }
-    });
-    
-    return treatments;
-  }
 
-  function generateAccurateSummary(articles) {
-    // Show loading state
-    showComponent(elements.pubmedSummary, true);
-    showComponent(elements.pubmedSummaryLoading, true);
-    showComponent(elements.pubmedSummaryContent, false);
-    
-    // Process in setTimeout to not block UI
-    setTimeout(() => {
-      try {
-        // Extract publication years with accurate counting
-        const years = {};
-        articles.forEach(article => {
-          if (!article.pubDate) return;
-          
-          const date = new Date(article.pubDate);
-          const year = date.getFullYear();
-          if (!isNaN(year)) {
-            years[year] = (years[year] || 0) + 1;
-          }
-        });
-        
-        // Sort years chronologically
-        const sortedYears = Object.entries(years)
-          .sort(([yearA], [yearB]) => parseInt(yearA) - parseInt(yearB));
-        
-        // Generate accurate timeline visualization
-        let timelineHtml = '';
-        if (sortedYears.length > 0) {
-          // Find max count for accurate scaling
-          const maxCount = Math.max(...sortedYears.map(([, count]) => count));
-          
-          timelineHtml = `
-            <div class="overflow-x-auto">
-              <table class="w-full min-w-full">
-                <tbody>
-                  ${sortedYears.map(([year, count]) => {
-                    // Calculate width percentage (minimum 5%, maximum 95%)
-                    const widthPercent = Math.max(5, Math.min(95, (count / maxCount) * 100));
-                    
-                    return `
-                      <tr class="border-b border-gray-100">
-                        <td class="py-1 pr-2 text-right font-medium text-sm w-16">${year}</td>
-                        <td class="py-1 w-full">
-                          <div class="flex items-center">
-                            <div class="bg-primary h-5 rounded-sm" style="width: ${widthPercent}%"></div>
-                            <span class="ml-2 text-sm">${count}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">Publications by year (based on all ${articles.length} articles)</p>
-          `;
-        } else {
-          timelineHtml = '<p class="text-sm text-gray-500">Timeline data not available for these articles</p>';
-        }
-        
-        // Extract journals with accurate counting
-        const journals = {};
-        let journalsWithArticles = 0;
-        
-        articles.forEach(article => {
-          if (article.journal && article.journal.trim() !== '') {
-            journals[article.journal] = (journals[article.journal] || 0) + 1;
-            journalsWithArticles++;
-          }
-        });
-        
-        // Get top journals, sorted by frequency
-        const topJournals = Object.entries(journals)
-          .sort(([,countA], [,countB]) => countB - countA)
-          .slice(0, 5);
-        
-        let journalsHtml = '';
-        if (topJournals.length > 0) {
-          journalsHtml = `
-            <ul class="list-disc list-inside">
-              ${topJournals.map(([journal, count]) => 
-                `<li class="mb-1">${journal} 
-                  <span class="text-gray-500 text-sm">(${count} article${count !== 1 ? 's' : ''}, 
-                  ${Math.round((count / journalsWithArticles) * 100)}% of those with journal data)</span>
-                </li>`
-              ).join('')}
-            </ul>
-            <p class="text-xs text-gray-500 mt-2">Top journals from ${Object.keys(journals).length} unique sources</p>
-          `;
-        } else {
-          journalsHtml = '<p class="text-sm text-gray-500">Journal data not available for these articles</p>';
-        }
-        
-        // Extract keywords/topics with accurate counting
-        const topics = {};
-        let topicsMentioned = 0;
-        
-        articles.forEach(article => {
-          // Process both keywords and extract meaningful terms from title/abstract
-          const processKeywords = keyword => {
-            if (keyword && keyword.trim().length > 3) {
-              // Normalize keyword (lowercase, trim)
-              const normalizedKeyword = keyword.trim().toLowerCase();
-              if (normalizedKeyword) {
-                topics[normalizedKeyword] = (topics[normalizedKeyword] || 0) + 1;
-                topicsMentioned++;
-              }
-            }
-          };
-          
-          // Process explicit keywords
-          article.keywords.forEach(processKeywords);
-          
-          // Extract potential topics from title that aren't in keywords
-          const titleWords = article.title.split(/\s+/).filter(word => word.length > 5);
-          titleWords.forEach(processKeywords);
-        });
-        
-        // Get top topics, accurately sorted by frequency
-        const topTopics = Object.entries(topics)
-          .sort(([,countA], [,countB]) => countB - countA)
-          .slice(0, 20);
-        
-        let topicsHtml = '';
-        if (topTopics.length > 0) {
-          // More accurate font scaling based on frequency
-          const maxTopicCount = Math.max(...topTopics.map(([, count]) => count));
-          
-          topicsHtml = `<div class="flex flex-wrap gap-2">`;
-          topicsHtml += topTopics.map(([topic, count]) => {
-            // Scale font size: 0.8rem (min) to 1.3rem (max)
-            const fontSize = 0.8 + (count / maxTopicCount) * 0.5;
-            // Calculate relative percentage
-            const percentage = Math.round((count / topicsMentioned) * 100);
-            
-            return `<span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full cursor-help" 
-                        style="font-size: ${fontSize}rem" 
-                        title="${count} occurrences (${percentage}% of topic mentions)">${topic}</span>`;
-          }).join(' ');
-          topicsHtml += `</div>`;
-          topicsHtml += `<p class="text-xs text-gray-500 mt-2">Based on keywords and title analysis across all articles</p>`;
-        } else {
-          topicsHtml = '<p class="text-sm text-gray-500">No common topics identified in these articles</p>';
-        }
-        
-        // Update the DOM with accurate data
-        elements.pubmedTimeline.innerHTML = timelineHtml;
-        elements.pubmedJournals.innerHTML = journalsHtml;
-        elements.pubmedTopicsCloud.innerHTML = topicsHtml;
-        
-        // Generate accurate research areas
-        generateAccurateResearchAreas(articles);
-        
-        // Hide loading, show content
-        showComponent(elements.pubmedSummaryLoading, false);
-        showComponent(elements.pubmedSummaryContent, true);
-        
-      } catch (error) {
-        console.error('Error generating summary:', error);
-        elements.pubmedSummary.innerHTML = `
-          <p class="text-sm text-gray-500">Could not generate research summary: ${error.message}</p>
-        `;
-      }
-    }, 100);
-  }
-  
-  function generateAccurateResearchAreas(articles) {
-    // Create a more accurate approach to finding key research areas
-    // Count frequencies of meaningful research-related terms
-    const researchTerms = {};
-    
-    const commonPhrases = [
-      'clinical trial', 'meta-analysis', 'systematic review', 'randomized controlled trial',
-      'cohort study', 'case-control', 'double-blind', 'placebo-controlled', 'prospective study',
-      'retrospective study', 'cross-sectional', 'longitudinal study', 'observational study',
-      'efficacy', 'safety', 'mechanism', 'pathophysiology', 'etiology', 'diagnosis',
-      'prevention', 'treatment outcome', 'prognosis', 'epidemiology', 'genetics',
-      'biomarkers', 'pharmacology', 'therapeutic use', 'adverse effects', 
-      'drug therapy', 'comparative study', 'drug resistance', 'pathology'
-    ];
-    
-    // More accurate analysis using context
-    articles.forEach(article => {
-      const text = (article.title + ' ' + article.abstract).toLowerCase();
-      
-      commonPhrases.forEach(phrase => {
-        // Look for whole phrases, not partial matches
-        const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
-        const matches = text.match(regex);
-        
-        if (matches && matches.length > 0) {
-          researchTerms[phrase] = (researchTerms[phrase] || 0) + matches.length;
-        }
-      });
-    });
-    
-    // Sort by frequency and take top areas
-    const topResearchAreas = Object.entries(researchTerms)
-      .sort(([,countA], [,countB]) => countB - countA)
-      .slice(0, 8);
-    
-    let areasHtml = '';
-    if (topResearchAreas.length > 0) {
-      areasHtml = `
-        <ul class="list-disc list-inside">
-          ${topResearchAreas.map(([area, count]) => 
-            `<li class="capitalize mb-1">
-              ${area}
-              <span class="text-gray-500 text-sm">(${count} mention${count !== 1 ? 's' : ''})</span>
-            </li>`
-          ).join('')}
-        </ul>
-        <p class="text-xs text-gray-500 mt-2">Based on methodology and focus analysis of all articles</p>
-      `;
-    } else {
-      areasHtml = '<p class="text-sm text-gray-500">Research focus areas could not be determined for these articles</p>';
-    }
-    
-    elements.pubmedKeyAreas.innerHTML = areasHtml;
-  }
-  
-  function generateTreatmentsDisplay() {
+  // Render treatments for a condition
+  function renderTreatmentsForCondition(condition) {
     if (!elements.pubmedTreatments) return;
     
     showComponent(elements.pubmedTreatments, true);
@@ -25697,67 +26594,393 @@ const PubMedModule = (function() {
     
     setTimeout(() => {
       try {
-        // Generate HTML for conditions and treatments
-        let treatmentsHtml = '';
+        // Get treatments for this condition
+        const treatments = state.medicalDatabase.conditionDrugMap[condition] || [];
         
-        if (Object.keys(state.treatments).length > 0) {
-          treatmentsHtml = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              ${Object.entries(state.treatments)
-                .sort(([condA], [condB]) => condA.localeCompare(condB))
-                .map(([condition, treatments]) => `
-                  <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-gray-800 mb-2">${condition}</h3>
-                    <div class="flex flex-wrap gap-2">
-                      ${treatments
-                        .sort((a, b) => a.localeCompare(b))
-                        .map(treatment => 
-                          `<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                            ${treatment}
-                          </span>`
-                        ).join('')}
-                    </div>
-                  </div>
-                `).join('')}
+        if (treatments.length === 0) {
+          elements.pubmedTreatmentsContent.innerHTML = `
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+              <h3 class="text-yellow-800 font-medium mb-2">No treatments found for ${condition}</h3>
+              <p class="text-yellow-700 text-sm">
+                We couldn't identify specific treatments for this condition in the current articles.
+                Try searching for more specific terms or expand your search.
+              </p>
             </div>
           `;
         } else {
-          treatmentsHtml = `
-            <div class="text-center p-6">
-              <p class="text-gray-500">No treatment information was identified in the current articles.</p>
-              <p class="text-sm text-gray-400 mt-2">Try searching for a specific condition to find related treatments.</p>
+          // Group treatments by drug class if possible
+          const treatmentsByClass = {};
+          const unclassifiedTreatments = [];
+          
+          treatments.forEach(treatment => {
+            const classes = state.medicalDatabase.drugClasses[treatment] || [];
+            
+            if (classes.length > 0) {
+              classes.forEach(className => {
+                if (!treatmentsByClass[className]) {
+                  treatmentsByClass[className] = [];
+                }
+                if (!treatmentsByClass[className].includes(treatment)) {
+                  treatmentsByClass[className].push(treatment);
+                }
+              });
+            } else {
+              unclassifiedTreatments.push(treatment);
+            }
+          });
+          
+// Continue from previous code block...
+
+let html = `
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+              <h3 class="text-blue-800 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Treatments for ${condition}
+              </h3>
+              <p class="text-blue-700 text-sm mt-1">
+                Found ${treatments.length} potential treatments across ${Object.keys(state.medicalDatabase.articleEvidence).filter(key => key.startsWith(condition)).length} articles.
+              </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          `;
+          
+          // Add classified treatments
+          Object.entries(treatmentsByClass).forEach(([className, drugs]) => {
+            html += `
+              <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <h4 class="font-medium text-gray-800 mb-2">${className}</h4>
+                <div class="flex flex-wrap gap-2">
+                  ${drugs.map(drug => {
+                    // Get evidence count
+                    const evidenceKey = `${condition}|||${drug}`;
+                    const evidenceCount = state.medicalDatabase.articleEvidence[evidenceKey]?.length || 0;
+                    
+                    return `
+                      <button class="treatment-pill bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center transition-colors duration-200"
+                              data-condition="${condition}" 
+                              data-treatment="${drug}" 
+                              data-evidence="${evidenceCount}">
+                        ${drug}
+                        <span class="ml-1 bg-green-700 text-white text-xs rounded-full w-5 h-5 inline-flex items-center justify-center">${evidenceCount}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          });
+          
+          // Add unclassified treatments if any
+          if (unclassifiedTreatments.length > 0) {
+            html += `
+              <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <h4 class="font-medium text-gray-800 mb-2">Other Treatments</h4>
+                <div class="flex flex-wrap gap-2">
+                  ${unclassifiedTreatments.map(drug => {
+                    // Get evidence count
+                    const evidenceKey = `${condition}|||${drug}`;
+                    const evidenceCount = state.medicalDatabase.articleEvidence[evidenceKey]?.length || 0;
+                    
+                    return `
+                      <button class="treatment-pill bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center transition-colors duration-200"
+                              data-condition="${condition}" 
+                              data-treatment="${drug}" 
+                              data-evidence="${evidenceCount}">
+                        ${drug}
+                        <span class="ml-1 bg-green-700 text-white text-xs rounded-full w-5 h-5 inline-flex items-center justify-center">${evidenceCount}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          }
+          
+          // Add treatment evidence section (initially hidden, will be shown when a treatment is clicked)
+          html += `
+            </div>
+            
+            <div id="pubmedTreatmentEvidence" class="mt-6 hidden">
+              <h3 class="text-lg font-medium text-gray-800 mb-2">Evidence for <span id="evidenceTreatmentName"></span></h3>
+              <div id="pubmedTreatmentEvidenceList" class="space-y-3"></div>
             </div>
           `;
+          
+          elements.pubmedTreatmentsContent.innerHTML = html;
+          
+          // Add event listeners for treatment pills
+          document.querySelectorAll('.treatment-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+              const condition = this.dataset.condition;
+              const treatment = this.dataset.treatment;
+              showTreatmentEvidence(condition, treatment);
+            });
+          });
         }
         
-        elements.pubmedTreatmentsContent.innerHTML = treatmentsHtml;
-        
+        // Hide loading, show content
         showComponent(elements.pubmedTreatmentsLoading, false);
         showComponent(elements.pubmedTreatmentsContent, true);
         
       } catch (error) {
-        console.error('Error generating treatments display:', error);
+        console.error('Error rendering treatments:', error);
         elements.pubmedTreatmentsContent.innerHTML = `
-          <p class="text-sm text-gray-500">Could not generate treatments information: ${error.message}</p>
+          <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+            <h3 class="text-red-800 font-medium">Error</h3>
+            <p class="text-red-700 text-sm mt-1">
+              Could not generate treatments information: ${error.message}
+            </p>
+          </div>
         `;
+        
         showComponent(elements.pubmedTreatmentsLoading, false);
         showComponent(elements.pubmedTreatmentsContent, true);
       }
     }, 100);
   }
 
+  // Show evidence for a specific treatment
+  function showTreatmentEvidence(condition, treatment) {
+    const evidenceKey = `${condition}|||${treatment}`;
+    const evidence = state.medicalDatabase.articleEvidence[evidenceKey] || [];
+    
+    const evidenceDiv = document.getElementById('pubmedTreatmentEvidence');
+    const evidenceName = document.getElementById('evidenceTreatmentName');
+    const evidenceList = document.getElementById('pubmedTreatmentEvidenceList');
+    
+    if (!evidenceDiv || !evidenceName || !evidenceList) return;
+    
+    evidenceName.textContent = `${treatment} for ${condition}`;
+    evidenceList.innerHTML = '';
+    
+    if (evidence.length === 0) {
+      evidenceList.innerHTML = `
+        <p class="text-gray-500">No specific evidence found linking this treatment to the condition.</p>
+      `;
+    } else {
+      evidence.forEach(item => {
+        const evidenceItem = document.createElement('div');
+        evidenceItem.className = 'bg-white rounded-lg p-3 shadow-sm border border-gray-100';
+        
+        evidenceItem.innerHTML = `
+          <div class="flex justify-between">
+            <h4 class="font-medium text-gray-800">${item.title}</h4>
+            <span class="text-gray-500 text-sm">${formatDate(item.date)}</span>
+          </div>
+          <p class="text-gray-600 text-sm mt-1">${item.journal || 'Journal not specified'}</p>
+          ${item.excerpt ? `
+            <div class="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
+              <p>…${item.excerpt}…</p>
+            </div>
+          ` : ''}
+          <div class="mt-2">
+            <a href="https://pubmed.ncbi.nlm.nih.gov/${item.pmid}" target="_blank" 
+               class="text-primary hover:text-primary-dark text-sm flex items-center inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View on PubMed
+            </a>
+          </div>
+        `;
+        
+        evidenceList.appendChild(evidenceItem);
+      });
+    }
+    
+    // Show evidence section
+    evidenceDiv.classList.remove('hidden');
+    
+    // Scroll to evidence
+    evidenceDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Render drug information 
+  function renderDrugInformation(drug) {
+    if (!elements.pubmedDrugInfo) return;
+    
+    showComponent(elements.pubmedDrugInfo, true);
+    showComponent(elements.pubmedDrugInfoLoading, true);
+    showComponent(elements.pubmedDrugInfoContent, false);
+    
+    setTimeout(() => {
+      try {
+        // Get conditions treated by this drug
+        const conditions = state.medicalDatabase.drugConditionMap[drug] || [];
+        
+        if (conditions.length === 0) {
+          elements.pubmedDrugInfoContent.innerHTML = `
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+              <h3 class="text-yellow-800 font-medium mb-2">No conditions found for ${drug}</h3>
+              <p class="text-yellow-700 text-sm">
+                We couldn't identify specific conditions treated by this drug in the current articles.
+                Try searching for more specific terms or expand your search.
+              </p>
+            </div>
+          `;
+        } else {
+          // Get drug class information
+          const drugClasses = state.medicalDatabase.drugClasses[drug] || [];
+          const totalArticles = conditions.reduce((count, condition) => {
+            const evidenceKey = `${condition}|||${drug}`;
+            return count + (state.medicalDatabase.articleEvidence[evidenceKey]?.length || 0);
+          }, 0);
+          
+          // Create HTML for drug information
+          let html = `
+            <div class="bg-green-50 p-4 rounded-lg border border-green-100 mb-6">
+              <h3 class="text-green-800 font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                ${drug} Information
+              </h3>
+              <div class="text-green-700 text-sm mt-1">
+                <p>Used to treat ${conditions.length} condition${conditions.length !== 1 ? 's' : ''}.</p>
+                ${drugClasses.length > 0 ? 
+                  `<p class="mt-1">Classification: ${drugClasses.join(', ')}.</p>` : 
+                  ''
+                }
+                <p class="mt-1">Mentioned in ${totalArticles} article${totalArticles !== 1 ? 's' : ''}.</p>
+              </div>
+            </div>
+            
+            <h3 class="text-lg font-medium text-gray-800 mb-3">Conditions Treated</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          `;
+          
+          // Add conditions
+          conditions.forEach(condition => {
+            const evidenceKey = `${condition}|||${drug}`;
+            const evidenceCount = state.medicalDatabase.articleEvidence[evidenceKey]?.length || 0;
+            
+            html += `
+              <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                <h4 class="font-medium text-gray-800 mb-2">${condition}</h4>
+                <div class="text-sm text-gray-600 mb-2">
+                  Found in ${evidenceCount} article${evidenceCount !== 1 ? 's' : ''}
+                </div>
+                <button class="condition-pill bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors duration-200"
+                        data-condition="${condition}" 
+                        data-drug="${drug}">
+                  View Evidence
+                </button>
+              </div>
+            `;
+          });
+          
+          // Add drug evidence section
+          html += `
+            </div>
+            
+            <div id="pubmedDrugEvidence" class="mt-6 hidden">
+              <h3 class="text-lg font-medium text-gray-800 mb-2">Evidence for <span id="evidenceDrugCondition"></span></h3>
+              <div id="pubmedDrugEvidenceList" class="space-y-3"></div>
+            </div>
+          `;
+          
+          elements.pubmedDrugInfoContent.innerHTML = html;
+          
+          // Add event listeners for condition pills
+          document.querySelectorAll('.condition-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+              const condition = this.dataset.condition;
+              const drug = this.dataset.drug;
+              showDrugEvidence(condition, drug);
+            });
+          });
+        }
+        
+        // Hide loading, show content
+        showComponent(elements.pubmedDrugInfoLoading, false);
+        showComponent(elements.pubmedDrugInfoContent, true);
+        
+      } catch (error) {
+        console.error('Error rendering drug information:', error);
+        elements.pubmedDrugInfoContent.innerHTML = `
+          <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+            <h3 class="text-red-800 font-medium">Error</h3>
+            <p class="text-red-700 text-sm mt-1">
+              Could not generate drug information: ${error.message}
+            </p>
+          </div>
+        `;
+        
+        showComponent(elements.pubmedDrugInfoLoading, false);
+        showComponent(elements.pubmedDrugInfoContent, true);
+      }
+    }, 100);
+  }
+
+  // Show evidence for a specific drug treating a condition
+  function showDrugEvidence(condition, drug) {
+    const evidenceKey = `${condition}|||${drug}`;
+    const evidence = state.medicalDatabase.articleEvidence[evidenceKey] || [];
+    
+    const evidenceDiv = document.getElementById('pubmedDrugEvidence');
+    const evidenceCondition = document.getElementById('evidenceDrugCondition');
+    const evidenceList = document.getElementById('pubmedDrugEvidenceList');
+    
+    if (!evidenceDiv || !evidenceCondition || !evidenceList) return;
+    
+    evidenceCondition.textContent = `${drug} for ${condition}`;
+    evidenceList.innerHTML = '';
+    
+    if (evidence.length === 0) {
+      evidenceList.innerHTML = `
+        <p class="text-gray-500">No specific evidence found linking this drug to the condition.</p>
+      `;
+    } else {
+      evidence.forEach(item => {
+        const evidenceItem = document.createElement('div');
+        evidenceItem.className = 'bg-white rounded-lg p-3 shadow-sm border border-gray-100';
+        
+        evidenceItem.innerHTML = `
+          <div class="flex justify-between">
+            <h4 class="font-medium text-gray-800">${item.title}</h4>
+            <span class="text-gray-500 text-sm">${formatDate(item.date)}</span>
+          </div>
+          <p class="text-gray-600 text-sm mt-1">${item.journal || 'Journal not specified'}</p>
+          ${item.excerpt ? `
+            <div class="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
+              <p>…${item.excerpt}…</p>
+            </div>
+          ` : ''}
+          <div class="mt-2">
+            <a href="https://pubmed.ncbi.nlm.nih.gov/${item.pmid}" target="_blank" 
+               class="text-primary hover:text-primary-dark text-sm flex items-center inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View on PubMed
+            </a>
+          </div>
+        `;
+        
+        evidenceList.appendChild(evidenceItem);
+      });
+    }
+    
+    // Show evidence section
+    evidenceDiv.classList.remove('hidden');
+    
+    // Scroll to evidence
+    evidenceDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Function to search PubMed by general term (original function)
   async function searchPubMed(term, options = {}) {
     state.isLoading = true;
     state.term = term;
     state.currentPage = options.page || 1;
     state.sortBy = options.sortBy || state.sortBy;
     state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
-    
-    // Reset treatments data if this is a new search
-    if (state.currentPage === 1) {
-      state.conditions = [];
-      state.treatments = {};
-    }
+    state.yearFilter = options.yearFilter || state.yearFilter;
+    state.journalFilter = options.journalFilter || state.journalFilter;
+    state.searchType = 'general';
     
     // Show the pubmed section and loading state
     showComponent(elements.pubmedSection, true);
@@ -25765,25 +26988,30 @@ const PubMedModule = (function() {
     showComponent(elements.pubmedError, false);
     showComponent(elements.pubmedEmpty, false);
     showComponent(elements.pubmedArticles, false);
-    showComponent(elements.pubmedSummary, false);
     showComponent(elements.pubmedTreatments, false);
+    showComponent(elements.pubmedDrugInfo, false);
     
     try {
       const params = new URLSearchParams({
         term: term,
         page: state.currentPage,
         sortBy: state.sortBy,
-        fullTextOnly: state.fullTextOnly
+        fullTextOnly: state.fullTextOnly,
+        yearFilter: state.yearFilter,
+        journalFilter: state.journalFilter
       });
       
       const response = await fetch(`/api/pubmed?${params}`);
-      
+      console.log(`PubMed API Request: /api/pubmed?${params}`);
+
+
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`);
       }
       
       const data = await response.json();
-      
+      // After receiving response
+      console.log('PubMed API Response:', data);
       // Update state with fetched data
       if (state.currentPage === 1) {
         state.articles = data.articles;
@@ -25793,6 +27021,23 @@ const PubMedModule = (function() {
       
       state.totalResults = data.totalResults;
       
+      // Process articles for medical knowledge if this is a new search
+      if (state.currentPage === 1) {
+        // Reset database for a new search
+        state.medicalDatabase = {
+          conditions: [],
+          drugs: [],
+          conditionDrugMap: {},
+          drugConditionMap: {},
+          drugClasses: {},
+          articleEvidence: {},
+          recentUpdated: null
+        };
+      }
+      
+      // Process the medical knowledge
+      state.medicalDatabase = processMedicalKnowledge(state.articles);
+      
       // Hide loading state
       showComponent(elements.pubmedLoading, false);
       
@@ -25801,116 +27046,565 @@ const PubMedModule = (function() {
       } else {
         showComponent(elements.pubmedArticles, true);
         renderArticles();
-        
-        // Generate treatments display
-        generateTreatmentsDisplay();
-        
-        // Show or hide summary based on user preference
-        if (state.showSummary && state.currentPage === 1) {
-          generateAccurateSummary(state.articles);
-        }
       }
       
     } catch (error) {
       console.error('Error fetching PubMed data:', error);
       showComponent(elements.pubmedLoading, false);
       showComponent(elements.pubmedError, true);
-      elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+      if (elements.pubmedErrorMessage) {
+        elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+      }
     }
     
     state.isLoading = false;
   }
-  
+
+  // Function to search PubMed by condition and show treatments
+  async function searchPubMedByCondition(condition, options = {}) {
+    state.isLoading = true;
+    state.term = condition;
+    state.currentPage = options.page || 1;
+    state.sortBy = options.sortBy || state.sortBy;
+    state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
+    state.yearFilter = options.yearFilter || state.yearFilter;
+    state.journalFilter = options.journalFilter || state.journalFilter;
+    state.searchType = 'condition';
+    
+    // Show the pubmed section and loading state
+    showComponent(elements.pubmedSection, true);
+    showComponent(elements.pubmedLoading, true);
+    showComponent(elements.pubmedError, false);
+    showComponent(elements.pubmedEmpty, false);
+    showComponent(elements.pubmedArticles, false);
+    showComponent(elements.pubmedTreatments, false);
+    showComponent(elements.pubmedDrugInfo, false);
+    
+    try {
+      // Construct search term to focus on the condition
+      const searchTerm = `"${condition}"[Title/Abstract] OR "${condition}"[MeSH Terms]`;
+      
+      const params = new URLSearchParams({
+        term: searchTerm,
+        page: state.currentPage,
+        sortBy: state.sortBy,
+        fullTextOnly: state.fullTextOnly,
+        yearFilter: state.yearFilter,
+        journalFilter: state.journalFilter
+      });
+      
+      const response = await fetch(`/api/pubmed?${params}`);
+      console.log(`PubMed API Request: /api/pubmed?${params}`);
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('PubMed API Response:', data);
+      // Update state with fetched data
+      if (state.currentPage === 1) {
+        state.articles = data.articles;
+      } else {
+        state.articles = [...state.articles, ...data.articles];
+      }
+      
+      state.totalResults = data.totalResults;
+      
+      // Process articles for medical knowledge if this is a new search
+      if (state.currentPage === 1) {
+        // Reset database for a new search
+        state.medicalDatabase = {
+          conditions: [],
+          drugs: [],
+          conditionDrugMap: {},
+          drugConditionMap: {},
+          drugClasses: {},
+          articleEvidence: {},
+          recentUpdated: null
+        };
+      }
+      
+      // Process the medical knowledge
+      state.medicalDatabase = processMedicalKnowledge(state.articles);
+      
+      // Hide loading state
+      showComponent(elements.pubmedLoading, false);
+      
+      if (state.articles.length === 0) {
+        showComponent(elements.pubmedEmpty, true);
+      } else {
+        // Show articles and treatments
+        showComponent(elements.pubmedArticles, true);
+        renderArticles();
+        
+        // Render treatments for this condition
+        renderTreatmentsForCondition(condition);
+      }
+      
+    } catch (error) {
+      console.error('Error fetching PubMed data for condition:', error);
+      showComponent(elements.pubmedLoading, false);
+      showComponent(elements.pubmedError, true);
+      if (elements.pubmedErrorMessage) {
+        elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+      }
+    }
+    
+    state.isLoading = false;
+  }
+
+  // Function to search PubMed by drug and show its uses
+  async function searchPubMedByDrug(drug, options = {}) {
+    state.isLoading = true;
+    state.term = drug;
+    state.currentPage = options.page || 1;
+    state.sortBy = options.sortBy || state.sortBy;
+    state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
+    state.yearFilter = options.yearFilter || state.yearFilter;
+    state.journalFilter = options.journalFilter || state.journalFilter;
+    state.searchType = 'drug';
+    
+    // Show the pubmed section and loading state
+    showComponent(elements.pubmedSection, true);
+    showComponent(elements.pubmedLoading, true);
+    showComponent(elements.pubmedError, false);
+    showComponent(elements.pubmedEmpty, false);
+    showComponent(elements.pubmedArticles, false);
+    showComponent(elements.pubmedTreatments, false);
+    showComponent(elements.pubmedDrugInfo, false);
+    
+    try {
+      // Construct search term to focus on the drug
+      const searchTerm = `"${drug}"[Title/Abstract] OR "${drug}"[MeSH Terms] OR "${drug}"[Pharmacological Action]`;
+      
+      const params = new URLSearchParams({
+        term: searchTerm,
+        page: state.currentPage,
+        sortBy: state.sortBy,
+        fullTextOnly: state.fullTextOnly,
+        yearFilter: state.yearFilter,
+        journalFilter: state.journalFilter
+      });
+      
+      const response = await fetch(`/api/pubmed?${params}`);
+      console.log(`PubMed API Request: /api/pubmed?${params}`);
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('PubMed API Response:', data);
+
+      // Update state with fetched data
+      if (state.currentPage === 1) {
+        state.articles = data.articles;
+      } else {
+        state.articles = [...state.articles, ...data.articles];
+      }
+      
+      state.totalResults = data.totalResults;
+      
+      // Process articles for medical knowledge if this is a new search
+      if (state.currentPage === 1) {
+        // Reset database for a new search
+        state.medicalDatabase = {
+          conditions: [],
+          drugs: [],
+          conditionDrugMap: {},
+          drugConditionMap: {},
+          drugClasses: {},
+          articleEvidence: {},
+          recentUpdated: null
+        };
+      }
+      
+      // Process the medical knowledge
+      state.medicalDatabase = processMedicalKnowledge(state.articles);
+      
+      // Hide loading state
+      showComponent(elements.pubmedLoading, false);
+      
+      if (state.articles.length === 0) {
+        showComponent(elements.pubmedEmpty, true);
+      } else {
+        // Show articles and drug information
+        showComponent(elements.pubmedArticles, true);
+        renderArticles();
+        
+        // Render treatments for this condition
+        renderDrugInformation(drug);
+      }
+      
+    } catch (error) {
+      console.error('Error fetching PubMed data for drug:', error);
+      showComponent(elements.pubmedLoading, false);
+      showComponent(elements.pubmedError, true);
+      if (elements.pubmedErrorMessage) {
+        elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+      }
+    }
+    
+    state.isLoading = false;
+  }
+
+  // Initialize event listeners
   function initEventListeners() {
-    // Existing event listeners
+    // Search by condition button
+    if (elements.pubmedSearchByCondition) {
+      elements.pubmedSearchByCondition.addEventListener('click', () => {
+        const searchTerm = elements.pubmedSearchBox ? elements.pubmedSearchBox.value.trim() : '';
+        if (searchTerm) {
+          searchPubMedByCondition(searchTerm);
+        }
+      });
+    }
+    
+    // Search by drug button
+    if (elements.pubmedSearchByDrug) {
+      elements.pubmedSearchByDrug.addEventListener('click', () => {
+        const searchTerm = elements.pubmedSearchBox ? elements.pubmedSearchBox.value.trim() : '';
+        if (searchTerm) {
+          searchPubMedByDrug(searchTerm);
+        }
+      });
+    }
+    
+    // General search on enter key
+    if (elements.pubmedSearchBox) {
+      elements.pubmedSearchBox.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const searchTerm = elements.pubmedSearchBox.value.trim();
+          if (searchTerm) {
+            searchPubMed(searchTerm);
+          }
+        }
+      });
+    }
+    
+    // Sort dropdown
     if (elements.pubmedSort) {
       elements.pubmedSort.addEventListener('change', () => {
-        searchPubMed(state.term, { 
-          page: 1, 
+        const options = {
+          page: 1,
           sortBy: elements.pubmedSort.value,
-          fullTextOnly: elements.pubmedFullTextOnly.checked 
-        });
+          fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+          yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+          journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : ''
+        };
+        
+        if (state.searchType === 'condition') {
+          searchPubMedByCondition(state.term, options);
+        } else if (state.searchType === 'drug') {
+          searchPubMedByDrug(state.term, options);
+        } else {
+          searchPubMed(state.term, options);
+        }
       });
     }
     
+    // Full text only checkbox
     if (elements.pubmedFullTextOnly) {
       elements.pubmedFullTextOnly.addEventListener('change', () => {
-        searchPubMed(state.term, { 
-          page: 1, 
-          sortBy: elements.pubmedSort.value,
-          fullTextOnly: elements.pubmedFullTextOnly.checked 
-        });
+        const options = {
+          page: 1,
+          sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+          fullTextOnly: elements.pubmedFullTextOnly.checked,
+          yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+          journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : ''
+        };
+        
+// Continue from previous code block...
+
+if (state.searchType === 'condition') {
+          searchPubMedByCondition(state.term, options);
+        } else if (state.searchType === 'drug') {
+          searchPubMedByDrug(state.term, options);
+        } else {
+          searchPubMed(state.term, options);
+        }
       });
     }
     
+    // Year filter
+    if (elements.pubmedYearFilter) {
+      elements.pubmedYearFilter.addEventListener('change', () => {
+        const options = {
+          page: 1,
+          sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+          fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+          yearFilter: elements.pubmedYearFilter.value,
+          journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : ''
+        };
+        
+        if (state.searchType === 'condition') {
+          searchPubMedByCondition(state.term, options);
+        } else if (state.searchType === 'drug') {
+          searchPubMedByDrug(state.term, options);
+        } else {
+          searchPubMed(state.term, options);
+        }
+      });
+    }
+    
+    // Journal filter
+    if (elements.pubmedJournalFilter) {
+      elements.pubmedJournalFilter.addEventListener('change', () => {
+        const options = {
+          page: 1,
+          sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+          fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+          yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+          journalFilter: elements.pubmedJournalFilter.value
+        };
+        
+        if (state.searchType === 'condition') {
+          searchPubMedByCondition(state.term, options);
+        } else if (state.searchType === 'drug') {
+          searchPubMedByDrug(state.term, options);
+        } else {
+          searchPubMed(state.term, options);
+        }
+      });
+    }
+    
+    // Load more button
     if (elements.pubmedLoadMore) {
       elements.pubmedLoadMore.addEventListener('click', () => {
-        if (!state.isLoading) {
-          searchPubMed(state.term, { 
-            page: state.currentPage + 1,
-            sortBy: elements.pubmedSort.value,
-            fullTextOnly: elements.pubmedFullTextOnly.checked
-          });
+        if (state.isLoading) return;
+        
+        const options = {
+          page: state.currentPage + 1,
+          sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+          fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+          yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+          journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : ''
+        };
+        
+        if (state.searchType === 'condition') {
+          searchPubMedByCondition(state.term, options);
+        } else if (state.searchType === 'drug') {
+          searchPubMedByDrug(state.term, options);
+        } else {
+          searchPubMed(state.term, options);
         }
       });
     }
     
-    // New event listener for toggling summary
-    if (elements.pubmedToggleSummary) {
-      elements.pubmedToggleSummary.addEventListener('click', () => {
-        state.showSummary = !state.showSummary;
+    // Advanced toggle
+    if (elements.pubmedAdvancedToggle && elements.pubmedAdvancedOptions) {
+      elements.pubmedAdvancedToggle.addEventListener('click', () => {
+        elements.pubmedAdvancedOptions.classList.toggle('hidden');
         
-        // Update button text
-        if (elements.pubmedToggleSummary.textContent) {
-          elements.pubmedToggleSummary.textContent = state.showSummary ? 'Hide Summary' : 'Show Summary';
-        }
-        
-        // Show/hide summary section
-        showComponent(elements.pubmedSummary, state.showSummary);
-        
-        // Generate summary if it's being shown and wasn't before
-        if (state.showSummary && state.articles.length > 0) {
-          generateAccurateSummary(state.articles);
+        // Update text/icon
+        if (elements.pubmedAdvancedOptions.classList.contains('hidden')) {
+          elements.pubmedAdvancedToggle.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            Advanced Options
+          `;
+        } else {
+          elements.pubmedAdvancedToggle.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+            Hide Advanced Options
+          `;
         }
       });
     }
     
-    // Add filter for specific conditions
-    if (elements.pubmedFilterBar) {
-      elements.pubmedFilterBar.addEventListener('click', (e) => {
-        if (e.target.classList.contains('condition-filter')) {
-          const condition = e.target.dataset.condition;
-          if (condition) {
-            // Add condition to search term
-            const newTerm = state.term.includes(condition) ? 
-              state.term : `${state.term} ${condition}`;
-            
-            searchPubMed(newTerm, { page: 1 });
+    // Rare condition input
+    if (elements.pubmedRareConditionInput && elements.pubmedAddRareCondition) {
+      elements.pubmedAddRareCondition.addEventListener('click', () => {
+        const conditionInput = elements.pubmedRareConditionInput.value.trim();
+        if (conditionInput) {
+          searchPubMedByCondition(conditionInput);
+          elements.pubmedRareConditionInput.value = '';
+        }
+      });
+      
+      elements.pubmedRareConditionInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const conditionInput = elements.pubmedRareConditionInput.value.trim();
+          if (conditionInput) {
+            searchPubMedByCondition(conditionInput);
+            elements.pubmedRareConditionInput.value = '';
           }
         }
       });
     }
   }
+
+  // Function to populate filter options based on data
+  function populateFilters() {
+    // Populate year filter
+    if (elements.pubmedYearFilter) {
+      const currentYear = new Date().getFullYear();
+      let yearOptions = '<option value="">All Years</option>';
+      
+      for (let year = currentYear; year >= currentYear - 20; year--) {
+        yearOptions += `<option value="${year}">${year}</option>`;
+      }
+      
+      elements.pubmedYearFilter.innerHTML = yearOptions;
+    }
+    
+    // For journal filter, we can only populate once we have data
+    // This is handled in the renderArticles function
+  }
+
+  // Update journal filter based on fetched articles
+  function updateJournalFilter() {
+    if (!elements.pubmedJournalFilter) return;
+    
+    // Extract unique journals from articles
+    const journals = new Set();
+    state.articles.forEach(article => {
+      if (article.journal && article.journal.trim() !== '') {
+        journals.add(article.journal);
+      }
+    });
+    
+    // Convert to array and sort alphabetically
+    const sortedJournals = [...journals].sort();
+    
+    // Create options HTML
+    let journalOptions = '<option value="">All Journals</option>';
+    sortedJournals.forEach(journal => {
+      journalOptions += `<option value="${journal}">${journal}</option>`;
+    });
+    
+    // Set the options
+    elements.pubmedJournalFilter.innerHTML = journalOptions;
+    
+    // If there was a previous selection, try to restore it
+    if (state.journalFilter) {
+      elements.pubmedJournalFilter.value = state.journalFilter;
+    }
+  }
+
+  // Initialize the module
+// Helper function to safely get DOM elements (add at the top of your module)
+function safeGetElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    console.warn(`PubMed Module: Element with ID "${id}" not found`);
+  }
+  return element;
+}
+
+// Modified showComponent function
+function showComponent(component, isVisible) {
+  if (!component) return; // Skip if element doesn't exist
   
-  function init() {
-    initEventListeners();
+  if (isVisible) {
+    component.classList.remove('hidden');
+  } else {
+    component.classList.add('hidden');
+  }
+}
+
+// Create essential elements if they don't exist
+function ensureRequiredElements() {
+  // Create main container if needed
+  if (!document.getElementById('pubmedSection')) {
+    console.log("PubMed Module: Creating missing pubmedSection element");
+    const section = document.createElement('div');
+    section.id = 'pubmedSection';
+    section.className = 'hidden';
+    
+    // Try to find a suitable parent element
+    const parent = document.querySelector('.main-content') || 
+                  document.querySelector('main') || 
+                  document.querySelector('body');
+    if (parent) {
+      parent.appendChild(section);
+      // Update the elements reference
+      elements.pubmedSection = section;
+    } else {
+      console.error("PubMed Module: Could not find parent element to append pubmedSection");
+    }
   }
   
+  // Create other essential elements
+  const requiredElements = [
+    { id: 'pubmedLoading', parent: 'pubmedSection', className: 'flex justify-center items-center py-12 hidden' },
+    { id: 'pubmedError', parent: 'pubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
+    { id: 'pubmedEmpty', parent: 'pubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
+    { id: 'pubmedArticles', parent: 'pubmedSection', className: 'hidden' },
+    { id: 'pubmedArticlesList', parent: 'pubmedArticles', className: 'space-y-4' },
+    { id: 'pubmedTreatments', parent: 'pubmedSection', className: 'mb-8 hidden' },
+    { id: 'pubmedTreatmentsContent', parent: 'pubmedTreatments', className: 'hidden' },
+    { id: 'pubmedDrugInfo', parent: 'pubmedSection', className: 'mb-8 hidden' },
+    { id: 'pubmedDrugInfoContent', parent: 'pubmedDrugInfo', className: 'hidden' }
+  ];
+  
+  requiredElements.forEach(elem => {
+    if (!document.getElementById(elem.id) && document.getElementById(elem.parent)) {
+      console.log(`PubMed Module: Creating missing ${elem.id} element`);
+      const newElement = document.createElement('div');
+      newElement.id = elem.id;
+      newElement.className = elem.className;
+      document.getElementById(elem.parent).appendChild(newElement);
+      
+      // Update the elements reference
+      elements[elem.id] = newElement;
+    }
+  });
+}
+
+// Update your init function
+function init() {
+  console.log("PubMed Module: Initializing...");
+  
+  // First ensure all required elements exist
+  ensureRequiredElements();
+  
+  // Re-check if we have the main container
+  if (!elements.pubmedSection) {
+    console.error('PubMed Module: Required elements could not be created');
+    return;
+  }
+  
+  // Initialize event listeners
+  try {
+    initEventListeners();
+  } catch (error) {
+    console.error('PubMed Module: Error initializing event listeners', error);
+  }
+  
+  // Populate filter options
+  try {
+    populateFilters();
+  } catch (error) {
+    console.error('PubMed Module: Error populating filters', error);
+  }
+  
+  console.log("PubMed Module: Initialization complete");
+}
+  
+  // Return public methods
   return {
     init,
     searchPubMed,
-    toggleSummary: function(show) {
-      state.showSummary = show;
-      showComponent(elements.pubmedSummary, show);
-    }
+    searchPubMedByCondition,
+    searchPubMedByDrug
   };
 })();
 
-// Initialize the PubMed module
+// Add this at the top of your script file to ensure the module is initialized once
 document.addEventListener('DOMContentLoaded', () => {
-  PubMedModule.init();
+  // Check if module exists first
+  if (typeof PubMedModule !== 'undefined' && PubMedModule.init) {
+    console.log("Initializing PubMed Module...");
+    PubMedModule.init();
+  } else {
+    console.error("PubMed Module not found or init method not available");
+  }
 });
 
+// Don't call init again inside handleSearch
 // Initialize the module when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   init()

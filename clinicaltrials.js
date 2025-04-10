@@ -17,6 +17,7 @@ const pdfParse = require('pdf-parse');
 const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
+const { handlePubMedSearch } = require('./pubmed.js');
 // const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
 
 const { OpenAI } = require('openai');
@@ -504,178 +505,34 @@ const nAPI_KEY = process.env.NCBI_API_KEY || ''; // Optional: Add your API key i
 const xml2js = require('xml2js'); 
 
 // PubMed search API endpoint
-app.get('/api/pubmed', async (req, res) => {
-  try {
-    const term = req.query.term;
-    const page = parseInt(req.query.page) || 1;
-    const sortBy = req.query.sortBy || 'relevance';
-    const fullTextOnly = req.query.fullTextOnly === 'true';
+/**
+ * Endpoint to get PubMed publications
+ */
+// app.get('/api/pubmed', async (req, res) => {
+//   try {
+//     const term = req.query.term;
+//     if (!term) {
+//       return res.status(400).json({ error: 'Search term is required' });
+//     }
     
-    if (!term) {
-      return res.status(400).json({ error: 'Search term is required' });
-    }
+//     console.log(`🔍 Fetching PubMed publications for: ${term}`);
     
-    // Calculate start index for pagination
-    const start = (page - 1) * RESULTS_PER_PAGE;
+//     // Call your existing function
+//     const publications = await PubMed.searchPublications(term);
     
-    // Build the search query for exact match (case-insensitive)
-    // PubMed syntax for exact phrase match is to use double quotes
-    let searchQuery = `"${term}"[tiab]`;
-    
-    if (fullTextOnly) {
-      searchQuery += ' AND free full text[filter]';
-    }
-    
-    // Sort parameter
-    let sortParam = '';
-    if (sortBy === 'date') {
-      sortParam = '&sort=pub+date+desc';
-    } else if (sortBy === 'citationCount') {
-      sortParam = '&sort=relevance';  // PubMed doesn't directly sort by citations
-    }
-    
-    // First, search for IDs using esearch
-    const apiKeyParam = nAPI_KEY ? `&api_key=${nAPI_KEY}` : '';
-    const searchUrl = `${EUTILS_BASE_URL}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(searchQuery)}&retmax=${RESULTS_PER_PAGE}&retstart=${start}${sortParam}&retmode=json${apiKeyParam}`;
-    
-    console.log(`Searching PubMed with URL: ${searchUrl}`);
-    
-    const searchResponse = await axios.get(searchUrl);
-    const searchData = searchResponse.data.esearchresult;
-    const totalResults = parseInt(searchData.count) || 0;
-    const ids = searchData.idlist || [];
-    
-    if (ids.length === 0) {
-      return res.json({ articles: [], totalResults: 0 });
-    }
-    
-    // Then, fetch details for the IDs using esummary
-    const fetchUrl = `${EUTILS_BASE_URL}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json${apiKeyParam}`;
-    const fetchResponse = await axios.get(fetchUrl);
-    const summaryData = fetchResponse.data.result;
-    
-    // Process the summaries to format articles
-    const articles = ids.map(pmid => {
-      const summary = summaryData[pmid];
-      
-      if (!summary) {
-        return null;
-      }
-      
-      // Extract authors
-      const authors = (summary.authors || [])
-        .filter(author => author.authtype === 'Author')
-        .map(author => author.name || '');
-      
-      // Extract publication date
-      const pubDate = summary.pubdate || '';
-      
-      // Extract journal name
-      const journal = summary.source || '';
-      
-      // Extract title
-      const title = summary.title || '';
-      
-      // Extract DOI
-      const articleIds = summary.articleids || [];
-      const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
-      
-      return {
-        pmid,
-        title,
-        authors,
-        journal,
-        pubDate,
-        abstract: '', // Will be populated later
-        keywords: [], // Will be populated later
-        doi,
-        citationCount: null, // Not provided by PubMed API
-        fullTextUrl: fullTextOnly ? `https://www.ncbi.nlm.nih.gov/pmc/articles/pmid/${pmid}/` : ''
-      };
-    }).filter(Boolean); // Remove any null entries
-    
-    // Fetch abstracts for these articles
-    const abstractsUrl = `${EUTILS_BASE_URL}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&rettype=abstract&retmode=xml${apiKeyParam}`;
-    const abstractsResponse = await axios.get(abstractsUrl);
-    
-    // Parse XML to extract abstracts
-    xml2js.parseString(abstractsResponse.data, (err, result) => {
-      if (err) {
-        // If we can't parse abstracts, just return the articles without them
-        return res.json({
-          articles,
-          totalResults
-        });
-      }
-      
-      try {
-        // Extract abstracts from the XML structure
-        const pubmedArticles = result.PubmedArticleSet?.PubmedArticle || [];
-        
-        pubmedArticles.forEach((article, index) => {
-          if (index >= articles.length) return;
-          
-          // Extract abstract
-          const abstractObj = article?.MedlineCitation?.[0]?.Article?.[0]?.Abstract?.[0];
-          let abstractText = '';
-          
-          if (abstractObj && abstractObj.AbstractText) {
-            abstractText = abstractObj.AbstractText.map(text => {
-              if (typeof text === 'string') return text;
-              
-              // Handle structured abstracts
-              if (text.$ && text.$.Label) {
-                return `${text.$.Label}: ${text._ || ''}`;
-              }
-              return text._ || '';
-            }).join(' ');
-          }
-          
-          // Extract keywords
-          const keywordsList = [];
-          
-          // Try to extract MeSH terms
-          const meshHeadings = article?.MedlineCitation?.[0]?.MeshHeadingList?.[0]?.MeshHeading || [];
-          meshHeadings.forEach(heading => {
-            if (heading.DescriptorName && heading.DescriptorName[0]) {
-              const term = heading.DescriptorName[0]._ || heading.DescriptorName[0];
-              if (term) keywordsList.push(term);
-            }
-          });
-          
-          // Also try to extract keywords
-          const keywords = article?.MedlineCitation?.[0]?.KeywordList?.[0]?.Keyword || [];
-          keywords.forEach(keyword => {
-            keywordsList.push(keyword._ || keyword);
-          });
-          
-          // Update the article with abstract and keywords
-          articles[index].abstract = abstractText || 'No abstract available';
-          articles[index].keywords = keywordsList.filter((v, i, a) => a.indexOf(v) === i); // Remove duplicates
-        });
-        
-        res.json({
-          articles,
-          totalResults
-        });
-      } catch (error) {
-        // If error parsing detailed XML, return what we have
-        console.error('Error parsing PubMed abstracts:', error);
-        res.json({
-          articles,
-          totalResults
-        });
-      }
-    });
-    
-  } catch (error) {
-    console.error('PubMed API error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch PubMed data',
-      message: error.message 
-    });
-  }
-});
+//     // Format response to match what frontend expects
+//     res.json({
+//       articles: publications, // Your publications array goes directly here
+//       totalResults: publications.length // Or the actual total count if available
+//     });
+//   } catch (error) {
+//     console.error('PubMed API error:', error);
+//     res.status(500).json({ 
+//       error: 'Failed to fetch PubMed data',
+//       message: error.message 
+//     });
+//   }
+// });
 
 //////////////////////////////////////// 483 ///////////////////////////////////
 
@@ -3945,25 +3802,25 @@ app.get('/api/fda/warnings/:searchTerm', async (req, res) => {
   }
 });
 
-/**
- * Endpoint to get PubMed publications
- */
-app.get('/api/pubmed/:drugName', async (req, res) => {
-  try {
-    const { drugName } = req.params;
-    console.log(`🔍 Fetching PubMed publications for: ${drugName}`);
+// /**
+//  * Endpoint to get PubMed publications
+//  */
+// app.get('/api/pubmed/:drugName', async (req, res) => {
+//   try {
+//     const { drugName } = req.params;
+//     console.log(`🔍 Fetching PubMed publications for: ${drugName}`);
     
-    const publications = await PubMed.searchPublications(drugName);
+//     const publications = await PubMed.searchPublications(drugName);
     
-    res.json({
-      success: true,
-      data: publications
-    });
-  } catch (error) {
-    handleApiError(error, res);
-  }
-});
-
+//     res.json({
+//       success: true,
+//       data: publications
+//     });
+//   } catch (error) {
+//     handleApiError(error, res);
+//   }
+// });
+app.get('/api/pubmed', handlePubMedSearch);
 /**
  * Endpoint to calculate treatment effect and variability
  */
