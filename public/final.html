@@ -162,7 +162,7 @@
 }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 font-sans text-gray-800" >
   <header class="bg-dark text-white shadow-md">
       <div class="container mx-auto p-4">
           <nav class="flex justify-between items-center">
@@ -2409,46 +2409,79 @@ function getColorByIndex(index, alpha = 1) {
         // }
 
 
-//         async function fetchStudies(drug, condition, hasResults) {
-// try {
+
+// async function fetchStudies(drug, condition, hasResults) {
+//   try {
 //     condition = condition || "";
+//     const allStudies = [];
+//     let pageToken = null;
+//     let hasNextPage = true;
     
-//     // Using our backend endpoint
-//     const params = {
+//     // Continue fetching until there are no more pages
+//     while (hasNextPage) {
+//       const params = {
 //         condition: condition,
 //         intervention: drug,
 //         hasResults: hasResults,
 //         fields: "protocolSection,resultsSection,hasResults",
-//         pageSize: 100
-//     };
-    
-//     console.log("Fetching studies with params:", params);
-//     const response = await axios.get(`${API_BASE_URL}/studies/search`, { 
+//         pageSize: 100 // Keep page size at 100 for efficiency
+//       };
+      
+//       // Add page token for pagination if we're not on the first page
+//       if (pageToken) {
+//         params.pageToken = pageToken;
+//       }
+      
+//       console.log(`Fetching studies page with params:`, params);
+      
+//       const response = await axios.get(`${API_BASE_URL}/studies/search`, {
 //         params,
 //         headers: {
-//             'Accept': 'application/json',
-//             'Cache-Control': 'no-cache',
-//             'Pragma': 'no-cache'
+//           'Accept': 'application/json',
+//           'Cache-Control': 'no-cache',
+//           'Pragma': 'no-cache'
 //         }
-//     });
+//       });
+      
+//       console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
+      
+//       const studies = response.data.data.studies || [];
+//       allStudies.push(...studies);
+      
+//       // Get next page token
+//       pageToken = response.data.pagination?.nextPageToken;
+//       hasNextPage = !!pageToken;
+      
+//       // Optional: Add delay to avoid rate limiting
+//       if (hasNextPage) {
+//         await new Promise(resolve => setTimeout(resolve, 300));
+//       }
+//     }
     
-//     console.log("Studies search response status:", response.status);
-//     let studies = response.data.data.studies || [];
-    
-//     return studies;
-// } catch (error) {
-//     console.error("Error fetching studies:", error);
+//     console.log(`Total studies fetched: ${allStudies.length}`);
+//     return allStudies;
+//   } catch (error) {
+//     console.error("Error fetching all studies:", error);
 //     return [];
-// }
+//   }
 // }
 
-
-async function fetchStudies(drug, condition, hasResults) {
+async function fetchStudies(drug, condition, hasResults, yearsBack = 5) {
   try {
     condition = condition || "";
     const allStudies = [];
     let pageToken = null;
     let hasNextPage = true;
+    
+    // Calculate the date from yearsBack
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(today.getFullYear() - yearsBack);
+    
+    // Format date as YYYY-MM-DD for the API (using hyphens, not slashes)
+    const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+    
+    console.log(`Fetching studies from ${formattedStartDate} to present`);
     
     // Continue fetching until there are no more pages
     while (hasNextPage) {
@@ -2457,7 +2490,8 @@ async function fetchStudies(drug, condition, hasResults) {
         intervention: drug,
         hasResults: hasResults,
         fields: "protocolSection,resultsSection,hasResults",
-        pageSize: 100 // Keep page size at 100 for efficiency
+        pageSize: 100, // Keep page size at 100 for efficiency
+        advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]` // Filter by start date with correct syntax
       };
       
       // Add page token for pagination if we're not on the first page
@@ -21488,7 +21522,7 @@ async function handleSearch() {
         
         if (drug) {
             // Fetch studies
-            const studies = await fetchStudies(drug, condition, hasResultsOnly);
+            const studies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
             console.log(`Retrieved ${studies.length} studies`);
             
             // Filter for TRD-specific studies if requested
@@ -21573,7 +21607,7 @@ if (drug && typeof PubMedModule !== 'undefined') {
             
             // Fetch studies for condition
             try {
-                const studies = await fetchStudies("", condition, hasResultsOnly);
+                const studies = await fetchStudies("", condition, hasResultsOnly, yearsBack);
                 console.log(`Retrieved ${studies.length} studies for condition: ${condition}`);
                 
                 // Filter for TRD-specific studies if requested
@@ -29257,7 +29291,7 @@ const PubMedModule = (function() {
       searchInterface.id = 'pubmedSearchInterface';
       searchInterface.className = 'mb-6';
       searchInterface.innerHTML = `
-        <div class="flex flex-col md:flex-row gap-2 mb-4">
+        <div class="flex flex-col md:flex-row gap-2 mb-4" style="display: none">
           <div class="flex-grow">
             <input type="text" id="pubmedSearchBox" placeholder="Search PubMed..." 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
@@ -29329,7 +29363,7 @@ const PubMedModule = (function() {
           </div>
         </div>
       `;
-      
+      searchInterface.style.display = 'none';
       elements.pubmedSection.insertBefore(searchInterface, elements.pubmedSection.firstChild);
       
       // Update element references
