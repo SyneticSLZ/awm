@@ -3830,6 +3830,100 @@ app.get('/api/fda/dailymed/details/:setId', async (req, res) => {
 
 
 
+// app.get('/api/fda/orangebook/search', (req, res) => {
+//   console.log("Orange Book search endpoint called");
+//   const { q: query } = req.query;
+  
+//   if (!query) {
+//     return res.status(400).json({ error: 'Query parameter is required' });
+//   }
+  
+//   const searchTerm = query.toLowerCase();
+//   let results = {
+//     products: [],
+//     patents: [],
+//     exclusivity: []
+//   };
+  
+//   // Step 1: Search Products first
+//   results.products = orangeBookData.products.filter(product =>
+//     Object.values(product).some(val =>
+//       String(val).toLowerCase().includes(searchTerm)
+//     )
+//   );
+  
+//   // Step 2: Create a map of Application Number and Product Number combinations
+//   const appProductMap = new Set();
+  
+//   // Add all found products to the map
+//   results.products.forEach(product => {
+//     if (product.Appl_No && product.Product_No) {
+//       appProductMap.add(`${product.Appl_Type}-${product.Appl_No}-${product.Product_No}`);
+//     }
+//   });
+  
+//   // Step 3: Find related patents
+//   results.patents = orangeBookData.patents.filter(patent => {
+//     // First check if the patent data directly matches the search term
+//     const directMatch = Object.values(patent).some(val =>
+//       String(val).toLowerCase().includes(searchTerm)
+//     );
+    
+//     // Then check if this patent is related to any of our found products
+//     const relatedMatch = appProductMap.has(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}`);
+    
+//     return directMatch || relatedMatch;
+//   });
+  
+//   // Step 4: Find related exclusivity data
+//   results.exclusivity = orangeBookData.exclusivity.filter(exclusivity => {
+//     // First check if the exclusivity data directly matches the search term
+//     const directMatch = Object.values(exclusivity).some(val =>
+//       String(val).toLowerCase().includes(searchTerm)
+//     );
+    
+//     // Then check if this exclusivity is related to any of our found products
+//     const relatedMatch = appProductMap.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}`);
+    
+//     return directMatch || relatedMatch;
+//   });
+  
+//   // Step 5: Enrich products with their related patent and exclusivity information
+//   const enrichedProducts = results.products.map(product => {
+//     const productKey = `${product.Appl_Type}-${product.Appl_No}-${product.Product_No}`;
+    
+//     // Find related patents for this product
+//     const relatedPatents = results.patents.filter(patent => 
+//       `${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}` === productKey
+//     );
+    
+//     // Find related exclusivity data for this product
+//     const relatedExclusivity = results.exclusivity.filter(exclusivity => 
+//       `${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}` === productKey
+//     );
+    
+//     return {
+//       ...product,
+//       related_patents: relatedPatents,
+//       related_exclusivity: relatedExclusivity
+//     };
+//   });
+//   console.log(results)
+//   // Respond with the enrichsed data
+//   res.json({
+//     results: {
+//       products: enrichedProducts.slice(0, 50), // Limit results for performance but include related data
+//       patents: results.patents.slice(0, 50),
+//       exclusivity: results.exclusivity.slice(0, 50)
+//     },
+//     total: {
+//       products: results.products.length,
+//       patents: results.patents.length,
+//       exclusivity: results.exclusivity.length
+//     }
+//   });
+// });
+
 app.get('/api/fda/orangebook/search', (req, res) => {
   console.log("Orange Book search endpoint called");
   const { q: query } = req.query;
@@ -3842,7 +3936,8 @@ app.get('/api/fda/orangebook/search', (req, res) => {
   let results = {
     products: [],
     patents: [],
-    exclusivity: []
+    exclusivity: [],
+    companies: [] // Add companies to results
   };
   
   // Step 1: Search Products first
@@ -3852,52 +3947,49 @@ app.get('/api/fda/orangebook/search', (req, res) => {
     )
   );
   
-  // Step 2: Create a map of Application Number and Product Number combinations
-  const appProductMap = new Set();
+  // Step 2: Collect unique company names
+  const companySet = new Set();
+  results.products.forEach(product => {
+    if (product.Applicant) { // Adjust field name based on your data structure
+      companySet.add(product.Applicant);
+    }
+  });
+  results.companies = Array.from(companySet);
   
-  // Add all found products to the map
+  // Step 3: Create a map of Application Number and Product Number combinations
+  const appProductMap = new Set();
   results.products.forEach(product => {
     if (product.Appl_No && product.Product_No) {
       appProductMap.add(`${product.Appl_Type}-${product.Appl_No}-${product.Product_No}`);
     }
   });
   
-  // Step 3: Find related patents
+  // Step 4: Find related patents
   results.patents = orangeBookData.patents.filter(patent => {
-    // First check if the patent data directly matches the search term
     const directMatch = Object.values(patent).some(val =>
       String(val).toLowerCase().includes(searchTerm)
     );
-    
-    // Then check if this patent is related to any of our found products
     const relatedMatch = appProductMap.has(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}`);
-    
     return directMatch || relatedMatch;
   });
   
-  // Step 4: Find related exclusivity data
+  // Step 5: Find related exclusivity data
   results.exclusivity = orangeBookData.exclusivity.filter(exclusivity => {
-    // First check if the exclusivity data directly matches the search term
     const directMatch = Object.values(exclusivity).some(val =>
       String(val).toLowerCase().includes(searchTerm)
     );
-    
-    // Then check if this exclusivity is related to any of our found products
     const relatedMatch = appProductMap.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}`);
-    
     return directMatch || relatedMatch;
   });
   
-  // Step 5: Enrich products with their related patent and exclusivity information
+  // Step 6: Enrich products with their related patent and exclusivity information
   const enrichedProducts = results.products.map(product => {
     const productKey = `${product.Appl_Type}-${product.Appl_No}-${product.Product_No}`;
     
-    // Find related patents for this product
     const relatedPatents = results.patents.filter(patent => 
       `${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}` === productKey
     );
     
-    // Find related exclusivity data for this product
     const relatedExclusivity = results.exclusivity.filter(exclusivity => 
       `${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}` === productKey
     );
@@ -3908,23 +4000,23 @@ app.get('/api/fda/orangebook/search', (req, res) => {
       related_exclusivity: relatedExclusivity
     };
   });
-  console.log(results)
-  // Respond with the enrichsed data
+  
+  // Step 7: Respond with enriched data including companies
   res.json({
     results: {
-      products: enrichedProducts.slice(0, 50), // Limit results for performance but include related data
+      products: enrichedProducts.slice(0, 50),
       patents: results.patents.slice(0, 50),
-      exclusivity: results.exclusivity.slice(0, 50)
+      exclusivity: results.exclusivity.slice(0, 50),
+      companies: results.companies.slice(0, 50) // Include company names
     },
     total: {
       products: results.products.length,
       patents: results.patents.length,
-      exclusivity: results.exclusivity.length
+      exclusivity: results.exclusivity.length,
+      companies: results.companies.length
     }
   });
 });
-
-
 
 
 

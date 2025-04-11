@@ -1372,8 +1372,8 @@
 
     <script>
         // API Base URL - Use our local backend
-        // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-         const API_BASE_URL = 'http://localhost:3000/api';
+        const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
+        //  const API_BASE_URL = 'http://localhost:3000/api';
 
         // State management
         const appState = {
@@ -1453,6 +1453,45 @@ elements.drugSuccessSummaryTable = document.getElementById('drugSuccessSummaryTa
 charts.overallDrugSuccess = null;
 charts.responseRate = null;
 charts.remissionRate = null;
+
+
+
+// Function to handle URL parameters on page load
+function handleUrlParams() {
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const drugParam = urlParams.get('drug');
+    const conditionParam = urlParams.get('condition');
+    const hasResultsParam = urlParams.get('hasResults');
+    const trdFocusParam = urlParams.get('trdFocus');
+    
+    // Check if we have any search parameters to process
+    if (drugParam || conditionParam) {
+        console.log('URL parameters detected:', { 
+            drug: drugParam, 
+            condition: conditionParam,
+            hasResults: hasResultsParam,
+            trdFocus: trdFocusParam
+        });
+        
+        // Set form values based on URL parameters
+        if (drugParam) {
+            elements.drugSearch.value = drugParam;
+        }
+        
+        if (conditionParam) {
+            elements.conditionSearch.value = conditionParam;
+        }
+        // Trigger the search
+        handleSearch();
+    }
+}
+
+// Add event listener for DOMContentLoaded to handle URL parameters
+document.addEventListener('DOMContentLoaded', () => {
+    handleUrlParams();
+});
+
 
 // Function to analyze and display overall drug success rates
 // Improved display function with error handling
@@ -4862,7 +4901,13 @@ function generateAndInjectUI(summary, targetElementId) {
                       <tbody class="bg-white divide-y divide-gray-200">
                         ${summary.successfulDrugs.map((drug, idx) => `
                           <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${drug.name}</td>
+                          <!--  <td  class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${drug.name}</td> -->
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+  <a href="https://sunday-fsfq.onrender.com?drug=${encodeURIComponent(drug.name)}" class="text-blue-600 hover:text-blue-800 hover:underline">
+    ${drug.name}
+  </a>
+</td>
+
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">${drug.completedLatePhaseTrials}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">${drug.latestCompletedYear}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -4935,7 +4980,12 @@ function generateAndInjectUI(summary, targetElementId) {
                       <tbody class="bg-white divide-y divide-gray-200">
                         ${summary.failedDrugs.map((drug, idx) => `
                           <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${drug.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                                                       
+  <a href="https://sunday-fsfq.onrender.com?drug=${encodeURIComponent(drug.name)}" class="text-blue-600 hover:text-blue-800 hover:underline">
+    ${drug.name}
+  </a>
+</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">${drug.terminatedTrials}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">${drug.latestTerminatedYear}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">
@@ -4978,7 +5028,12 @@ function generateAndInjectUI(summary, targetElementId) {
                       <tbody class="bg-white divide-y divide-gray-200">
                         ${summary.drugsInProgress.map((drug, idx) => `
                           <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${drug.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                                                            
+  <a href="https://sunday-fsfq.onrender.com?drug=${encodeURIComponent(drug.name)}" class="text-blue-600 hover:text-blue-800 hover:underline">
+    ${drug.name}
+  </a>
+</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">${drug.ongoingTrials}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-700">
                               ${drug.phases.map(phase => 
@@ -13565,21 +13620,14 @@ function createPhasePerformanceChart(outcomes) {
 // }
 
 //////////////////////////////////////////////////WARNING LETTERS ///////////////////////////////////////////////////////////
-// New function to fetch warning letters
-async function fetchWarningLetters(searchTerm, filters = {}) {
+
+// Updated function to fetch warning letters for multiple companies
+async function fetchWarningLetters(companies, filters = {}) {
   try {
-    // Build query parameters
-    const queryParams = new URLSearchParams();
-    queryParams.append('term', searchTerm);
-    queryParams.append('field', 'all');
+    if (!Array.isArray(companies) || companies.length === 0) {
+      throw new Error('Companies parameter must be a non-empty array');
+    }
 
-
-    
-    // Add filters if they exist
-    if (filters.type) queryParams.append('type', filters.type); // human or veterinary
-    if (filters.issueDate) queryParams.append('issueDate', filters.issueDate);
-    if (filters.issuingOffice) queryParams.append('issuingOffice', filters.issuingOffice);
-    
     // Show loading state
     elements.warningLettersData.innerHTML = `
       <div class="flex justify-center items-center py-8">
@@ -13587,30 +13635,62 @@ async function fetchWarningLetters(searchTerm, filters = {}) {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span class="ml-2 text-gray-600">Searching warning letters...</span>
+        <span class="ml-2 text-gray-600">Searching warning letters for ${companies.length} companies...</span>
       </div>
     `;
-    
-    // Make request to the API
-    const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error fetching warning letters: ${response.status}`);
+
+    // Store results and deduplicate by letter ID
+    const allLetters = new Map(); // Map<letterId, letter>
+    let totalCount = 0;
+
+    // Fetch warning letters for each company
+    for (const company of companies) {
+      // Build query parameters for this company
+      const queryParams = new URLSearchParams();
+      queryParams.append('term', company);
+      queryParams.append('field', 'companyName'); // Focus search on company name
+
+      // Add filters if they exist
+      if (filters.type) queryParams.append('type', filters.type); // human or veterinary
+      if (filters.issueDate) queryParams.append('issueDate', filters.issueDate);
+      if (filters.issuingOffice) queryParams.append('issuingOffice', filters.issuingOffice);
+
+      // Make request to the API
+      const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        console.warn(`Warning letters fetch failed for ${company}: ${response.status}`);
+        continue; // Skip to next company
+      }
+
+      const data = await response.json();
+      const letters = data.results || [];
+
+      // Add letters to Map to deduplicate
+      letters.forEach(letter => {
+        const letterId = letter.id || letter.letterId;
+        if (!allLetters.has(letterId)) {
+          allLetters.set(letterId, { ...letter, sourceCompany: company });
+        }
+      });
+
+      totalCount += data.total || 0; // Accumulate total count
     }
-    
-    const data = await response.json();
-    
+
+    // Convert Map to array for display
+    const lettersArray = Array.from(allLetters.values());
+
     // Display the warning letters
-    displayWarningLetters(data, searchTerm);
+    displayWarningLetters({ results: lettersArray, total: allLetters.size }, companies);
   } catch (error) {
     console.error("Error fetching warning letters:", error);
-    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching warning letters");
+    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching warning letters for companies");
     elements.warningLettersCount.textContent = "0 letters";
   }
 }
 
-// New function to display warning letters
-function displayWarningLetters(data, searchTerm) {
+// Updated function to display warning letters
+function displayWarningLetters(data, companies) {
   const letters = data.results || [];
   const totalCount = data.total || 0;
   
@@ -13620,7 +13700,7 @@ function displayWarningLetters(data, searchTerm) {
   if (letters.length === 0) {
     elements.warningLettersData.innerHTML = `
       <div class="text-center p-4">
-        <p class="text-sm text-gray-700">No warning letters found containing "${searchTerm}"</p>
+        <p class="text-sm text-gray-700">No warning letters found for companies: ${companies.join(", ")}</p>
       </div>
     `;
     return;
@@ -13649,7 +13729,6 @@ function displayWarningLetters(data, searchTerm) {
       <!-- Filter controls -->
       <div class="mb-4">
         <div class="flex flex-wrap items-center justify-between">
-
           <div class="flex space-x-2">
             <div>
               <select id="warning-letters-type-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
@@ -13681,7 +13760,8 @@ function displayWarningLetters(data, searchTerm) {
       <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
            data-id="${letter.id || letter.letterId}" 
            data-type="${letterType}" 
-           data-office="${letter.issuingOffice || ''}">
+           data-office="${letter.issuingOffice || ''}"
+           data-source-company="${letter.sourceCompany}">
         <div class="flex justify-between items-start">
           <h5 class="text-sm font-medium">${letter.companyName}</h5>
           <div class="flex space-x-2">
@@ -13695,10 +13775,11 @@ function displayWarningLetters(data, searchTerm) {
         </div>
         
         <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+        <p class="mt-1 text-xs text-gray-500">Source Company: ${letter.sourceCompany}</p>
         <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
         
         <div class="mt-2 text-xs text-gray-600 line-clamp-2">
-          ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+          ${highlightSearchTerm(letter.excerpt || '', letter.sourceCompany)}
         </div>
         
         <div class="mt-3 flex justify-between items-center">
@@ -13737,22 +13818,20 @@ function displayWarningLetters(data, searchTerm) {
   document.querySelectorAll('.view-warning-letter').forEach(button => {
     button.addEventListener('click', function() {
       const letterId = this.getAttribute('data-id');
-      viewWarningLetterDetails(letterId, searchTerm);
+      viewWarningLetterDetails(letterId, companies.join("|")); // Pass companies for highlighting
     });
   });
   
   // Add event listeners for filters
-  document.getElementById('warning-letters-type-filter').addEventListener('change', applyWarningLetterFilters);
-  document.getElementById('warning-letters-office-filter').addEventListener('change', applyWarningLetterFilters);
+  document.getElementById('warning-letters-type-filter').addEventListener('change', () => applyWarningLetterFilters(companies));
+  document.getElementById('warning-letters-office-filter').addEventListener('change', () => applyWarningLetterFilters(companies));
   
   // Add event listener for load more button
-  document.getElementById('load-more-letters').addEventListener('click', function() {
-    loadMoreWarningLetters(searchTerm);
-  });
+  document.getElementById('load-more-letters').addEventListener('click', () => loadMoreWarningLetters(companies));
 }
 
-// Function to apply warning letter filters
-function applyWarningLetterFilters() {
+// Updated function to apply warning letter filters
+function applyWarningLetterFilters(companies) {
   const typeFilter = document.getElementById('warning-letters-type-filter').value;
   const officeFilter = document.getElementById('warning-letters-office-filter').value;
   
@@ -13781,12 +13860,12 @@ function applyWarningLetterFilters() {
   const countEl = document.querySelector('#warning-letters-list').previousElementSibling.querySelector('h4');
   if (countEl) {
     const totalCount = letterItems.length;
-    const searchTerm = countEl.textContent.match(/related to "([^"]+)"/)?.[1] || '';
+    const searchTerm = companies.join(", ");
     
     if (visibleCount < totalCount) {
-      countEl.textContent = `Showing ${visibleCount} of ${totalCount} warning letters related to "${searchTerm}"`;
+      countEl.textContent = `Showing ${visibleCount} of ${totalCount} warning letters for "${searchTerm}"`;
     } else {
-      countEl.textContent = `Found ${totalCount} warning letters related to "${searchTerm}"`;
+      countEl.textContent = `Found ${totalCount} warning letters for "${searchTerm}"`;
     }
   }
   
@@ -13814,8 +13893,8 @@ function applyWarningLetterFilters() {
   }
 }
 
-// Function to load more warning letters
-async function loadMoreWarningLetters(searchTerm) {
+// Updated function to load more warning letters
+async function loadMoreWarningLetters(companies) {
   const loadMoreBtn = document.getElementById('load-more-letters');
   const currentCount = document.querySelectorAll('.warning-letter-item').length;
   
@@ -13834,28 +13913,45 @@ async function loadMoreWarningLetters(searchTerm) {
     const typeFilter = document.getElementById('warning-letters-type-filter').value;
     const officeFilter = document.getElementById('warning-letters-office-filter').value;
     
-    // Build query parameters
-    const queryParams = new URLSearchParams();
-    queryParams.append('term', searchTerm);
-    queryParams.append('field', 'all');
-    queryParams.append('offset', currentCount);
-    queryParams.append('limit', 10); // Load 10 more letters
+    // Store new letters
+    const newLetters = new Map();
     
-    // Add filters if they're not "all"
-    if (typeFilter !== 'all') queryParams.append('type', typeFilter);
-    if (officeFilter !== 'all') queryParams.append('issuingOffice', officeFilter);
-    
-    // Make request to the API
-    const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error fetching more warning letters: ${response.status}`);
+    // Fetch more letters for each company
+    for (const company of companies) {
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('term', company);
+      queryParams.append('field', 'companyName');
+      queryParams.append('offset', currentCount);
+      queryParams.append('limit', 10); // Load 10 more letters per company
+      
+      // Add filters if they're not "all"
+      if (typeFilter !== 'all') queryParams.append('type', typeFilter);
+      if (officeFilter !== 'all') queryParams.append('issuingOffice', officeFilter);
+      
+      // Make request to the API
+      const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        console.warn(`Failed to load more letters for ${company}: ${response.status}`);
+        continue;
+      }
+      
+      const data = await response.json();
+      const letters = data.results || [];
+      
+      // Add new letters to Map
+      letters.forEach(letter => {
+        const letterId = letter.id || letter.letterId;
+        if (!newLetters.has(letterId)) {
+          newLetters.set(letterId, { ...letter, sourceCompany: company });
+        }
+      });
     }
     
-    const data = await response.json();
-    const letters = data.results || [];
+    const lettersArray = Array.from(newLetters.values());
     
-    if (letters.length === 0) {
+    if (lettersArray.length === 0) {
       // No more letters to load
       loadMoreBtn.innerHTML = 'No more letters to load';
       loadMoreBtn.disabled = true;
@@ -13879,7 +13975,7 @@ async function loadMoreWarningLetters(searchTerm) {
     // Create HTML for new letters
     let html = '';
     
-    letters.forEach(letter => {
+    lettersArray.forEach(letter => {
       // Determine if veterinary or human
       const letterType = isVeterinary(letter) ? 'veterinary' : 'human';
       
@@ -13887,7 +13983,8 @@ async function loadMoreWarningLetters(searchTerm) {
         <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
              data-id="${letter.id || letter.letterId}" 
              data-type="${letterType}" 
-             data-office="${letter.issuingOffice || ''}">
+             data-office="${letter.issuingOffice || ''}"
+             data-source-company="${letter.sourceCompany}">
           <div class="flex justify-between items-start">
             <h5 class="text-sm font-medium">${letter.companyName}</h5>
             <div class="flex space-x-2">
@@ -13901,10 +13998,11 @@ async function loadMoreWarningLetters(searchTerm) {
           </div>
           
           <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+          <p class="mt-1 text-xs text-gray-500">Source Company: ${letter.sourceCompany}</p>
           <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
           
           <div class="mt-2 text-xs text-gray-600 line-clamp-2">
-            ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+            ${highlightSearchTerm(letter.excerpt || '', letter.sourceCompany)}
           </div>
           
           <div class="mt-3 flex justify-between items-center">
@@ -13932,7 +14030,7 @@ async function loadMoreWarningLetters(searchTerm) {
       button.setAttribute('data-initialized', 'true');
       button.addEventListener('click', function() {
         const letterId = this.getAttribute('data-id');
-        viewWarningLetterDetails(letterId, searchTerm);
+        viewWarningLetterDetails(letterId, companies.join("|"));
       });
     });
     
@@ -13941,7 +14039,7 @@ async function loadMoreWarningLetters(searchTerm) {
     loadMoreBtn.disabled = false;
     
     // Apply current filters to the new items
-    applyWarningLetterFilters();
+    applyWarningLetterFilters(companies);
   } catch (error) {
     console.error('Error loading more warning letters:', error);
     loadMoreBtn.innerHTML = 'Error Loading More';
@@ -13954,8 +14052,38 @@ async function loadMoreWarningLetters(searchTerm) {
   }
 }
 
-// Function to view warning letter details
-async function viewWarningLetterDetails(letterId, searchTerm) {
+// Updated function to search warning letters directly
+async function searchWarningLetters(companies, type = null, issuingOffice = null) {
+  // Display the FDA data section if it's hidden
+  showSection(elements.fdaDataSection, true);
+  
+  // Show loading state only for warning letters
+  elements.warningLettersData.innerHTML = `
+    <div class="flex justify-center items-center py-8">
+      <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="ml-2 text-gray-600">Searching warning letters for ${companies.length} companies...</span>
+    </div>
+  `;
+  
+  try {
+    // Create filters object
+    const filters = {};
+    if (type) filters.type = type;
+    if (issuingOffice) filters.issuingOffice = issuingOffice;
+    
+    // Fetch warning letters
+    await fetchWarningLetters(companies, filters);
+  } catch (error) {
+    console.error('Error searching warning letters:', error);
+    elements.warningLettersData.innerHTML = createErrorMessage('Error searching warning letters for companies');
+  }
+}
+
+// Update viewWarningLetterDetails to highlight multiple company names
+async function viewWarningLetterDetails(letterId, companies) {
   try {
     // Show loading modal
     showWarningLetterModal(`
@@ -13981,10 +14109,10 @@ async function viewWarningLetterDetails(letterId, searchTerm) {
     let contentHtml = '';
     
     if (letter.fullContent) {
-      // If we have a search term, highlight it
-      contentHtml = searchTerm 
-        ? highlightSearchTerm(letter.fullContent, searchTerm)
-        : letter.fullContent;
+      // Highlight all company names
+      contentHtml = companies.split("|").reduce((text, company) => {
+        return highlightSearchTerm(text, company);
+      }, letter.fullContent);
     } else {
       contentHtml = '<p class="text-gray-500">No letter content available.</p>';
     }
@@ -14045,16 +14173,12 @@ async function viewWarningLetterDetails(letterId, searchTerm) {
       </div>
     `, letter.companyName);
     
-    // If we have a search term, scroll to the first occurrence and highlight it specially
-    if (searchTerm && letter.fullContent) {
+    // Scroll to first highlighted company name
+    if (companies) {
       setTimeout(() => {
-        // Find the first highlighted element
         const firstHighlight = document.querySelector('.highlight');
         if (firstHighlight) {
-          // Scroll the element into view within the scrollable container
           firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          // Add a special animation to draw attention
           firstHighlight.classList.add('animate-pulse');
           setTimeout(() => {
             firstHighlight.classList.remove('animate-pulse');
@@ -14075,6 +14199,527 @@ async function viewWarningLetterDetails(letterId, searchTerm) {
     `, 'Error');
   }
 }
+
+// Helper function to normalize company names (optional)
+function normalizeCompanyName(name) {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/(\s*(inc\.?|llc|corp\.?|corporation|company|co\.?|ltd\.?|limited)\s*)$/i, '')
+    .trim();
+}
+
+
+// // New function to fetch warning letters
+// async function fetchWarningLetters(searchTerm, filters = {}) {
+//   try {
+//     // Build query parameters
+//     const queryParams = new URLSearchParams();
+//     queryParams.append('term', searchTerm);
+//     queryParams.append('field', 'all');
+
+
+    
+//     // Add filters if they exist
+//     if (filters.type) queryParams.append('type', filters.type); // human or veterinary
+//     if (filters.issueDate) queryParams.append('issueDate', filters.issueDate);
+//     if (filters.issuingOffice) queryParams.append('issuingOffice', filters.issuingOffice);
+    
+//     // Show loading state
+//     elements.warningLettersData.innerHTML = `
+//       <div class="flex justify-center items-center py-8">
+//         <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//         </svg>
+//         <span class="ml-2 text-gray-600">Searching warning letters...</span>
+//       </div>
+//     `;
+    
+//     // Make request to the API
+//     const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+    
+//     if (!response.ok) {
+//       throw new Error(`Error fetching warning letters: ${response.status}`);
+//     }
+    
+//     const data = await response.json();
+    
+//     // Display the warning letters
+//     displayWarningLetters(data, searchTerm);
+//   } catch (error) {
+//     console.error("Error fetching warning letters:", error);
+//     elements.warningLettersData.innerHTML = createErrorMessage("Error fetching warning letters");
+//     elements.warningLettersCount.textContent = "0 letters";
+//   }
+// }
+
+// // New function to display warning letters
+// function displayWarningLetters(data, searchTerm) {
+//   const letters = data.results || [];
+//   const totalCount = data.total || 0;
+  
+//   // Update counter
+//   elements.warningLettersCount.textContent = `${totalCount} letters`;
+  
+//   if (letters.length === 0) {
+//     elements.warningLettersData.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No warning letters found containing "${searchTerm}"</p>
+//       </div>
+//     `;
+//     return;
+//   }
+  
+//   // Get unique issuing offices for filter
+//   const issuingOffices = [...new Set(letters.map(letter => letter.issuingOffice))].filter(Boolean);
+  
+//   // Determine which letters are veterinary vs human
+//   const isVeterinary = letter => {
+//     const vetKeywords = ['animal', 'vet', 'veterinary', 'livestock', 'pet', 'cattle', 'poultry', 'swine', 'equine', 'fish', 'aquatic', 'cow', 'horse', 'dog', 'cat'];
+//     const title = (letter.companyName || '').toLowerCase();
+//     const subject = (letter.subject || '').toLowerCase();
+//     const content = (letter.fullContent || '').toLowerCase();
+    
+//     return vetKeywords.some(keyword => 
+//       title.includes(keyword) || 
+//       subject.includes(keyword) || 
+//       content.includes(keyword)
+//     );
+//   };
+  
+//   // Create HTML for warning letters section
+//   let html = `
+//     <div>
+//       <!-- Filter controls -->
+//       <div class="mb-4">
+//         <div class="flex flex-wrap items-center justify-between">
+
+//           <div class="flex space-x-2">
+//             <div>
+//               <select id="warning-letters-type-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+//                 <option value="all">All Types</option>
+//                 <option value="human">Human</option>
+//                 <option value="veterinary">Veterinary</option>
+//               </select>
+//             </div>
+//             <div>
+//               <select id="warning-letters-office-filter" class="text-xs rounded border border-gray-300 py-1 px-2 focus:outline-none focus:ring-1 focus:ring-blue-500">
+//                 <option value="all">All Offices</option>
+//                 ${issuingOffices.map(office => `<option value="${office}">${office}</option>`).join('')}
+//               </select>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+      
+//       <!-- Warning letters list -->
+//       <div id="warning-letters-list" class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+//   `;
+  
+//   // Add each warning letter
+//   letters.forEach(letter => {
+//     // Determine if veterinary or human
+//     const letterType = isVeterinary(letter) ? 'veterinary' : 'human';
+    
+//     html += `
+//       <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
+//            data-id="${letter.id || letter.letterId}" 
+//            data-type="${letterType}" 
+//            data-office="${letter.issuingOffice || ''}">
+//         <div class="flex justify-between items-start">
+//           <h5 class="text-sm font-medium">${letter.companyName}</h5>
+//           <div class="flex space-x-2">
+//             <span class="text-xs px-2 py-1 rounded-full ${letterType === 'veterinary' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+//               ${letterType === 'veterinary' ? 'Veterinary' : 'Human'}
+//             </span>
+//             <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+//               ${formatDate(letter.letterIssueDate)}
+//             </span>
+//           </div>
+//         </div>
+        
+//         <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+//         <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
+        
+//         <div class="mt-2 text-xs text-gray-600 line-clamp-2">
+//           ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+//         </div>
+        
+//         <div class="mt-3 flex justify-between items-center">
+//           <button class="text-xs text-blue-600 hover:text-blue-800 view-warning-letter" data-id="${letter.id || letter.letterId}">
+//             View Details
+//           </button>
+//           ${letter.companyUrl ? `
+//             <a href="${letter.companyUrl}" target="_blank" class="text-xs text-gray-600 hover:text-gray-800">
+//               View on FDA Website
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline-block ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//               </svg>
+//             </a>
+//           ` : ''}
+//         </div>
+//       </div>
+//     `;
+//   });
+  
+//   // Close container divs
+//   html += `
+//       </div>
+      
+//       <div class="mt-4 text-center">
+//         <button id="load-more-letters" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded transition-colors">
+//           Load More Letters
+//         </button>
+//       </div>
+//     </div>
+//   `;
+  
+//   // Update the warning letters section
+//   elements.warningLettersData.innerHTML = html;
+  
+//   // Add event listeners for warning letter detail view
+//   document.querySelectorAll('.view-warning-letter').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const letterId = this.getAttribute('data-id');
+//       viewWarningLetterDetails(letterId, searchTerm);
+//     });
+//   });
+  
+//   // Add event listeners for filters
+//   document.getElementById('warning-letters-type-filter').addEventListener('change', applyWarningLetterFilters);
+//   document.getElementById('warning-letters-office-filter').addEventListener('change', applyWarningLetterFilters);
+  
+//   // Add event listener for load more button
+//   document.getElementById('load-more-letters').addEventListener('click', function() {
+//     loadMoreWarningLetters(searchTerm);
+//   });
+// }
+
+// // Function to apply warning letter filters
+// function applyWarningLetterFilters() {
+//   const typeFilter = document.getElementById('warning-letters-type-filter').value;
+//   const officeFilter = document.getElementById('warning-letters-office-filter').value;
+  
+//   // Get all letter items
+//   const letterItems = document.querySelectorAll('.warning-letter-item');
+//   let visibleCount = 0;
+  
+//   // Apply filters
+//   letterItems.forEach(item => {
+//     const itemType = item.getAttribute('data-type');
+//     const itemOffice = item.getAttribute('data-office');
+    
+//     const typeMatch = typeFilter === 'all' || itemType === typeFilter;
+//     const officeMatch = officeFilter === 'all' || itemOffice === officeFilter;
+    
+//     // Show/hide based on filter matching
+//     if (typeMatch && officeMatch) {
+//       item.classList.remove('hidden');
+//       visibleCount++;
+//     } else {
+//       item.classList.add('hidden');
+//     }
+//   });
+  
+//   // Update the visible count
+//   const countEl = document.querySelector('#warning-letters-list').previousElementSibling.querySelector('h4');
+//   if (countEl) {
+//     const totalCount = letterItems.length;
+//     const searchTerm = countEl.textContent.match(/related to "([^"]+)"/)?.[1] || '';
+    
+//     if (visibleCount < totalCount) {
+//       countEl.textContent = `Showing ${visibleCount} of ${totalCount} warning letters related to "${searchTerm}"`;
+//     } else {
+//       countEl.textContent = `Found ${totalCount} warning letters related to "${searchTerm}"`;
+//     }
+//   }
+  
+//   // Show/hide load more button based on filters
+//   const loadMoreBtn = document.getElementById('load-more-letters');
+//   if (visibleCount === 0) {
+//     loadMoreBtn.classList.add('hidden');
+    
+//     // Display a message if no results match the filters
+//     const noResultsEl = document.getElementById('no-filter-results');
+//     if (!noResultsEl) {
+//       const messageEl = document.createElement('div');
+//       messageEl.id = 'no-filter-results';
+//       messageEl.className = 'text-center p-4 text-sm text-gray-500';
+//       messageEl.textContent = 'No warning letters match the selected filters.';
+      
+//       document.getElementById('warning-letters-list').appendChild(messageEl);
+//     }
+//   } else {
+//     loadMoreBtn.classList.remove('hidden');
+    
+//     // Remove no results message if it exists
+//     const noResultsEl = document.getElementById('no-filter-results');
+//     if (noResultsEl) noResultsEl.remove();
+//   }
+// }
+
+// // Function to load more warning letters
+// async function loadMoreWarningLetters(searchTerm) {
+//   const loadMoreBtn = document.getElementById('load-more-letters');
+//   const currentCount = document.querySelectorAll('.warning-letter-item').length;
+  
+//   // Show loading state
+//   loadMoreBtn.innerHTML = `
+//     <svg class="animate-spin h-4 w-4 mr-1 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//     </svg>
+//     Loading...
+//   `;
+//   loadMoreBtn.disabled = true;
+  
+//   try {
+//     // Get the current filter values
+//     const typeFilter = document.getElementById('warning-letters-type-filter').value;
+//     const officeFilter = document.getElementById('warning-letters-office-filter').value;
+    
+//     // Build query parameters
+//     const queryParams = new URLSearchParams();
+//     queryParams.append('term', searchTerm);
+//     queryParams.append('field', 'all');
+//     queryParams.append('offset', currentCount);
+//     queryParams.append('limit', 10); // Load 10 more letters
+    
+//     // Add filters if they're not "all"
+//     if (typeFilter !== 'all') queryParams.append('type', typeFilter);
+//     if (officeFilter !== 'all') queryParams.append('issuingOffice', officeFilter);
+    
+//     // Make request to the API
+//     const response = await fetch(`${API_BASE_URL}/wl/search?${queryParams.toString()}`);
+    
+//     if (!response.ok) {
+//       throw new Error(`Error fetching more warning letters: ${response.status}`);
+//     }
+    
+//     const data = await response.json();
+//     const letters = data.results || [];
+    
+//     if (letters.length === 0) {
+//       // No more letters to load
+//       loadMoreBtn.innerHTML = 'No more letters to load';
+//       loadMoreBtn.disabled = true;
+//       return;
+//     }
+    
+//     // Function to check if letter is veterinary
+//     const isVeterinary = letter => {
+//       const vetKeywords = ['animal', 'vet', 'veterinary', 'livestock', 'pet', 'cattle', 'poultry', 'swine', 'equine', 'fish', 'aquatic', 'cow', 'horse', 'dog', 'cat'];
+//       const title = (letter.companyName || '').toLowerCase();
+//       const subject = (letter.subject || '').toLowerCase();
+//       const content = (letter.fullContent || '').toLowerCase();
+      
+//       return vetKeywords.some(keyword => 
+//         title.includes(keyword) || 
+//         subject.includes(keyword) || 
+//         content.includes(keyword)
+//       );
+//     };
+    
+//     // Create HTML for new letters
+//     let html = '';
+    
+//     letters.forEach(letter => {
+//       // Determine if veterinary or human
+//       const letterType = isVeterinary(letter) ? 'veterinary' : 'human';
+      
+//       html += `
+//         <div class="warning-letter-item hover-card bg-white border border-gray-200 rounded p-4 transition-all" 
+//              data-id="${letter.id || letter.letterId}" 
+//              data-type="${letterType}" 
+//              data-office="${letter.issuingOffice || ''}">
+//           <div class="flex justify-between items-start">
+//             <h5 class="text-sm font-medium">${letter.companyName}</h5>
+//             <div class="flex space-x-2">
+//               <span class="text-xs px-2 py-1 rounded-full ${letterType === 'veterinary' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+//                 ${letterType === 'veterinary' ? 'Veterinary' : 'Human'}
+//               </span>
+//               <span class="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+//                 ${formatDate(letter.letterIssueDate)}
+//               </span>
+//             </div>
+//           </div>
+          
+//           <p class="mt-1 text-xs text-gray-500">${letter.issuingOffice || 'Unknown Office'}</p>
+//           <p class="mt-1 text-xs text-gray-700">${letter.subject || 'No subject provided'}</p>
+          
+//           <div class="mt-2 text-xs text-gray-600 line-clamp-2">
+//             ${highlightSearchTerm(letter.excerpt || '', searchTerm)}
+//           </div>
+          
+//           <div class="mt-3 flex justify-between items-center">
+//             <button class="text-xs text-blue-600 hover:text-blue-800 view-warning-letter" data-id="${letter.id || letter.letterId}">
+//               View Details
+//             </button>
+//             ${letter.companyUrl ? `
+//               <a href="${letter.companyUrl}" target="_blank" class="text-xs text-gray-600 hover:text-gray-800">
+//                 View on FDA Website
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline-block ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//                 </svg>
+//               </a>
+//             ` : ''}
+//           </div>
+//         </div>
+//       `;
+//     });
+    
+//     // Append new letters to the list
+//     document.getElementById('warning-letters-list').insertAdjacentHTML('beforeend', html);
+    
+//     // Add event listeners for new warning letter detail view buttons
+//     document.querySelectorAll('.view-warning-letter:not([data-initialized])').forEach(button => {
+//       button.setAttribute('data-initialized', 'true');
+//       button.addEventListener('click', function() {
+//         const letterId = this.getAttribute('data-id');
+//         viewWarningLetterDetails(letterId, searchTerm);
+//       });
+//     });
+    
+//     // Update button state
+//     loadMoreBtn.innerHTML = 'Load More Letters';
+//     loadMoreBtn.disabled = false;
+    
+//     // Apply current filters to the new items
+//     applyWarningLetterFilters();
+//   } catch (error) {
+//     console.error('Error loading more warning letters:', error);
+//     loadMoreBtn.innerHTML = 'Error Loading More';
+    
+//     // Auto-reset after a delay
+//     setTimeout(() => {
+//       loadMoreBtn.innerHTML = 'Load More Letters';
+//       loadMoreBtn.disabled = false;
+//     }, 3000);
+//   }
+// }
+
+// // Function to view warning letter details
+// async function viewWarningLetterDetails(letterId, searchTerm) {
+//   try {
+//     // Show loading modal
+//     showWarningLetterModal(`
+//       <div class="flex justify-center items-center py-12">
+//         <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//         </svg>
+//         <span class="ml-2">Loading warning letter details...</span>
+//       </div>
+//     `);
+    
+//     // Fetch the warning letter details
+//     const response = await fetch(`${API_BASE_URL}/wl/letter/${letterId}`);
+    
+//     if (!response.ok) {
+//       throw new Error(`Error fetching warning letter details: ${response.status}`);
+//     }
+    
+//     const letter = await response.json();
+    
+//     // Format the letter content
+//     let contentHtml = '';
+    
+//     if (letter.fullContent) {
+//       // If we have a search term, highlight it
+//       contentHtml = searchTerm 
+//         ? highlightSearchTerm(letter.fullContent, searchTerm)
+//         : letter.fullContent;
+//     } else {
+//       contentHtml = '<p class="text-gray-500">No letter content available.</p>';
+//     }
+    
+//     // Show warning letter details in modal
+//     showWarningLetterModal(`
+//       <div>
+//         <div class="border-b pb-4 mb-4">
+//           <div class="flex justify-between items-start">
+//             <h3 class="text-xl font-semibold">${letter.companyName}</h3>
+//             <div class="flex space-x-2">
+//               ${letter.companyUrl ? `
+//                 <a href="${letter.companyUrl}" target="_blank" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded transition-colors">
+//                   View on FDA Website
+//                 </a>
+//               ` : ''}
+//             </div>
+//           </div>
+          
+//           <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+//             <div>
+//               <p class="text-gray-500">Letter ID:</p>
+//               <p>${letter.letterId || 'N/A'}</p>
+//             </div>
+//             <div>
+//               <p class="text-gray-500">Issue Date:</p>
+//               <p>${formatDate(letter.letterIssueDate)}</p>
+//             </div>
+//             <div>
+//               <p class="text-gray-500">Issuing Office:</p>
+//               <p>${letter.issuingOffice || 'N/A'}</p>
+//             </div>
+//           </div>
+          
+//           <div class="mt-4">
+//             <p class="text-gray-500">Subject:</p>
+//             <p>${letter.subject || 'No subject provided'}</p>
+//           </div>
+//         </div>
+        
+//         <div class="mb-4">
+//           <h4 class="text-lg font-medium mb-2">Letter Content</h4>
+//           <div class="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto custom-scrollbar text-sm whitespace-pre-line">
+//             ${contentHtml}
+//           </div>
+//         </div>
+        
+//         ${letter.companyUrl ? `
+//           <div class="flex justify-center">
+//             <a href="${letter.companyUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//               </svg>
+//               View complete warning letter on FDA website
+//             </a>
+//           </div>
+//         ` : ''}
+//       </div>
+//     `, letter.companyName);
+    
+//     // If we have a search term, scroll to the first occurrence and highlight it specially
+//     if (searchTerm && letter.fullContent) {
+//       setTimeout(() => {
+//         // Find the first highlighted element
+//         const firstHighlight = document.querySelector('.highlight');
+//         if (firstHighlight) {
+//           // Scroll the element into view within the scrollable container
+//           firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+//           // Add a special animation to draw attention
+//           firstHighlight.classList.add('animate-pulse');
+//           setTimeout(() => {
+//             firstHighlight.classList.remove('animate-pulse');
+//           }, 2000);
+//         }
+//       }, 500);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching warning letter details:', error);
+//     showWarningLetterModal(`
+//       <div class="text-center text-red-500 p-8">
+//         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//         </svg>
+//         <h3 class="text-lg font-medium mb-2">Error Loading Warning Letter</h3>
+//         <p class="text-sm text-gray-600">We couldn't load the warning letter details. Please try again later.</p>
+//       </div>
+//     `, 'Error');
+//   }
+// }
 
 // Function to show warning letter modal
 function showWarningLetterModal(content, title = 'Warning Letter Details') {
@@ -14205,35 +14850,35 @@ function showSection(element, show) {
   }
 }
 
-// Function to search warning letters directly
-async function searchWarningLetters(searchTerm, type = null, issuingOffice = null) {
-  // Display the FDA data section if it's hidden
-  showSection(elements.fdaDataSection, true);
+// // Function to search warning letters directly
+// async function searchWarningLetters(searchTerm, type = null, issuingOffice = null) {
+//   // Display the FDA data section if it's hidden
+//   showSection(elements.fdaDataSection, true);
   
-  // Show loading state only for warning letters
-  elements.warningLettersData.innerHTML = `
-    <div class="flex justify-center items-center py-8">
-      <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <span class="ml-2 text-gray-600">Searching warning letters...</span>
-    </div>
-  `;
+//   // Show loading state only for warning letters
+//   elements.warningLettersData.innerHTML = `
+//     <div class="flex justify-center items-center py-8">
+//       <svg class="animate-spin h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       <span class="ml-2 text-gray-600">Searching warning letters...</span>
+//     </div>
+//   `;
   
-  try {
-    // Create filters object
-    const filters = {};
-    if (type) filters.type = type;
-    if (issuingOffice) filters.issuingOffice = issuingOffice;
+//   try {
+//     // Create filters object
+//     const filters = {};
+//     if (type) filters.type = type;
+//     if (issuingOffice) filters.issuingOffice = issuingOffice;
     
-    // Fetch warning letters
-    await fetchWarningLetters(searchTerm, filters);
-  } catch (error) {
-    console.error('Error searching warning letters:', error);
-    elements.warningLettersData.innerHTML = createErrorMessage('Error searching warning letters');
-  }
-}
+//     // Fetch warning letters
+//     await fetchWarningLetters(searchTerm, filters);
+//   } catch (error) {
+//     console.error('Error searching warning letters:', error);
+//     elements.warningLettersData.innerHTML = createErrorMessage('Error searching warning letters');
+//   }
+// }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14288,9 +14933,13 @@ async function displayFdaData(drugName,condition) {
     // Continue with existing Orange Book and DailyMed fetches
     const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
     const orangeBookData = await orangeBookResponse.json();
-    
+    console.log("ORANGE BOOK", orangeBookData)
+    const companies = orangeBookData.results.companies || [];
+
     if (orangeBookResponse.ok && !orangeBookData.error) {
       displayOrangeBookData(orangeBookData);
+      await fetchWarningLetters(companies);
+
     } else {
       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
     }
@@ -14353,7 +15002,7 @@ async function displayFdaData(drugName,condition) {
     // }
     
     // Fetch warning letters
-    await fetchWarningLetters(drugName);
+    // await fetchWarningLetters(drugName);
     
   } catch (error) {
     console.error("Error fetching FDA data:", error);
@@ -14405,9 +15054,13 @@ async function displayFdaClinicalData(condition) {
     // Continue with existing Orange Book and DailyMed fetches
     const orangeBookResponse = await fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(condition)}`);
     const orangeBookData = await orangeBookResponse.json();
-    
+    const companies = orangeBookData.results.companies || [];
+
+
     if (orangeBookResponse.ok && !orangeBookData.error) {
       displayOrangeBookData(orangeBookData);
+          // Fetch warning letters
+          await fetchWarningLetters(companies);
     } else {
       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
     }
@@ -14421,8 +15074,7 @@ async function displayFdaClinicalData(condition) {
       elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
     }
     
-    // Fetch warning letters
-    await fetchWarningLetters(condition);
+
     
   } catch (error) {
     console.error("Error fetching FDA data:", error);
@@ -20619,12 +21271,12 @@ if (drug && typeof PubMedModule !== 'undefined') {
   }
 }
             // If we also have a condition, get condition-specific data too
-            if (condition) {
-                console.log(`Getting additional condition data for: ${condition}`);
-                displayFdaClinicalData(condition);
-                EmaClinicalDataModule.init();
-            EmaClinicalDataModule.searchCondition(condition);
-            }
+            // if (condition) {
+            //     console.log(`Getting additional condition data for: ${condition}`);
+            //     displayFdaClinicalData(condition);
+            //     EmaClinicalDataModule.init();
+            // EmaClinicalDataModule.searchCondition(condition);
+            // }
 
         } else if (condition) {
             // 5. HANDLE CONDITION-ONLY SEARCH
@@ -20680,11 +21332,11 @@ if (drug && typeof PubMedModule !== 'undefined') {
             }
             
             // Always display condition data regardless of study results
-            displayFdaClinicalData(condition);
+            // displayFdaClinicalData(condition);
             
             // Make sure all appropriate sections are shown for condition-only searches
-            EmaClinicalDataModule.init();
-            EmaClinicalDataModule.searchCondition(condition);
+            // EmaClinicalDataModule.init();
+            // EmaClinicalDataModule.searchCondition(condition);
             
 // For condition search
 // PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
@@ -20711,7 +21363,7 @@ if (condition && typeof PubMedModule !== 'undefined') {
 
 
             // Show FDA data section for condition
-            showSection(elements.fdaDataSection, true);
+            // showSection(elements.fdaDataSection, true);
         }
         
         // 6. ALWAYS SEARCH PUBMED IF TERMS ARE AVAILABLE
@@ -20720,10 +21372,10 @@ if (condition && typeof PubMedModule !== 'undefined') {
         // }
         
         // 7. ENSURE ALL APPROPRIATE SECTIONS ARE VISIBLE AND FINISH LOADING
-        if (drug || condition) {
-            // Always show FDA section if we have any search criteria
-            showSection(elements.fdaDataSection, true);
-        }
+        // if (drug || condition) {
+        //     // Always show FDA section if we have any search criteria
+        //     showSection(elements.fdaDataSection, true);
+        // }
         
         displayLoading(false);
         
