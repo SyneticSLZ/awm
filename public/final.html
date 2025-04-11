@@ -201,7 +201,7 @@
                 </div>
                 <div class="flex-grow">
                     <label for="conditionSearch" class="block text-sm font-medium mb-1">Condition (Optional):</label>
-                    <input type="text" id="conditionSearch" placeholder="Default: Treatment Resistant Depression" 
+                    <input type="text" id="conditionSearch"  placeholder="e.g Treatment Resistant Depression"
                            class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                 </div>
                 <div class="flex items-end">
@@ -4412,12 +4412,67 @@ function extractUsageData(studies, drugName) {
 //     return result;
 // }
 
+function cleanAndSplitDrugName(rawName) {
+    // Convert to lowercase for consistent processing
+    const lowerName = rawName.toLowerCase().trim();
+
+    // Skip known non-drug terms
+    const nonDrugTerms = [
+        'placebo',
+        'sugar pill',
+        'saline',
+        'control',
+        'sham',
+        'vehicle',
+        'inactive',
+        'no intervention'
+    ];
+    if (nonDrugTerms.some(term => lowerName.includes(term))) {
+        return [];
+    }
+
+    // Remove dosages, percentages, and other qualifiers
+    let cleanedName = lowerName
+        .replace(/\b\d+(\.\d+)?\s*(mg|g|%|ml|mcg|iu|units)\b/gi, '') // Remove dosages (e.g., "56 mg")
+        .replace(/\b(xr|er|sr|cr)\b/gi, '') // Remove extended-release qualifiers
+        .replace(/\(\s*new antidepressant\s*\)/gi, '') // Remove parenthetical qualifiers
+        .replace(/\b(nitrous oxide|oxygen|midazolam)\b/gi, '') // Remove specific non-relevant drugs
+        .replace(/\s*\d+%\s*/gi, '') // Remove percentages
+        .replace(/[^\w\s\+&,-]/g, '') // Remove special characters except +, &, -, and commas
+        .trim();
+
+    // Handle combination therapies
+    const separators = [',', ' plus ', ' and ', ' & ', ' + '];
+    let drugNames = [cleanedName];
+    
+    for (const sep of separators) {
+        if (cleanedName.includes(sep)) {
+            drugNames = cleanedName.split(sep).map(name => name.trim());
+            break;
+        }
+    }
+
+    // Final cleanup and normalization
+    return drugNames
+        .map(name => {
+            // Skip empty or short names
+            if (!name || name.length < 2) return null;
+            
+            // Capitalize first letter of each word
+            return name
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        })
+        .filter(name => name && !nonDrugTerms.some(term => name.toLowerCase().includes(term)));
+}
+
 function extractConditionData(studies, conditionName) {
     // Initialize data structure
     const result = {
         earliestStudyYear: null,
         latestStudyYear: null,
-        byDrug: {}, // Instead of byCondition, we track by drug
+        byDrug: {},
         byPhase: {
             "PRE_PHASE": [],
             "PHASE1": [],
@@ -4426,8 +4481,8 @@ function extractConditionData(studies, conditionName) {
             "PHASE3": [],
             "PHASE4": []
         },
-        successfulDrugs: [], // New property for successful drugs (completed Phase 3/4)
-        failedDrugs: [],     // New property for failed drugs
+        successfulDrugs: [],
+        failedDrugs: [],
         totalStudies: studies.length,
         entityType: 'condition',
         entityName: conditionName
@@ -4491,9 +4546,9 @@ function extractConditionData(studies, conditionName) {
                     years: {},
                     earliestYear: null,
                     latestYear: null,
-                    studies: [], // Store study IDs for linking
-                    completedLatePhaseStudies: [], // Track completed Phase 3/4 studies
-                    terminatedStudies: []          // Track terminated studies
+                    studies: [],
+                    completedLatePhaseStudies: [],
+                    terminatedStudies: []
                 };
             }
             
@@ -4540,57 +4595,63 @@ function extractConditionData(studies, conditionName) {
                     return;
                 }
                 
-                // Normalize drug name
-                const drugName = intervention.name.charAt(0).toUpperCase() + intervention.name.slice(1);
-                
-                // Initialize drug data if it doesn't exist
-                if (!result.byDrug[drugName]) {
-                    result.byDrug[drugName] = {
-                        count: 0,
-                        years: {},
-                        earliestYear: null,
-                        latestYear: null,
-                        studies: [], // Store study IDs for linking
-                        completedLatePhaseStudies: [], // Track completed Phase 3/4 studies
-                        terminatedStudies: []          // Track terminated studies
+                // Clean and split drug names
+                const drugNames = cleanAndSplitDrugName(intervention.name);
+
+                // Skip if no valid drug names
+                if (drugNames.length === 0) return;
+
+                // Process each cleaned drug name
+                drugNames.forEach(drugName => {
+                    // Initialize drug data if it doesn't exist
+                    if (!result.byDrug[drugName]) {
+                        result.byDrug[drugName] = {
+                            count: 0,
+                            years: {},
+                            earliestYear: null,
+                            latestYear: null,
+                            studies: [],
+                            completedLatePhaseStudies: [],
+                            terminatedStudies: []
+                        };
+                    }
+                    
+                    // Increment counts
+                    result.byDrug[drugName].count++;
+                    result.byDrug[drugName].years[studyYear] = 
+                        (result.byDrug[drugName].years[studyYear] || 0) + 1;
+                    
+                    // Store study ID for linking
+                    const studyInfo = {
+                        id: study.protocolSection?.identificationModule?.nctId,
+                        year: studyYear,
+                        title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study',
+                        phase: phase,
+                        status: overallStatus
                     };
-                }
-                
-                // Increment counts
-                result.byDrug[drugName].count++;
-                result.byDrug[drugName].years[studyYear] = 
-                    (result.byDrug[drugName].years[studyYear] || 0) + 1;
-                
-                // Store study ID for linking
-                const studyInfo = {
-                    id: study.protocolSection?.identificationModule?.nctId,
-                    year: studyYear,
-                    title: study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study',
-                    phase: phase,
-                    status: overallStatus
-                };
-                
-                result.byDrug[drugName].studies.push(studyInfo);
-                
-                // Track successful/failed studies
-                if (isLatePhase && isCompleted) {
-                    result.byDrug[drugName].completedLatePhaseStudies.push(studyInfo);
-                }
-                
-                if (isTerminated) {
-                    result.byDrug[drugName].terminatedStudies.push(studyInfo);
-                }
-                
-                // Update drug-specific earliest/latest years
-                if (result.byDrug[drugName].earliestYear === null || 
-                    studyYear < result.byDrug[drugName].earliestYear) {
-                    result.byDrug[drugName].earliestYear = studyYear;
-                }
-                
-                if (result.byDrug[drugName].latestYear === null || 
-                    studyYear > result.byDrug[drugName].latestYear) {
-                    result.byDrug[drugName].latestYear = studyYear;
-                }
+                    
+                    result.byDrug[drugName].studies.push(studyInfo);
+                    
+                    // Track successful/failed studies
+                    if (isLatePhase && isCompleted) {
+                        result.byDrug[drugName].completedLatePhaseStudies.push(studyInfo);
+                    }
+                    
+                    if (isTerminated) {
+                        result.byDrug[drugName].terminatedStudies.push(studyInfo);
+                    }
+                    
+                    // Update drug-specific earliest/latest years
+                    if (result.byDrug[drugName].earliestYear === null || 
+                        studyYear < result.byDrug[drugName].earliestYear) {
+                        result.byDrug[drugName].earliestYear = studyYear;
+                    }
+                    
+                    if (result.byDrug[drugName].latestYear === null || 
+                        studyYear > result.byDrug[drugName].latestYear) {
+                        result.byDrug[drugName].latestYear = studyYear;
+                    }
+                });
             });
         }
         
@@ -22429,10 +22490,10 @@ alert('Study data copied to clipboard.');
         initEventListeners();
     }
     
-    // Set default condition
-    if (elements.conditionSearch) {
-        elements.conditionSearch.value = "Treatment Resistant Depression";
-    }
+    // // Set default condition
+    // if (elements.conditionSearch) {
+    //     elements.conditionSearch.value = "Treatment Resistant Depression";
+    // }
 
     
     console.log('Enhanced TRD Clinical Trials Research Tool initialized');
