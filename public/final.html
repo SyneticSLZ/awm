@@ -1306,7 +1306,12 @@
   
   <!-- New FDA Data Section -->
 
-
+  <div id="clinical-trials-dashboard" class="mb-8">
+    <!-- Our UI will be injected here -->
+    <div class="bg-white p-6 shadow rounded-lg text-center text-gray-500">
+      <p>Search for a condition to see clinical trial results</p>
+    </div>
+  </div>
         <!-- Studies List -->
         <section id="studiesSection" class="hidden mb-6">
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -1346,12 +1351,7 @@
                 </div>
             </div>
         </section>
-        <div id="clinical-trials-dashboard" class="mb-8">
-            <!-- Our UI will be injected here -->
-            <div class="bg-white p-6 shadow rounded-lg text-center text-gray-500">
-              <p>Search for a condition to see clinical trial results</p>
-            </div>
-          </div>
+
         <!-- Study Detail Section -->
         <section id="studyDetailSection" class="hidden mb-6">
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -1372,8 +1372,8 @@
 
     <script>
         // API Base URL - Use our local backend
-        const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-        //  const API_BASE_URL = 'http://localhost:3000/api';
+        // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
+         const API_BASE_URL = 'http://localhost:3000/api';
 
         // State management
         const appState = {
