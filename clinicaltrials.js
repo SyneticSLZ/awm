@@ -73,22 +73,55 @@ const FDAvalidateDrugName = (req, res, next) => {
 
 
 
-// Load and parse the EMA medicine data CSV file
+// // Load and parse the EMA medicine data CSV file
+// let emaMedicines = [];
+// try {
+//   const csvFilePath = path.join(__dirname, 'medicines.csv');
+//   // Use utf8 encoding instead of cp1252 since Node.js doesn't directly support cp1252
+//   const csvData = fs.readFileSync(csvFilePath, { encoding: 'utf8' });
+//   const parsedData = Papa.parse(csvData, {
+//     header: true,
+//     skipEmptyLines: true,
+//     // Tell Papa Parse to be more flexible with parsing
+//     delimiter: ',', // Explicitly set delimiter
+//     dynamicTyping: false, // Keep everything as strings
+//     encoding: 'utf8'
+//   });
+//   emaMedicines = parsedData.data;
+//   console.log(`Loaded ${emaMedicines.length} medicines from EMA data`);
+// } catch (error) {
+//   console.error('Error loading EMA medicine data:', error.message);
+//   process.exit(1);
+// }
+
 let emaMedicines = [];
 try {
   const csvFilePath = path.join(__dirname, 'medicines.csv');
-  // Use utf8 encoding instead of cp1252 since Node.js doesn't directly support cp1252
-  const csvData = fs.readFileSync(csvFilePath, { encoding: 'utf8' });
-  const parsedData = Papa.parse(csvData, {
+  const fileStream = fs.createReadStream(csvFilePath, { encoding: 'utf8' });
+
+  Papa.parse(fileStream, {
     header: true,
     skipEmptyLines: true,
-    // Tell Papa Parse to be more flexible with parsing
-    delimiter: ',', // Explicitly set delimiter
-    dynamicTyping: false, // Keep everything as strings
-    encoding: 'utf8'
+    delimiter: ',',
+    dynamicTyping: false,
+    encoding: 'utf8',
+    step: (result, parser) => {
+      // Process each row incrementally
+      emaMedicines.push(result.data);
+      // Optional: Pause parsing if memory is a concern
+      if (emaMedicines.length % 1000 === 0) {
+        parser.pause();
+        setTimeout(() => parser.resume(), 100); // Brief pause to allow GC
+      }
+    },
+    complete: () => {
+      console.log(`Loaded ${emaMedicines.length} medicines from EMA data`);
+    },
+    error: (error) => {
+      console.error('Error parsing EMA medicine data:', error.message);
+      process.exit(1);
+    },
   });
-  emaMedicines = parsedData.data;
-  console.log(`Loaded ${emaMedicines.length} medicines from EMA data`);
 } catch (error) {
   console.error('Error loading EMA medicine data:', error.message);
   process.exit(1);
