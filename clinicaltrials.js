@@ -54,7 +54,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json({ limit: '10mb' }));
 
 // Cache for FDA and EMA approvals
 const approvalCache = {
@@ -398,7 +398,55 @@ const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 
 
+const DB_FILE = 'db.json';
 
+// GET endpoint to read db.json
+app.get('/api/db', (req, res) => {
+  fs.readFile(DB_FILE, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading db.json:', err);
+      // If file doesn't exist, create it with a default database
+      if (err.code === 'ENOENT') {
+        const defaultDb = { searches: {}, lastUpdated: new Date().toISOString() };
+        fs.writeFile(DB_FILE, JSON.stringify(defaultDb, null, 2), (writeErr) => {
+          if (writeErr) {
+            console.error('Error creating db.json:', writeErr);
+            return res.status(500).json({ error: 'Failed to create database' });
+          }
+          console.log('Created db.json with default database');
+          return res.json(defaultDb);
+        });
+      } else {
+        return res.status(500).json({ error: 'Failed to read database' });
+      }
+    } else {
+      try {
+        const parsedData = JSON.parse(data);
+        res.json(parsedData);
+      } catch (parseErr) {
+        console.error('Error parsing db.json:', parseErr);
+        res.status(500).json({ error: 'Invalid database format' });
+      }
+    }
+  });
+});
+
+// POST endpoint to write to db.json
+app.post('/api/db', (req, res) => {
+  const data = req.body;
+  // Validate input
+  if (!data || typeof data !== 'object' || !data.searches) {
+    return res.status(400).json({ error: 'Invalid database structure' });
+  }
+  fs.writeFile(DB_FILE, JSON.stringify(data, null, 2), (err) => {
+    if (err) {
+      console.error('Error writing db.json:', err);
+      return res.status(500).json({ error: 'Failed to write database' });
+    }
+    console.log('Successfully wrote to db.json');
+    res.json({ success: true });
+  });
+});
 
 
 

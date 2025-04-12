@@ -1595,8 +1595,8 @@
 
     <script>
         // API Base URL - Use our local backend
-        const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-        //  const API_BASE_URL = 'http://localhost:3000/api';
+        // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
+         const API_BASE_URL = 'http://localhost:3000/api';
 
         // State management
         const appState = {
@@ -2410,12 +2410,24 @@ function getColorByIndex(index, alpha = 1) {
 
 
 
-// async function fetchStudies(drug, condition, hasResults) {
+
+
+// async function fetchStudies(drug, condition, hasResults, yearsBack = 5) {
 //   try {
 //     condition = condition || "";
 //     const allStudies = [];
 //     let pageToken = null;
 //     let hasNextPage = true;
+    
+//     // Calculate the date from yearsBack
+//     const today = new Date();
+//     const startDate = new Date();
+//     startDate.setFullYear(today.getFullYear() - yearsBack);
+    
+//     // Format date as YYYY-MM-DD for the API (using hyphens, not slashes)
+//     const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+    
+//     console.log(`Fetching studies from ${formattedStartDate} to present`);
     
 //     // Continue fetching until there are no more pages
 //     while (hasNextPage) {
@@ -2424,7 +2436,8 @@ function getColorByIndex(index, alpha = 1) {
 //         intervention: drug,
 //         hasResults: hasResults,
 //         fields: "protocolSection,resultsSection,hasResults",
-//         pageSize: 100 // Keep page size at 100 for efficiency
+//         pageSize: 100, // Keep page size at 100 for efficiency
+//         advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]` // Filter by start date with correct syntax
 //       };
       
 //       // Add page token for pagination if we're not on the first page
@@ -2466,72 +2479,7 @@ function getColorByIndex(index, alpha = 1) {
 //   }
 // }
 
-async function fetchStudies(drug, condition, hasResults, yearsBack = 5) {
-  try {
-    condition = condition || "";
-    const allStudies = [];
-    let pageToken = null;
-    let hasNextPage = true;
-    
-    // Calculate the date from yearsBack
-    const today = new Date();
-    const startDate = new Date();
-    startDate.setFullYear(today.getFullYear() - yearsBack);
-    
-    // Format date as YYYY-MM-DD for the API (using hyphens, not slashes)
-    const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-    
-    console.log(`Fetching studies from ${formattedStartDate} to present`);
-    
-    // Continue fetching until there are no more pages
-    while (hasNextPage) {
-      const params = {
-        condition: condition,
-        intervention: drug,
-        hasResults: hasResults,
-        fields: "protocolSection,resultsSection,hasResults",
-        pageSize: 100, // Keep page size at 100 for efficiency
-        advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]` // Filter by start date with correct syntax
-      };
-      
-      // Add page token for pagination if we're not on the first page
-      if (pageToken) {
-        params.pageToken = pageToken;
-      }
-      
-      console.log(`Fetching studies page with params:`, params);
-      
-      const response = await axios.get(`${API_BASE_URL}/studies/search`, {
-        params,
-        headers: {
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
-      
-      console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
-      
-      const studies = response.data.data.studies || [];
-      allStudies.push(...studies);
-      
-      // Get next page token
-      pageToken = response.data.pagination?.nextPageToken;
-      hasNextPage = !!pageToken;
-      
-      // Optional: Add delay to avoid rate limiting
-      if (hasNextPage) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-    }
-    
-    console.log(`Total studies fetched: ${allStudies.length}`);
-    return allStudies;
-  } catch (error) {
-    console.error("Error fetching all studies:", error);
-    return [];
-  }
-}
+
 
 async function fetchStudyDetails(nctId) {
 // Skip if we've already failed to fetch this study
@@ -11044,236 +10992,240 @@ function formatParamType(paramType) {
 
 // Function to create all visualizations from the collected data
 
-function collectAllTrialOutcomes() {
-    console.log("Collecting all trial outcomes data...");
-    appState.allTrialOutcomes = [];
+// function collectAllTrialOutcomes() {
+//     console.log("Collecting all trial outcomes data...");
+//     appState.allTrialOutcomes = [];
     
-    // Ensure studies property exists and has valid data
-    if (!appState.studies || !Array.isArray(appState.studies) || appState.studies.length === 0) {
-        console.log("No studies to collect outcomes from");
-        return;
-    }
+//     // Ensure studies property exists and has valid data
+//     if (!appState.studies || !Array.isArray(appState.studies) || appState.studies.length === 0) {
+//         console.log("No studies to collect outcomes from");
+//         return;
+//     }
     
-    // Get all studies with results
-    const studiesWithResults = appState.studies.filter(study => study && study.hasResults);
-    console.log(`Found ${studiesWithResults.length} studies with results`);
+//     // Get all studies with results
+//     const studiesWithResults = appState.studies.filter(study => study && study.hasResults);
+//     console.log(`Found ${studiesWithResults.length} studies with results`);
     
-    // For each study, collect the outcome measures
-    studiesWithResults.forEach(study => {
-        // First make sure the basic study properties exist
-        if (!study || !study.protocolSection || !study.protocolSection.identificationModule) {
-            console.warn("Study missing required properties - skipping");
-            return;
-        }
+//     // For each study, collect the outcome measures
+//     studiesWithResults.forEach(study => {
+//         // First make sure the basic study properties exist
+//         if (!study || !study.protocolSection || !study.protocolSection.identificationModule) {
+//             console.warn("Study missing required properties - skipping");
+//             return;
+//         }
         
-        const nctId = study.protocolSection.identificationModule.nctId;
-        if (!nctId) {
-            console.warn("Study missing NCT ID - skipping");
-            return;
-        }
+//         const nctId = study.protocolSection.identificationModule.nctId;
+//         if (!nctId) {
+//             console.warn("Study missing NCT ID - skipping");
+//             return;
+//         }
         
-        // Check if we have study details with outcome data
-        if (!appState.studyDetails || !appState.studyDetails[nctId]) {
-            console.warn(`No study details found for ${nctId} - skipping`);
-            return;
-        }
+//         // Check if we have study details with outcome data
+//         if (!appState.studyDetails || !appState.studyDetails[nctId]) {
+//             console.warn(`No study details found for ${nctId} - skipping`);
+//             return;
+//         }
         
-        const studyDetails = appState.studyDetails[nctId];
+//         const studyDetails = appState.studyDetails[nctId];
         
-        // Make sure we have valid outcome measures data
-        if (!studyDetails.resultsSection || 
-            !studyDetails.resultsSection.outcomeMeasuresModule || 
-            !studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures) {
-            console.warn(`No outcome measures found for study ${nctId}`);
-            return;
-        }
+//         // Make sure we have valid outcome measures data
+//         if (!studyDetails.resultsSection || 
+//             !studyDetails.resultsSection.outcomeMeasuresModule || 
+//             !studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures) {
+//             console.warn(`No outcome measures found for study ${nctId}`);
+//             return;
+//         }
         
-        const phase = study.protocolSection?.designModule?.phases?.[0] || 'N/A';
-        const studyTitle = study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study';
-        const outcomes = studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures;
+//         const phase = study.protocolSection?.designModule?.phases?.[0] || 'N/A';
+//         const studyTitle = study.protocolSection?.identificationModule?.briefTitle || 'Untitled Study';
+//         const outcomes = studyDetails.resultsSection.outcomeMeasuresModule.outcomeMeasures;
         
-        console.log(`Processing ${outcomes.length} outcomes for study ${nctId} (${studyTitle})`);
+//         console.log(`Processing ${outcomes.length} outcomes for study ${nctId} (${studyTitle})`);
         
-        // Store basic study info
-        const studyInfo = {
-            nctId,
-            title: studyTitle,
-            phase,
-            sponsor: study.protocolSection?.identificationModule?.organization?.fullName || 'Unknown',
-            status: study.protocolSection?.statusModule?.overallStatus || 'Unknown',
-            outcomes: []
-        };
+//         // Store basic study info
+//         const studyInfo = {
+//             nctId,
+//             title: studyTitle,
+//             phase,
+//             sponsor: study.protocolSection?.identificationModule?.organization?.fullName || 'Unknown',
+//             status: study.protocolSection?.statusModule?.overallStatus || 'Unknown',
+//             outcomes: []
+//         };
         
-        // Process each outcome measure
-        outcomes.forEach(outcome => {
-            // Make sure outcome has classes with categories
-            if (!outcome.classes || !outcome.classes[0] || !outcome.classes[0].categories) {
-                console.warn(`Skipping outcome with no categories: ${outcome.title || 'unknown'}`);
-                return;
-            }
+//         // Process each outcome measure
+//         outcomes.forEach(outcome => {
+//             // Make sure outcome has classes with categories
+//             if (!outcome.classes || !outcome.classes[0] || !outcome.classes[0].categories) {
+//                 console.warn(`Skipping outcome with no categories: ${outcome.title || 'unknown'}`);
+//                 return;
+//             }
             
-            const outcomeType = outcome.type?.toLowerCase() || 'other';
-            const outcomeTitle = outcome.title || 'Unknown Outcome';
-            const timeFrame = outcome.timeFrame || 'Not specified';
+//             const outcomeType = outcome.type?.toLowerCase() || 'other';
+//             const outcomeTitle = outcome.title || 'Unknown Outcome';
+//             const timeFrame = outcome.timeFrame || 'Not specified';
             
-            // Process each measurement class and category
-            outcome.classes.forEach(cls => {
-                if (!cls.categories || !Array.isArray(cls.categories)) {
-                    console.warn(`Invalid categories in outcome class for ${nctId} - skipping`);
-                    return;
-                }
+//             // Process each measurement class and category
+//             outcome.classes.forEach(cls => {
+//                 if (!cls.categories || !Array.isArray(cls.categories)) {
+//                     console.warn(`Invalid categories in outcome class for ${nctId} - skipping`);
+//                     return;
+//                 }
                 
-                cls.categories.forEach(cat => {
-                    if (!cat.measurements || !Array.isArray(cat.measurements)) {
-                        console.warn(`Invalid measurements in category for ${nctId} - skipping`);
-                        return;
-                    }
+//                 cls.categories.forEach(cat => {
+//                     if (!cat.measurements || !Array.isArray(cat.measurements)) {
+//                         console.warn(`Invalid measurements in category for ${nctId} - skipping`);
+//                         return;
+//                     }
                     
-                    const categoryData = {
-                        title: cat.title || '',
-                        measurements: []
-                    };
+//                     const categoryData = {
+//                         title: cat.title || '',
+//                         measurements: []
+//                     };
                     
-                    // Extract all measurements
-                    cat.measurements.forEach(measurement => {
-                        // Validate measurement data
-                        if (!measurement || !measurement.value || !measurement.groupId) {
-                            return;
-                        }
+//                     // Extract all measurements
+//                     cat.measurements.forEach(measurement => {
+//                         // Validate measurement data
+//                         if (!measurement || !measurement.value || !measurement.groupId) {
+//                             return;
+//                         }
                         
-                        // Try to parse the value
-                        const value = parseFloat(measurement.value);
-                        if (isNaN(value)) return;
+//                         // Try to parse the value
+//                         const value = parseFloat(measurement.value);
+//                         if (isNaN(value)) return;
                         
-                        // Validate that the group exists
-                        if (!outcome.groups || !Array.isArray(outcome.groups)) {
-                            return;
-                        }
+//                         // Validate that the group exists
+//                         if (!outcome.groups || !Array.isArray(outcome.groups)) {
+//                             return;
+//                         }
                         
-                        const group = outcome.groups.find(g => g.id === measurement.groupId);
-                        if (!group) return;
+//                         const group = outcome.groups.find(g => g.id === measurement.groupId);
+//                         if (!group) return;
                         
-                        const groupTitle = group.title || 'Unknown Group';
-                        const isControlGroup = 
-                            groupTitle.toLowerCase().includes('placebo') || 
-                            groupTitle.toLowerCase().includes('control') ||
-                            groupTitle.toLowerCase().includes('sham');
+//                         const groupTitle = group.title || 'Unknown Group';
+//                         const isControlGroup = 
+//                             groupTitle.toLowerCase().includes('placebo') || 
+//                             groupTitle.toLowerCase().includes('control') ||
+//                             groupTitle.toLowerCase().includes('sham');
                         
-                        // Calculate standard error or other statistics if available
-                        let standardError = null;
-                        let dispersion = null;
-                        let dispersionType = null;
+//                         // Calculate standard error or other statistics if available
+//                         let standardError = null;
+//                         let dispersion = null;
+//                         let dispersionType = null;
                         
-                        if (measurement.dispersion && measurement.dispersion !== 'null') {
-                            dispersion = parseFloat(measurement.dispersion);
-                            dispersionType = measurement.dispersionType?.toLowerCase() || '';
+//                         if (measurement.dispersion && measurement.dispersion !== 'null') {
+//                             dispersion = parseFloat(measurement.dispersion);
+//                             dispersionType = measurement.dispersionType?.toLowerCase() || '';
                             
-                            if (!isNaN(dispersion)) {
-                                if (dispersionType === 'standard_error') {
-                                    standardError = dispersion;
-                                } else if (dispersionType === 'standard_deviation') {
-                                    // Convert SD to SE if sample size is available
-                                    const sampleSize = group.participantsAnalyzedList?.[0]?.count;
-                                    if (sampleSize && !isNaN(sampleSize) && sampleSize > 0) {
-                                        standardError = dispersion / Math.sqrt(sampleSize);
-                                    }
-                                }
-                            }
-                        }
+//                             if (!isNaN(dispersion)) {
+//                                 if (dispersionType === 'standard_error') {
+//                                     standardError = dispersion;
+//                                 } else if (dispersionType === 'standard_deviation') {
+//                                     // Convert SD to SE if sample size is available
+//                                     const sampleSize = group.participantsAnalyzedList?.[0]?.count;
+//                                     if (sampleSize && !isNaN(sampleSize) && sampleSize > 0) {
+//                                         standardError = dispersion / Math.sqrt(sampleSize);
+//                                     }
+//                                 }
+//                             }
+//                         }
                         
-                        // Add measurement data
-                        categoryData.measurements.push({
-                            value,
-                            groupId: measurement.groupId,
-                            groupTitle,
-                            isControlGroup,
-                            sampleSize: group.participantsAnalyzedList?.[0]?.count || 0,
-                            standardError,
-                            dispersion,
-                            dispersionType
-                        });
-                    });
+//                         // Add measurement data
+//                         categoryData.measurements.push({
+//                             value,
+//                             groupId: measurement.groupId,
+//                             groupTitle,
+//                             isControlGroup,
+//                             sampleSize: group.participantsAnalyzedList?.[0]?.count || 0,
+//                             standardError,
+//                             dispersion,
+//                             dispersionType
+//                         });
+//                     });
                     
-                    // Only add categories with measurements
-                    if (categoryData.measurements.length > 0) {
-                        // Calculate effect size if we have both experimental and control groups
-                        const experimentalMeasurements = categoryData.measurements.filter(m => !m.isControlGroup);
-                        const controlMeasurements = categoryData.measurements.filter(m => m.isControlGroup);
+//                     // Only add categories with measurements
+//                     if (categoryData.measurements.length > 0) {
+//                         // Calculate effect size if we have both experimental and control groups
+//                         const experimentalMeasurements = categoryData.measurements.filter(m => !m.isControlGroup);
+//                         const controlMeasurements = categoryData.measurements.filter(m => m.isControlGroup);
                         
-                        let effectSize = null;
-                        let experimentalValue = null;
-                        let controlValue = null;
-                        let experimentalSampleSize = 0;
-                        let controlSampleSize = 0;
+//                         let effectSize = null;
+//                         let experimentalValue = null;
+//                         let controlValue = null;
+//                         let experimentalSampleSize = 0;
+//                         let controlSampleSize = 0;
                         
-                        if (experimentalMeasurements.length > 0) {
-                            // Calculate weighted average for experimental group
-                            const expTotal = experimentalMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
-                            experimentalSampleSize = experimentalMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
-                            experimentalValue = experimentalSampleSize > 0 ? expTotal / experimentalSampleSize : null;
-                        }
+//                         if (experimentalMeasurements.length > 0) {
+//                             // Calculate weighted average for experimental group
+//                             const expTotal = experimentalMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
+//                             experimentalSampleSize = experimentalMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
+//                             experimentalValue = experimentalSampleSize > 0 ? expTotal / experimentalSampleSize : null;
+//                         }
                         
-                        if (controlMeasurements.length > 0) {
-                            // Calculate weighted average for control group
-                            const ctrlTotal = controlMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
-                            controlSampleSize = controlMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
-                            controlValue = controlSampleSize > 0 ? ctrlTotal / controlSampleSize : null;
-                        }
+//                         if (controlMeasurements.length > 0) {
+//                             // Calculate weighted average for control group
+//                             const ctrlTotal = controlMeasurements.reduce((sum, m) => sum + (m.value * m.sampleSize), 0);
+//                             controlSampleSize = controlMeasurements.reduce((sum, m) => sum + m.sampleSize, 0);
+//                             controlValue = controlSampleSize > 0 ? ctrlTotal / controlSampleSize : null;
+//                         }
                         
-                        // Calculate effect size if both values exist
-                        if (experimentalValue !== null && controlValue !== null) {
-                            // Standardize the effect based on outcome metric
-                            try {
-                                effectSize = standardizeOutcomeValue(experimentalValue - controlValue, outcomeTitle);
-                            } catch (error) {
-                                console.warn(`Error calculating effect size for ${nctId}:`, error);
-                                effectSize = experimentalValue - controlValue; // Fallback to raw difference
-                            }
-                        }
+//                         // Calculate effect size if both values exist
+//                         if (experimentalValue !== null && controlValue !== null) {
+//                             // Standardize the effect based on outcome metric
+//                             try {
+//                                 effectSize = standardizeOutcomeValue(experimentalValue - controlValue, outcomeTitle);
+//                             } catch (error) {
+//                                 console.warn(`Error calculating effect size for ${nctId}:`, error);
+//                                 effectSize = experimentalValue - controlValue; // Fallback to raw difference
+//                             }
+//                         }
                         
-                        // Add the processed outcome data
-                        studyInfo.outcomes.push({
-                            title: outcomeTitle,
-                            type: outcomeType,
-                            timeFrame,
-                            category: categoryData.title,
-                            measurements: categoryData.measurements,
-                            experimentalValue,
-                            controlValue,
-                            effectSize,
-                            experimentalSampleSize,
-                            controlSampleSize
-                        });
-                    }
-                });
-            });
-        });
+//                         // Add the processed outcome data
+//                         studyInfo.outcomes.push({
+//                             title: outcomeTitle,
+//                             type: outcomeType,
+//                             timeFrame,
+//                             category: categoryData.title,
+//                             measurements: categoryData.measurements,
+//                             experimentalValue,
+//                             controlValue,
+//                             effectSize,
+//                             experimentalSampleSize,
+//                             controlSampleSize
+//                         });
+//                     }
+//                 });
+//             });
+//         });
         
-        // Add this study's info to the collection if it has outcomes
-        if (studyInfo.outcomes.length > 0) {
-            appState.allTrialOutcomes.push(studyInfo);
-        }
-    });
+//         // Add this study's info to the collection if it has outcomes
+//         if (studyInfo.outcomes.length > 0) {
+//             appState.allTrialOutcomes.push(studyInfo);
+//         }
+//     });
     
-    console.log(`Collected outcome data from ${appState.allTrialOutcomes.length} studies`);
-    console.log("All outcomes data:", appState.allTrialOutcomes);
+//     console.log(`Collected outcome data from ${appState.allTrialOutcomes.length} studies`);
+//     console.log("All outcomes data:", appState.allTrialOutcomes);
     
-    // Try to initialize the TrialDashboard if it exists
-    if (typeof TrialDashboard !== 'undefined' && appState.allTrialOutcomes) {
-        try {
-            console.log("Loading data into TrialDashboard");
-            TrialDashboard.loadData(appState.allTrialOutcomes);
-        } catch (error) {
-            console.error("Error loading data into TrialDashboard:", error);
-        }
-    }
+//     // Try to initialize the TrialDashboard if it exists
+//     if (typeof TrialDashboard !== 'undefined' && appState.allTrialOutcomes) {
+//         try {
+//             console.log("Loading data into TrialDashboard");
+//             TrialDashboard.loadData(appState.allTrialOutcomes);
+//         } catch (error) {
+//             console.error("Error loading data into TrialDashboard:", error);
+//         }
+//     }
     
-    // Now that we have all the data, create the visualizations
-    try {
-        createAggregateVisualizations();
-    } catch (error) {
-        console.error("Error creating aggregate visualizations:", error);
-    }
+//     // Now that we have all the data, create the visualizations
+//     try {
+//         createAggregateVisualizations();
+//     } catch (error) {
+//         console.error("Error creating aggregate visualizations:", error);
+//     }
+// }
+
+function collectAllTrialOutcomes(){
+    return
 }
 
 // Fallback function for standardizeOutcomeValue in case it's not defined
@@ -21066,25 +21018,20 @@ function createStatisticalSummaryTable(outcomes) {
             displayStudies(filteredStudies);
         }
 
+
 // async function handleSearch() {
+//     // Get search parameters
 //     const drug = elements.drugSearch.value.trim();
 //     const condition = elements.conditionSearch.value.trim();
 //     const hasResultsOnly = elements.hasResultsOnly.checked;
 //     const trdFocusOnly = elements.trdFocusOnly.checked;
-    
-//     if (!drug) {
-//         alert('Please enter a drug name to search.');
-//         return;
-//     }
-    
+//     const yearsBack = parseInt(document.getElementById('timelineSlider').value);
 //     // Update state
 //     appState.hasResultsOnly = hasResultsOnly;
 //     appState.trdFocusOnly = trdFocusOnly;
 //     appState.currentPhaseFilter = 'all';
 //     appState.studies = [];
 //     appState.studyDetails = {};
-//     appState.allOutcomeMeasures = [];
-//     appState.collatedOutcomes = [];
 //     appState.failedStudyIds.clear(); // Reset failed study IDs
     
 //     // Reset FDA data
@@ -21103,329 +21050,236 @@ function createStatisticalSummaryTable(outcomes) {
 //     document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
 //     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
     
-//     // Hide sections and show loading
+//     // 1. HIDE ABSOLUTELY EVERYTHING FIRST
 //     showSection(elements.resultsOverview, false);
 //     showSection(elements.studiesSection, false);
-//     // showSection(elements.aggregateOutcomesSection, false);
-//     // showSection(elements.collatedOutcomesSection, false);
 //     showSection(elements.studyDetailSection, false);
 //     showSection(elements.fdaDataSection, false);
-//     // showSection(elements.drugSuccessSection, false); // Hide drug success section
+//     showSection(elements.placeholderMessage, false);
+//     // Hide any other sections that might be visible
+//     document.querySelectorAll('.results-section').forEach(section => {
+//         section.style.display = 'none';
+//     });
 //     displayLoading(true);
     
+//     // Now show the placeholder for user feedback
+//     showSection(elements.placeholderMessage, true);
+    
+//     // Set placeholder message
+//     // elements.placeholderMessage.innerHTML = `
+//     //     <div class="text-center">
+//     //         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//     //             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+//     //         </svg>
+//     //         <p class="text-lg">Searching for data...</p>
+//     //     </div>`;
+    
 //     try {
-//         console.log(`Searching for studies - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
+//         console.log(`Searching - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
         
-//         // Fetch studies
-//         const studies = await fetchStudies(drug, condition, hasResultsOnly);
-//         console.log(`Retrieved ${studies.length} studies`);
-        
-//         // Filter for TRD-specific studies if requested
-//         let filteredStudies = studies;
-//         if (trdFocusOnly) {
-//             filteredStudies = filterTRDSpecificStudies(studies);
-//             console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-//         }
-        
-//         appState.studies = filteredStudies;
-        
-//         if (filteredStudies.length === 0) {
-//             elements.placeholderMessage.innerHTML = `
-//                 <div class="text-center">
-//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-//                     </svg>
-//                     <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
-//                     <p class="mt-2 text-sm">Try another drug name${trdFocusOnly ? ' or disable the TRD-specific filter' : ''}.</p>
-//                 </div>
-//             `;
-//             // Still show FDA data even if no studies are found
-//             displayFdaData(drug);
-//             displayLoading(false);
-//             return;
-//         }
+//         // 2. DETERMINE SEARCH TERMS FOR PUBMED
+//         let pubmedSearchTerm = drug;
+// //         const pubmedOptions = {
+// //   sortBy: 'relevance',
+// //   fullTextOnly: false,
+// //   yearFilter: '',
+// //   journalFilter: ''
+// // };
 
-//         // 
-        
-//         // Display results summary
-//         displayResultsSummary(filteredStudies);
-//         // showSection(elements.resultsOverview, true);
-        
-//         // Display studies list
-//         displayStudies(filteredStudies);
-//         showSection(elements.studiesSection, true);
-        
-//         // Display FDA data section
-//         displayFdaData(drug);
-        
-//         // Fetch study details for studies with results
-//         appState.studyDetails = {};
-//         const studiesWithResults = filteredStudies.filter(study => study.hasResults);
-//         console.log(`Fetching details for ${studiesWithResults.length} studies with results`);
-        
-//          // Ensure chart canvases are created
-//         //  ensureChartCanvasesExist();
-//         //  ensureDrugSuccessChartCanvasesExist();
-//         // Use a semaphore to limit concurrent API calls
-//         const MAX_CONCURRENT_REQUESTS = 5;
-//         let activeRequests = 0;
-//         let requestQueue = [...studiesWithResults];
-//         let completedRequests = 0;
-        
-//         const processQueue = async () => {
-//             if (requestQueue.length === 0) return;
-            
-//             while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length > 0) {
-//                 activeRequests++;
-//                 const study = requestQueue.shift();
-//                 const nctId = study.protocolSection.identificationModule.nctId;
-                
-//                 fetchStudyDetails(nctId).then(details => {
-//                     if (details) {
-//                         appState.studyDetails[nctId] = details;
-//                     }
-                    
-//                     activeRequests--;
-//                     completedRequests++;
-                    
-//                     // Update progress if we have a lot of studies
-//                     if (studiesWithResults.length > 10 && completedRequests % 5 === 0) {
-//                         const progressPercent = Math.round((completedRequests / studiesWithResults.length) * 100);
-//                         console.log(`Study details progress: ${progressPercent}% (${completedRequests}/${studiesWithResults.length})`);
-//                     }
-                    
-//                     // Process more from queue
-//                     processQueue();
-                    
-//                     // If all requests are complete, process the outcomes
-//                     if (activeRequests === 0 && requestQueue.length === 0) {
-//                         console.log('All study details fetched, processing outcomes');
-//                         // Process and display aggregate outcomes
-//                         processAggregateOutcomes(filteredStudies);
-//                         displayLoading(false);
-//                     }
-//                 });
-//             }
-//         };
-        
-//         // Start processing the queue
-//         await processQueue();
-        
-//         // If no studies with results, hide loading
-//         if (studiesWithResults.length === 0) {
-//             displayLoading(false);
+
+
+//         if (condition) {
+//             pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
 //         }
         
-//     } catch (error) {
-//         console.error('Error during search:', error);
-//         elements.placeholderMessage.innerHTML = `
-//             <div class="text-center">
-//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-//                 </svg>
-//                 <p class="text-lg">Error searching for studies</p>
-//                 <p class="mt-2 text-sm">Please try again later.</p>
-//                 <p class="mt-2 text-xs text-gray-500">${error.message}</p>
-//             </div>
-//         `;
-//         displayLoading(false);
+//         // 3. HANDLE CLINICAL TRIALS SEARCH IF DRUG IS PROVIDED
+//         let filteredStudies = [];
+        
+//         if (drug) {
+//             // Fetch studies
+//             const studies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
+//             console.log(`Retrieved ${studies.length} studies`);
+            
+//             // Filter for TRD-specific studies if requested
+//             filteredStudies = studies;
+//             if (trdFocusOnly) {
+//                 filteredStudies = filterTRDSpecificStudies(studies);
+//                 console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+//             }
+            
+//             appState.studies = filteredStudies;
+//             collectAllTrialOutcomes();
+            
+//             // Display study-related sections if studies are found
+//             if (filteredStudies.length > 0) {
+//                 // Display results summary
+//                 displayResultsSummary(filteredStudies);
+//                 showSection(elements.resultsOverview, true);
+                
+//                 // Display studies list
+//                 displayStudies(filteredStudies, drug, condition);
+//                 showSection(elements.studiesSection, true);
+                
+//                 // Fetch study details for studies with results
+//                 await fetchAllStudyDetails(filteredStudies);
+//             } else {
+//                 // No studies found - show message
+//                 elements.placeholderMessage.innerHTML = `
+//                     <div class="text-center">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                         </svg>
+//                         <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
+//                         <p class="mt-2 text-sm">Other data is displayed below.</p>
+//                     </div>`;
+//             }
+            
+//             // 4. ALWAYS DISPLAY ALL DATA FOR DRUG SEARCHES
+            
+//             // FDA Data
+//             displayFdaData(drug);
+//             showSection(elements.fdaDataSection, true);
+            
+//             // EMA Data
+//             EmaDataModule.init();
+//             EmaDataModule.searchDrug(drug);
+            
+//             // For drug search
+// // PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+// if (drug && typeof PubMedModule !== 'undefined') {
+//   try {
+//     const pubmedOptions = {
+//       sortBy: 'relevance',
+//       fullTextOnly: false,
+//       yearRange: yearsBack
+//     };
+
+
+//     console.log("Searching PubMed for drug:", drug);
+//     if (PubMedModule.searchPubMedByDrug) {
+//       PubMedModule.searchPubMedByDrug(drug, {
+//   yearRange: yearsBack  // Last 10 years of publications
+// });
+      
+//     } else if (PubMedModule.searchPubMed) {
+//       // Fallback to general search if specialized function isn't available
+//       PubMedModule.searchPubMed(drug, pubmedOptions);
 //     }
+//   } catch (pubmedError) {
+//     console.error("Error in PubMed drug search:", pubmedError);
+//   }
+// }
+//             // If we also have a condition, get condition-specific data too
+//             // if (condition) {
+//             //     console.log(`Getting additional condition data for: ${condition}`);
+//             //     displayFdaClinicalData(condition);
+//             //     EmaClinicalDataModule.init();
+//             // EmaClinicalDataModule.searchCondition(condition);
+//             // }
+
+//         } else if (condition) {
+//             // 5. HANDLE CONDITION-ONLY SEARCH
+            
+//             // Fetch studies for condition
+//             try {
+//                 const studies = await fetchStudies("", condition, hasResultsOnly, yearsBack);
+//                 console.log(`Retrieved ${studies.length} studies for condition: ${condition}`);
+                
+//                 // Filter for TRD-specific studies if requested
+//                 filteredStudies = studies;
+//                 if (trdFocusOnly) {
+//                     filteredStudies = filterTRDSpecificStudies(studies);
+//                     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+//                 }
+                
+//                 appState.studies = filteredStudies;
+//                 collectAllTrialOutcomes();
+                
+//                 // Display study-related sections if studies are found
+//                 if (filteredStudies.length > 0) {
+//                     // Display results summary
+//                     displayResultsSummary(filteredStudies);
+//                     showSection(elements.resultsOverview, true);
+                    
+//                     // Display studies list
+//                     displayStudies(filteredStudies, "", condition);
+//                     showSection(elements.studiesSection, true);
+                    
+//                     // Fetch study details for studies with results
+//                     await fetchAllStudyDetails(filteredStudies);
+//                 } else {
+//                     // No studies found - show message
+//                     elements.placeholderMessage.innerHTML = `
+//                         <div class="text-center">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                             </svg>
+//                             <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for condition: "${condition}".</p>
+//                             <p class="mt-2 text-sm">Other condition data is displayed below.</p>
+//                         </div>`;
+//                 }
+//             } catch (error) {
+//                 console.error(`Error fetching studies for condition ${condition}:`, error);
+//                 elements.placeholderMessage.innerHTML = `
+//                     <div class="text-center">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                         </svg>
+//                         <p class="text-lg">Error searching for condition studies</p>
+//                         <p class="mt-2 text-sm">Displaying other condition data below.</p>
+//                     </div>`;
+//             }
+            
+//             // Always display condition data regardless of study results
+//             // displayFdaClinicalData(condition);
+            
+//             // Make sure all appropriate sections are shown for condition-only searches
+//             // EmaClinicalDataModule.init();
+//             // EmaClinicalDataModule.searchCondition(condition);
+            
+// // For condition search
+// // PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+
+
+// // For condition search
+// if (condition && typeof PubMedModule !== 'undefined') {
+//   try {
+//     const pubmedOptions = {
+//       sortBy: 'date',
+//       fullTextOnly: false,
+//       yearRange: yearsBack
+//     };
+//     console.log("Searching PubMed for condition:", condition);
+//     if (PubMedModule.searchPubMedByCondition) {
+//         PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+
+
+//     } else if (PubMedModule.searchPubMed) {
+//       // Fallback to general search if specialized function isn't available
+//       PubMedModule.searchPubMed(condition, pubmedOptions);
+//     }
+//   } catch (pubmedError) {
+//     console.error("Error in PubMed condition search:", pubmedError);
+//   }
 // }
 
 
-
-  
-
-
-
-// async function handleSearch() {
-//     elements.placeholderMessage.innerHTML = `
-//                 <div class="text-center">
-//         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-//             </svg>
-//             <p class="text-lg">Enter a drug name and click "Search" to analyze clinical trials</p>
-//             <p class="mt-2 text-sm">Example searches: Ketamine, Psilocybin, Esketamine, PCN-101, COMP360</p>
-// </div>`
-//     const drug = elements.drugSearch.value.trim();
-//     const condition = elements.conditionSearch.value.trim();
-//     const hasResultsOnly = elements.hasResultsOnly.checked;
-//     const trdFocusOnly = elements.trdFocusOnly.checked;
-    
-
-    
-//     // Update state
-//     appState.hasResultsOnly = hasResultsOnly;
-//     appState.trdFocusOnly = trdFocusOnly;
-//     appState.currentPhaseFilter = 'all';
-//     appState.studies = [];
-//     appState.studyDetails = {};
-//     appState.failedStudyIds.clear(); // Reset failed study IDs
-    
-//     // Reset FDA data
-//     appState.fdaData = {
-//         documents: [],
-//         orangeBook: [],
-//         dailyMed: [],
-//         warningLetters: []
-//     };
-    
-//     // Reset phase filter buttons
-//     document.querySelectorAll('.phase-filter').forEach(btn => {
-//         btn.classList.remove('bg-primary', 'text-white');
-//         btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
-//     });
-//     document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
-//     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
-    
-//     // Hide sections and show loading
-//     showSection(elements.resultsOverview, false);
-//     showSection(elements.studiesSection, false);
-//     showSection(elements.studyDetailSection, false);
-//     showSection(elements.fdaDataSection, false);
-//     displayLoading(true);
-    
-//     try {
-//         console.log(`Searching for studies - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
+//             // Show FDA data section for condition
+//             // showSection(elements.fdaDataSection, true);
+//         }
         
-//         // Fetch studies
-//         const studies = await fetchStudies(drug, condition, hasResultsOnly);
-//         console.log(`Retrieved ${studies.length} studies`);
-        
-//         // Filter for TRD-specific studies if requested
-//         let filteredStudies = studies;
-                
-//       let pubmedSearchTerm = drug;
-//         // if (trdFocusOnly) {
-//         //     filteredStudies = filterTRDSpecificStudies(studies);
-//         //     console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+//         // 6. ALWAYS SEARCH PUBMED IF TERMS ARE AVAILABLE
+//         // if (pubmedSearchTerm) {
+//         //     PubMedModule.searchPubMed(pubmedSearchTerm);
 //         // }
         
-//         appState.studies = filteredStudies;
-//         collectAllTrialOutcomes()
-
-//         if (filteredStudies.length === 0) {
-//             elements.placeholderMessage.innerHTML = `
-//                 <div class="text-center">
-//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-//                     </svg>
-//                     <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
-//                     <p class="mt-2 text-sm">Try another drug name${trdFocusOnly ? ' or disable the TRD-specific filter' : ''}.</p>
-//                 </div>
-//             `;
-//             // Still show FDA data even if no studies are found
-           
-            
-//             if (!drug) {
-//         // alert('Please enter a drug name to search.');
-//         displayFdaClinicalData(condition);
-//         if (condition) {
-//     pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
-//   }
-  
-//   if (pubmedSearchTerm) {
-//     PubMedModule.searchPubMed(pubmedSearchTerm);
-//   }
-//         // EmaClinicalDataModule.init();
-//         // EmaClinicalDataModule.searchCondition(condition);
+//         // 7. ENSURE ALL APPROPRIATE SECTIONS ARE VISIBLE AND FINISH LOADING
+//         // if (drug || condition) {
+//         //     // Always show FDA section if we have any search criteria
+//         //     showSection(elements.fdaDataSection, true);
+//         // }
+        
 //         displayLoading(false);
-//     } 
-//       console.log("disalying data ")
-//       displayFdaData(drug);
-//       EmaDataModule.init();
-//       EmaDataModule.searchDrug(drug);
-//       displayLoading(false);
-    
-
-//             return;
-//         }
-        
-//         // Display results summary
-//         displayResultsSummary(filteredStudies);
-//         showSection(elements.resultsOverview, true);
-        
-//         // Display studies list
-//         displayStudies(filteredStudies, drug, condition);
-//         showSection(elements.studiesSection, true);
-        
-//         // Display FDA data section
-//         // displayFdaData(drug, condition);
-//         if (!drug) {
-//         // alert('Please enter a drug name to search.');
-//         displayFdaClinicalData(condition);
-//         // EmaClinicalDataModule.init();
-//         // EmaClinicalDataModule.searchCondition(condition);
-//         displayLoading(false);
-//     } 
-//       console.log("disalying data ")
-//       displayFdaData(drug);
-//       EmaDataModule.init();
-//       EmaDataModule.searchDrug(drug);
-//       displayLoading(false);
-
-  
-//   if (condition) {
-//     pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
-//   }
-  
-//   if (pubmedSearchTerm) {
-//     PubMedModule.searchPubMed(pubmedSearchTerm);
-//   }
-        
-//         // Fetch study details for studies with results
-//         appState.studyDetails = {};
-//         const studiesWithResults = filteredStudies.filter(study => study.hasResults);
-//         console.log(`Fetching details for ${studiesWithResults.length} studies with results`);
-        
-//         // Use a semaphore to limit concurrent API calls
-//         const MAX_CONCURRENT_REQUESTS = 5;
-//         let activeRequests = 0;
-//         let requestQueue = [...studiesWithResults];
-//         let completedRequests = 0;
-        
-//         const processQueue = async () => {
-//             if (requestQueue.length === 0) return;
-            
-//             while (activeRequests < MAX_CONCURRENT_REQUESTS && requestQueue.length > 0) {
-//                 activeRequests++;
-//                 const study = requestQueue.shift();
-//                 const nctId = study.protocolSection.identificationModule.nctId;
-                
-//                 fetchStudyDetails(nctId).then(details => {
-//                     if (details) {
-//                         appState.studyDetails[nctId] = details;
-//                     }
-                    
-//                     activeRequests--;
-//                     completedRequests++;
-                    
-//                     // Update progress if we have a lot of studies
-//                     if (studiesWithResults.length > 10 && completedRequests % 5 === 0) {
-//                         const progressPercent = Math.round((completedRequests / studiesWithResults.length) * 100);
-//                         console.log(`Study details progress: ${progressPercent}% (${completedRequests}/${studiesWithResults.length})`);
-//                     }
-                    
-//                     // Process more from queue
-//                     processQueue();
-                    
-//                     // If all requests are complete
-//                     if (activeRequests === 0 && requestQueue.length === 0) {
-//                         console.log('All study details fetched');
-//                         collectAllTrialOutcomes()
-//                         displayLoading(false);
-//                     }
-//                 });
-//             }
-//         };
-        
-//         // Start processing the queue
-//         await processQueue();
-        
-//         // If no studies with results, hide loading
-//         if (studiesWithResults.length === 0) {
-//             displayLoading(false);
-//         }
         
 //     } catch (error) {
 //         console.error('Error during search:', error);
@@ -21437,291 +21291,16 @@ function createStatisticalSummaryTable(outcomes) {
 //                 <p class="text-lg">Error searching for studies</p>
 //                 <p class="mt-2 text-sm">Please try again later.</p>
 //                 <p class="mt-2 text-xs text-gray-500">${error.message}</p>
-//             </div>
-//         `;
+//             </div>`;
 //         displayLoading(false);
 //     }
 // }
 
 
-async function handleSearch() {
-    // Get search parameters
-    const drug = elements.drugSearch.value.trim();
-    const condition = elements.conditionSearch.value.trim();
-    const hasResultsOnly = elements.hasResultsOnly.checked;
-    const trdFocusOnly = elements.trdFocusOnly.checked;
-    const yearsBack = parseInt(document.getElementById('timelineSlider').value);
-    // Update state
-    appState.hasResultsOnly = hasResultsOnly;
-    appState.trdFocusOnly = trdFocusOnly;
-    appState.currentPhaseFilter = 'all';
-    appState.studies = [];
-    appState.studyDetails = {};
-    appState.failedStudyIds.clear(); // Reset failed study IDs
-    
-    // Reset FDA data
-    appState.fdaData = {
-        documents: [],
-        orangeBook: [],
-        dailyMed: [],
-        warningLetters: []
-    };
-    
-    // Reset phase filter buttons
-    document.querySelectorAll('.phase-filter').forEach(btn => {
-        btn.classList.remove('bg-primary', 'text-white');
-        btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
-    });
-    document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
-    document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
-    
-    // 1. HIDE ABSOLUTELY EVERYTHING FIRST
-    showSection(elements.resultsOverview, false);
-    showSection(elements.studiesSection, false);
-    showSection(elements.studyDetailSection, false);
-    showSection(elements.fdaDataSection, false);
-    showSection(elements.placeholderMessage, false);
-    // Hide any other sections that might be visible
-    document.querySelectorAll('.results-section').forEach(section => {
-        section.style.display = 'none';
-    });
-    displayLoading(true);
-    
-    // Now show the placeholder for user feedback
-    showSection(elements.placeholderMessage, true);
-    
-    // Set placeholder message
-    // elements.placeholderMessage.innerHTML = `
-    //     <div class="text-center">
-    //         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    //             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-    //         </svg>
-    //         <p class="text-lg">Searching for data...</p>
-    //     </div>`;
-    
-    try {
-        console.log(`Searching - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
-        
-        // 2. DETERMINE SEARCH TERMS FOR PUBMED
-        let pubmedSearchTerm = drug;
-//         const pubmedOptions = {
-//   sortBy: 'relevance',
-//   fullTextOnly: false,
-//   yearFilter: '',
-//   journalFilter: ''
-// };
-
-
-
-        if (condition) {
-            pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
-        }
-        
-        // 3. HANDLE CLINICAL TRIALS SEARCH IF DRUG IS PROVIDED
-        let filteredStudies = [];
-        
-        if (drug) {
-            // Fetch studies
-            const studies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
-            console.log(`Retrieved ${studies.length} studies`);
-            
-            // Filter for TRD-specific studies if requested
-            filteredStudies = studies;
-            if (trdFocusOnly) {
-                filteredStudies = filterTRDSpecificStudies(studies);
-                console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-            }
-            
-            appState.studies = filteredStudies;
-            collectAllTrialOutcomes();
-            
-            // Display study-related sections if studies are found
-            if (filteredStudies.length > 0) {
-                // Display results summary
-                displayResultsSummary(filteredStudies);
-                showSection(elements.resultsOverview, true);
-                
-                // Display studies list
-                displayStudies(filteredStudies, drug, condition);
-                showSection(elements.studiesSection, true);
-                
-                // Fetch study details for studies with results
-                await fetchAllStudyDetails(filteredStudies);
-            } else {
-                // No studies found - show message
-                elements.placeholderMessage.innerHTML = `
-                    <div class="text-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for "${drug}".</p>
-                        <p class="mt-2 text-sm">Other data is displayed below.</p>
-                    </div>`;
-            }
-            
-            // 4. ALWAYS DISPLAY ALL DATA FOR DRUG SEARCHES
-            
-            // FDA Data
-            displayFdaData(drug);
-            showSection(elements.fdaDataSection, true);
-            
-            // EMA Data
-            EmaDataModule.init();
-            EmaDataModule.searchDrug(drug);
-            
-            // For drug search
-// PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
-if (drug && typeof PubMedModule !== 'undefined') {
-  try {
-    const pubmedOptions = {
-      sortBy: 'relevance',
-      fullTextOnly: false,
-      yearRange: yearsBack
-    };
-
-
-    console.log("Searching PubMed for drug:", drug);
-    if (PubMedModule.searchPubMedByDrug) {
-      PubMedModule.searchPubMedByDrug(drug, {
-  yearRange: yearsBack  // Last 10 years of publications
-});
-      
-    } else if (PubMedModule.searchPubMed) {
-      // Fallback to general search if specialized function isn't available
-      PubMedModule.searchPubMed(drug, pubmedOptions);
-    }
-  } catch (pubmedError) {
-    console.error("Error in PubMed drug search:", pubmedError);
-  }
-}
-            // If we also have a condition, get condition-specific data too
-            // if (condition) {
-            //     console.log(`Getting additional condition data for: ${condition}`);
-            //     displayFdaClinicalData(condition);
-            //     EmaClinicalDataModule.init();
-            // EmaClinicalDataModule.searchCondition(condition);
-            // }
-
-        } else if (condition) {
-            // 5. HANDLE CONDITION-ONLY SEARCH
-            
-            // Fetch studies for condition
-            try {
-                const studies = await fetchStudies("", condition, hasResultsOnly, yearsBack);
-                console.log(`Retrieved ${studies.length} studies for condition: ${condition}`);
-                
-                // Filter for TRD-specific studies if requested
-                filteredStudies = studies;
-                if (trdFocusOnly) {
-                    filteredStudies = filterTRDSpecificStudies(studies);
-                    console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-                }
-                
-                appState.studies = filteredStudies;
-                collectAllTrialOutcomes();
-                
-                // Display study-related sections if studies are found
-                if (filteredStudies.length > 0) {
-                    // Display results summary
-                    displayResultsSummary(filteredStudies);
-                    showSection(elements.resultsOverview, true);
-                    
-                    // Display studies list
-                    displayStudies(filteredStudies, "", condition);
-                    showSection(elements.studiesSection, true);
-                    
-                    // Fetch study details for studies with results
-                    await fetchAllStudyDetails(filteredStudies);
-                } else {
-                    // No studies found - show message
-                    elements.placeholderMessage.innerHTML = `
-                        <div class="text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for condition: "${condition}".</p>
-                            <p class="mt-2 text-sm">Other condition data is displayed below.</p>
-                        </div>`;
-                }
-            } catch (error) {
-                console.error(`Error fetching studies for condition ${condition}:`, error);
-                elements.placeholderMessage.innerHTML = `
-                    <div class="text-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-lg">Error searching for condition studies</p>
-                        <p class="mt-2 text-sm">Displaying other condition data below.</p>
-                    </div>`;
-            }
-            
-            // Always display condition data regardless of study results
-            // displayFdaClinicalData(condition);
-            
-            // Make sure all appropriate sections are shown for condition-only searches
-            // EmaClinicalDataModule.init();
-            // EmaClinicalDataModule.searchCondition(condition);
-            
-// For condition search
-// PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
-
-
-// For condition search
-if (condition && typeof PubMedModule !== 'undefined') {
-  try {
-    const pubmedOptions = {
-      sortBy: 'date',
-      fullTextOnly: false,
-      yearRange: yearsBack
-    };
-    console.log("Searching PubMed for condition:", condition);
-    if (PubMedModule.searchPubMedByCondition) {
-        PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
-
-
-    } else if (PubMedModule.searchPubMed) {
-      // Fallback to general search if specialized function isn't available
-      PubMedModule.searchPubMed(condition, pubmedOptions);
-    }
-  } catch (pubmedError) {
-    console.error("Error in PubMed condition search:", pubmedError);
-  }
-}
-
-
-            // Show FDA data section for condition
-            // showSection(elements.fdaDataSection, true);
-        }
-        
-        // 6. ALWAYS SEARCH PUBMED IF TERMS ARE AVAILABLE
-        // if (pubmedSearchTerm) {
-        //     PubMedModule.searchPubMed(pubmedSearchTerm);
-        // }
-        
-        // 7. ENSURE ALL APPROPRIATE SECTIONS ARE VISIBLE AND FINISH LOADING
-        // if (drug || condition) {
-        //     // Always show FDA section if we have any search criteria
-        //     showSection(elements.fdaDataSection, true);
-        // }
-        
-        displayLoading(false);
-        
-    } catch (error) {
-        console.error('Error during search:', error);
-        elements.placeholderMessage.innerHTML = `
-            <div class="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-lg">Error searching for studies</p>
-                <p class="mt-2 text-sm">Please try again later.</p>
-                <p class="mt-2 text-xs text-gray-500">${error.message}</p>
-            </div>`;
-        displayLoading(false);
-    }
-}
 
 // Helper function to fetch all study details with a semaphore to limit concurrent requests
+
+
 async function fetchAllStudyDetails(studies) {
     appState.studyDetails = {};
     const studiesWithResults = studies.filter(study => study.hasResults);
@@ -21773,7 +21352,561 @@ async function fetchAllStudyDetails(studies) {
     return processQueue();
 }
 
+async function handleSearch() {
+    // Get search parameters
+    const drug = elements.drugSearch.value.trim();
+    const condition = elements.conditionSearch.value.trim();
+    const hasResultsOnly = elements.hasResultsOnly.checked;
+    const trdFocusOnly = elements.trdFocusOnly.checked;
+    const yearsBack = parseInt(document.getElementById('timelineSlider').value);
+    
+    // Update state
+    appState.hasResultsOnly = hasResultsOnly;
+    appState.trdFocusOnly = trdFocusOnly;
+    appState.currentPhaseFilter = 'all';
+    appState.studies = [];
+    appState.studyDetails = {};
+    appState.failedStudyIds.clear(); // Reset failed study IDs
+    
+    // Reset FDA data
+    appState.fdaData = {
+        documents: [],
+        orangeBook: [],
+        dailyMed: [],
+        warningLetters: []
+    };
+    
+    // Reset phase filter buttons
+    document.querySelectorAll('.phase-filter').forEach(btn => {
+        btn.classList.remove('bg-primary', 'text-white');
+        btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+    });
+    document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
+    document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
+    
+    // 1. HIDE ABSOLUTELY EVERYTHING FIRST
+    showSection(elements.resultsOverview, false);
+    showSection(elements.studiesSection, false);
+    showSection(elements.studyDetailSection, false);
+    showSection(elements.fdaDataSection, false);
+    showSection(elements.placeholderMessage, false);
+    // Hide any other sections that might be visible
+    document.querySelectorAll('.results-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    displayLoading(true);
+    
+    // Now show the placeholder for user feedback
+    showSection(elements.placeholderMessage, true);
+    
+    // Set placeholder message to searching
+    elements.placeholderMessage.innerHTML = `
+        <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <p class="text-lg">Searching for data...</p>
+        </div>`;
+    
+    try {
+        console.log(`Searching - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}`);
+        
+        // Initialize the database if not already done
+        await SearchCacheModule.initDatabase();
+        
+        // 2. DETERMINE SEARCH TERMS FOR PUBMED
+        let pubmedSearchTerm = drug;
+        if (condition) {
+            pubmedSearchTerm = drug ? `${drug} ${condition}` : condition;
+        }
+        
+        // 3. HANDLE CLINICAL TRIALS SEARCH IF DRUG OR CONDITION IS PROVIDED
+        let filteredStudies = [];
+        
+        if (drug || condition) {
+            // First, check if we have a cached search for this query
+            const cachedSearch = await SearchCacheModule.getCachedSearchResults(
+                drug, condition, hasResultsOnly, trdFocusOnly, yearsBack
+            );
+            
+            let studies = [];
+            let usedCache = false;
+            
+            if (cachedSearch) {
+                // Check if the cached search is recent enough
+                const MAX_CACHE_AGE_DAYS = 7; // Consider searches older than 7 days as outdated
+                const isOutdated = SearchCacheModule.isSearchOutdated(cachedSearch.timestamp, MAX_CACHE_AGE_DAYS);
+                
+                if (!isOutdated) {
+                    // Use the cached search results
+                    console.log(`Using cached search results from ${cachedSearch.timestamp}`);
+                    studies = cachedSearch.results;
+                    usedCache = true;
+                    
+                    // Update placeholder message
+                    elements.placeholderMessage.innerHTML = `
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-lg">Using cached search results from ${new Date(cachedSearch.timestamp).toLocaleDateString()}</p>
+                            <p class="text-sm text-gray-500">Displaying ${cachedSearch.studyCount} studies</p>
+                        </div>`;
+                } else {
+                    // The cached search is outdated, but we can use it as a starting point
+                    console.log(`Cached search is outdated (from ${cachedSearch.timestamp}). Fetching new studies...`);
+                    
+                    // Get studies that were added after the cached search
+                    const newStudies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
+                    
+                    // Update the cached search with the new studies
+                    const searchKey = cachedSearch.searchKey || 
+                        `${drug || ''}_${condition || ''}_${hasResultsOnly ? 'results' : 'all'}_${trdFocusOnly ? 'trd' : 'all'}_${yearsBack || 'all'}`;
+                    
+                    const updatedStudies = await SearchCacheModule.updateSearchWithNewStudies(searchKey, newStudies);
+                    
+                    if (updatedStudies) {
+                        studies = updatedStudies;
+                        usedCache = true;
+                        
+                        // Update placeholder message
+                        elements.placeholderMessage.innerHTML = `
+                            <div class="text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-yellow-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <p class="text-lg">Updated cached search results</p>
+                                <p class="text-sm text-gray-500">Added ${newStudies.length} new studies</p>
+                            </div>`;
+                    }
+                }
+            }
+            
+            // If we don't have cached results, fetch new ones
+            if (!usedCache) {
+                console.log('No cached results available, fetching new data...');
+                
+                if (drug) {
+                    // Fetch studies for drug (and condition if provided)
+                    studies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
+                } else if (condition) {
+                    // Fetch studies for condition only
+                    studies = await fetchStudies("", condition, hasResultsOnly, yearsBack);
+                }
+                
+                // Save the search results to the cache
+                await SearchCacheModule.saveSearchResults(
+                    drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, studies
+                );
+                
+                console.log(`Retrieved ${studies.length} studies and saved to cache`);
+            }
+            
+            // Filter for TRD-specific studies if requested
+            filteredStudies = studies;
+            if (trdFocusOnly) {
+                filteredStudies = filterTRDSpecificStudies(studies);
+                console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+            }
+            
+            appState.studies = filteredStudies;
+            // collectAllTrialOutcomes();
+            
+            // Display study-related sections if studies are found
+            if (filteredStudies.length > 0) {
+                // Display results summary
+                displayResultsSummary(filteredStudies);
+                showSection(elements.resultsOverview, true);
+                
+                // Display studies list
+                displayStudies(filteredStudies, drug, condition);
+                showSection(elements.studiesSection, true);
+                
+                // Fetch study details for studies with results
+                await fetchAllStudyDetails(filteredStudies);
+            } else {
+                // No studies found - show message
+                elements.placeholderMessage.innerHTML = `
+                    <div class="text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for ${drug ? `"${drug}"` : `"${condition}"`}.</p>
+                        <p class="mt-2 text-sm">Other data is displayed below.</p>
+                    </div>`;
+            }
+            
+            // If we have a drug, display FDA data
+            if (drug) {
+                displayFdaData(drug);
+                showSection(elements.fdaDataSection, true);
+                
+                // EMA Data
+                EmaDataModule.init();
+                EmaDataModule.searchDrug(drug);
+                
+                // For drug search - PubMed
+                if (drug && typeof PubMedModule !== 'undefined') {
+                    try {
+                        const pubmedOptions = {
+                            sortBy: 'relevance',
+                            fullTextOnly: false,
+                            yearRange: yearsBack
+                        };
+                        
+                        console.log("Searching PubMed for drug:", drug);
+                        if (PubMedModule.searchPubMedByDrug) {
+                            PubMedModule.searchPubMedByDrug(drug, {
+                                yearRange: yearsBack  // Last N years of publications
+                            });
+                        } else if (PubMedModule.searchPubMed) {
+                            // Fallback to general search if specialized function isn't available
+                            PubMedModule.searchPubMed(drug, pubmedOptions);
+                        }
+                    } catch (pubmedError) {
+                        console.error("Error in PubMed drug search:", pubmedError);
+                    }
+                }
+            } else if (condition) {
+                // For condition search - PubMed
+                if (condition && typeof PubMedModule !== 'undefined') {
+                    try {
+                        const pubmedOptions = {
+                            sortBy: 'date',
+                            fullTextOnly: false,
+                            yearRange: yearsBack
+                        };
+                        console.log("Searching PubMed for condition:", condition);
+                        if (PubMedModule.searchPubMedByCondition) {
+                            PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+                        } else if (PubMedModule.searchPubMed) {
+                            // Fallback to general search if specialized function isn't available
+                            PubMedModule.searchPubMed(condition, pubmedOptions);
+                        }
+                    } catch (pubmedError) {
+                        console.error("Error in PubMed condition search:", pubmedError);
+                    }
+                }
+            }
+        }
+        
+        displayLoading(false);
+        
+    } catch (error) {
+        console.error('Error during search:', error);
+        elements.placeholderMessage.innerHTML = `
+            <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-lg">Error searching for studies</p>
+                <p class="mt-2 text-sm">Please try again later.</p>
+                <p class="mt-2 text-xs text-gray-500">${error.message}</p>
+            </div>`;
+        displayLoading(false);
+    }
+}
 
+
+
+// Fetch studies from ClinicalTrials.gov API
+async function fetchStudies(drug, condition, hasResults, yearsBack = 5, sinceDate = null) {
+  try {
+    condition = condition || "";
+    const allStudies = [];
+    let pageToken = null;
+    let hasNextPage = true;
+
+    // Calculate the date from yearsBack
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(today.getFullYear() - yearsBack);
+
+    // Format date as YYYY-MM-DD for the API
+    const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+
+    // Format sinceDate if provided
+    let formattedSinceDate = null;
+    if (sinceDate) {
+      const since = new Date(sinceDate);
+      formattedSinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
+    }
+
+    console.log(`Fetching studies from ${formattedStartDate}${sinceDate ? `, updated since ${formattedSinceDate}` : ''}`);
+
+    // Continue fetching until there are no more pages
+    while (hasNextPage) {
+      const params = {
+        condition: condition,
+        intervention: drug,
+        hasResults: hasResults,
+        fields: "protocolSection,resultsSection,hasResults",
+        pageSize: 100, // Keep page size at 100 for efficiency
+        advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}` // Filter by start date and sinceDate
+      };
+
+      // Add page token for pagination if we're not on the first page
+      if (pageToken) {
+        params.pageToken = pageToken;
+      }
+
+      console.log(`Fetching studies page with params:`, params);
+
+      const response = await axios.get(`${API_BASE_URL}/studies/search`, {
+        params,
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+
+      console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
+
+      const studies = response.data.data.studies || [];
+      allStudies.push(...studies);
+
+      // Get next page token
+      pageToken = response.data.pagination?.nextPageToken;
+      hasNextPage = !!pageToken;
+
+      // Optional: Add delay to avoid rate limiting
+      if (hasNextPage) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+
+    console.log(`Total studies fetched: ${allStudies.length}`);
+    return allStudies;
+  } catch (error) {
+    console.error("Error fetching all studies:", error);
+    return [];
+  }
+}
+// SearchCacheModule.js
+// This module handles caching and retrieving search results for clinical trials
+
+const SearchCacheModule = (() => {
+  // File path for the database (not used directly for API calls)
+  const DB_FILE = 'db.json';
+  
+  // Initialize the database if it doesn't exist
+  const initDatabase = async () => {
+    try {
+      // Check if database exists by attempting to read it
+      const db = await readDatabase();
+      if (!db.searches) {
+        const initialDb = {
+          searches: {},
+          lastUpdated: new Date().toISOString()
+        };
+        await writeToFile(DB_FILE, JSON.stringify(initialDb, null, 2));
+        console.log('Database initialized successfully');
+      }
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
+      throw error;
+    }
+  };
+  
+  // Check if a file exists (not needed for API, but kept for compatibility)
+  const fileExists = async (filePath) => {
+    try {
+      const response = await fetch('/api/db', { method: 'GET' });
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+  
+  // Read from database via API
+  const readDatabase = async () => {
+    try {
+      const response = await fetch('/api/db');
+      if (!response.ok) {
+        throw new Error(`Failed to read database: ${response.status}`);
+      }
+      const data = await response.json();
+      // Ensure data has the expected structure
+      if (!data.searches) {
+        data.searches = {};
+      }
+      if (!data.lastUpdated) {
+        data.lastUpdated = new Date().toISOString();
+      }
+      return data;
+    } catch (error) {
+      console.error('Error reading database:', error);
+      await initDatabase();
+      return { searches: {}, lastUpdated: new Date().toISOString() };
+    }
+  };
+  
+  // Write to database via API
+  const writeToFile = async (filePath, content) => {
+    try {
+      const response = await fetch('/api/db', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: content,
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to write database: ${response.status}`);
+      }
+      console.log(`Database saved to ${filePath}`);
+      return true;
+    } catch (error) {
+      console.error('Error writing to database:', error);
+      // Optional: Fallback to localStorage
+      localStorage.setItem('clinicalTrialsDb', content);
+      console.warn('Saved to localStorage as fallback');
+      return true;
+    }
+  };
+  
+  // Generate a search key from search parameters
+  const generateSearchKey = (drug, condition, hasResultsOnly, trdFocusOnly, yearsBack) => {
+    return `${drug || ''}_${condition || ''}_${hasResultsOnly ? 'results' : 'all'}_${trdFocusOnly ? 'trd' : 'all'}_${yearsBack || 'all'}`;
+  };
+  
+  // Save search results to database
+  function saveSearchResults(drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, studies, callback) {
+  const searchKey = generateSearchKey(drug, condition, hasResultsOnly, trdFocusOnly, yearsBack);
+  readDatabase((err, db) => {
+    if (err) {
+      console.error('Error reading database for save:', err);
+      return callback(err);
+    }
+    // Filter study fields to reduce size
+    const filteredStudies = studies.map((study) => ({
+      nctId: study.protocolSection.identificationModule.nctId,
+      title: study.protocolSection.identificationModule.briefTitle,
+      status: study.protocolSection.statusModule.overallStatus,
+      startDate: study.protocolSection.designModule.startDateStruct?.date,
+      // Add other fields as needed
+    }));
+    db.searches[searchKey] = {
+      timestamp: new Date().toISOString(),
+      parameters: {
+        drug,
+        condition,
+        hasResultsOnly,
+        trdFocusOnly,
+        yearsBack,
+      },
+      results: filteredStudies,
+      studyCount: filteredStudies.length,
+    };
+    db.lastUpdated = new Date().toISOString();
+    writeToFile(DB_FILE, JSON.stringify(db, null, 2), (writeErr, success) => {
+      if (writeErr || !success) {
+        console.error('Error saving search results:', writeErr);
+        return callback(writeErr || new Error('Failed to save search results'));
+      }
+      console.log(`Saved search results for key: ${searchKey}`);
+      callback(null, true);
+    });
+  });
+}
+
+  
+  // Get cached search results if available
+  const getCachedSearchResults = async (drug, condition, hasResultsOnly, trdFocusOnly, yearsBack) => {
+    try {
+      const searchKey = generateSearchKey(drug, condition, hasResultsOnly, trdFocusOnly, yearsBack);
+      const db = await readDatabase();
+      
+      if (db.searches && db.searches[searchKey]) {
+        const cachedSearch = db.searches[searchKey];
+        console.log(`Found cached search from ${cachedSearch.timestamp} with ${cachedSearch.studyCount} studies`);
+        return cachedSearch;
+      }
+      
+      console.log(`No cached search found for key: ${searchKey}`);
+      return null;
+    } catch (error) {
+      console.error('Error retrieving cached search:', error);
+      return null;
+    }
+  };
+  
+  // Check if search is outdated based on timestamp and max age in days
+  const isSearchOutdated = (timestamp, maxAgeDays = 7) => {
+    const cachedDate = new Date(timestamp);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate - cachedDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > maxAgeDays;
+  };
+  
+  // Get studies added after a given date
+  const getNewStudiesSince = async (drug, condition, hasResultsOnly, yearsBack, sinceDate) => {
+    try {
+      console.log(`Fetching new studies since ${sinceDate}`);
+      const newStudies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack, sinceDate);
+      return newStudies;
+    } catch (error) {
+      console.error('Error fetching new studies:', error);
+      return [];
+    }
+  };
+  
+  // Update existing search with new studies
+  const updateSearchWithNewStudies = async (searchKey, newStudies) => {
+    try {
+      const db = await readDatabase();
+      
+      if (!db.searches[searchKey]) {
+        console.error(`Search key ${searchKey} not found in database`);
+        return false;
+      }
+      
+      const existingStudies = db.searches[searchKey].results;
+      const existingNctIds = new Set(
+        existingStudies.map(study => study.protocolSection.identificationModule.nctId)
+      );
+      
+      const uniqueNewStudies = newStudies.filter(study => {
+        const nctId = study.protocolSection.identificationModule.nctId;
+        return !existingNctIds.has(nctId);
+      });
+      
+      console.log(`Found ${uniqueNewStudies.length} new unique studies`);
+      
+      if (uniqueNewStudies.length > 0) {
+        const combinedStudies = [...existingStudies, ...uniqueNewStudies];
+        db.searches[searchKey].results = combinedStudies;
+        db.searches[searchKey].timestamp = new Date().toISOString();
+        db.searches[searchKey].studyCount = combinedStudies.length;
+        db.lastUpdated = new Date().toISOString();
+        
+        await writeToFile(DB_FILE, JSON.stringify(db, null, 2));
+        
+        console.log(`Updated search key ${searchKey} with ${uniqueNewStudies.length} new studies`);
+        return combinedStudies;
+      }
+      
+      console.log('No new studies to add');
+      return existingStudies;
+    } catch (error) {
+      console.error('Error updating search with new studies:', error);
+      return null;
+    }
+  };
+  
+  // Public interface
+  return {
+    initDatabase,
+    saveSearchResults,
+    getCachedSearchResults,
+    isSearchOutdated,
+    getNewStudiesSince,
+    updateSearchWithNewStudies
+  };
+})();
 
 function extractCommonDepressionMeasures() {
     if (appState.allTrialOutcomes.length === 0) return [];
@@ -24410,267 +24543,267 @@ document.addEventListener('DOMContentLoaded', function() {
     TrialDashboard.init('trial-dashboard');
 
     // Your dataset with added mock outcomes for demonstration
-    const trialData = [
-        {
-            nctId: "NCT02196259",
-            outcomes: [
-                {
-                    category: "",
-                    controlSampleSize: 0,
-                    controlValue: null,
-                    effectSize: null,
-                    experimentalSampleSize: 0,
-                    experimentalValue: null,
-                    measurements: [
-                        { dispersion: null, dispersionType: null, groupId: "OG000", groupTitle: "Initial MRI", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3114 },
-                        { dispersion: null, dispersionType: null, groupId: "OG001", groupTitle: "Depression", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3459 }
-                    ],
-                    timeFrame: "8 minutes scans, acquired between 1 day and 3 days (see above)",
-                    title: "Functional Connectivity",
-                    type: "primary"
-                }
-            ],
-            phase: "NA",
-            sponsor: "University of Michigan",
-            status: "TERMINATED",
-            title: "Anesthesia and Functional Connectivity: An Analysis of fMRI Changes"
-        },
-        {
-            nctId: "NCT01179009",
-            title: "Treatment Resistant Depression (Pilot)",
-            phase: "NA",
-            sponsor: "Washington University School of Medicine",
-            status: "COMPLETED",
-            outcomes: [] // No outcomes
-        },
-        {
-            nctId: "NCT01627782",
-            title: "A Study of Ketamine in Patients With Treatment-resistant Depression",
-            phase: "PHASE2",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: [
-                {
-                    title: "MADRS Score Reduction",
-                    type: "primary",
-                    timeFrame: "4 weeks",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 15.2 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 5.0 }
-                    ]
-                },
-                {
-                    title: "Response Rate (>= 50% Improvement)",
-                    type: "secondary",
-                    timeFrame: "4 weeks",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 45 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 20 }
-                    ]
-                },
-                {
-                    title: "Remission Rate (MADRS <= 10)",
-                    type: "secondary",
-                    timeFrame: "4 weeks",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 30 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 10 }
-                    ]
-                }
-            ]
-        },
-        {
-            nctId: "NCT05414422",
-            title: "A Randomized, Placebo-Controlled, Double-Blind Study to Assess Safety and Efficacy of PCN-101 in TRD",
-            phase: "PHASE2",
-            sponsor: "Perception Neuroscience",
-            status: "COMPLETED",
-            outcomes: [
-                {
-                    title: "MADRS Score Reduction",
-                    type: "primary",
-                    timeFrame: "24 hours",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "PCN-101", isControlGroup: false, sampleSize: 0, value: 12.5 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 4.0 }
-                    ]
-                }
-            ]
-        },
-        // Add mock outcomes for a few more trials for demonstration
-        {
-            nctId: "NCT00768430",
-            title: "Optimization of IV Ketamine for Treatment Resistant Depression",
-            phase: "PHASE2",
-            sponsor: "Baylor College of Medicine",
-            status: "COMPLETED",
-            outcomes: [
-                {
-                    title: "MADRS Score Reduction",
-                    type: "primary",
-                    timeFrame: "1 week",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 18.0 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 6.0 }
-                    ]
-                },
-                {
-                    title: "Response Rate (>= 50% Improvement)",
-                    type: "secondary",
-                    timeFrame: "1 week",
-                    measurements: [
-                        { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 50 },
-                        { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 15 }
-                    ]
-                }
-            ]
-        },
-        // Remaining trials without outcomes
-        {
-            nctId: "NCT02360280",
-            title: "Efficacy of Repeated Ketamine Infusions for Treatment-resistant Depression",
-            phase: "PHASE2",
-            sponsor: "VA Office of Research and Development",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT03756129",
-            title: "Proof of Concept Study Evaluating the Efficacy and…1 in Patients With Treatment-resistant Depression",
-            phase: "PHASE2",
-            sponsor: "Novartis",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT01998958",
-            title: "A Study to Evaluate the Safety and Efficacy of Int…asal Esketamine in Treatment-resistant Depression",
-            phase: "PHASE2",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT03113968",
-            title: "ELEKT-D: Electroconvulsive Therapy (ECT) vs. Ketam…atients With Treatment Resistant Depression (TRD)",
-            phase: "PHASE2",
-            sponsor: "The Cleveland Clinic",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02935595",
-            title: "Low Dose Intravenous Ketamine in Treatment Resistant Depression Patients",
-            phase: "PHASE2",
-            sponsor: "The University of Texas Health Science Center, Houston",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02078817",
-            title: "Ketamine in Adolescents With Treatment-Resistant Depression",
-            phase: "PHASE2",
-            sponsor: "University of Minnesota",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02918318",
-            title: "A Study to Evaluate the Efficacy, Safety and Toler… Participants With Treatment Resistant Depression",
-            phase: "PHASE2",
-            sponsor: "Janssen Pharmaceutical K.K.",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT01920555",
-            title: "Double-Blind, Placebo-Controlled Trial of Ketamine Therapy in Treatment-Resistant Depression (TRD)",
-            phase: "PHASE2",
-            sponsor: "Massachusetts General Hospital",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02422186",
-            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02493868",
-            title: "A Study of Intranasal Esketamine Plus an Oral Anti… Participants With Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02782104",
-            title: "A Long-term Safety Study of Esketamine Nasal Spray in Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT03434041",
-            title: "A Study to Evaluate the Efficacy, Pharmacokinetics… Participants With Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02556606",
-            title: "Ketamine for Treatment Resistant Late-Life Depression",
-            phase: "PHASE3",
-            sponsor: "VA Office of Research and Development",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT04338321",
-            title: "A Long-term Comparison of Esketamine Nasal Spray V…ith Treatment Resistant Major Depressive Disorder",
-            phase: "PHASE3",
-            sponsor: "Janssen-Cilag International NV",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02417064",
-            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT02418585",
-            title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
-            phase: "PHASE3",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT03149991",
-            title: "A Study of Brexpiprazole Plus Ketamine in Treatment-Resistant Depression (TRD)",
-            phase: "PHASE4",
-            sponsor: "Massachusetts General Hospital",
-            status: "COMPLETED",
-            outcomes: []
-        },
-        {
-            nctId: "NCT04599855",
-            title: "A Study of Esketamine Nasal Spray, Administered as… Participants With Treatment-resistant Depression",
-            phase: "PHASE4",
-            sponsor: "Janssen Research & Development, LLC",
-            status: "COMPLETED",
-            outcomes: []
-        }
-    ];
+    // const trialData = [
+    //     {
+    //         nctId: "NCT02196259",
+    //         outcomes: [
+    //             {
+    //                 category: "",
+    //                 controlSampleSize: 0,
+    //                 controlValue: null,
+    //                 effectSize: null,
+    //                 experimentalSampleSize: 0,
+    //                 experimentalValue: null,
+    //                 measurements: [
+    //                     { dispersion: null, dispersionType: null, groupId: "OG000", groupTitle: "Initial MRI", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3114 },
+    //                     { dispersion: null, dispersionType: null, groupId: "OG001", groupTitle: "Depression", isControlGroup: false, sampleSize: 0, standardError: null, value: 0.3459 }
+    //                 ],
+    //                 timeFrame: "8 minutes scans, acquired between 1 day and 3 days (see above)",
+    //                 title: "Functional Connectivity",
+    //                 type: "primary"
+    //             }
+    //         ],
+    //         phase: "NA",
+    //         sponsor: "University of Michigan",
+    //         status: "TERMINATED",
+    //         title: "Anesthesia and Functional Connectivity: An Analysis of fMRI Changes"
+    //     },
+    //     {
+    //         nctId: "NCT01179009",
+    //         title: "Treatment Resistant Depression (Pilot)",
+    //         phase: "NA",
+    //         sponsor: "Washington University School of Medicine",
+    //         status: "COMPLETED",
+    //         outcomes: [] // No outcomes
+    //     },
+    //     {
+    //         nctId: "NCT01627782",
+    //         title: "A Study of Ketamine in Patients With Treatment-resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: [
+    //             {
+    //                 title: "MADRS Score Reduction",
+    //                 type: "primary",
+    //                 timeFrame: "4 weeks",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 15.2 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 5.0 }
+    //                 ]
+    //             },
+    //             {
+    //                 title: "Response Rate (>= 50% Improvement)",
+    //                 type: "secondary",
+    //                 timeFrame: "4 weeks",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 45 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 20 }
+    //                 ]
+    //             },
+    //             {
+    //                 title: "Remission Rate (MADRS <= 10)",
+    //                 type: "secondary",
+    //                 timeFrame: "4 weeks",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 30 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 10 }
+    //                 ]
+    //             }
+    //         ]
+    //     },
+    //     {
+    //         nctId: "NCT05414422",
+    //         title: "A Randomized, Placebo-Controlled, Double-Blind Study to Assess Safety and Efficacy of PCN-101 in TRD",
+    //         phase: "PHASE2",
+    //         sponsor: "Perception Neuroscience",
+    //         status: "COMPLETED",
+    //         outcomes: [
+    //             {
+    //                 title: "MADRS Score Reduction",
+    //                 type: "primary",
+    //                 timeFrame: "24 hours",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "PCN-101", isControlGroup: false, sampleSize: 0, value: 12.5 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 4.0 }
+    //                 ]
+    //             }
+    //         ]
+    //     },
+    //     // Add mock outcomes for a few more trials for demonstration
+    //     {
+    //         nctId: "NCT00768430",
+    //         title: "Optimization of IV Ketamine for Treatment Resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "Baylor College of Medicine",
+    //         status: "COMPLETED",
+    //         outcomes: [
+    //             {
+    //                 title: "MADRS Score Reduction",
+    //                 type: "primary",
+    //                 timeFrame: "1 week",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 18.0 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 6.0 }
+    //                 ]
+    //             },
+    //             {
+    //                 title: "Response Rate (>= 50% Improvement)",
+    //                 type: "secondary",
+    //                 timeFrame: "1 week",
+    //                 measurements: [
+    //                     { groupId: "OG000", groupTitle: "Ketamine", isControlGroup: false, sampleSize: 0, value: 50 },
+    //                     { groupId: "OG001", groupTitle: "Placebo", isControlGroup: true, sampleSize: 0, value: 15 }
+    //                 ]
+    //             }
+    //         ]
+    //     },
+    //     // Remaining trials without outcomes
+    //     {
+    //         nctId: "NCT02360280",
+    //         title: "Efficacy of Repeated Ketamine Infusions for Treatment-resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "VA Office of Research and Development",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT03756129",
+    //         title: "Proof of Concept Study Evaluating the Efficacy and…1 in Patients With Treatment-resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "Novartis",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT01998958",
+    //         title: "A Study to Evaluate the Safety and Efficacy of Int…asal Esketamine in Treatment-resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT03113968",
+    //         title: "ELEKT-D: Electroconvulsive Therapy (ECT) vs. Ketam…atients With Treatment Resistant Depression (TRD)",
+    //         phase: "PHASE2",
+    //         sponsor: "The Cleveland Clinic",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02935595",
+    //         title: "Low Dose Intravenous Ketamine in Treatment Resistant Depression Patients",
+    //         phase: "PHASE2",
+    //         sponsor: "The University of Texas Health Science Center, Houston",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02078817",
+    //         title: "Ketamine in Adolescents With Treatment-Resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "University of Minnesota",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02918318",
+    //         title: "A Study to Evaluate the Efficacy, Safety and Toler… Participants With Treatment Resistant Depression",
+    //         phase: "PHASE2",
+    //         sponsor: "Janssen Pharmaceutical K.K.",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT01920555",
+    //         title: "Double-Blind, Placebo-Controlled Trial of Ketamine Therapy in Treatment-Resistant Depression (TRD)",
+    //         phase: "PHASE2",
+    //         sponsor: "Massachusetts General Hospital",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02422186",
+    //         title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02493868",
+    //         title: "A Study of Intranasal Esketamine Plus an Oral Anti… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02782104",
+    //         title: "A Long-term Safety Study of Esketamine Nasal Spray in Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT03434041",
+    //         title: "A Study to Evaluate the Efficacy, Pharmacokinetics… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02556606",
+    //         title: "Ketamine for Treatment Resistant Late-Life Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "VA Office of Research and Development",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT04338321",
+    //         title: "A Long-term Comparison of Esketamine Nasal Spray V…ith Treatment Resistant Major Depressive Disorder",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen-Cilag International NV",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02417064",
+    //         title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT02418585",
+    //         title: "A Study to Evaluate the Efficacy, Safety, and Tole… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE3",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT03149991",
+    //         title: "A Study of Brexpiprazole Plus Ketamine in Treatment-Resistant Depression (TRD)",
+    //         phase: "PHASE4",
+    //         sponsor: "Massachusetts General Hospital",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     },
+    //     {
+    //         nctId: "NCT04599855",
+    //         title: "A Study of Esketamine Nasal Spray, Administered as… Participants With Treatment-resistant Depression",
+    //         phase: "PHASE4",
+    //         sponsor: "Janssen Research & Development, LLC",
+    //         status: "COMPLETED",
+    //         outcomes: []
+    //     }
+    // ];
 
     // TrialDashboard.loadData(trialData);
 });
