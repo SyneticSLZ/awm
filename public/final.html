@@ -161,8 +161,45 @@
     border-left-color: #8b5cf6;
 }
     </style>
+        <style>
+            /* Login overlay styles */
+            .login-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            /* Notification styles */
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background-color: #10B981;
+                color: white;
+                border-radius: 4px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                z-index: 1001;
+                transform: translateY(-100px);
+                opacity: 0;
+                transition: all 0.5s ease;
+            }
+            
+            .notification.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800" >
+
   <header class="bg-dark text-white shadow-md">
       <div class="container mx-auto p-4">
           <nav class="flex justify-between items-center">
@@ -188,6 +225,36 @@
       </div>
   </header>
 
+       <!-- Login overlay (shown if not logged in) -->
+       <div id="loginOverlay" class="login-overlay hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-2xl font-bold mb-6 text-center">Login Required</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="loginUsername" name="username" required 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="loginPassword" name="password" required 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Sign in
+                    </button>
+                </div>
+                <div id="loginError" class="text-red-500 text-center text-sm hidden"></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Notification element -->
+    <div id="notification" class="notification">
+        Welcome back, <span id="notificationUsername"></span>!
+    </div>
 
     <main class="container mx-auto p-4">
         <!-- Search Section -->
@@ -226,7 +293,7 @@
         </section> -->
 
 <!-- Search Section -->
-<section class="bg-white rounded-lg shadow-md p-6 mb-6">
+<!-- <section class="bg-white rounded-lg shadow-md p-6 mb-6">
     <h2 class="text-xl font-semibold mb-4">Search for Clinical Trials</h2>
     <div class="flex flex-col md:flex-row gap-4">
         <div class="flex-grow">
@@ -249,7 +316,7 @@
         </div>
     </div>
     
-    <!-- Timeline Slider -->
+    
     <div class="mt-6">
         <div class="flex justify-between items-center mb-2">
             <label for="timelineSlider" class="text-sm font-medium">Timeline: <span id="yearValue" class="text-primary font-bold text-lg transition-all duration-300">7</span> years back</label>
@@ -259,13 +326,13 @@
         </div>
         
         <div class="relative mb-6">
-            <!-- Timeline Track -->
+            
             <div class="w-full h-4 bg-gray-200 rounded-full shadow-inner overflow-hidden">
-                <!-- Filled Track -->
+                
                 <div id="filledTrack" class="h-full bg-gradient-to-r from-blue-400 to-primary transition-all duration-300" style="width: 46.6%;"></div>
             </div>
             
-            <!-- Ticks and Labels -->
+            
             <div class="relative w-full h-8 mt-1">
                 <div class="absolute top-0 left-0 text-xs text-gray-500">1 year</div>
                 <div class="absolute top-0 left-1/4 transform -translate-x-1/2 text-xs text-gray-500">5 years</div>
@@ -274,19 +341,19 @@
                 <div class="absolute top-0 right-0 transform translate-x-0 text-xs text-gray-500">15 years</div>
             </div>
             
-            <!-- Custom Slider Thumb -->
+            
             <input type="range" id="timelineSlider" min="1" max="15" value="7" 
                    class="absolute top-0 w-full h-4 opacity-0 cursor-pointer z-10">
                    
-            <!-- Visual Thumb (shows on top of track) -->
+       
             <div id="sliderThumb" class="absolute top-0 h-10 w-10 bg-white rounded-full shadow-lg border-2 border-primary flex items-center justify-center transform -translate-y-3 -translate-x-1/2 transition-transform duration-200" style="left: 46.6%;">
                 <span id="thumbValue" class="text-sm font-bold text-primary">7</span>
             </div>
         </div>
         
-        <!-- Year Markers -->
+      
         <div id="yearMarkers" class="flex justify-between mb-6 px-1">
-            <!-- Year markers will be inserted by JavaScript -->
+           
         </div>
     </div>
     
@@ -300,7 +367,480 @@
             <label for="trdFocusOnly" class="text-sm">Focus on TRD-specific trials only</label>
         </div>
     </div>
+</section> -->
+
+
+<section class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-6 text-gray-800">Search for Clinical Trials</h2>
+    
+    <!-- Main Search Row -->
+    <div class="flex flex-col md:flex-row gap-3">
+        <div class="flex-grow">
+            <div class="relative">
+                <input type="text" id="drugSearch" placeholder="Drug Name" 
+                       class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16a1 1 0 11-2 0V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 013 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L7 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+        <div class="flex-grow">
+            <div class="relative">
+                <input type="text" id="conditionSearch" placeholder="Condition (Optional)" 
+                       class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+        <div>
+            <button id="searchButton" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg transition duration-200 flex items-center shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search
+            </button>
+        </div>
+    </div>
+    
+    <!-- AI Search Box -->
+    <div class="mt-5 relative">
+        <div class="absolute left-3 top-3.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M13.5 3.25a.75.75 0 00-1.5 0V4h-1.5a.75.75 0 000 1.5H12v1.5a.75.75 0 001.5 0V5.5h1.5a.75.75 0 000-1.5H13.5v-1.25zm-8.25 4a.75.75 0 00-.75.75v6.5c0 .414.336.75.75.75h6.5a.75.75 0 00.75-.75v-6.5a.75.75 0 00-.75-.75h-6.5zm8.25-1.5a.75.75 0 00-.75.75v8a.75.75 0 01-.75.75h-8a.75.75 0 00-.75.75v.25c0 .414.336.75.75.75h8.75a1.5 1.5 0 001.5-1.5v-9a.75.75 0 00-.75-.75z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <input type="text" id="aiSearch" placeholder="Describe what you're looking for in natural language..." 
+               class="w-full p-3 pl-10 pr-36 bg-gradient-to-r from-indigo-50 to-purple-50 border-0 rounded-lg focus:ring-2 focus:ring-indigo-400 shadow-sm transition-all duration-200">
+        <button id="aiSearchButton" class="absolute right-2 top-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-1.5 px-4 rounded-lg transition duration-200 flex items-center shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            AI Search
+        </button>
+        <p class="text-xs text-gray-500 mt-1.5 ml-2">Example: "Phase 2 trials for ketamine targeting TRD in adults from the last 3 years"</p>
+    </div>
+    
+    <!-- Timeline Slider -->
+    <div class="mt-7">
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center">
+                <label for="timelineSlider" class="text-sm font-medium text-gray-700">Timeline:</label>
+                <span id="yearValue" class="ml-2 text-blue-600 font-bold text-lg transition-all duration-300">7</span>
+                <span class="ml-1 text-sm text-gray-700">years back</span>
+            </div>
+            <div class="text-xs bg-blue-50 px-3 py-1.5 rounded-full shadow-sm text-blue-700">
+                From <span id="startYear" class="font-medium"></span> to <span id="currentYear" class="font-medium"></span>
+            </div>
+        </div>
+        
+        <div class="relative mb-5">
+            <!-- Timeline Track -->
+            <div class="w-full h-2 bg-gray-200 rounded-full shadow-inner overflow-hidden">
+                <!-- Filled Track -->
+                <div id="filledTrack" class="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300" style="width: 46.6%;"></div>
+            </div>
+            
+            <!-- Ticks and Labels -->
+            <div class="relative w-full h-8 mt-1">
+                <div class="absolute top-0 left-0 text-xs text-gray-500">1 year</div>
+                <div class="absolute top-0 left-1/4 transform -translate-x-1/2 text-xs text-gray-500">5 years</div>
+                <div class="absolute top-0 left-2/4 transform -translate-x-1/2 text-xs text-gray-500">8 years</div>
+                <div class="absolute top-0 left-3/4 transform -translate-x-1/2 text-xs text-gray-500">12 years</div>
+                <div class="absolute top-0 right-0 transform translate-x-0 text-xs text-gray-500">15 years</div>
+            </div>
+            
+            <!-- Custom Slider Thumb -->
+            <input type="range" id="timelineSlider" min="1" max="15" value="7" 
+                   class="absolute top-0 w-full h-2 opacity-0 cursor-pointer z-10">
+                   
+            <!-- Visual Thumb (shows on top of track) -->
+            <div id="sliderThumb" class="absolute top-0 h-6 w-6 bg-white rounded-full shadow-md border-2 border-blue-500 flex items-center justify-center transform -translate-y-2 -translate-x-1/2 transition-all duration-200" style="left: 46.6%;">
+                <span id="thumbValue" class="text-xs font-bold text-blue-600">7</span>
+            </div>
+        </div>
+        
+        <!-- Year Markers -->
+        <div id="yearMarkers" class="flex justify-between mb-6 px-1">
+            <!-- Year markers will be inserted by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Bottom Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-y-3">
+        <!-- Checkboxes -->
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2" style="display: none;">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="hasResultsOnly" class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out">
+                <span class="ml-2 text-sm text-gray-700">Studies with results only</span>
+            </label>
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="trdFocusOnly" class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out">
+                <span class="ml-2 text-sm text-gray-700">TRD-specific trials only</span>
+            </label>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+            <!-- Email Summary Button (initially hidden) -->
+            <button id="emailSummaryBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition duration-200 flex items-center hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+            </button>
+            
+            <!-- Save Search Button -->
+            <button id="saveSearchBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition duration-200">
+                <svg id="starOutline" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                <svg id="starFilled" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400 hidden" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+            </button>
+            
+            <!-- Saved Searches Button with Dropdown -->
+            <div class="relative">
+                <button id="savedSearchesBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Saved Searches Dropdown -->
+                <div id="savedSearchesDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl z-20 hidden overflow-hidden border border-gray-100">
+                    <div class="py-2 px-4 bg-gray-50 border-b border-gray-100">
+                        <h3 class="text-sm font-medium text-gray-700">Saved Searches</h3>
+                    </div>
+                    <div id="savedSearchesList" class="max-h-72 overflow-y-auto">
+                        <div class="p-4 text-sm text-gray-500 text-center">No saved searches yet</div>
+                        <!-- Saved searches will be populated here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+<script>
+
+    
+    saveSearchBtn.addEventListener('click', function() {
+        const drugName = document.getElementById('drugSearch').value.trim();
+        const condition = document.getElementById('conditionSearch').value.trim();
+        const years = timelineSlider.value;
+        const hasResultsOnly = document.getElementById('hasResultsOnly').checked;
+        const trdFocusOnly = document.getElementById('trdFocusOnly').checked;
+        
+        if (!drugName && !condition) {
+            alert('Please enter at least a drug name or condition to save this search.');
+            return;
+        }
+        
+        const searchName = prompt('Enter a name for this saved search:', 
+            drugName ? (condition ? `${drugName} for ${condition}` : drugName) : condition);
+        
+        if (searchName) {
+            const newSearch = {
+                id: Date.now().toString(),
+                name: searchName,
+                criteria: {
+                    drugName,
+                    condition,
+                    years,
+                    hasResultsOnly,
+                    trdFocusOnly
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            savedSearches.unshift(newSearch); // Add to beginning of array
+            
+            // Limit to 10 saved searches
+            if (savedSearches.length > 10) {
+                savedSearches = savedSearches.slice(0, 10);
+            }
+            
+            localStorage.setItem('savedClinicalTrialSearches', JSON.stringify(savedSearches));
+            updateSavedSearchesList();
+            
+            // Show filled star briefly
+            starOutline.classList.add('hidden');
+            starFilled.classList.remove('hidden');
+            setTimeout(() => {
+                starOutline.classList.remove('hidden');
+                starFilled.classList.add('hidden');
+            }, 1500);
+        }
+    });
+    
+    function updateSavedSearchesList() {
+        savedSearchesList.innerHTML = '';
+        
+        if (savedSearches.length === 0) {
+            savedSearchesList.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">No saved searches yet</div>';
+            return;
+        }
+        
+        savedSearches.forEach(search => {
+            const item = document.createElement('div');
+            item.className = 'px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition duration-150';
+            
+            const nameEl = document.createElement('div');
+            nameEl.className = 'text-sm font-medium text-gray-800 mb-1 flex items-center';
+            
+            // Add a small star icon before the name
+            const starIcon = document.createElement('span');
+            starIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-yellow-400 mr-1.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+            `;
+            nameEl.appendChild(starIcon);
+            
+            const nameText = document.createElement('span');
+            nameText.textContent = search.name;
+            nameEl.appendChild(nameText);
+            
+            const detailsEl = document.createElement('div');
+            detailsEl.className = 'text-xs text-gray-500 ml-5';
+            
+            let detailsText = [];
+            if (search.criteria.drugName) detailsText.push(`<span class="font-medium">Drug:</span> ${search.criteria.drugName}`);
+            if (search.criteria.condition) detailsText.push(`<span class="font-medium">Condition:</span> ${search.criteria.condition}`);
+            detailsText.push(`<span class="font-medium">Timeline:</span> ${search.criteria.years} years`);
+            
+            detailsEl.innerHTML = detailsText.join(' • ');
+            
+            const actionsEl = document.createElement('div');
+            actionsEl.className = 'flex justify-between items-center mt-2 ml-5';
+            
+            const dateEl = document.createElement('span');
+            dateEl.className = 'text-xs text-gray-400 flex items-center';
+            const searchDate = new Date(search.timestamp);
+            
+            // Add a small clock icon
+            dateEl.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${searchDate.toLocaleDateString()}
+            `;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'text-red-500 hover:text-red-700 text-xs flex items-center transition duration-150';
+            deleteBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
+            `;
+            
+            deleteBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering the parent click
+                // Modern confirmation (in a real app, use a modal)
+                if (confirm(`Delete saved search "${search.name}"?`)) {
+                    savedSearches = savedSearches.filter(s => s.id !== search.id);
+                    localStorage.setItem('savedClinicalTrialSearches', JSON.stringify(savedSearches));
+                    updateSavedSearchesList();
+                    showToast('Search deleted', 'info');
+                }
+            };
+            
+            actionsEl.appendChild(dateEl);
+            actionsEl.appendChild(deleteBtn);
+            
+            item.appendChild(nameEl);
+            item.appendChild(detailsEl);
+            item.appendChild(actionsEl);
+            
+            // Load this search when clicked
+            item.addEventListener('click', function() {
+                document.getElementById('drugSearch').value = search.criteria.drugName || '';
+                document.getElementById('conditionSearch').value = search.criteria.condition || '';
+                timelineSlider.value = search.criteria.years;
+                document.getElementById('hasResultsOnly').checked = search.criteria.hasResultsOnly;
+                document.getElementById('trdFocusOnly').checked = search.criteria.trdFocusOnly;
+                
+                // Update the timeline display
+                updateTimeline(search.criteria.years);
+                
+                // Close dropdown with animation
+                savedSearchesDropdown.classList.add('hidden');
+                
+                // Show toast notification
+                showToast(`Loaded search: ${search.name}`, 'success');
+                
+                // Auto-search
+                document.getElementById('searchButton').click();
+            });
+            
+            savedSearchesList.appendChild(item);
+        });
+    }
+    
+    // Toggle saved searches dropdown
+    savedSearchesBtn.addEventListener('click', function() {
+        savedSearchesDropdown.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!savedSearchesBtn.contains(event.target) && !savedSearchesDropdown.contains(event.target)) {
+            savedSearchesDropdown.classList.add('hidden');
+        }
+    });
+    
+    // // AI Search button functionality
+    // document.getElementById('aiSearchButton').addEventListener('click', function() {
+    //     const aiQuery = document.getElementById('aiSearch').value.trim();
+    //     if (!aiQuery) {
+    //         showToast('Please enter a search description for AI search.', 'warning');
+    //         return;
+    //     }
+        
+    //     // Show a "thinking" animation
+    //     const aiSearchButton = document.getElementById('aiSearchButton');
+    //     const originalButtonContent = aiSearchButton.innerHTML;
+    //     aiSearchButton.innerHTML = `
+    //         <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    //             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    //             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    //         </svg>
+    //         <span class="ml-2">Processing...</span>
+    //     `;
+        
+    //     // Here you would typically send the query to your backend for processing
+    //     // For demonstration, we'll simulate parsing the query with a delay
+    //     setTimeout(() => {
+    //         // Example simple NLP pattern matching (you'd replace with actual API call)
+    //         processAIQuery(aiQuery);
+            
+    //         // Restore button
+    //         aiSearchButton.innerHTML = originalButtonContent;
+    //     }, 1200);
+    // });
+    
+    // function processAIQuery(query) {
+    //     query = query.toLowerCase();
+        
+    //     // Extract potential drug name (very simplified example)
+    //     let drugName = '';
+    //     if (query.includes('drug') || query.includes('medication')) {
+    //         const drugKeywords = ['ketamine', 'pcn-101', 'comp360', 'psilocybin', 'mdma', 'esketamine', 'spravato'];
+    //         for (const drug of drugKeywords) {
+    //             if (query.includes(drug)) {
+    //                 drugName = drug;
+    //                 break;
+    //             }
+    //         }
+    //     }
+        
+    //     // Extract condition
+    //     let condition = '';
+    //     if (query.includes('depression') || query.includes('trd')) {
+    //         condition = 'Treatment Resistant Depression';
+    //     } else if (query.includes('anxiety')) {
+    //         condition = 'Anxiety Disorder';
+    //     } else if (query.includes('ptsd')) {
+    //         condition = 'PTSD';
+    //     }
+        
+    //     // Extract timeline
+    //     let years = 7; // default
+    //     const yearMatches = query.match(/(\d+)\s*years?/);
+    //     if (yearMatches) {
+    //         years = Math.min(15, Math.max(1, parseInt(yearMatches[1])));
+    //     }
+        
+    //     // Set the form values with animation
+    //     const drugInput = document.getElementById('drugSearch');
+    //     const conditionInput = document.getElementById('conditionSearch');
+        
+    //     // Highlight the fields briefly
+    //     if (drugName) {
+    //         drugInput.classList.add('ring-2', 'ring-indigo-300');
+    //         setTimeout(() => drugInput.classList.remove('ring-2', 'ring-indigo-300'), 1500);
+    //     }
+        
+    //     if (condition) {
+    //         conditionInput.classList.add('ring-2', 'ring-indigo-300');
+    //         setTimeout(() => conditionInput.classList.remove('ring-2', 'ring-indigo-300'), 1500);
+    //     }
+        
+    //     // Set values
+    //     drugInput.value = drugName;
+    //     conditionInput.value = condition;
+    //     timelineSlider.value = years;
+    //     updateTimeline(years);
+        
+    //     // Set checkboxes based on query
+    //     document.getElementById('hasResultsOnly').checked = query.includes('with results');
+    //     document.getElementById('trdFocusOnly').checked = query.includes('trd') || query.includes('treatment resistant');
+        
+    //     // Show toast with AI interpretation
+    //     showToast(`AI interpreted: ${drugName || 'Any drug'} ${condition ? 'for ' + condition : ''}, ${years} years back`, 'info');
+        
+    //     // Trigger search with slight delay
+    //     setTimeout(() => {
+    //         document.getElementById('searchButton').click();
+    //     }, 500);
+    // }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+        // Remove any existing toasts
+        const existingToasts = document.querySelectorAll('.toast-notification');
+        existingToasts.forEach(toast => {
+            document.body.removeChild(toast);
+        });
+        
+        // Create toast container
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 translate-y-20 opacity-0';
+        
+        // Set background color based on type
+        switch(type) {
+            case 'success':
+                toast.classList.add('bg-green-600');
+                break;
+            case 'warning':
+                toast.classList.add('bg-amber-500');
+                break;
+            case 'error':
+                toast.classList.add('bg-red-500');
+                break;
+            case 'info':
+            default:
+                toast.classList.add('bg-blue-600');
+        }
+        
+        // Add message
+        toast.textContent = message;
+        
+        // Add to DOM
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+            toast.classList.remove('translate-y-20', 'opacity-0');
+        }, 10);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                try {
+                    document.body.removeChild(toast);
+                } catch (e) {
+                    // In case toast was already removed
+                }
+            }, 300);
+        }, 3000);
+    }
+
+</script>
 
 <style>
     /* Animations and hover effects */
@@ -1591,6 +2131,7 @@
                 </div>
             </div>
         </section>
+
     </main>
 
     <script>
@@ -1677,6 +2218,594 @@ charts.overallDrugSuccess = null;
 charts.responseRate = null;
 charts.remissionRate = null;
 
+
+const NLPProcessor = {
+  // Extract drug name from user query with improved pattern recognition
+  extractDrugName: function(query) {
+    query = query.toLowerCase();
+    
+    // 1. Common drug classes and examples for exact matching
+    const drugKeywords = [
+      'ketamine', 'esketamine', 'spravato', 'pcn-101', 'comp360', 
+      'psilocybin', 'mdma', 'lsd', 'dmt', '5-meo-dmt', 'ayahuasca',
+      'ssri', 'snri', 'maoi', 'tca', 'antidepressant', 'antipsychotic',
+      'lithium', 'lamotrigine', 'valproate', 'carbamazepine'
+    ];
+    
+    // Check for exact drug names in the query first
+    for (const drug of drugKeywords) {
+      // Use word boundary checks to prevent matching substrings
+      const drugRegex = new RegExp(`\\b${drug}\\b`, 'i');
+      if (drugRegex.test(query)) {
+        return drug;
+      }
+    }
+    
+    // 2. Common drug signal phrases and patterns
+    const drugPatterns = [
+      // Look for "drug X" or "medication X" patterns
+      /\b(?:drug|medication|compound|molecule|therapeutic|treatment)s?\s+(?:called|named|known as)?\s+["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+      
+      // Look for patterns like "X drug/medication" 
+      /["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?\s+(?:drug|medication|compound|therapy)/i,
+      
+      // Look for patterns like "trials for X" or "studies of X"
+      /(?:trials|studies)\s+(?:for|of|using|with)\s+["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+      
+      // Look for patterns like "trials testing X" or "studies evaluating X"
+      /(?:trials|studies)\s+(?:testing|evaluating|assessing|examining)\s+["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+      
+      // Look for "X for depression" or "X in treatment" patterns
+      /["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?\s+(?:for|in|as)\s+(?:the)?\s*(?:treatment|therapy)/i,
+  
+      // Look for "treated with X" patterns
+      /treated\s+(?:with|using)\s+["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+      
+      // Patterns for drug codes/identifiers (typically alphanumeric with hyphens)
+      /\b([a-z]{1,3}[-]?[0-9]{1,4}(?:[-][0-9]{1,3})?)\b/i
+    ];
+    
+    // Try each pattern and return the first match
+    for (const pattern of drugPatterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        // Check that the matched string looks like a drug name (not common words)
+        const candidate = match[1].trim();
+        
+        // Skip very common words that might be false positives
+        const commonWords = ['the', 'a', 'an', 'this', 'that', 'some', 'such', 'other', 'more', 'most', 
+                           'all', 'any', 'each', 'every', 'which', 'what', 'who', 'when', 'where', 'why',
+                           'these', 'those', 'trials', 'studies', 'drug', 'drugs', 'treatment', 'condition',
+                           'show', 'find', 'search', 'looking', 'trials', 'medicine', 'medication'];
+        
+        if (candidate.length > 2 && !commonWords.includes(candidate)) {
+          return candidate;
+        }
+      }
+    }
+    
+    // 3. Fallback to analyzing capitalized words which often indicate drug names
+    // This would work well if the original query has correct capitalization
+    const originalQuery = query; // Assuming the original query is passed with capitalization
+    const words = originalQuery.split(/\s+/);
+    
+    // Look for capitalized words that might be drug names
+    for (const word of words) {
+      // Check if word starts with a capital letter and isn't at the beginning of a sentence
+      if (word.length > 2 && /^[A-Z][a-z0-9]+$/.test(word)) {
+        return word.toLowerCase();
+      }
+    }
+    
+    // 4. Look for words that appear after "using" or "with" that might be drug names
+    const usingPatterns = [
+      /using\s+(?:the\s+)?(?:drug|medication|compound|treatment)?\s*["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+      /with\s+(?:the\s+)?(?:drug|medication|compound|treatment)?\s*["']?([a-z0-9\-]+(?:\s+[a-z0-9\-]+)?)["']?/i,
+    ];
+    
+    for (const pattern of usingPatterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        const candidate = match[1].trim();
+        // Skip common words
+        const commonWords = ['the', 'a', 'an', 'this', 'that', 'some', 'these', 'those'];
+        if (candidate.length > 2 && !commonWords.includes(candidate)) {
+          return candidate;
+        }
+      }
+    }
+    
+    return '';
+  },
+  
+  // Extract condition from user query with advanced pattern recognition
+  extractCondition: function(query) {
+    query = query.toLowerCase();
+    
+    // 1. Map of condition keywords to standardized condition names
+    const conditionMap = {
+      'trd': 'Treatment Resistant Depression',
+      'treatment resistant depression': 'Treatment Resistant Depression',
+      'treatment-resistant depression': 'Treatment Resistant Depression',
+      'treatment resistant depressive disorder': 'Treatment Resistant Depression',
+      'depression': 'Depression',
+      'mdd': 'Major Depressive Disorder',
+      'major depressive disorder': 'Major Depressive Disorder',
+      'depressive disorder': 'Depression',
+      'anxiety': 'Anxiety Disorder',
+      'anxiety disorder': 'Anxiety Disorder', 
+      'gad': 'Generalized Anxiety Disorder',
+      'generalized anxiety disorder': 'Generalized Anxiety Disorder',
+      'panic': 'Panic Disorder',
+      'panic disorder': 'Panic Disorder',
+      'ptsd': 'Post-Traumatic Stress Disorder',
+      'post-traumatic stress disorder': 'Post-Traumatic Stress Disorder',
+      'post traumatic stress disorder': 'Post-Traumatic Stress Disorder',
+      'ocd': 'Obsessive-Compulsive Disorder',
+      'obsessive compulsive disorder': 'Obsessive-Compulsive Disorder',
+      'obsessive-compulsive disorder': 'Obsessive-Compulsive Disorder',
+      'bipolar': 'Bipolar Disorder',
+      'bipolar disorder': 'Bipolar Disorder',
+      'schizophrenia': 'Schizophrenia',
+      'psychosis': 'Psychosis',
+      'adhd': 'Attention Deficit Hyperactivity Disorder',
+      'attention deficit': 'Attention Deficit Hyperactivity Disorder',
+      'attention-deficit': 'Attention Deficit Hyperactivity Disorder',
+      'eating disorder': 'Eating Disorder',
+      'anorexia': 'Anorexia Nervosa',
+      'bulimia': 'Bulimia Nervosa',
+      'insomnia': 'Insomnia',
+      'sleep disorder': 'Sleep Disorder',
+      'addiction': 'Addiction',
+      'substance use disorder': 'Substance Use Disorder',
+      'alcohol': 'Alcohol Use Disorder',
+      'alcohol use': 'Alcohol Use Disorder',
+      'alzheimer': 'Alzheimer\'s Disease',
+      'alzheimer\'s': 'Alzheimer\'s Disease',
+      'dementia': 'Dementia',
+      'cognitive impairment': 'Cognitive Impairment',
+      'autism': 'Autism Spectrum Disorder',
+      'asd': 'Autism Spectrum Disorder',
+      'migraine': 'Migraine',
+      'headache': 'Headache',
+      'pain': 'Chronic Pain',
+      'chronic pain': 'Chronic Pain',
+      'neuropathic pain': 'Neuropathic Pain',
+      'cancer': 'Cancer',
+      'multiple sclerosis': 'Multiple Sclerosis',
+      'ms': 'Multiple Sclerosis',
+      'parkinson': 'Parkinson\'s Disease',
+      'parkinson\'s': 'Parkinson\'s Disease',
+      'epilepsy': 'Epilepsy',
+      'seizure': 'Seizure Disorder',
+      'stroke': 'Stroke',
+      'traumatic brain injury': 'Traumatic Brain Injury',
+      'tbi': 'Traumatic Brain Injury',
+    };
+    
+    // Check for exact condition mentions first
+    for (const [keyword, condition] of Object.entries(conditionMap)) {
+      // Use word boundary to prevent matching inside other words
+      const keywordRegex = new RegExp(`\\b${keyword}\\b`, 'i');
+      if (keywordRegex.test(query)) {
+        return condition;
+      }
+    }
+    
+    // 2. Look for condition patterns
+    const conditionPatterns = [
+      // Look for "treating X" or "treatment of X" patterns
+      /(?:treating|treatment\s+(?:of|for))\s+(?:the\s+)?(?:condition\s+)?["']?([a-z\-\s']+?)["']?(?:\s+(?:in|with|using|patients?|subjects?|participants?)|$)/i,
+      
+      // Look for "X treatment" or "X therapy" patterns
+      /["']?([a-z\-\s']+?)["']?\s+(?:treatment|therapy|management|patients?|subjects?)/i,
+      
+      // Look for "patients with X" patterns
+      /patients?\s+(?:with|suffering\s+from|diagnosed\s+with)\s+["']?([a-z\-\s']+?)["']?(?:\s+(?:who|treated|receiving|undergoing)|$)/i,
+      
+      // Look for "studies in X" patterns
+      /studies\s+(?:in|of|for)\s+(?:patients?\s+with\s+)?["']?([a-z\-\s']+?)["']?(?:\s+(?:patients?|subjects?|using|treated|receiving)|$)/i,
+      
+      // Look for "trials for patients with X" patterns
+      /trials\s+for\s+(?:patients?\s+with\s+)?["']?([a-z\-\s']+?)["']?(?:\s+(?:patients?|subjects?|using|treated|receiving)|$)/i,
+      
+      // Look for "indicated for X" or "used for X" patterns
+      /(?:indicated|used|prescribed|approved)\s+for\s+(?:the\s+treatment\s+of\s+)?["']?([a-z\-\s']+?)["']?(?:\s+(?:in|with|using|patients?|subjects?)|$)/i,
+    ];
+    
+    // Try each pattern and return the first match
+    for (const pattern of conditionPatterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        const candidate = match[1].trim().toLowerCase();
+        
+        // Skip very common words that might be false positives
+        const commonWords = ['the', 'a', 'an', 'this', 'that', 'some', 'such', 'other', 'more', 'most', 
+                           'all', 'any', 'each', 'every', 'which', 'what', 'who', 'when', 'where', 'why',
+                           'drug', 'medication', 'trial', 'study', 'research', 'clinical', 'medical', 'health'];
+        
+        if (candidate.length > 3 && !commonWords.includes(candidate)) {
+          // Check against our map for partial matches
+          for (const [keyword, condition] of Object.entries(conditionMap)) {
+            if (candidate.includes(keyword)) {
+              return condition;
+            }
+          }
+          
+          // If no match in our map, return the extracted phrase as is
+          // Capitalize first letter of each word for better display
+          return candidate.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        }
+      }
+    }
+    
+    // 3. Additional fallback patterns
+    const fallbackPatterns = [
+      // Simple "for X" pattern
+      /\b(?:for|in)\s+(?:patients?\s+with\s+)?["']?([a-z\-\s']{4,}?)["']?(?:\b|$)/i,
+      
+      // Diagnosis patterns
+      /diagnosis\s+of\s+["']?([a-z\-\s']{4,}?)["']?(?:\b|$)/i,
+      
+      // Suffering from patterns
+      /suffering\s+from\s+["']?([a-z\-\s']{4,}?)["']?(?:\b|$)/i,
+    ];
+    
+    for (const pattern of fallbackPatterns) {
+      const match = query.match(pattern);
+      if (match && match[1]) {
+        const candidate = match[1].trim().toLowerCase();
+        
+        // Skip common words and phrases
+        const commonWords = ['the study', 'this drug', 'these trials', 'their condition', 'that medication',
+                           'phase', 'year', 'month', 'week', 'time', 'use', 'people'];
+        
+        if (candidate.length > 3 && !commonWords.some(word => candidate.includes(word))) {
+          // Check against our map for partial matches
+          for (const [keyword, condition] of Object.entries(conditionMap)) {
+            if (candidate.includes(keyword)) {
+              return condition;
+            }
+          }
+          
+          // If no match in our map, return the extracted phrase as is
+          return candidate.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        }
+      }
+    }
+    
+    // 4. Medical term detection (looking for terms that end with medical suffixes)
+    const medicalSuffixes = ['itis', 'osis', 'emia', 'pathy', 'oma', 'algia', 'ism', 'ase', 'lysis', 'iasis', 'trophy', 'ectomy'];
+    const words = query.split(/\s+/);
+    
+    for (const word of words) {
+      if (word.length > 5) { // Minimum length to avoid false positives
+        for (const suffix of medicalSuffixes) {
+          if (word.endsWith(suffix)) {
+            // Found potential medical term
+            return word.charAt(0).toUpperCase() + word.slice(1);
+          }
+        }
+      }
+    }
+    
+    return '';
+  },
+  
+  // Extract timeline (years back) from user query
+  extractYearsBack: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for explicit year mentions with numbers
+    const yearMatches = query.match(/(\d+)\s*years?(\s*back|\s*ago)?/i);
+    if (yearMatches && yearMatches[1]) {
+      // Ensure value is between 1-15
+      return Math.min(15, Math.max(1, parseInt(yearMatches[1])));
+    }
+    
+    // Check for textual time references
+    if (query.includes('last year') || query.includes('past year') || 
+        query.includes('recent year') || query.includes('one year')) {
+      return 1;
+    } else if (query.includes('last two years') || query.includes('past two years') || 
+              query.includes('recent two years') || query.includes('two years')) {
+      return 2;
+    } else if (query.includes('three years') || query.includes('past three years')) {
+      return 3;
+    } else if (query.includes('five years') || query.includes('past five years')) {
+      return 5;
+    } else if (query.includes('decade') || query.includes('ten years')) {
+      return 10;
+    }
+    
+    // Default to 7 years if no time frame is specified
+    return 7;
+  },
+  
+  // Detect if the query is specifically requesting results with results only
+  detectResultsOnly: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for phrases indicating desire for results
+    return query.includes('with results') || 
+           query.includes('has results') || 
+           query.includes('show results') ||
+           query.includes('that have results') ||
+           query.includes('completed with results') ||
+           query.includes('studies with findings');
+  },
+  
+  // Detect if query is requesting TRD specific focus
+  detectTRDFocus: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for TRD specific mentions
+    return query.includes('trd') || 
+           query.includes('treatment resistant') || 
+           query.includes('treatment-resistant') ||
+           query.includes('resistant depression') ||
+           query.includes('refractory depression');
+  },
+  
+ 
+  detectContentTypes: function(query) {
+    query = query.toLowerCase();
+    console.log("hiashfiads")
+    // Initialize all content types as "not explicitly requested" (all false)
+    const contentTypes = {
+      trials: false,
+      fda: false,
+      ema: false,
+      publications: false,
+      pubmed: false
+    };
+    
+    // Check for trials
+    if (query.includes('trial') || 
+        query.includes('studies') || 
+        query.includes('study') || 
+        query.includes('clinical')) {
+      contentTypes.trials = true;
+    }
+    
+    // Check for FDA
+    if (query.includes('fda') || 
+        query.includes('food and drug') || 
+        query.includes('regulatory')) {
+      contentTypes.fda = true;
+    }
+    
+    // Check for EMA
+    if (query.includes('ema') || 
+        query.includes('european medicines') || 
+        query.includes('europe regulatory')) {
+      contentTypes.ema = true;
+    }
+    
+    // Check for publications or PubMed
+    if (query.includes('publication') || 
+        query.includes('literature') || 
+        query.includes('papers') || 
+        query.includes('pubmed') || 
+        query.includes('articles') ||
+        query.includes('journal')) {
+      contentTypes.publications = true;
+      contentTypes.pubmed = true; 
+    }
+    
+    // Check for exclusivity modifiers
+    const onlyTrials = query.includes('only trials') || 
+                      query.includes('just trials') ||
+                      query.includes('trials only') ||
+                      query.includes('just show trials') ||
+                      (query.includes('only') && contentTypes.trials && 
+                      !contentTypes.fda && !contentTypes.ema && !contentTypes.publications);
+    
+    const onlyFDA = query.includes('only fda') || 
+                   query.includes('just fda') ||
+                   query.includes('fda only') ||
+                   query.includes('just show fda') ||
+                   query.includes('fda data only') ||
+                   (query.includes('only') && contentTypes.fda && 
+                   !contentTypes.trials && !contentTypes.ema && !contentTypes.publications);
+    
+    const onlyEMA = query.includes('only ema') || 
+                  query.includes('just ema') ||
+                  query.includes('ema only') ||
+                  query.includes('just show ema') ||
+                  (query.includes('only') && contentTypes.ema && 
+                  !contentTypes.trials && !contentTypes.fda && !contentTypes.publications);
+    
+    const onlyPublications = query.includes('only publications') || 
+                            query.includes('just publications') ||
+                            query.includes('publications only') ||
+                            query.includes('only pubmed') ||
+                            query.includes('pubmed only') ||
+                            query.includes('just show publications') ||
+                            (query.includes('only') && contentTypes.publications && 
+                            !contentTypes.trials && !contentTypes.fda && !contentTypes.ema);
+    
+    // Now determine which content should be shown
+    // If any "only X" pattern is found, use strict filtering
+    if (onlyTrials || onlyFDA || onlyEMA || onlyPublications) {
+      // Reset all to false first (already false by default)
+      
+      // Then set only the requested type to true
+      if (onlyTrials) contentTypes.trials = true;
+      if (onlyFDA) contentTypes.fda = true;
+      if (onlyEMA) contentTypes.ema = true;
+      if (onlyPublications) {
+        contentTypes.publications = true;
+        contentTypes.pubmed = true;
+      }
+      
+      // Log what we're showing
+      console.log(`Exclusive display mode detected: ${onlyTrials ? 'Trials' : ''}${onlyFDA ? 'FDA' : ''}${onlyEMA ? 'EMA' : ''}${onlyPublications ? 'Publications' : ''}`);
+      return contentTypes;
+    } 
+    
+    // If we see an "AND" pattern, show only those specific types
+    else if (
+      (query.includes(' and ') || query.includes(' & ')) && 
+      (contentTypes.trials || contentTypes.fda || contentTypes.ema || contentTypes.publications)
+    ) {
+      // Check for combined requests like "FDA and EMA" or "trials and publications"
+      // Current values should represent what was mentioned
+      console.log(`Combined display mode detected: ${contentTypes.trials ? 'Trials ' : ''}${contentTypes.fda ? 'FDA ' : ''}${contentTypes.ema ? 'EMA ' : ''}${contentTypes.publications ? 'Publications ' : ''}`);
+      return contentTypes;
+    } 
+    
+    // If specific content was mentioned but no exclusivity words, show those
+    else if (contentTypes.trials || contentTypes.fda || contentTypes.ema || contentTypes.publications) {
+      console.log(`Mentioned content types: ${contentTypes.trials ? 'Trials ' : ''}${contentTypes.fda ? 'FDA ' : ''}${contentTypes.ema ? 'EMA ' : ''}${contentTypes.publications ? 'Publications ' : ''}`);
+      return contentTypes;
+    }
+    
+    // If no content types are explicitly mentioned, default to showing everything
+    else {
+      Object.keys(contentTypes).forEach(key => contentTypes[key] = true);
+      console.log("No specific content types detected, showing all content");
+      return contentTypes;
+    }
+  },
+ 
+ 
+  processQuery: function(query) {
+    // Get all the standard information
+    const result = {
+      drug: this.extractDrugName(query),
+      condition: this.extractCondition(query),
+      yearsBack: this.extractYearsBack(query),
+      hasResultsOnly: this.detectResultsOnly(query),
+      trdFocusOnly: this.detectTRDFocus(query),
+      phaseFilter: this.extractPhaseFilter(query)
+    };
+    
+    // Get content type preferences
+    const contentTypes = this.detectContentTypes(query);
+    
+    // Add content type preferences to result
+    result.trials = contentTypes.trials;
+    result.fda = contentTypes.fda;
+    result.ema = contentTypes.ema;
+    result.pubmed = contentTypes.pubmed;
+    result.publications = contentTypes.publications;
+    
+    console.log("PROCESSED QUERY:", {
+      drug: result.drug,
+      condition: result.condition,
+      contentTypes: {
+        trials: result.trials,
+        fda: result.fda,
+        ema: result.ema,
+        pubmed: result.pubmed
+      }
+    });
+    
+    return result;
+  },
+
+  // Detect study phase filters
+  extractPhaseFilter: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for phase mentions
+    if (query.includes('phase 1') || query.includes('phase i') || 
+        query.includes('phase one')) {
+      return 'phase1';
+    } else if (query.includes('phase 2') || query.includes('phase ii') || 
+             query.includes('phase two')) {
+      return 'phase2';
+    } else if (query.includes('phase 3') || query.includes('phase iii') || 
+             query.includes('phase three')) {
+      return 'phase3';
+    } else if (query.includes('phase 4') || query.includes('phase iv') || 
+             query.includes('phase four')) {
+      return 'phase4';
+    }
+    
+    // Default to all phases
+    return 'all';
+  },
+  
+  // Detect if query is asking for only clinical trials
+  wantsOnlyTrials: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for phrases indicating only trials
+    return (query.includes('only trials') || 
+            query.includes('just trials') ||
+            query.includes('clinical trials only') ||
+            query.includes('just show trials') ||
+            query.includes('just the trials')) &&
+           (!query.includes('pubmed') && !query.includes('fda') && 
+            !query.includes('publication') && !query.includes('literature'));
+  },
+  
+  // Detect if query is asking for only publications
+  wantsOnlyPublications: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for phrases indicating only publications
+    return (query.includes('only publications') || 
+            query.includes('just publications') ||
+            query.includes('pubmed only') ||
+            query.includes('only literature') ||
+            query.includes('just show publications') ||
+            query.includes('only show literature')) &&
+           (!query.includes('clinical trials') && !query.includes('studies'));
+  },
+  
+  // Detect if query is asking for only FDA data
+  wantsOnlyFDAData: function(query) {
+    query = query.toLowerCase();
+    
+    // Check for phrases indicating only FDA data
+    return (query.includes('only fda') || 
+            query.includes('just fda') ||
+            query.includes('fda data only') ||
+            query.includes('regulatory only') ||
+            query.includes('just show fda') ||
+            query.includes('only show regulatory'));
+  },
+  
+ 
+};
+
+window.NLPProcessor = NLPProcessor;
+// Example usage:
+/*
+// The following examples show how the system would handle various search queries:
+
+// Example 1: Known drug for known condition
+const query1 = "Find ketamine trials for treatment-resistant depression from the last 5 years";
+const results1 = NLPProcessor.processQuery(query1);
+// Should extract: drug: "ketamine", condition: "Treatment Resistant Depression", yearsBack: 5, trdFocusOnly: true
+
+// Example 2: Unknown drug (not in predefined list)
+const query2 = "Show me studies testing LCX-19 for major depressive disorder";
+const results2 = NLPProcessor.processQuery(query2);
+// Should extract: drug: "lcx-19", condition: "Major Depressive Disorder"
+
+// Example 3: Unknown condition (not in predefined list)
+const query3 = "Find trials treating narcolepsy using modafinil";
+const results3 = NLPProcessor.processQuery(query3);
+// Should extract: drug: "modafinil", condition: "Narcolepsy"
+
+// Example 4: Complex query with specific requirements
+const query4 = "Show only phase 3 studies with results for any drug treating fibromyalgia from the last 3 years";
+const results4 = NLPProcessor.processQuery(query4);
+// Should extract: condition: "Fibromyalgia", yearsBack: 3, hasResultsOnly: true, phaseFilter: "phase3"
+
+// Example 5: Very specific data request
+const query5 = "I only want to see FDA data for the drug escitalopram";
+const results5 = NLPProcessor.processQuery(query5);
+// Should extract: drug: "escitalopram", onlyFDAData: true
+*/
 
 
 // Function to handle URL parameters on page load
@@ -6755,7 +7884,7 @@ function showUsageDetailModal(itemData, itemName, entityType) {
             Research Activity Timeline
         </h4>
         <p class="text-sm text-gray-600 mb-4">
-            Showing all years from ${itemData.earliestYear} to ${itemData.latestYear} (${yearsSpan} year${yearsSpan !== 1 ? 's' : ''})
+            Showing all years from ${itemData.earliestYear} to ${itemData.latestYear} 
         </p>
         
         <div class="timeline-container h-64 relative px-4">
@@ -21295,11 +22424,546 @@ function createStatisticalSummaryTable(outcomes) {
 //         displayLoading(false);
 //     }
 // }
-
+function updateTimeline(years) {
+  const yearValue = document.getElementById('yearValue');
+  const thumbValue = document.getElementById('thumbValue');
+  const startYear = document.getElementById('startYear');
+  const filledTrack = document.getElementById('filledTrack');
+  const sliderThumb = document.getElementById('sliderThumb');
+  
+  yearValue.textContent = years;
+  thumbValue.textContent = years;
+  startYear.textContent = new Date().getFullYear() - years;
+  
+  // Calculate percentage for filled track and thumb position
+  const percentage = ((years - 1) / 14) * 100;
+  filledTrack.style.width = `${percentage}%`;
+  sliderThumb.style.left = `${percentage}%`;
+}
 
 
 // Helper function to fetch all study details with a semaphore to limit concurrent requests
+// Improved handleSearch function that properly stops processing and handles combined content requests
+async function handleAISearch(isAISearch = false, aiQuery = '') {
+    if (!window.NLPProcessor || !window.NLPProcessor.detectContentTypes) {
+    console.error('NLPProcessor not found! Make sure you paste the implementation first.');
+    return;
+  }
+  console.log("go on")
+    // Get search parameters - if AI search, extract from query
+  let drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, phaseFilter;
+  
+  // Content display flags (defaults for regular search)
+  let showTrials = true;
+  let showFDA = true;
+  let showEMA = true;
+  let showPubMed = true;
+  
+  if (isAISearch && aiQuery) {
+    console.log("Processing AI query:", aiQuery);
+    
+    // Use NLP processor to extract parameters from the query
+    const nlpResults = NLPProcessor.processQuery(aiQuery);
+    
+    // Extract basic search parameters
+    drug = nlpResults.drug;
+    condition = nlpResults.condition;
+    hasResultsOnly = nlpResults.hasResultsOnly;
+    trdFocusOnly = nlpResults.trdFocusOnly;
+    yearsBack = nlpResults.yearsBack;
+    phaseFilter = nlpResults.phaseFilter;
+    
+    // Determine which content to show based on NLP results
+    showTrials = nlpResults.trials;
+    showFDA = nlpResults.fda;
+    showEMA = nlpResults.ema;
+    showPubMed = nlpResults.pubmed || nlpResults.publications;
+    
+    // Update UI with what was processed (form fields)
+    elements.drugSearch.value = drug;
+    elements.conditionSearch.value = condition;
+    elements.hasResultsOnly.checked = hasResultsOnly;
+    elements.trdFocusOnly.checked = trdFocusOnly;
+    document.getElementById('timelineSlider').value = yearsBack;
+    
+    // Update the timeline display if you have a function for that
+    if (typeof updateTimeline === 'function') {
+      updateTimeline(yearsBack);
+    }
+    
+    // Show processing results to user
+    const processingMsg = `
+      <div class="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm">
+        <div class="font-medium text-blue-700 mb-1">AI Search Processing</div>
+        <ul class="list-disc pl-5 text-blue-600">
+          ${drug ? `<li>Drug: ${drug}</li>` : ''}
+          ${condition ? `<li>Condition: ${condition}</li>` : ''}
+          ${hasResultsOnly ? `<li>Showing only studies with results</li>` : ''}
+          ${trdFocusOnly ? `<li>Focusing on TRD-specific studies</li>` : ''}
+          <li>Timeline: ${yearsBack} years back</li>
+          ${phaseFilter !== 'all' ? `<li>Phase filter: ${phaseFilter}</li>` : ''}
+          <li>Displaying: ${[
+            showTrials ? 'Clinical Trials' : '',
+            showFDA ? 'FDA Data' : '',
+            showEMA ? 'EMA Data' : '',
+            showPubMed ? 'Publications' : ''
+          ].filter(Boolean).join(', ')}</li>
+        </ul>
+      </div>
+    `;
+    
+    // Display processing information
+    const placeholderMessage = elements.placeholderMessage;
+    placeholderMessage.innerHTML = `
+      <div class="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-blue-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        <p class="text-lg mb-3">Processing AI Search Query</p>
+        ${processingMsg}
+      </div>`;
+  } else {
+    // Regular search - get values from form elements
+    drug = elements.drugSearch.value.trim();
+    condition = elements.conditionSearch.value.trim();
+    hasResultsOnly = elements.hasResultsOnly.checked;
+    trdFocusOnly = elements.trdFocusOnly.checked;
+    yearsBack = parseInt(document.getElementById('timelineSlider').value);
+    phaseFilter = 'all'; // Default for regular search
+  }
+  
+  // Update state
+  appState.hasResultsOnly = hasResultsOnly;
+  appState.trdFocusOnly = trdFocusOnly;
+  appState.currentPhaseFilter = phaseFilter;
+  appState.studies = [];
+  appState.studyDetails = {};
+  appState.failedStudyIds.clear(); // Reset failed study IDs
+  
+  // Reset FDA data
+  appState.fdaData = {
+    documents: [],
+    orangeBook: [],
+    dailyMed: [],
+    warningLetters: []
+  };
+  
+  // Reset phase filter buttons
+  document.querySelectorAll('.phase-filter').forEach(btn => {
+    btn.classList.remove('bg-primary', 'text-white');
+    btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+  });
+  
+  // Set active phase filter based on NLP results or default to "all"
+  const activePhaseSelector = `.phase-filter[data-phase="${phaseFilter}"]`;
+  const activePhaseBtn = document.querySelector(activePhaseSelector) || 
+                         document.querySelector('.phase-filter[data-phase="all"]');
+  
+  if (activePhaseBtn) {
+    activePhaseBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+    activePhaseBtn.classList.add('bg-primary', 'text-white');
+  }
+  
+  // 1. HIDE ABSOLUTELY EVERYTHING FIRST
+  showSection(elements.resultsOverview, false);
+  showSection(elements.studiesSection, false);
+  showSection(elements.studyDetailSection, false);
+  showSection(elements.fdaDataSection, false);
+  showSection(elements.placeholderMessage, false);
+  
+  // Hide any other sections that might be visible
+  document.querySelectorAll('.results-section').forEach(section => {
+    section.style.display = 'none';
+  });
+  
+  // Hide specific sections
+  if (elements.pubmedSection) {
+    showSection(elements.pubmedSection, false);
+  }
+  
+  if (elements.emaDataSection) {
+    showSection(elements.emaDataSection, false);
+  }
+  
+  displayLoading(true);
+  
+  // Now show the placeholder for user feedback
+  showSection(elements.placeholderMessage, true);
+  
+  // Set placeholder message to searching
+  elements.placeholderMessage.innerHTML = `
+    <div class="text-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+      <p class="text-lg">Searching for data...</p>
+    </div>`;
+  
+  try {
+    console.log(`Searching - Drug: ${drug}, Condition: ${condition}, Results Only: ${hasResultsOnly}, TRD Focus: ${trdFocusOnly}, Years Back: ${yearsBack}`);
+    console.log(`Display settings - Trials: ${showTrials}, FDA: ${showFDA}, EMA: ${showEMA}, PubMed: ${showPubMed}`);
+    
+    // Initialize the database if not already done
+    await SearchCacheModule.initDatabase();
+    
+    // CREATE A LIST OF PROMISES TO TRACK
+    const searchPromises = [];
+    
+    // 2. HANDLE CLINICAL TRIALS SEARCH IF REQUESTED
+    let filteredStudies = [];
+    
+    if ((drug || condition) && showTrials) {
+      // Create a promise for the trials search
+      const trialsPromise = (async () => {
+        // First, check if we have a cached search for this query
+        const cachedSearch = await SearchCacheModule.getCachedSearchResults(
+          drug, condition, hasResultsOnly, trdFocusOnly, yearsBack
+        );
+        
+        let studies = [];
+        let usedCache = false;
+        
+        if (cachedSearch) {
+          // Check if the cached search is recent enough
+          const MAX_CACHE_AGE_DAYS = 7; // Consider searches older than 7 days as outdated
+          const isOutdated = SearchCacheModule.isSearchOutdated(cachedSearch.timestamp, MAX_CACHE_AGE_DAYS);
+          
+          if (!isOutdated) {
+            // Use the cached search results
+            console.log(`Using cached search results from ${cachedSearch.timestamp}`);
+            studies = cachedSearch.results;
+            usedCache = true;
+          } else {
+            // The cached search is outdated, but we can use it as a starting point
+            console.log(`Cached search is outdated (from ${cachedSearch.timestamp}). Fetching new studies...`);
+            
+            // Get studies that were added after the cached search
+            const newStudies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
+            
+            // Update the cached search with the new studies
+            const searchKey = cachedSearch.searchKey || 
+              `${drug || ''}_${condition || ''}_${hasResultsOnly ? 'results' : 'all'}_${trdFocusOnly ? 'trd' : 'all'}_${yearsBack || 'all'}`;
+            
+            const updatedStudies = await SearchCacheModule.updateSearchWithNewStudies(searchKey, newStudies);
+            
+            if (updatedStudies) {
+              studies = updatedStudies;
+              usedCache = true;
+            }
+          }
+        }
+        
+        // If we don't have cached results, fetch new ones
+        if (!usedCache) {
+          console.log('No cached results available, fetching new data...');
+          
+          if (drug) {
+            // Fetch studies for drug (and condition if provided)
+            studies = await fetchStudies(drug, condition, hasResultsOnly, yearsBack);
+          } else if (condition) {
+            // Fetch studies for condition only
+            studies = await fetchStudies("", condition, hasResultsOnly, yearsBack);
+          }
+          
+          // Save the search results to the cache
+          await SearchCacheModule.saveSearchResults(
+            drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, studies
+          );
+          
+          console.log(`Retrieved ${studies.length} studies and saved to cache`);
+        }
+        
+        // Apply phase filtering if specified
+        if (phaseFilter !== 'all') {
+          // Convert phase filter format for matching (e.g., 'phase1' to 'Phase 1')
+          const phaseMapping = {
+            'phase1': 'Phase 1',
+            'phase2': 'Phase 2',
+            'phase3': 'Phase 3',
+            'phase4': 'Phase 4'
+          };
+          
+          const phaseDisplayName = phaseMapping[phaseFilter] || '';
+          
+          if (phaseDisplayName) {
+            studies = studies.filter(study => {
+              return study.phase === phaseDisplayName || 
+                    study.phase?.includes(phaseDisplayName);
+            });
+            console.log(`Filtered to ${studies.length} ${phaseDisplayName} studies`);
+          }
+        }
+        
+        // Filter for TRD-specific studies if requested
+        filteredStudies = studies;
+        if (trdFocusOnly) {
+          filteredStudies = filterTRDSpecificStudies(studies);
+          console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+        }
+        
+        appState.studies = filteredStudies;
+        
+        // Display study-related sections if studies are found
+        if (filteredStudies.length > 0) {
+          // Display results summary
+          displayResultsSummary(filteredStudies);
+          showSection(elements.resultsOverview, true);
+          
+          // Display studies list
+          displayStudies(filteredStudies, drug, condition);
+          showSection(elements.studiesSection, true);
+          
+          // Fetch study details for studies with results
+          await fetchAllStudyDetails(filteredStudies);
+        } else {
+          // No studies found - show message
+          elements.placeholderMessage.innerHTML = `
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <p class="text-lg">No ${trdFocusOnly ? 'TRD-specific ' : ''}studies found for ${drug ? `"${drug}"` : `"${condition}"`}.</p>
+              <p class="mt-2 text-sm">Other data is displayed below.</p>
+            </div>`;
+        }
+      })();
+      
+      searchPromises.push(trialsPromise);
+    }
+    
+    // 3. HANDLE FDA DATA IF REQUESTED
+    if (drug && showFDA) {
+      const fdaPromise = (async () => {
+        await displayFdaData(drug, condition || '');
+        showSection(elements.fdaDataSection, true);
+      })();
+      
+      searchPromises.push(fdaPromise);
+    }
+    
+    // 4. HANDLE EMA DATA IF REQUESTED
+    if (drug && showEMA && typeof EmaDataModule !== 'undefined') {
+      const emaPromise = (async () => {
+        EmaDataModule.init();
+       
+        await EmaDataModule.searchDrug(drug);
+        
+        // Show EMA section if it exists
+        if (elements.emaDataSection) {
+          showSection(elements.emaDataSection, true);
+        }
+      })();
+      
+      searchPromises.push(emaPromise);
+    }
+    
+    // 5. HANDLE PUBMED SEARCH IF REQUESTED
+    if ((drug || condition) && showPubMed && typeof PubMedModule !== 'undefined') {
+      const pubmedPromise = (async () => {
+        try {
+          const pubmedOptions = {
+            sortBy: drug ? 'relevance' : 'date',
+            fullTextOnly: false,
+            yearRange: yearsBack
+          };
+          
+          // Determine search term
+          const pubmedSearchTerm = drug && condition ? `${drug} ${condition}` : 
+                                  drug ? drug : condition;
+          
+          console.log(`Searching PubMed for: ${pubmedSearchTerm}`);
+          
+          if (drug && PubMedModule.searchPubMedByDrug) {
+            await PubMedModule.searchPubMedByDrug(drug, {
+              yearRange: yearsBack,
+              condition: condition // Pass condition as additional context
+            });
+          } else if (condition && PubMedModule.searchPubMedByCondition) {
+            await PubMedModule.searchPubMedByCondition(condition, {
+              yearRange: yearsBack,
+              drug: drug // Pass drug as additional context
+            });
+          } else if (PubMedModule.searchPubMed) {
+            // Fallback to general search
+            await PubMedModule.searchPubMed(pubmedSearchTerm, pubmedOptions);
+          }
+          
+          // Show PubMed section if it exists
+          if (elements.pubmedSection) {
+            showSection(elements.pubmedSection, true);
+          }
+        } catch (pubmedError) {
+          console.error("Error in PubMed search:", pubmedError);
+        }
+      })();
+      
+      searchPromises.push(pubmedPromise);
+    }
+    
+    // Wait for all search promises to resolve
+    await Promise.allSettled(searchPromises);
+    
+    // If we're in AI search mode, add an explanation about what was displayed
+    if (isAISearch) {
+      const displayedContent = [
+        showTrials ? 'Clinical Trials' : null,
+        showFDA ? 'FDA Data' : null,
+        showEMA ? 'EMA Data' : null,
+        showPubMed ? 'Publications' : null
+      ].filter(Boolean);
+      
+      if (displayedContent.length < 4) {  // Not showing everything
+        const explanationHTML = `
+          <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+            <p class="text-sm text-blue-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              Based on your request, I'm only showing ${displayedContent.join(' and ')} for ${drug ? `"${drug}"` : `"${condition}"`}.
+            </p>
+          </div>`;
+        
+        // Append explanation to placeholder if nothing was found
+        if (elements.placeholderMessage.style.display !== 'none') {
+          elements.placeholderMessage.innerHTML += explanationHTML;
+        }
+        // Otherwise append to the first visible section
+        else if (elements.resultsOverview?.style?.display !== 'none') {
+          elements.resultsOverview.insertAdjacentHTML('afterbegin', explanationHTML);
+        }
+        else if (elements.fdaDataSection?.style?.display !== 'none') {
+          elements.fdaDataSection.insertAdjacentHTML('afterbegin', explanationHTML);
+        }
+        else if (elements.emaDataSection?.style?.display !== 'none') {
+          elements.emaDataSection.insertAdjacentHTML('afterbegin', explanationHTML);
+        }
+        else if (elements.pubmedSection?.style?.display !== 'none') {
+          elements.pubmedSection.insertAdjacentHTML('afterbegin', explanationHTML);
+        }
+      }
+    }
+    
+    displayLoading(false);
+    
+  } catch (error) {
+    console.error('Error during search:', error);
+    elements.placeholderMessage.innerHTML = `
+      <div class="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-lg">Error searching for studies</p>
+        <p class="mt-2 text-sm">Please try again later.</p>
+        <p class="mt-2 text-xs text-gray-500">${error.message}</p>
+      </div>`;
+    displayLoading(false);
+  }
+}
 
+
+// Simple standalone test for the NLP content type detection
+// You can run this in your browser console to test if the detection is working properly
+
+// Copy and paste the fixed NLPProcessor implementation first, then run this test
+
+// Test function
+function testContentTypeDetection() {
+  if (!window.NLPProcessor || !window.NLPProcessor.detectContentTypes) {
+    console.error('NLPProcessor not found! Make sure you paste the implementation first.');
+    return;
+  }
+  
+  const testQueries = [
+    "Show me only FDA data for ketamine",
+    "Find clinical trials for psilocybin",
+    "Show FDA and EMA data for COMP360",
+    "I need publications about depression treatments",
+    "Search for recent Phase 2 trials with TRD focus",
+    "Show me all data for Spravato"
+  ];
+  
+  console.group("NLP Content Type Detection Test");
+  
+  testQueries.forEach(query => {
+    console.log(`\nTesting query: "${query}"`);
+    
+    // First test just the content type detection
+    const contentTypes = NLPProcessor.detectContentTypes(query);
+    console.log('Content types detected:', contentTypes);
+    
+    // Then test the full query processing
+    const fullResults = NLPProcessor.processQuery(query);
+    console.log('Full query processing:', {
+      drug: fullResults.drug,
+      condition: fullResults.condition,
+      contentTypes: {
+        trials: fullResults.trials,
+        fda: fullResults.fda,
+        ema: fullResults.ema,
+        pubmed: fullResults.pubmed
+      }
+    });
+  });
+  
+  console.groupEnd();
+}
+
+// Run the test
+// testContentTypeDetection();
+
+// Event listeners (same as before)
+document.addEventListener('DOMContentLoaded', function() {
+  // Connect AI search button
+  const aiSearchButton = document.getElementById('aiSearchButton');
+  const aiSearchInput = document.getElementById('aiSearch');
+  
+  if (aiSearchButton && aiSearchInput) {
+    aiSearchButton.addEventListener('click', function() {
+      const aiQuery = aiSearchInput.value.trim();
+      if (aiQuery) {
+        handleAISearch(true, aiQuery);
+      } else {
+        // Show notification that query is empty
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-amber-100 text-amber-800 px-4 py-2 rounded-lg shadow-md';
+        notification.innerHTML = `
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            Please enter a search description for AI search.
+          </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove the notification after 3 seconds
+        setTimeout(() => {
+          notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 500);
+        }, 3000);
+      }
+    });
+    
+    // Allow pressing Enter in the AI search box
+    aiSearchInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        aiSearchButton.click();
+      }
+    });
+  }
+  
+  // Keep existing search button functionality
+
+});
+
+// Helper function to validate email
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
 
 async function fetchAllStudyDetails(studies) {
     appState.studyDetails = {};
@@ -33663,11 +35327,181 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+class LoginSystem {
+            constructor() {
+                this.loginOverlay = document.getElementById('loginOverlay');
+                this.existingPageContent = document.getElementById('existingPageContent');
+                this.userInfo = document.getElementById('userInfo');
+                this.usernameDisplay = document.getElementById('username');
+                this.notificationUsername = document.getElementById('notificationUsername');
+                this.notification = document.getElementById('notification');
+                this.loginForm = document.getElementById('loginForm');
+                this.loginError = document.getElementById('loginError');
+                this.logoutBtn = document.getElementById('logoutBtn');
+                
+                this.init();
+                this.setupEventListeners();
+            }
+            
+            init() {
+                // Check if user is logged in
+                const storedUser = localStorage.getItem('currentUser');
+                
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        this.showMainContent(user);
+                        this.showNotification(user.username);
+                    } catch (error) {
+                        console.error('Failed to parse stored user:', error);
+                        this.showLoginOverlay();
+                    }
+                } else {
+                    this.showLoginOverlay();
+                }
+            }
+            
+            setupEventListeners() {
+                // Login form submission
+                this.loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+                
+                // Logout button
+                // this.logoutBtn.addEventListener('click', () => {
+                //     this.handleLogout();
+                // });
+            }
+            
+            showLoginOverlay() {
+                this.loginOverlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling while overlay is open
+            }
+            
+            hideLoginOverlay() {
+                this.loginOverlay.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+            
+            showMainContent(user) {
+                this.hideLoginOverlay();
+                // this.userInfo.classList.remove('hidden');
+                // this.usernameDisplay.textContent = user.username;
+                init()
+            }
+            
+            showNotification(username) {
+                this.notificationUsername.textContent = username;
+                this.notification.classList.add('show');
+                
+                // Hide notification after 5 seconds
+                setTimeout(() => {
+                    this.notification.classList.remove('show');
+                }, 5000);
+            }
+            
+            async handleLogin() {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                
+                try {
+                    // // Call the login API endpoint
+                    // const response = await fetch('/api/login', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json'
+                    //     },
+                    //     body: JSON.stringify({ username, password })
+                    // });
+                    
+                    // const data = await response.json();
+                    
+                    // if (response.ok) {
+                        // Save user to localStorage
+                    if(this.testLogin(username,password)){
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        
+                        // Show main content and notification
+                        this.showMainContent(data.user);
+                        this.showNotification(data.user.username);
+                    } else {
+                        // Show error message
+                        this.loginError.textContent = data.message || 'Login failed. Please try again.';
+                        this.loginError.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.loginError.textContent = 'An error occurred. Please try again later.';
+                    this.loginError.classList.remove('hidden');
+                }
+            }
+            
+            handleLogout() {
+                // Clear localStorage
+                localStorage.removeItem('currentUser');
+                
+                // Hide user info
+                // this.userInfo.classList.add('hidden');
+                
+                // Show login overlay
+                this.showLoginOverlay();
+            }
+            
+            // Method for client-side testing without a backend
+            testLogin(username, password) {
+                // Hardcoded test users
+                const users = [
+                    { id: 1, username: 'testuser', password: 'password123', role: 'admin' },
+                    { id: 2, username: 'user', password: 'user123', role: 'user' }
+                ];
+                
+                const user = users.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    const safeUser = {
+                        id: user.id,
+                        username: user.username,
+                        role: user.role
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(safeUser));
+                    this.showMainContent(safeUser);
+                    this.showNotification(safeUser.username);
+                    return true;
+                } else {
+                    this.loginError.textContent = 'Invalid username or password';
+                    this.loginError.classList.remove('hidden');
+                    return false;
+                }
+            }
+        }
+        
+        // Initialize login system when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.loginSystem = new LoginSystem();
+            
+            // Uncomment for client-side testing without a backend
+            // Override the handleLogin method for testing
+            /*
+            loginSystem.handleLogin = async function() {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                this.testLogin(username, password);
+            };
+            */
+        });
+        
 // Don't call init again inside handleSearch
 // Initialize the module when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  init()
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//   init()
+// });
+
+// Complete NLPProcessor implementation for handling any drug or condition
+
 
 // Add the EMA data module to window for debugging
 window.EmaDataModule = EmaDataModule;
