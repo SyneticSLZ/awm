@@ -24822,10 +24822,10 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
         
         // Filter for TRD-specific studies if requested
         filteredStudies = studies;
-        if (trdFocusOnly) {
-          filteredStudies = filterTRDSpecificStudies(studies);
-          console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
-        }
+        // if (trdFocusOnly) {
+        //   filteredStudies = filterTRDSpecificStudies(studies);
+        //   console.log(`Filtered to ${filteredStudies.length} TRD-specific studies`);
+        // }
         
         appState.studies = filteredStudies;
         
@@ -24834,13 +24834,15 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
           // Display results summary
           displayResultsSummary(filteredStudies);
           showSection(elements.resultsOverview, true);
-          
+        //   
           // Display studies list
+          console.log("displaying studies for sahfoiai hfdai fhsd", drug,condition)
           displayStudies(filteredStudies, drug, condition);
           showSection(elements.studiesSection, true);
           
           // Fetch study details for studies with results
           await fetchAllStudyDetails(filteredStudies);
+
         } else {
           // No studies found - show message
           elements.placeholderMessage.innerHTML = `
