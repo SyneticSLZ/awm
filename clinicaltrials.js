@@ -414,7 +414,8 @@ const upload = multer({
 }).single('pdf');
 
 // Grok API configuration - in production use environment variables
-const GROK_API_KEY = 'q2dqVZZgIN7RcBlnGlja2KS52sXSxeEKJxGM7K5Q29s0h3nX5JDXdIjr6rx4PpYshPti6iZAQYxs32J4';
+// const GROK_API_KEY = 'q2dqVZZgIN7RcBlnGlja2KS52sXSxeEKJxGM7K5Q29s0h3nX5JDXdIjr6rx4PpYshPti6iZAQYxs32J4';
+const GROK_API_KEY = 'xai-oeLa2KzHaDJ0iGw06nlBBFemWQJR0PqL4xbgrIujbPvkNW6Zw5ij7o0jxXxQfDN8CIyKkBjolsRyTsKx';
 const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 
@@ -441,7 +442,7 @@ app.post('/api/generate-summary', async (req, res) => {
     
     // Prepare the request for Grok API - FIXED to include model field
     const response = await axios.post(grokApiUrl, {
-      model: "grok-1", // Add the required model field - update to your specific Grok model name if different
+      model: "grok-2", // Add the required model field - update to your specific Grok model name if different
       messages: [
         {
           role: "system",

@@ -30374,6 +30374,8 @@ function findFieldInItem(item, possibleKeys) {
   };
 })();
 
+
+
 const EmaClinicalDataModule = (function() {
   // DOM elements (unchanged from original)
   const elements = {
@@ -32383,7 +32385,7 @@ const PubMedModule = (function() {
                 `<p class="mt-1">Classification: ${drugClasses.join(', ')}.</p>` : 
                 ''
               }
-              <p class="mt-1">Mentioned in ${totalArticles} article${totalArticles !== 1 ? 's' : ''}.</p>
+              
             </div>
           </div>
           
@@ -32399,9 +32401,7 @@ const PubMedModule = (function() {
           html += `
             <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
               <h4 class="font-medium text-gray-800 mb-2">${condition}</h4>
-              <div class="text-sm text-gray-600 mb-2">
-                Found in ${evidenceCount} article${evidenceCount !== 1 ? 's' : ''}
-              </div>
+
               <button class="condition-pill bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors duration-200"
                       data-condition="${condition}" 
                       data-drug="${drug}">
