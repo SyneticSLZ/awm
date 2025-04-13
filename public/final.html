@@ -3,13 +3,22 @@
  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRD Clinical Trials Outcomes Research Tool</title>
+    <title>AI Research Tool</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Axios for API requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- Fallback for browsers that don't support SVG favicons -->
+<link rel="alternate icon" href="favicon.ico">
+<!-- Apple Touch Icon for iOS devices -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Web App Manifest -->
+<link rel="manifest" href="manifest.json">
+
     <script>
         tailwind.config = {
             theme: {
@@ -905,101 +914,7 @@
     });
     
     // // AI Search button functionality
-    // document.getElementById('aiSearchButton').addEventListener('click', function() {
-    //     const aiQuery = document.getElementById('aiSearch').value.trim();
-    //     if (!aiQuery) {
-    //         showToast('Please enter a search description for AI search.', 'warning');
-    //         return;
-    //     }
-        
-    //     // Show a "thinking" animation
-    //     const aiSearchButton = document.getElementById('aiSearchButton');
-    //     const originalButtonContent = aiSearchButton.innerHTML;
-    //     aiSearchButton.innerHTML = `
-    //         <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    //             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    //             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    //         </svg>
-    //         <span class="ml-2">Processing...</span>
-    //     `;
-        
-    //     // Here you would typically send the query to your backend for processing
-    //     // For demonstration, we'll simulate parsing the query with a delay
-    //     setTimeout(() => {
-    //         // Example simple NLP pattern matching (you'd replace with actual API call)
-    //         processAIQuery(aiQuery);
-            
-    //         // Restore button
-    //         aiSearchButton.innerHTML = originalButtonContent;
-    //     }, 1200);
-    // });
-    
-    // function processAIQuery(query) {
-    //     query = query.toLowerCase();
-        
-    //     // Extract potential drug name (very simplified example)
-    //     let drugName = '';
-    //     if (query.includes('drug') || query.includes('medication')) {
-    //         const drugKeywords = ['ketamine', 'pcn-101', 'comp360', 'psilocybin', 'mdma', 'esketamine', 'spravato'];
-    //         for (const drug of drugKeywords) {
-    //             if (query.includes(drug)) {
-    //                 drugName = drug;
-    //                 break;
-    //             }
-    //         }
-    //     }
-        
-    //     // Extract condition
-    //     let condition = '';
-    //     if (query.includes('depression') || query.includes('trd')) {
-    //         condition = 'Treatment Resistant Depression';
-    //     } else if (query.includes('anxiety')) {
-    //         condition = 'Anxiety Disorder';
-    //     } else if (query.includes('ptsd')) {
-    //         condition = 'PTSD';
-    //     }
-        
-    //     // Extract timeline
-    //     let years = 7; // default
-    //     const yearMatches = query.match(/(\d+)\s*years?/);
-    //     if (yearMatches) {
-    //         years = Math.min(15, Math.max(1, parseInt(yearMatches[1])));
-    //     }
-        
-    //     // Set the form values with animation
-    //     const drugInput = document.getElementById('drugSearch');
-    //     const conditionInput = document.getElementById('conditionSearch');
-        
-    //     // Highlight the fields briefly
-    //     if (drugName) {
-    //         drugInput.classList.add('ring-2', 'ring-indigo-300');
-    //         setTimeout(() => drugInput.classList.remove('ring-2', 'ring-indigo-300'), 1500);
-    //     }
-        
-    //     if (condition) {
-    //         conditionInput.classList.add('ring-2', 'ring-indigo-300');
-    //         setTimeout(() => conditionInput.classList.remove('ring-2', 'ring-indigo-300'), 1500);
-    //     }
-        
-    //     // Set values
-    //     drugInput.value = drugName;
-    //     conditionInput.value = condition;
-    //     timelineSlider.value = years;
-    //     updateTimeline(years);
-        
-    //     // Set checkboxes based on query
-    //     document.getElementById('hasResultsOnly').checked = query.includes('with results');
-    //     document.getElementById('trdFocusOnly').checked = query.includes('trd') || query.includes('treatment resistant');
-        
-    //     // Show toast with AI interpretation
-    //     showToast(`AI interpreted: ${drugName || 'Any drug'} ${condition ? 'for ' + condition : ''}, ${years} years back`, 'info');
-        
-    //     // Trigger search with slight delay
-    //     setTimeout(() => {
-    //         document.getElementById('searchButton').click();
-    //     }, 500);
-    // }
-    
+
     // Toast notification system
     function showToast(message, type = 'info') {
         // Remove any existing toasts
@@ -2044,7 +1959,15 @@
             </style>
             <div class="bg-white rounded-lg shadow-md p-6">
               <h2 class="text-xl font-semibold mb-4">FDA Regulatory Information</h2>
-              
+              <button style="display: none;" id="generate-summary-btn" class="mt-2 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors" type="button" onclick="showFdaSummary()">
+                Generate Summary <span class="text-xs bg-white text-blue-800 ml-1 px-1.5 py-0.5 rounded-full">AI</span>
+              </button>
+           
+            
+            <!-- Summary Container - Will be populated by JS -->
+            <div id="fda-summary-container" class="mb-6 hidden"></div>
+
+
               <div class="mb-6">
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-medium">FDA Documents</h3>
@@ -5976,37 +5899,106 @@ function extractUsageData(studies, drugName) {
 //     return result;
 // }
 
+// function cleanAndSplitDrugName(rawName) {
+//     // Convert to lowercase for consistent processing
+//     const lowerName = rawName.toLowerCase().trim();
+
+//     // Skip known non-drug terms
+//     const nonDrugTerms = [
+//         'placebo',
+//         'sugar pill',
+//         'saline',
+//         'control',
+//         'sham',
+//         'vehicle',
+//         'inactive',
+//         'no intervention'
+//     ];
+//     if (nonDrugTerms.some(term => lowerName.includes(term))) {
+//         return [];
+//     }
+
+//     // Remove dosages, percentages, and other qualifiers
+//     let cleanedName = lowerName
+//         .replace(/\b\d+(\.\d+)?\s*(mg|g|%|ml|mcg|iu|units)\b/gi, '') // Remove dosages (e.g., "56 mg")
+//         .replace(/\b(xr|er|sr|cr)\b/gi, '') // Remove extended-release qualifiers
+//         .replace(/\(\s*new antidepressant\s*\)/gi, '') // Remove parenthetical qualifiers
+//         .replace(/\b(nitrous oxide|oxygen|midazolam)\b/gi, '') // Remove specific non-relevant drugs
+//         .replace(/\s*\d+%\s*/gi, '') // Remove percentages
+//         .replace(/[^\w\s\+&,-]/g, '') // Remove special characters except +, &, -, and commas
+//         .trim();
+
+//     // Handle combination therapies
+//     const separators = [',', ' plus ', ' and ', ' & ', ' + '];
+//     let drugNames = [cleanedName];
+    
+//     for (const sep of separators) {
+//         if (cleanedName.includes(sep)) {
+//             drugNames = cleanedName.split(sep).map(name => name.trim());
+//             break;
+//         }
+//     }
+
+//     // Final cleanup and normalization
+//     return drugNames
+//         .map(name => {
+//             // Skip empty or short names
+//             if (!name || name.length < 2) return null;
+            
+//             // Capitalize first letter of each word
+//             return name
+//                 .split(' ')
+//                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+//                 .join(' ');
+//         })
+//         .filter(name => name && !nonDrugTerms.some(term => name.toLowerCase().includes(term)));
+// }
+
 function cleanAndSplitDrugName(rawName) {
+    // Skip processing if empty or null
+    if (!rawName) return [];
+    
     // Convert to lowercase for consistent processing
     const lowerName = rawName.toLowerCase().trim();
 
     // Skip known non-drug terms
     const nonDrugTerms = [
-        'placebo',
-        'sugar pill',
-        'saline',
-        'control',
-        'sham',
-        'vehicle',
-        'inactive',
-        'no intervention'
+        'placebo', 'sugar pill', 'saline', 'control', 'sham', 'vehicle', 
+        'inactive', 'no intervention', 'any fda approved', '99'
     ];
+    
     if (nonDrugTerms.some(term => lowerName.includes(term))) {
         return [];
     }
 
-    // Remove dosages, percentages, and other qualifiers
+    // Extract drug names from special formats
+    // For patterns like "Sublingual Film Containing Dexmedetomidine Bxcl501"
+    const containingMatch = lowerName.match(/containing\s+(\w+)/i);
+    if (containingMatch) {
+        return [capitalizeWords(containingMatch[1])];
+    }
+    
+    // Remove study identifiers and codes
     let cleanedName = lowerName
-        .replace(/\b\d+(\.\d+)?\s*(mg|g|%|ml|mcg|iu|units)\b/gi, '') // Remove dosages (e.g., "56 mg")
+        .replace(/\b[a-z]+\d+\b/gi, '') // Remove alphanumeric codes like "bxcl501"
+        .replace(/\bphase\s+[1-4]\b/gi, '') // Remove phase mentions
+        .replace(/\btrial\b/gi, '') // Remove trial mentions
+        .replace(/\b\d+(\.\d+)?\s*(mg|g|%|ml|mcg|iu|units)\b/gi, '') // Remove dosages
         .replace(/\b(xr|er|sr|cr)\b/gi, '') // Remove extended-release qualifiers
-        .replace(/\(\s*new antidepressant\s*\)/gi, '') // Remove parenthetical qualifiers
+        .replace(/\(\s*new.*?\s*\)/gi, '') // Remove parenthetical qualifiers
         .replace(/\b(nitrous oxide|oxygen|midazolam)\b/gi, '') // Remove specific non-relevant drugs
         .replace(/\s*\d+%\s*/gi, '') // Remove percentages
+        .replace(/\blow dose\b/gi, '') // Remove "low dose" qualifier
+        .replace(/\bhigh dose\b/gi, '') // Remove "high dose" qualifier
+        .replace(/\bonce (daily|monthly|weekly)\b/gi, '') // Remove "once daily" etc.
+        .replace(/\bim\b/gi, '') // Remove "IM" (intramuscular)
+        .replace(/\**folate with b12\**/gi, '') // Remove specific problematic entries
         .replace(/[^\w\s\+&,-]/g, '') // Remove special characters except +, &, -, and commas
+        .replace(/\bwith\b/gi, '+') // Convert "with" to "+" for combination drugs
         .trim();
 
     // Handle combination therapies
-    const separators = [',', ' plus ', ' and ', ' & ', ' + '];
+    const separators = ['+', ',', ' plus ', ' and ', ' & '];
     let drugNames = [cleanedName];
     
     for (const sep of separators) {
@@ -6016,20 +6008,35 @@ function cleanAndSplitDrugName(rawName) {
         }
     }
 
-    // Final cleanup and normalization
+    // Final cleanup and filtering
     return drugNames
         .map(name => {
-            // Skip empty or short names
-            if (!name || name.length < 2) return null;
+            // Skip empty, short names, or just numbers
+            if (!name || name.length < 2 || /^\d+$/.test(name)) return null;
+            
+            // Further clean up each drug name
+            let cleanedDrugName = name
+                .replace(/^\s*[a-z]+\s+/, '') // Remove leading modifiers (like "sublingual")
+                .replace(/\s+film$/, '') // Remove trailing "film"
+                .trim();
+                
+            // Skip if empty after cleaning
+            if (!cleanedDrugName) return null;
             
             // Capitalize first letter of each word
-            return name
-                .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
+            return capitalizeWords(cleanedDrugName);
         })
         .filter(name => name && !nonDrugTerms.some(term => name.toLowerCase().includes(term)));
 }
+
+// Helper function to capitalize words
+function capitalizeWords(text) {
+    return text
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 
 function extractConditionData(studies, conditionName) {
     // Initialize data structure
@@ -16509,8 +16516,1089 @@ function showSection(element, show) {
 //   }
 // }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// // Function to generate an AI-like summary of FDA data
+// function generateFdaSummary(fdaData, drugName) {
+//   // Handle empty data case
+//   if (!fdaData || (!fdaData.raw && !fdaData.categorized) || 
+//       (Object.keys(fdaData.categorized).length === 0 && 
+//        (!fdaData.raw.combinedResults || fdaData.raw.combinedResults.length === 0))) {
+//     return `No FDA data found for "${drugName}".`;
+//   }
+  
+//   // Extract endpoint data
+//   const endpointsData = fdaData.raw?.endpoints || {};
+  
+//   // Initialize summary sections
+//   let summary = `<div class="text-lg font-semibold mb-2">Summary for ${drugName}</div>`;
+  
+//   // Applications summary
+//   let applicationSummary = "";
+//   if (Object.keys(fdaData.categorized).length > 0) {
+//     // Count applications and forms
+//     let allProducts = [];
+//     let manufacturers = new Set();
+//     let dosageForms = new Set();
+    
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           allProducts.push({...product, strength});
+//           if (product.manufacturerName) manufacturers.add(product.manufacturerName);
+//           if (product.sponsorName) manufacturers.add(product.sponsorName);
+//           if (product.dosageForm) dosageForms.add(product.dosageForm);
+//         });
+//       });
+//     });
+    
+//     applicationSummary = `
+//       <div class="mb-3">
+//         <span class="font-medium">Applications:</span> ${allProducts.length} total applications found for ${drugName}.
+//         ${manufacturers.size > 0 ? `Made by ${manufacturers.size} different manufacturer${manufacturers.size > 1 ? 's' : ''}.` : ''}
+//         ${dosageForms.size > 0 ? `Available in ${dosageForms.size} dosage form${dosageForms.size > 1 ? 's' : ''} (${Array.from(dosageForms).join(', ')}).` : ''}
+//       </div>
+//     `;
+//   }
+  
+//   // Label summary
+//   let labelSummary = "";
+//   const labelData = endpointsData.label?.data || [];
+//   if (labelData.length > 0) {
+//     // Extract key information from labels
+//     const indications = new Set();
+//     const warnings = new Set();
+//     const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
+    
+//     labelData.forEach(label => {
+//       if (label.indications_and_usage && label.indications_and_usage.length > 0) {
+//         // Extract first sentence of indications for brevity
+//         const firstSentence = label.indications_and_usage[0].split('.')[0];
+//         if (firstSentence) indications.add(firstSentence);
+//       }
+      
+//       if (label.warnings && label.warnings.length > 0) {
+//         // Extract first sentence of warnings
+//         const firstSentence = label.warnings[0].split('.')[0];
+//         if (firstSentence) warnings.add(firstSentence);
+//       } else if (label.warnings_and_precautions && label.warnings_and_precautions.length > 0) {
+//         const firstSentence = label.warnings_and_precautions[0].split('.')[0];
+//         if (firstSentence) warnings.add(firstSentence);
+//       }
+//     });
+    
+//     labelSummary = `
+//       <div class="mb-3">
+//         <span class="font-medium">Labeling:</span> ${labelData.length} drug label${labelData.length > 1 ? 's' : ''} found.
+//         ${hasBoxedWarning ? '<span class="text-red-600 font-medium">Contains boxed warnings</span>.' : ''}
+//         ${indications.size > 0 ? `<div class="ml-4 mt-1"><span class="font-medium">Key Indication:</span> ${Array.from(indications)[0]}.</div>` : ''}
+//         ${warnings.size > 0 ? `<div class="ml-4 mt-1"><span class="font-medium">Key Warning:</span> ${Array.from(warnings)[0]}.</div>` : ''}
+//       </div>
+//     `;
+//   }
+  
+//   // Adverse Events summary
+//   let eventSummary = "";
+//   const eventData = endpointsData.event?.data || [];
+//   if (eventData.length > 0) {
+//     // Count serious vs non-serious
+//     const seriousCount = eventData.filter(event => event.serious).length;
+//     const nonSeriousCount = eventData.length - seriousCount;
+    
+//     // Count reaction types
+//     const reactionCounts = {};
+//     eventData.forEach(event => {
+//       const reactions = event.patient?.reaction || [];
+//       reactions.forEach(reaction => {
+//         const reactionName = reaction.reactionmeddrapt || 'Unknown';
+//         reactionCounts[reactionName] = (reactionCounts[reactionName] || 0) + 1;
+//       });
+//     });
+    
+//     // Get top 3 reactions
+//     const topReactions = Object.entries(reactionCounts)
+//       .sort((a, b) => b[1] - a[1])
+//       .slice(0, 3)
+//       .map(([name]) => name);
+    
+//     eventSummary = `
+//       <div class="mb-3">
+//         <span class="font-medium">Adverse Events:</span> ${eventData.length} reports found
+//         (${seriousCount} serious, ${nonSeriousCount} non-serious).
+//         ${topReactions.length > 0 ? `
+//           <div class="ml-4 mt-1"><span class="font-medium">Top reported reactions:</span> ${topReactions.join(', ')}.</div>
+//         ` : ''}
+//       </div>
+//     `;
+//   }
+  
+//   // Enforcement summary
+//   let enforcementSummary = "";
+//   const enforcementData = endpointsData.enforcement?.data || [];
+//   if (enforcementData.length > 0) {
+//     // Count by classification
+//     const classI = enforcementData.filter(report => report.classification && report.classification.includes('Class I')).length;
+//     const classII = enforcementData.filter(report => report.classification && report.classification.includes('Class II')).length;
+//     const classIII = enforcementData.filter(report => report.classification && report.classification.includes('Class III')).length;
+    
+//     // Get recent enforcement date
+//     const mostRecentDate = enforcementData
+//       .map(report => report.recall_initiation_date)
+//       .filter(date => date)
+//       .sort((a, b) => new Date(b) - new Date(a))[0];
+    
+//     enforcementSummary = `
+//       <div class="mb-3">
+//         <span class="font-medium">Enforcement Actions:</span> ${enforcementData.length} recall${enforcementData.length > 1 ? 's' : ''} found.
+//         ${classI > 0 ? `<span class="text-red-600 font-medium">${classI} Class I (most severe)</span>` : ''}
+//         ${classII > 0 ? `${classI > 0 ? ', ' : ''}${classII} Class II` : ''}
+//         ${classIII > 0 ? `${classI > 0 || classII > 0 ? ', ' : ''}${classIII} Class III` : ''}
+//         ${mostRecentDate ? `. Most recent on ${formatDate(mostRecentDate)}.` : ''}
+//       </div>
+//     `;
+//   }
+  
+//   // Orange Book summary (if available)
+//   let orangeBookSummary = "";
+//   if (window.orangeBookData && window.orangeBookData.results) {
+//     const results = window.orangeBookData.results;
+//     if (results.total > 0) {
+//       orangeBookSummary = `
+//         <div class="mb-3">
+//           <span class="font-medium">Orange Book:</span> ${results.total} entries found.
+//           ${results.patents > 0 ? `${results.patents} patent${results.patents > 1 ? 's' : ''}.` : ''}
+//           ${results.exclusivities > 0 ? `${results.exclusivities} exclusivit${results.exclusivities > 1 ? 'ies' : 'y'}.` : ''}
+//         </div>
+//       `;
+//     }
+//   }
+  
+//   // DailyMed summary (if available)
+//   let dailyMedSummary = "";
+//   if (window.dailyMedData && window.dailyMedData.label_info) {
+//     const labelInfo = window.dailyMedData.label_info;
+//     if (labelInfo.length > 0) {
+//       // Count unique manufacturers
+//       const manufacturers = new Set(labelInfo.map(label => label.manufacturer).filter(m => m));
+      
+//       dailyMedSummary = `
+//         <div class="mb-3">
+//           <span class="font-medium">DailyMed:</span> ${labelInfo.length} label${labelInfo.length > 1 ? 's' : ''} found.
+//           ${manufacturers.size > 0 ? `From ${manufacturers.size} manufacturer${manufacturers.size > 1 ? 's' : ''}.` : ''}
+//         </div>
+//       `;
+//     }
+//   }
+  
+//   // Warning Letters summary (if available)
+//   let warningLettersSummary = "";
+//   if (window.warningLettersData && window.warningLettersData.length > 0) {
+//     const letters = window.warningLettersData;
+//     if (letters.length > 0) {
+//       // Get recent letter date
+//       const mostRecentDate = letters
+//         .map(letter => letter.posted_date)
+//         .filter(date => date)
+//         .sort((a, b) => new Date(b) - new Date(a))[0];
+      
+//       warningLettersSummary = `
+//         <div class="mb-3">
+//           <span class="font-medium text-red-600">Warning Letters:</span> ${letters.length} letter${letters.length > 1 ? 's' : ''} found.
+//           ${mostRecentDate ? `Most recent on ${formatDate(mostRecentDate)}.` : ''}
+//         </div>
+//       `;
+//     }
+//   }
+  
+//   // Combine all summaries
+//   summary += `
+//     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+//       ${applicationSummary}
+//       ${labelSummary}
+//       ${eventSummary}
+//       ${enforcementSummary}
+//       ${orangeBookSummary}
+//       ${dailyMedSummary}
+//       ${warningLettersSummary}
+      
+//       <div class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-300">
+//         This summary was generated automatically based on FDA data.
+//       </div>
+//     </div>
+//   `;
+  
+//   return summary;
+// }
+
+// // Add this function to display the FDA summary
+// function displayFdaSummary(fdaData, drugName) {
+//   // Store data in window for access by the summary generator
+//   window.orangeBookData = null;
+//   window.dailyMedData = null;
+//   window.warningLettersData = null;
+  
+//   // Create a summary container if it doesn't exist
+//   let summaryContainer = document.getElementById('fda-summary-container');
+//   if (!summaryContainer) {
+//     // Add a new summary tab to the existing tab system
+//     const tabList = document.querySelector('.fda-data-section .flex.flex-wrap.-mb-px');
+//     if (tabList) {
+//       // Create the summary tab button
+//       const summaryTab = document.createElement('li');
+//       summaryTab.className = 'mr-2';
+//       summaryTab.setAttribute('role', 'presentation');
+//       summaryTab.innerHTML = `
+//         <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                 id="summary-tab" 
+//                 data-tab="summary-content"
+//                 aria-selected="false">
+//           Summary <span class="ml-1 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">AI</span>
+//         </button>
+//       `;
+//       tabList.insertBefore(summaryTab, tabList.firstChild);
+      
+//       // Create the summary content container
+//       const tabContent = document.querySelector('.fda-data-section .tab-content');
+//       if (tabContent) {
+//         summaryContainer = document.createElement('div');
+//         summaryContainer.id = 'summary-content';
+//         summaryContainer.className = 'fda-tab-pane hidden';
+//         tabContent.insertBefore(summaryContainer, tabContent.firstChild);
+        
+//         // Add click handler for the summary tab
+//         document.getElementById('summary-tab').addEventListener('click', function() {
+//           // Hide all tab panes
+//           document.querySelectorAll('.fda-tab-pane').forEach(pane => {
+//             pane.classList.add('hidden');
+//           });
+          
+//           // Deactivate all tab buttons
+//           document.querySelectorAll('.fda-tab-button').forEach(btn => {
+//             btn.classList.remove('border-blue-500', 'text-blue-600');
+//             btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+//             btn.setAttribute('aria-selected', 'false');
+//           });
+          
+//           // Activate the summary tab
+//           summaryContainer.classList.remove('hidden');
+//           this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+//           this.classList.add('border-blue-500', 'text-blue-600');
+//           this.setAttribute('aria-selected', 'true');
+//         });
+//       }
+//     }
+//   }
+  
+//   // Generate and display the summary
+//   if (summaryContainer) {
+//     summaryContainer.innerHTML = generateFdaSummary(fdaData, drugName);
+    
+//     // Optional: Activate the summary tab by default
+//     document.getElementById('summary-tab')?.click();
+//   }
+// }
+
+// // Modify the displayComprehensiveFdaData function to call our summary function
+// function modifyDisplayFdaData() {
+//   // Store the original function
+//   const originalDisplayFunction = displayComprehensiveFdaData;
+  
+//   // Override the function
+//   window.displayComprehensiveFdaData = function(fdaData, drugName) {
+//     // Call the original function first
+//     originalDisplayFunction(fdaData, drugName);
+    
+//     // Then add our summary
+//     displayFdaSummary(fdaData, drugName);
+//   };
+// }
+
+// // Add a function to set global data for the summary
+// function setGlobalDataForSummary(dataType, data) {
+//   switch(dataType) {
+//     case 'orangeBook':
+//       window.orangeBookData = data;
+//       break;
+//     case 'dailyMed':
+//       window.dailyMedData = data;
+//       break;
+//     case 'warningLetters':
+//       window.warningLettersData = data;
+//       break;
+//   }
+  
+//   // Refresh the summary if all data is present
+//   if (window.fdaData) {
+//     displayFdaSummary(window.fdaData, window.currentDrugName);
+//   }
+// }
+
+// // Modify these display functions to store their data globally
+// function modifyDataDisplayFunctions() {
+//   // Store original functions
+//   const originalOrangeBookFunction = displayOrangeBookData;
+//   const originalDailyMedFunction = displayDailyMedData;
+//   const originalWarningLettersFunction = displayWarningLetters || function(){};
+  
+//   // Override Orange Book display
+//   window.displayOrangeBookData = function(data) {
+//     originalOrangeBookFunction(data);
+//     setGlobalDataForSummary('orangeBook', data);
+//   };
+  
+//   // Override DailyMed display
+//   window.displayDailyMedData = function(data) {
+//     originalDailyMedFunction(data);
+//     setGlobalDataForSummary('dailyMed', data);
+//   };
+  
+//   // Override Warning Letters display
+//   window.displayWarningLetters = function(data) {
+//     originalWarningLettersFunction(data);
+//     setGlobalDataForSummary('warningLetters', data);
+//   };
+// }
+
+// // Modify the displayFdaData function to store drug name
+// function modifyDisplayFdaData() {
+//   // Store the original function
+//   const originalFunction = displayFdaData;
+  
+//   // Override the function
+//   window.displayFdaData = function(drugName, condition) {
+//     // Store current drug name
+//     window.currentDrugName = drugName;
+    
+//     // Call the original function
+//     originalFunction(drugName, condition);
+//   };
+// }
+
+// // Initialize the summary feature
+// function initFdaSummaryFeature() {
+//   // Patch the necessary functions
+//   modifyDisplayFdaData();
+//   modifyDataDisplayFunctions();
+  
+//   console.log("FDA AI Summary feature initialized!");
+// }
+
+// // Call this function when the page loads
+// document.addEventListener('DOMContentLoaded', initFdaSummaryFeature);
+
+// // Add a standalone function to trigger the summary
+// function showFdaSummary(drugName) {
+//   // Create a modal with the summary
+//   const fdaData = window.fdaData;
+  
+//   if (!fdaData) {
+//     alert("Please search for a drug first to generate a summary.");
+//     return;
+//   }
+  
+//   const summaryHtml = generateFdaSummary(fdaData, drugName || window.currentDrugName || "this drug");
+  
+//   showWarningLetterModal(summaryHtml, "FDA Data Summary");
+// }
+
+// Enhanced FDA Summary with OpenAI Integration and Email Feature
+
+// Function to collect all FDA data for the summary
+function collectAllFdaData(drugName) {
+  // Collect data from all sources
+  const allData = {
+    fdaData: window.fdaData || null,
+    orangeBookData: window.orangeBookData || null,
+    dailyMedData: window.dailyMedData || null,
+    warningLettersData: window.warningLettersData || null,
+    drugName: drugName || window.currentDrugName || "this drug"
+  };
+  
+  return allData;
+}
+
+// Function to generate a local summary while waiting for OpenAI
+function generateLocalSummary(allData) {
+  const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
+  
+  // Handle empty data case
+  if (!fdaData) {
+    return `<div class="p-4 text-center">No FDA data found for "${drugName}".</div>`;
+  }
+  
+  // Extract endpoint data
+  const endpointsData = fdaData.raw?.endpoints || {};
+  
+  // Initialize summary sections
+  let summary = `<div class="text-xl font-semibold mb-4">Quick Summary for ${drugName}</div>`;
+  summary += `<div class="text-sm text-gray-600 mb-4">Generating comprehensive AI summary...</div>`;
+  
+  // Applications summary
+  let applicationSummary = "";
+  if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+    // Count applications and forms
+    let allProducts = [];
+    let manufacturers = new Set();
+    let dosageForms = new Set();
+    
+    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+      Object.entries(strengths).forEach(([strength, products]) => {
+        products.forEach(product => {
+          allProducts.push({...product, strength});
+          if (product.manufacturerName) manufacturers.add(product.manufacturerName);
+          if (product.sponsorName) manufacturers.add(product.sponsorName);
+          if (product.dosageForm) dosageForms.add(product.dosageForm);
+        });
+      });
+    });
+    
+    applicationSummary = `
+      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+        <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
+        <p class="text-gray-700">
+          ${allProducts.length} total application${allProducts.length !== 1 ? 's' : ''} found.
+          ${manufacturers.size > 0 ? `Made by ${manufacturers.size} different manufacturer${manufacturers.size > 1 ? 's' : ''}.` : ''}
+          ${dosageForms.size > 0 ? `Available in ${dosageForms.size} dosage form${dosageForms.size > 1 ? 's' : ''}.` : ''}
+        </p>
+      </div>
+    `;
+  }
+  
+  // Label summary
+  let labelSummary = "";
+  const labelData = endpointsData.label?.data || [];
+  if (labelData.length > 0) {
+    // Extract key information from labels
+    const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
+    
+    labelSummary = `
+      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+        <h3 class="text-lg font-medium text-gray-800 mb-2">Labeling</h3>
+        <p class="text-gray-700">
+          ${labelData.length} drug label${labelData.length > 1 ? 's' : ''} found.
+          ${hasBoxedWarning ? '<span class="text-red-600 font-medium">Contains boxed warnings.</span>' : ''}
+        </p>
+      </div>
+    `;
+  }
+  
+  // Orange Book summary
+  let orangeBookSummary = "";
+  if (orangeBookData && orangeBookData.results) {
+    const orangeBookCount = document.getElementById('orangeBookCount')?.textContent || '0 entries';
+    
+    orangeBookSummary = `
+      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+        <h3 class="text-lg font-medium text-gray-800 mb-2">Orange Book</h3>
+        <p class="text-gray-700">
+          ${orangeBookCount}
+        </p>
+      </div>
+    `;
+  }
+  
+  // DailyMed summary
+  let dailyMedSummary = "";
+  if (dailyMedData && dailyMedData.label_info) {
+    const dailyMedCount = document.getElementById('dailyMedCount')?.textContent || '0 entries';
+    
+    dailyMedSummary = `
+      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+        <h3 class="text-lg font-medium text-gray-800 mb-2">DailyMed</h3>
+        <p class="text-gray-700">
+          ${dailyMedCount}
+        </p>
+      </div>
+    `;
+  }
+  
+  // Warning Letters summary
+  let warningLettersSummary = "";
+  if (warningLettersData && warningLettersData.length > 0) {
+    const warningLettersCount = document.getElementById('warningLettersCount')?.textContent || '0 letters';
+    
+    warningLettersSummary = `
+      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+        <h3 class="text-lg font-medium text-red-800 mb-2">Warning Letters</h3>
+        <p class="text-gray-700">
+          ${warningLettersCount}
+        </p>
+      </div>
+    `;
+  }
+  
+  // Combine all summaries
+  summary += `
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${applicationSummary}
+      ${labelSummary}
+      ${orangeBookSummary}
+      ${dailyMedSummary}
+      ${warningLettersSummary}
+    </div>
+    
+    <div class="text-center p-4 mt-4">
+      <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+      <p class="text-sm text-gray-600 mt-2">Generating comprehensive AI summary...</p>
+    </div>
+  `;
+  
+  return summary;
+}
+
+// Function to prepare data for the OpenAI API
+function prepareDataForOpenAI(allData) {
+  const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
+  
+  let prompt = `Generate a comprehensive, well-structured summary of all the FDA regulatory information for the drug "${drugName}". Include critical insights and highlight important safety information. Here's the available data:\n\n`;
+  
+  // FDA Application Data
+  prompt += "FDA APPLICATIONS DATA:\n";
+  if (fdaData && fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+    let allProducts = [];
+    let manufacturers = new Set();
+    let dosageForms = new Set();
+    
+    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+      Object.entries(strengths).forEach(([strength, products]) => {
+        products.forEach(product => {
+          allProducts.push({...product, strength});
+          if (product.manufacturerName) manufacturers.add(product.manufacturerName);
+          if (product.sponsorName) manufacturers.add(product.sponsorName);
+          if (product.dosageForm) dosageForms.add(product.dosageForm);
+        });
+      });
+    });
+    
+    prompt += `- Found ${allProducts.length} total applications\n`;
+    prompt += `- Manufacturers: ${Array.from(manufacturers).join(', ') || 'Unknown'}\n`;
+    prompt += `- Dosage Forms: ${Array.from(dosageForms).join(', ') || 'Unknown'}\n`;
+    
+    // Include a few sample applications
+    if (allProducts.length > 0) {
+      prompt += "Sample applications:\n";
+      allProducts.slice(0, 3).forEach(product => {
+        prompt += `  * ${product.brandName}, ${product.strength}, ${product.dosageForm}, Approval: ${product.approvalDate}\n`;
+      });
+    }
+  } else {
+    prompt += "No application data available.\n";
+  }
+  
+  // FDA Label Data
+  prompt += "\nFDA LABELING DATA:\n";
+  const labelData = fdaData?.raw?.endpoints?.label?.data || [];
+  if (labelData.length > 0) {
+    const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
+    
+    prompt += `- Found ${labelData.length} drug labels\n`;
+    prompt += `- Contains boxed warnings: ${hasBoxedWarning ? 'Yes' : 'No'}\n`;
+    
+    // Extract important label information
+    if (labelData.length > 0) {
+      const firstLabel = labelData[0];
+      
+      if (firstLabel.indications_and_usage && firstLabel.indications_and_usage.length > 0) {
+        prompt += `- Indications: ${firstLabel.indications_and_usage[0].substring(0, 300)}...\n`;
+      }
+      
+      if (hasBoxedWarning && firstLabel.boxed_warning && firstLabel.boxed_warning.length > 0) {
+        prompt += `- Boxed Warning: ${firstLabel.boxed_warning[0].substring(0, 300)}...\n`;
+      }
+      
+      if (firstLabel.warnings && firstLabel.warnings.length > 0) {
+        prompt += `- Warnings: ${firstLabel.warnings[0].substring(0, 300)}...\n`;
+      }
+      
+      if (firstLabel.adverse_reactions && firstLabel.adverse_reactions.length > 0) {
+        prompt += `- Adverse Reactions: ${firstLabel.adverse_reactions[0].substring(0, 300)}...\n`;
+      }
+    }
+  } else {
+    prompt += "No labeling data available.\n";
+  }
+  
+  // FDA Adverse Events
+  prompt += "\nFDA ADVERSE EVENTS DATA:\n";
+  const eventData = fdaData?.raw?.endpoints?.event?.data || [];
+  if (eventData.length > 0) {
+    // Count serious vs non-serious
+    const seriousCount = eventData.filter(event => event.serious).length;
+    const nonSeriousCount = eventData.length - seriousCount;
+    
+    prompt += `- Found ${eventData.length} adverse event reports\n`;
+    prompt += `- Serious reports: ${seriousCount}, Non-serious reports: ${nonSeriousCount}\n`;
+    
+    // Count reaction types
+    const reactionCounts = {};
+    eventData.forEach(event => {
+      const reactions = event.patient?.reaction || [];
+      reactions.forEach(reaction => {
+        const reactionName = reaction.reactionmeddrapt || 'Unknown';
+        reactionCounts[reactionName] = (reactionCounts[reactionName] || 0) + 1;
+      });
+    });
+    
+    // Get top 5 reactions
+    const topReactions = Object.entries(reactionCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    
+    if (topReactions.length > 0) {
+      prompt += "- Top reported reactions:\n";
+      topReactions.forEach(([name, count]) => {
+        prompt += `  * ${name}: ${count} reports\n`;
+      });
+    }
+  } else {
+    prompt += "No adverse event data available.\n";
+  }
+  
+  // FDA Enforcement
+  prompt += "\nFDA ENFORCEMENT DATA:\n";
+  const enforcementData = fdaData?.raw?.endpoints?.enforcement?.data || [];
+  if (enforcementData.length > 0) {
+    // Count by classification
+    const classI = enforcementData.filter(report => report.classification && report.classification.includes('Class I')).length;
+    const classII = enforcementData.filter(report => report.classification && report.classification.includes('Class II')).length;
+    const classIII = enforcementData.filter(report => report.classification && report.classification.includes('Class III')).length;
+    
+    prompt += `- Found ${enforcementData.length} enforcement actions/recalls\n`;
+    prompt += `- Class I (most severe): ${classI}, Class II: ${classII}, Class III: ${classIII}\n`;
+    
+    // Include a few recent enforcement actions
+    if (enforcementData.length > 0) {
+      prompt += "Recent recall reasons:\n";
+      enforcementData.slice(0, 3).forEach(report => {
+        prompt += `  * ${report.product_description || 'Unknown product'}: ${report.reason_for_recall || 'Unknown reason'}\n`;
+      });
+    }
+  } else {
+    prompt += "No enforcement data available.\n";
+  }
+  
+  // Orange Book Data
+  prompt += "\nORANGE BOOK DATA:\n";
+  if (orangeBookData && orangeBookData.results) {
+    const results = orangeBookData.results;
+    
+    prompt += `- Total entries: ${results.total || 0}\n`;
+    prompt += `- Patents: ${results.patents || 0}\n`;
+    prompt += `- Exclusivities: ${results.exclusivities || 0}\n`;
+    
+    if (results.products && results.products.length > 0) {
+      prompt += "Sample products:\n";
+      results.products.slice(0, 3).forEach(product => {
+        prompt += `  * ${product.brandName || 'Unknown'}, ${product.dosageForm || 'Unknown form'}, ${product.route || 'Unknown route'}\n`;
+      });
+    }
+  } else {
+    prompt += "No Orange Book data available.\n";
+  }
+  
+  // DailyMed Data
+  prompt += "\nDAILYMED DATA:\n";
+  if (dailyMedData && dailyMedData.label_info && dailyMedData.label_info.length > 0) {
+    const labelInfo = dailyMedData.label_info;
+    
+    prompt += `- Total labels: ${labelInfo.length}\n`;
+    
+    // Count unique manufacturers
+    const manufacturers = new Set(labelInfo.map(label => label.manufacturer).filter(m => m));
+    prompt += `- Manufacturers: ${manufacturers.size}\n`;
+    
+    if (labelInfo.length > 0) {
+      prompt += "Sample labels:\n";
+      labelInfo.slice(0, 3).forEach(label => {
+        prompt += `  * ${label.title || 'Unknown'}, Manufacturer: ${label.manufacturer || 'Unknown'}\n`;
+        if (label.indications) {
+          prompt += `    Indications: ${typeof label.indications === 'string' ? label.indications.substring(0, 200) : 'Not available'}...\n`;
+        }
+      });
+    }
+  } else {
+    prompt += "No DailyMed data available.\n";
+  }
+  
+  // Warning Letters
+  prompt += "\nWARNING LETTERS DATA:\n";
+  if (warningLettersData && warningLettersData.length > 0) {
+    prompt += `- Total warning letters: ${warningLettersData.length}\n`;
+    
+    if (warningLettersData.length > 0) {
+      prompt += "Sample warning letters:\n";
+      warningLettersData.slice(0, 3).forEach(letter => {
+        prompt += `  * Date: ${letter.posted_date || 'Unknown'}, Company: ${letter.company_name || 'Unknown'}\n`;
+        prompt += `    Subject: ${letter.subject || 'Unknown'}\n`;
+      });
+    }
+  } else {
+    prompt += "No warning letters data available.\n";
+  }
+  
+  prompt += "\nINSTRUCTIONS FOR SUMMARY GENERATION:\n";
+  prompt += "1. Start with a brief overall assessment of the drug's regulatory status.\n";
+  prompt += "2. Highlight any critical safety information, especially boxed warnings, serious adverse events, or Class I recalls.\n";
+  prompt += "3. Organize the summary into clear sections by data category.\n";
+  prompt += "4. Use bullet points where appropriate for readability.\n";
+  prompt += "5. Mention if there are any notable patterns across the different data sources.\n";
+  prompt += "6. End with a brief conclusion summarizing the key regulatory insights.\n";
+  prompt += "7. The summary should be comprehensive but concise, using HTML formatting with proper CSS classes for styling.\n";
+  prompt += "8. Use the following HTML structure with Tailwind CSS classes for your response:\n\n";
+  prompt += `
+<div class="text-xl font-semibold mb-4">Regulatory Summary for ${drugName}</div>
+<div class="text-sm text-gray-600 mb-4">[Your brief intro summary]</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Application data card -->
+  <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+    <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
+    <p class="text-gray-700">[Your summary]</p>
+    <ul class="list-disc ml-6 mt-1 text-sm text-gray-600">
+      <li>[Key point 1]</li>
+      <!-- more list items as needed -->
+    </ul>
+  </div>
+  
+  <!-- More sections cards with similar structure -->
+  
+</div>
+
+<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+  <h3 class="text-lg font-medium text-blue-800 mb-2">Key Insights</h3>
+  <p class="text-gray-700">[Your key insights]</p>
+</div>
+
+<div class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-300">
+  <p>Summary based on FDA data as of [current date]. Generated with AI assistance.</p>
+</div>`;
+
+  return prompt;
+}
+
+// Function to call OpenAI API for enhanced summary
+async function generateOpenAISummary(allData) {
+  const prompt = prepareDataForOpenAI(allData);
+  
+  try {
+    // Prepare the request to your backend API
+    const response = await fetch('/api/generate-summary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        maxTokens: 1500,
+        temperature: 0.7,
+        drugName: allData.drugName
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate AI summary');
+    }
+    
+    const data = await response.json();
+    return data.summary;
+  } catch (error) {
+    console.error('Error generating OpenAI summary:', error);
+    // Fall back to local summary if API call fails
+    return `
+      <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+        <h3 class="text-lg font-medium text-red-800 mb-2">AI Summary Generation Failed</h3>
+        <p class="text-gray-700">We couldn't generate an AI-enhanced summary at this time. Please try again later.</p>
+      </div>
+      
+      ${generateLocalSummary(allData)}
+    `;
+  }
+}
+
+// Function to show FDA summary (either from local processing or OpenAI)
+async function showFdaSummary(useOpenAI = true) {
+  // Get the current drug name
+  const drugName = window.currentDrugName || document.querySelector('input[name="drug"]')?.value || 
+                   document.querySelector('input[name="search"]')?.value || "this drug";
+  
+  // Collect all FDA data
+  const allData = collectAllFdaData(drugName);
+  
+  if (!allData.fdaData) {
+    // If no data is available, show message to search first
+    showWarningLetterModal(`
+      <div class="text-center p-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No FDA Data Available</h3>
+        <p class="text-gray-600 mb-4">Please search for a drug first to generate a summary.</p>
+        <button onclick="closeWarningLetterModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+          Close
+        </button>
+      </div>
+    `, "FDA Data Summary");
+    return;
+  }
+  
+  // First, show the modal with a locally generated summary and loading indicator
+  const localSummary = generateLocalSummary(allData);
+  
+  showWarningLetterModal(`
+    <div id="summary-content">
+      ${localSummary}
+    </div>
+    
+    <div class="flex justify-between mt-4 pt-4 border-t border-gray-200">
+      <button id="email-summary-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+        </svg>
+        Email Me This Summary
+      </button>
+      <button onclick="closeWarningLetterModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors">
+        Close
+      </button>
+    </div>
+  `, "FDA Data Summary for " + drugName);
+  
+  // Add email functionality
+  document.getElementById('email-summary-btn').addEventListener('click', function() {
+    emailSummary(drugName);
+  });
+  
+  // If OpenAI integration is enabled, fetch the enhanced summary
+  if (useOpenAI) {
+    try {
+      const aiSummary = await generateOpenAISummary(allData);
+      
+      // Replace the local summary with the AI-generated one
+      document.getElementById('summary-content').innerHTML = aiSummary;
+      
+      // Update the email button to use the new content
+      document.getElementById('email-summary-btn').onclick = function() {
+        emailSummary(drugName, aiSummary);
+      };
+    } catch (error) {
+      console.error('Error getting OpenAI summary:', error);
+      // The local summary will remain in place if the AI one fails
+    }
+  }
+}
+
+// Function to email the summary
+function emailSummary(drugName, content = null) {
+  // If no content is provided, get it from the current summary
+  if (!content) {
+    content = document.getElementById('summary-content').innerHTML;
+  }
+  
+  // Show email form
+  showWarningLetterModal(`
+    <div class="p-4">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Email FDA Summary for ${drugName}</h3>
+      
+      <form id="email-form" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Your Email Address</label>
+          <input type="email" id="email" name="email" required
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                 placeholder="your@email.com">
+        </div>
+        
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name (optional)</label>
+          <input type="text" id="name" name="name"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                 placeholder="Your Name">
+        </div>
+        
+        <div class="pt-4">
+          <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+            Send Summary Email
+          </button>
+        </div>
+      </form>
+      
+      <div id="email-status" class="mt-4 text-center hidden">
+        <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+        <p class="text-sm text-gray-600 mt-2">Sending email...</p>
+      </div>
+    </div>
+  `, "Email FDA Summary");
+  
+  // Handle form submission
+  document.getElementById('email-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const name = document.getElementById('name').value;
+    
+    // Show loading indicator
+    document.getElementById('email-form').classList.add('hidden');
+    document.getElementById('email-status').classList.remove('hidden');
+    
+    try {
+      // Call your backend API to send the email
+      const response = await fetch('/api/email-summary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          subject: `FDA Summary for ${drugName}`,
+          content: content,
+          drugName: drugName
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+      
+      // Show success message
+      document.getElementById('email-status').innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">Email Sent Successfully</h4>
+        <p class="text-gray-600 mb-4">The FDA summary has been sent to ${email}</p>
+        <button onclick="closeWarningLetterModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors">
+          Close
+        </button>
+      `;
+    } catch (error) {
+      console.error('Error sending email:', error);
+      
+      // Show error message
+      document.getElementById('email-status').innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">Failed to Send Email</h4>
+        <p class="text-gray-600 mb-4">There was an error sending the email. Please try again later.</p>
+        <button onclick="document.getElementById('email-form').classList.remove('hidden'); document.getElementById('email-status').classList.add('hidden');" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+          Try Again
+        </button>
+      `;
+    }
+  });
+}
+
+
+// Helper function to refresh the summary when new data is available
+function refreshSummary() {
+  if (window.fdaData && window.currentDrugName) {
+    const summaryContainer = document.getElementById('fda-summary-container');
+    if (summaryContainer) {
+      // Collect all FDA data
+      const allData = collectAllFdaData(window.currentDrugName);
+      
+      // Update with local summary while waiting for OpenAI
+      summaryContainer.innerHTML = generateLocalSummary(allData);
+      summaryContainer.classList.remove('hidden');
+    }
+  }
+}
+
+// Create backend API endpoints to support the OpenAI summary and email features
+
+// Example Express.js implementation for the OpenAI integration
+/*
+const express = require('express');
+const { OpenAI } = require('openai');
+const nodemailer = require('nodemailer');
+const router = express.Router();
+
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+// Generate summary with OpenAI
+router.post('/api/generate-summary', async (req, res) => {
+  try {
+    const { prompt, maxTokens, temperature, drugName } = req.body;
+    
+    const response = await openai.completions.create({
+      model: "gpt-4-turbo", // or whichever model you're using
+      prompt: prompt,
+      max_tokens: maxTokens || 1500,
+      temperature: temperature || 0.7
+    });
+    
+    const summary = response.choices[0].text.trim();
+    
+    res.json({ success: true, summary });
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Email the summary
+router.post('/api/email-summary', async (req, res) => {
+  try {
+    const { email, name, subject, content, drugName } = req.body;
+    
+    // Create email transporter
+    const transporter = nodemailer.createTransport({
+      // Your email service configuration
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    
+    // Prepare HTML email
+    const htmlEmail = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>FDA Summary for ${drugName}</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div style="border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px;">
+          <h1 style="color: #1e40af;">FDA Regulatory Summary</h1>
+          <h2 style="color: #1e3a8a;">${drugName}</h2>
+        </div>
+        
+        <p style="margin-bottom: 15px;">Hello ${name || 'there'},</p>
+        
+        <p style="margin-bottom: 15px;">Here is the FDA regulatory summary you requested for ${drugName}:</p>
+        
+        <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0;">
+          ${content}
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 15px;">
+          This summary was generated automatically based on FDA data. Not for clinical decision making.
+        </p>
+      </body>
+      </html>
+    `;
+    
+    // Send email
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: subject,
+      html: htmlEmail
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+module.exports = router;
+*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function initFdaDataSection() {
   // Show the section
   showSection(elements.fdaDataSection, true);
@@ -16523,16 +17611,252 @@ function initFdaDataSection() {
 }
 
 // Function to display FDA data when available
-async function displayFdaData(drugName,condition) {
+// async function displayFdaData(drugName,condition) {
+//   // Initialize the FDA data section
+//   initFdaDataSection();
+  
+//   // Show loading state
+//   const loadingTemplate = `
+//     <div class="flex justify-center items-center py-8">
+//       <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       <span class="ml-2 text-gray-600">Loading FDA data...</span>
+//     </div>
+//   `;
+  
+//   elements.fdaDocuments.innerHTML = loadingTemplate;
+//   elements.orangeBookData.innerHTML = loadingTemplate;
+//   elements.dailyMedData.innerHTML = loadingTemplate;
+//   elements.warningLettersData.innerHTML = loadingTemplate;
+  
+//   try {
+//         // if (!drug) {
+//     //     alert('Please enter a drug name to search.');
+//     //     return;
+//     // }
+//     // Fetch comprehensive FDA drug data
+//     const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
+//     const fdaData = await fdaResponse.json();
+    
+//     if (fdaResponse.ok && !fdaData.error) {
+//       // Display the comprehensive FDA data
+//       displayComprehensiveFdaData(fdaData, drugName);
+//     } else {
+//       elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
+//     }
+    
+//     // Continue with existing Orange Book and DailyMed fetches
+//     const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
+//     const orangeBookData = await orangeBookResponse.json();
+//     console.log("ORANGE BOOK", orangeBookData)
+//     const companies = orangeBookData.results.companies || [];
+
+//     if (orangeBookResponse.ok && !orangeBookData.error) {
+//       displayOrangeBookData(orangeBookData);
+//       await fetchWarningLetters(companies);
+
+//     } else {
+//       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+//     }
+    
+
+//     // const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
+//     // const dailyMedData = await dailyMedResponse.json();
+//     // console.log(dailyMedData)
+//     try {
+//   // Fetch data from the new backend API
+//   const dailyMedResponse = await fetch(`http://localhost:3000/api/fda/dailymed?name=${encodeURIComponent(drugName)}`);
+//   const rawData = await dailyMedResponse.json();
+//   console.log(rawData)
+//   // Format the data to work with your display function
+//   const dailyMedData = {
+//     label_info: Array.isArray(rawData) ? rawData.map(drug => ({
+//       title: drug.productName || drug.title || "Unknown Drug",
+//       published: drug.effectiveTime || "N/A",
+//       setId: drug.splId || "",
+//       manufacturer: drug.manufacturer || "Unknown",
+//       dosageForm: drug.dosageForms ? drug.dosageForms.join(', ') : "Not specified",
+//       activeIngredients: drug.activeIngredients || ["Unknown"],
+//       indications: drug.indications || "Not specified",
+//       warnings: drug.warnings || "Not specified",
+//       dosage: drug.dosage || "Not specified",
+//       contraindications: drug.contraindications || "Not specified",
+//       adverseReactions: drug.adverseReactions || "Not specified",
+//       drugInteractions: drug.drugInteractions || "Not specified",
+//       labelUrl: drug.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drug.splId}`
+//     })) : []
+//   };
+  
+//   console.log("DAILY MED DATA", rawData, "cleaned", dailyMedData);
+  
+//   if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
+//     displayDailyMedData(dailyMedData);
+//   } else {
+//     elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//   }
+// } catch (error) {
+//   console.error("Error fetching DailyMed data:", error);
+//   elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
+// }
+
+
+//     // if (dailyMedResponse.ok && !dailyMedData.error) {
+//     //   displayDailyMedData(dailyMedData);
+//     // } else {
+//     //   elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//     // }
+
+
+//     // const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
+//     // const dailyMedData = await dailyMedResponse.json();
+    
+//     // if (dailyMedResponse.ok && !dailyMedData.error) {
+//     //   displayDailyMedData(dailyMedData);
+//     // } else {
+//     //   elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//     // }
+    
+//     // Fetch warning letters
+//     // await fetchWarningLetters(drugName);
+    
+//   } catch (error) {
+//     console.error("Error fetching FDA data:", error);
+//     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.warningLettersData.innerHTML = createErrorMessage("Error fetching FDA data");
+//   }
+// }
+
+// // Function to display FDA data when available
+// async function displayFdaData(drugName, condition) {
+//   // Initialize the FDA data section
+//   initFdaDataSection();
+  
+//   // Store current drug name globally for the summary feature
+//   window.currentDrugName = drugName;
+  
+//   // Show loading state
+//   const loadingTemplate = `
+//     <div class="flex justify-center items-center py-8">
+//       <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       <span class="ml-2 text-gray-600">Loading FDA data...</span>
+//     </div>
+//   `;
+  
+//   elements.fdaDocuments.innerHTML = loadingTemplate;
+//   elements.orangeBookData.innerHTML = loadingTemplate;
+//   elements.dailyMedData.innerHTML = loadingTemplate;
+//   elements.warningLettersData.innerHTML = loadingTemplate;
+  
+//   try {
+//     // Fetch comprehensive FDA drug data
+//     const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
+//     const fdaData = await fdaResponse.json();
+    
+//     if (fdaResponse.ok && !fdaData.error) {
+//       // Store FDA data globally for the summary feature
+//       window.fdaData = fdaData;
+      
+//       // Display the comprehensive FDA data
+//       displayComprehensiveFdaData(fdaData, drugName);
+      
+//       // Show the summary in the container (if it exists)
+//       const summaryContainer = document.getElementById('fda-summary-container');
+//       if (summaryContainer) {
+//         summaryContainer.innerHTML = generateFdaSummary(fdaData, drugName);
+//         summaryContainer.classList.remove('hidden');
+//       }
+//     } else {
+//       elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
+//     }
+    
+//     // Continue with existing Orange Book and DailyMed fetches
+//     const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
+//     const orangeBookData = await orangeBookResponse.json();
+//     const companies = orangeBookData.results.companies || [];
+
+//     if (orangeBookResponse.ok && !orangeBookData.error) {
+//       // Store Orange Book data globally for the summary
+//       window.orangeBookData = orangeBookData;
+      
+//       displayOrangeBookData(orangeBookData);
+//       await fetchWarningLetters(companies);
+      
+//       // Refresh the summary after Orange Book data is loaded
+//       refreshSummary();
+//     } else {
+//       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+//     }
+    
+//     try {
+//       // Fetch data from the new backend API
+//       const dailyMedResponse = await fetch(`http://localhost:3000/api/fda/dailymed?name=${encodeURIComponent(drugName)}`);
+//       const rawData = await dailyMedResponse.json();
+      
+//       // Format the data to work with your display function
+//       const dailyMedData = {
+//         label_info: Array.isArray(rawData) ? rawData.map(drug => ({
+//           title: drug.productName || drug.title || "Unknown Drug",
+//           published: drug.effectiveTime || "N/A",
+//           setId: drug.splId || "",
+//           manufacturer: drug.manufacturer || "Unknown",
+//           dosageForm: drug.dosageForms ? drug.dosageForms.join(', ') : "Not specified",
+//           activeIngredients: drug.activeIngredients || ["Unknown"],
+//           indications: drug.indications || "Not specified",
+//           warnings: drug.warnings || "Not specified",
+//           dosage: drug.dosage || "Not specified",
+//           contraindications: drug.contraindications || "Not specified",
+//           adverseReactions: drug.adverseReactions || "Not specified",
+//           drugInteractions: drug.drugInteractions || "Not specified",
+//           labelUrl: drug.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drug.splId}`
+//         })) : []
+//       };
+      
+//       if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
+//         // Store DailyMed data globally for the summary
+//         window.dailyMedData = dailyMedData;
+        
+//         displayDailyMedData(dailyMedData);
+        
+//         // Refresh the summary after DailyMed data is loaded
+//         refreshSummary();
+//       } else {
+//         elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching DailyMed data:", error);
+//       elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching FDA data:", error);
+//     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.warningLettersData.innerHTML = createErrorMessage("Error fetching FDA data");
+//   }
+// }
+
+
+// Function to display FDA data with integrated summary
+async function displayFdaData(drugName, condition) {
   // Initialize the FDA data section
   initFdaDataSection();
+  
+  // Store current drug name globally for the summary feature
+  window.currentDrugName = drugName;
   
   // Show loading state
   const loadingTemplate = `
     <div class="flex justify-center items-center py-8">
       <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
       <span class="ml-2 text-gray-600">Loading FDA data...</span>
     </div>
@@ -16544,17 +17868,33 @@ async function displayFdaData(drugName,condition) {
   elements.warningLettersData.innerHTML = loadingTemplate;
   
   try {
-        // if (!drug) {
-    //     alert('Please enter a drug name to search.');
-    //     return;
-    // }
     // Fetch comprehensive FDA drug data
     const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
     const fdaData = await fdaResponse.json();
     
     if (fdaResponse.ok && !fdaData.error) {
+      // Store FDA data globally for the summary feature
+      window.fdaData = fdaData;
+      
       // Display the comprehensive FDA data
       displayComprehensiveFdaData(fdaData, drugName);
+      
+      // Show the summary container and loading indicator
+      const summaryContainer = document.getElementById('fda-summary-container');
+      if (summaryContainer) {
+        summaryContainer.innerHTML = `
+          <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4 summary-card">
+            <div class="flex items-center">
+              <div class="mr-3">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              </div>
+              <h3 class="text-lg font-medium text-blue-800">Generating Regulatory Summary...</h3>
+            </div>
+            <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drugName}. This might take a moment.</p>
+          </div>
+        `;
+        summaryContainer.classList.remove('hidden');
+      }
     } else {
       elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
     }
@@ -16562,76 +17902,104 @@ async function displayFdaData(drugName,condition) {
     // Continue with existing Orange Book and DailyMed fetches
     const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
     const orangeBookData = await orangeBookResponse.json();
-    console.log("ORANGE BOOK", orangeBookData)
-    const companies = orangeBookData.results.companies || [];
+    const companies = orangeBookData.results?.companies || [];
 
     if (orangeBookResponse.ok && !orangeBookData.error) {
+      // Store Orange Book data globally for the summary
+      window.orangeBookData = orangeBookData;
+      
       displayOrangeBookData(orangeBookData);
+      
+      // Fetch warning letters for the companies
       await fetchWarningLetters(companies);
-
+      
+      // Refresh the summary after Orange Book data is loaded
+      refreshSummary();
     } else {
       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
     }
     
-
-    // const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
-    // const dailyMedData = await dailyMedResponse.json();
-    // console.log(dailyMedData)
     try {
-  // Fetch data from the new backend API
-  const dailyMedResponse = await fetch(`http://localhost:3000/api/fda/dailymed?name=${encodeURIComponent(drugName)}`);
-  const rawData = await dailyMedResponse.json();
-  console.log(rawData)
-  // Format the data to work with your display function
-  const dailyMedData = {
-    label_info: Array.isArray(rawData) ? rawData.map(drug => ({
-      title: drug.productName || drug.title || "Unknown Drug",
-      published: drug.effectiveTime || "N/A",
-      setId: drug.splId || "",
-      manufacturer: drug.manufacturer || "Unknown",
-      dosageForm: drug.dosageForms ? drug.dosageForms.join(', ') : "Not specified",
-      activeIngredients: drug.activeIngredients || ["Unknown"],
-      indications: drug.indications || "Not specified",
-      warnings: drug.warnings || "Not specified",
-      dosage: drug.dosage || "Not specified",
-      contraindications: drug.contraindications || "Not specified",
-      adverseReactions: drug.adverseReactions || "Not specified",
-      drugInteractions: drug.drugInteractions || "Not specified",
-      labelUrl: drug.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drug.splId}`
-    })) : []
-  };
-  
-  console.log("DAILY MED DATA", rawData, "cleaned", dailyMedData);
-  
-  if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
-    displayDailyMedData(dailyMedData);
-  } else {
-    elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
-  }
-} catch (error) {
-  console.error("Error fetching DailyMed data:", error);
-  elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
-}
-
-
-    // if (dailyMedResponse.ok && !dailyMedData.error) {
-    //   displayDailyMedData(dailyMedData);
-    // } else {
-    //   elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
-    // }
-
-
-    // const dailyMedResponse = await fetch(`/api/fda/dailymed/${encodeURIComponent(drugName)}`);
-    // const dailyMedData = await dailyMedResponse.json();
+      // Fetch data from the DailyMed API
+      const dailyMedResponse = await fetch(`http://localhost:3000/api/fda/dailymed?name=${encodeURIComponent(drugName)}`);
+      const rawData = await dailyMedResponse.json();
+      
+      // Format the data to work with your display function
+      const dailyMedData = {
+        label_info: Array.isArray(rawData) ? rawData.map(drug => ({
+          title: drug.productName || drug.title || "Unknown Drug",
+          published: drug.effectiveTime || "N/A",
+          setId: drug.splId || "",
+          manufacturer: drug.manufacturer || "Unknown",
+          dosageForm: drug.dosageForms ? drug.dosageForms.join(', ') : "Not specified",
+          activeIngredients: drug.activeIngredients || ["Unknown"],
+          indications: drug.indications || "Not specified",
+          warnings: drug.warnings || "Not specified",
+          dosage: drug.dosage || "Not specified",
+          contraindications: drug.contraindications || "Not specified",
+          adverseReactions: drug.adverseReactions || "Not specified",
+          drugInteractions: drug.drugInteractions || "Not specified",
+          labelUrl: drug.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drug.splId}`
+        })) : []
+      };
+      
+      if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
+        // Store DailyMed data globally for the summary
+        window.dailyMedData = dailyMedData;
+        
+        displayDailyMedData(dailyMedData);
+        
+        // Refresh the summary after DailyMed data is loaded
+        refreshSummary();
+      } else {
+        elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+      }
+    } catch (error) {
+      console.error("Error fetching DailyMed data:", error);
+      elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
+    }
     
-    // if (dailyMedResponse.ok && !dailyMedData.error) {
-    //   displayDailyMedData(dailyMedData);
-    // } else {
-    //   elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
-    // }
-    
-    // Fetch warning letters
-    // await fetchWarningLetters(drugName);
+    // Generate an automated summary with OpenAI when all data is loaded
+    setTimeout(async () => {
+      try {
+        const summaryContainer = document.getElementById('fda-summary-container');
+        if (summaryContainer && window.fdaData) {
+          // Collect all FDA data
+          const allData = collectAllFdaData(drugName);
+          
+          // First show a basic summary
+          summaryContainer.innerHTML = generateLocalSummary(allData);
+          
+          // Then try to get an enhanced summary from OpenAI
+          try {
+            const aiSummary = await generateOpenAISummary(allData);
+            if (aiSummary) {
+              summaryContainer.innerHTML = aiSummary;
+              
+              // Add an email button to the summary container
+              const emailButton = document.createElement('button');
+              emailButton.className = 'mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+              emailButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                Email Me This Summary
+              `;
+              emailButton.onclick = function() {
+                emailSummary(drugName, aiSummary);
+              };
+              summaryContainer.appendChild(emailButton);
+            }
+          } catch (aiError) {
+            console.error("Error generating AI summary:", aiError);
+            // Keep the local summary if AI fails
+          }
+        }
+      } catch (summaryError) {
+        console.error("Error generating summary:", summaryError);
+      }
+    }, 1000); // Small delay to ensure all data is loaded
     
   } catch (error) {
     console.error("Error fetching FDA data:", error);
@@ -16643,6 +18011,16 @@ async function displayFdaData(drugName,condition) {
 }
 
 
+// // Helper function to refresh the summary when new data is available
+// function refreshSummary() {
+//   if (window.fdaData && window.currentDrugName) {
+//     const summaryContainer = document.getElementById('fda-summary-container');
+//     if (summaryContainer) {
+//       summaryContainer.innerHTML = generateFdaSummary(window.fdaData, window.currentDrugName);
+//       summaryContainer.classList.remove('hidden');
+//     }
+//   }
+// }
 
 async function displayFdaClinicalData(condition) {
   // Initialize the FDA data section
@@ -29551,7 +30929,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
 });
 
-// Advanced PubMed Module with Specialized Condition & Drug Search
+
+
 const PubMedModule = (function() {
   const elements = {
     // Main containers
@@ -35547,6 +36926,10 @@ const PubMedModule = (function() {
 // });
 
 // Add this at the top of your script file to ensure the module is initialized once
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
   // Check if module exists first
   if (typeof PubMedModule !== 'undefined' && PubMedModule.init) {

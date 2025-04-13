@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" /> <!-- blue-500 -->
+      <stop offset="100%" stop-color="#4F46E5" /> <!-- indigo-600 -->
+    </linearGradient>
+  </defs>
+  <!-- Modern DNA/Research icon -->
+  <path d="M12 2v20M4 4c1.5 1.5 5 3 8 3s6.5-1.5 8-3M4 20c1.5-1.5 5-3 8-3s6.5 1.5 8 3M4 12c1.5-1.5 5-3 8-3s6.5 1.5 8 3M4 12c1.5 1.5 5 3 8 3s6.5-1.5 8-3" stroke="url(#logo-gradient)" />
+</svg>

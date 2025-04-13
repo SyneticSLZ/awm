@@ -61,8 +61,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Rate limiter configuration (tracks requests without rejecting)
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Max 100 requests per IP in the window
+  windowMs: 15 * 60 , // 15 minutes
+  max: 1000, // Max 100 requests per IP in the window
   standardHeaders: true, // Include RateLimit-* headers
   legacyHeaders: false, // Disable older X-RateLimit headers
   skipFailedRequests: true, // Don't count failed requests
