@@ -22,6 +22,7 @@ const { handlePubMedSearch } = require('./pubmed.js');
 // const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
 
 const { OpenAI } = require('openai');
+const rateLimit = require('express-rate-limit');
 
 const { 
   DrugClassification, 
@@ -55,6 +56,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10mb' }));
+// Custom delay function (returns a promise that resolves after a specified time)
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Rate limiter configuration (tracks requests without rejecting)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Max 100 requests per IP in the window
+  standardHeaders: true, // Include RateLimit-* headers
+  legacyHeaders: false, // Disable older X-RateLimit headers
+  skipFailedRequests: true, // Don't count failed requests
+  handler: async (req, res, next, options) => {
+    // Instead of rejecting, delay the request
+    const retryAfterMs = req.rateLimit.resetTime - Date.now(); // Time until window resets
+    console.log(`Rate limit hit for IP ${req.ip}, delaying for ${retryAfterMs}ms`);
+    await delay(retryAfterMs + 100); // Wait until the window resets (+ buffer)
+    next(); // Process the request after delay
+  },
+});
+
+// Apply rate limiter to all routes
+app.use(apiLimiter);
 
 // Cache for FDA and EMA approvals
 const approvalCache = {

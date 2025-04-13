@@ -196,11 +196,47 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+             /* Profile button and popup animations */
+        #userProfileButton {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #userProfileButton:hover {
+            transform: translateY(-2px);
+        }
+        
+        #profilePopup {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Dark theme */
+        body.dark-theme {
+            background-color: #1a202c;
+            color: #f7fafc;
+        }
+        
+        body.dark-theme header {
+            background-color: #2d3748;
+        }
+        
+        body.dark-theme footer {
+            background-color: #1a202c;
+        }
+        
+        body.dark-theme .bg-gray-100 {
+            background-color: #2d3748;
+            /* color: #e2e8f0; */
+        }
+        
+        body.dark-theme #userInfo {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
         </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800" >
 
-  <header class="bg-dark text-white shadow-md">
+  <!-- <header class="bg-dark text-white shadow-md">
       <div class="container mx-auto p-4">
           <nav class="flex justify-between items-center">
               <div class="text-2xl font-bold">
@@ -218,13 +254,136 @@
                   </li>
               </ul>
           </nav>
-          <!-- <div class="text-center mt-4">
-              <h1 class="text-3xl font-bold">Treatment-Resistant Depression Clinical Trials Research Tool</h1>
-              <p class="text-gray-300 mt-2">Analyze and compare clinical trial outcomes across studies and phases</p>
-          </div> -->
+         
       </div>
-  </header>
-
+  </header> -->
+  
+  <header class="bg-gradient-to-r from-white to-gray-100 shadow-md relative dark:from-gray-900 dark:to-gray-800">
+    <!-- Glassmorphism effect overlay -->
+    <div class="absolute inset-0 bg-black/5 backdrop-blur-sm dark:bg-white/5"></div>
+    
+    <div class="container mx-auto relative z-10">
+        <nav class="flex flex-wrap justify-between items-center p-4">
+            <!-- Logo/Brand section - More modern and sleek -->
+            <div class="flex items-center space-x-3">
+                <div class="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
+                    <a href="#" class="hover:opacity-80 transition-opacity flex items-center">
+                        <!-- Modern and sleek logo -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="url(#logo-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3B82F6" /> <!-- blue-500 -->
+                                    <stop offset="100%" stop-color="#4F46E5" /> <!-- indigo-600 -->
+                                </linearGradient>
+                            </defs>
+                            <!-- Modern DNA/Research icon -->
+                            <path d="M12 2v20M4 4c1.5 1.5 5 3 8 3s6.5-1.5 8-3M4 20c1.5-1.5 5-3 8-3s6.5 1.5 8 3M4 12c1.5-1.5 5-3 8-3s6.5 1.5 8 3M4 12c1.5 1.5 5 3 8 3s6.5-1.5 8-3" />
+                        </svg>
+                        Research Tool
+                    </a>
+                </div>
+                <!-- <p class="hidden md:block text-sm text-gray-600 dark:text-gray-400">AI-powered drug and condition research</p> -->
+            </div>
+            
+            <!-- Navigation links - center -->
+            <ul class="flex justify-center items-center space-x-6 my-3 md:my-0">
+                <li>
+                    <a href="./wl.html" class="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white transition-colors duration-200 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Warning Letters
+                    </a>
+                </li>
+                <li>
+                    <a href="./post483.html" class="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white transition-colors duration-200 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd" />
+                        </svg>
+                        483s
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- User section - right -->
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle -->
+                <button style="display: none;" id="themeToggle" class="p-1.5 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
+                    <!-- Sun icon (shows in dark mode) -->
+                    <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <!-- Moon icon (shows in light mode) -->
+                    <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+                
+                <!-- User info - Logged out state (default) -->
+                <button id="loginBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    Login
+                </button>
+                
+                <!-- User info - Logged in state -->
+                <div id="userInfo" class="hidden">
+                    <div class="flex items-center">
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-indigo-500/10 transition-colors duration-200">
+                                <div class="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium uppercase">
+                                    <span id="userInitial">U</span>
+                                </div>
+                                <div class="hidden md:block">
+                                    <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                        <span id="username">Username</span>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+        
+        // Toggle theme
+        themeToggle.addEventListener('click', function() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        });
+    });
+    </script>
        <!-- Login overlay (shown if not logged in) -->
        <div id="loginOverlay" class="login-overlay hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -256,7 +415,95 @@
         Welcome back, <span id="notificationUsername"></span>!
     </div>
 
+    <!-- Floating user icon in bottom right -->
+    <div id="userProfileButton" class="hidden fixed bottom-6 right-6 flex items-center cursor-pointer bg-white rounded-full shadow-lg pl-3 pr-4 py-2 z-50 transition-all duration-300 hover:shadow-xl">
+        <div class="flex items-center justify-center w-10 h-10 bg-indigo-600 rounded-full text-white mr-2">
+            <span id="userInitials" class="text-lg font-bold"></span>
+        </div>
+        <span id="welcomeText" class="font-medium">Welcome</span>
+    </div>
+    
+    <!-- Profile popup -->
+    <div id="profilePopup" class="hidden fixed bottom-20 right-6 bg-white rounded-lg shadow-2xl overflow-hidden w-80 z-50 transition-transform duration-300 origin-bottom-right scale-0 transform">
+        <div class="relative">
+            <!-- Close button -->
+            <button id="closePopup" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <!-- Header with gradient background -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-16 h-16 bg-white rounded-full text-indigo-600 mr-4">
+                        <span id="popupUserInitials" class="text-2xl font-bold"></span>
+                    </div>
+                    <div>
+                        <h3 id="popupUsername" class="text-xl font-bold"></h3>
+                        <p id="popupEmail" class="text-sm opacity-90"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User details -->
+            <div class="p-6">
+                <!-- Role / Access level -->
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500 mb-1">Access Level</p>
+                    <p id="popupRole" class="font-medium"></p>
+                </div>
+                
+                <!-- Usage -->
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500 mb-1">Usage</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="usageBar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 45%"></div>
+                    </div>
+                    <p class="text-sm mt-1"><span id="usagePercent">45</span>% of your quota used</p>
+                </div>
+                
+                <!-- Billing period -->
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500 mb-1">Billing Period</p>
+                    <p id="billingPeriod" class="font-medium"></p>
+                </div>
+                
+                <!-- Subscription status -->
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    <p class="text-sm text-gray-500 mb-1">Subscription Status</p>
+                    <div id="subscriptionStatus" class="inline-block px-2 py-1 rounded text-sm font-medium"></div>
+                </div>
+                
+                <!-- UI Mode Toggle -->
+                <div class="flex items-center justify-between mb-5">
+                    <span class="text-sm font-medium">Dark Mode</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+                
+                <!-- Logout button -->
+                <button id="popupLogoutBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded transition-colors">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main class="container mx-auto p-4">
+
+                    <!-- User info area (shows after login) -->
+                    <div id="userInfo" class="hidden bg-green-50 border border-green-200 p-4 rounded mb-6">
+                        <div class="flex justify-between items-center">
+                            <p>Logged in as: <span id="username" class="font-semibold"></span></p>
+                            <button id="logoutBtn" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
         <!-- Search Section -->
         <!-- <section class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">Search for Clinical Trials</h2>
@@ -418,7 +665,7 @@
             </svg>
             AI Search
         </button>
-        <p class="text-xs text-gray-500 mt-1.5 ml-2">Example: "Phase 2 trials for ketamine targeting TRD in adults from the last 3 years"</p>
+        <p class="text-xs text-gray-500 mt-1.5 ml-2">Example: "Trials for ketamine targeting TRD in adults from the last 3 years"</p>
     </div>
     
     <!-- Timeline Slider -->
@@ -10510,8 +10757,8 @@ function displayStudies(studies, drug, condition) {
         // If we have a condition but no drug, display the condition timeline
         console.log("Displaying condition timeline for:", condition);
         displayStudiesWithTimeline(studies, condition, 'condition');
-    } else if (drug) {
-        // If we have a drug (with or without condition), display the drug timeline
+    } else if (drug && !condition) {
+        // If we have a drug  without condition display the drug timeline
         console.log("Displaying drug timeline for:", drug);
         displayStudiesWithTimeline(studies, drug, 'drug');
     }
@@ -22482,8 +22729,8 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
     // Update UI with what was processed (form fields)
     elements.drugSearch.value = drug;
     elements.conditionSearch.value = condition;
-    elements.hasResultsOnly.checked = hasResultsOnly;
-    elements.trdFocusOnly.checked = trdFocusOnly;
+    // elements.hasResultsOnly.checked = hasResultsOnly;
+    // elements.trdFocusOnly.checked = trdFocusOnly;
     document.getElementById('timelineSlider').value = yearsBack;
     
     // Update the timeline display if you have a function for that
@@ -35328,7 +35575,160 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-class LoginSystem {
+// class LoginSystem {
+//             constructor() {
+//                 this.loginOverlay = document.getElementById('loginOverlay');
+//                 this.existingPageContent = document.getElementById('existingPageContent');
+//                 this.userInfo = document.getElementById('userInfo');
+//                 this.usernameDisplay = document.getElementById('username');
+//                 this.notificationUsername = document.getElementById('notificationUsername');
+//                 this.notification = document.getElementById('notification');
+//                 this.loginForm = document.getElementById('loginForm');
+//                 this.loginError = document.getElementById('loginError');
+//                 this.logoutBtn = document.getElementById('logoutBtn');
+                
+//                 this.init();
+//                 this.setupEventListeners();
+//             }
+            
+//             init() {
+//                 // Check if user is logged in
+//                 const storedUser = localStorage.getItem('currentUser');
+                
+//                 if (storedUser) {
+//                     try {
+//                         const user = JSON.parse(storedUser);
+//                         this.showMainContent(user);
+//                         this.showNotification(user.username);
+//                     } catch (error) {
+//                         console.error('Failed to parse stored user:', error);
+//                         this.showLoginOverlay();
+//                     }
+//                 } else {
+//                     this.showLoginOverlay();
+//                 }
+//             }
+            
+//             setupEventListeners() {
+//                 // Login form submission
+//                 this.loginForm.addEventListener('submit', (e) => {
+//                     e.preventDefault();
+//                     this.handleLogin();
+//                 });
+                
+//                 // Logout button
+//                 // this.logoutBtn.addEventListener('click', () => {
+//                 //     this.handleLogout();
+//                 // });
+//             }
+            
+//             showLoginOverlay() {
+//                 this.loginOverlay.classList.remove('hidden');
+//                 document.body.style.overflow = 'hidden'; // Prevent scrolling while overlay is open
+//             }
+            
+//             hideLoginOverlay() {
+//                 this.loginOverlay.classList.add('hidden');
+//                 document.body.style.overflow = ''; // Restore scrolling
+//             }
+            
+//             showMainContent(user) {
+//                 this.hideLoginOverlay();
+//                 // this.userInfo.classList.remove('hidden');
+//                 // this.usernameDisplay.textContent = user.username;
+//                 init()
+//             }
+            
+//             showNotification(username) {
+//                 this.notificationUsername.textContent = username;
+//                 this.notification.classList.add('show');
+                
+//                 // Hide notification after 5 seconds
+//                 setTimeout(() => {
+//                     this.notification.classList.remove('show');
+//                 }, 5000);
+//             }
+            
+//             async handleLogin() {
+//                 const username = document.getElementById('loginUsername').value;
+//                 const password = document.getElementById('loginPassword').value;
+                
+                
+//                 try {
+//                     // // Call the login API endpoint
+//                     // const response = await fetch('/api/login', {
+//                     //     method: 'POST',
+//                     //     headers: {
+//                     //         'Content-Type': 'application/json'
+//                     //     },
+//                     //     body: JSON.stringify({ username, password })
+//                     // });
+                    
+//                     // const data = await response.json();
+                    
+//                     // if (response.ok) {
+//                         // Save user to localStorage
+//                     if(this.testLogin(username,password)){
+//                         localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        
+//                         // Show main content and notification
+//                         this.showMainContent(data.user);
+//                         this.showNotification(data.user.username);
+//                     } else {
+//                         // Show error message
+//                         this.loginError.textContent = data.message || 'Login failed. Please try again.';
+//                         this.loginError.classList.remove('hidden');
+//                     }
+//                 } catch (error) {
+//                     console.error('Login error:', error);
+//                     this.loginError.textContent = 'An error occurred. Please try again later.';
+//                     this.loginError.classList.remove('hidden');
+//                 }
+//             }
+            
+//             handleLogout() {
+//                 // Clear localStorage
+//                 localStorage.removeItem('currentUser');
+                
+//                 // Hide user info
+//                 // this.userInfo.classList.add('hidden');
+                
+//                 // Show login overlay
+//                 this.showLoginOverlay();
+//             }
+            
+//             // Method for client-side testing without a backend
+//             testLogin(username, password) {
+//                 // Hardcoded test users
+//                 const users = [
+//                     { id: 1, username: 'testuser', password: 'password123', role: 'admin' },
+//                     { id: 2, username: 'user', password: 'user123', role: 'user' }
+//                 ];
+                
+//                 const user = users.find(u => u.username === username && u.password === password);
+                
+//                 if (user) {
+//                     const safeUser = {
+//                         id: user.id,
+//                         username: user.username,
+//                         role: user.role
+//                     };
+                    
+//                     localStorage.setItem('currentUser', JSON.stringify(safeUser));
+//                     this.showMainContent(safeUser);
+//                     this.showNotification(safeUser.username);
+//                     return true;
+//                 } else {
+//                     this.loginError.textContent = 'Invalid username or password';
+//                     this.loginError.classList.remove('hidden');
+//                     return false;
+//                 }
+//             }
+//         }
+        
+      
+        // Login system
+        class LoginSystem {
             constructor() {
                 this.loginOverlay = document.getElementById('loginOverlay');
                 this.existingPageContent = document.getElementById('existingPageContent');
@@ -35339,6 +35739,23 @@ class LoginSystem {
                 this.loginForm = document.getElementById('loginForm');
                 this.loginError = document.getElementById('loginError');
                 this.logoutBtn = document.getElementById('logoutBtn');
+                
+                // Profile button and popup elements
+                this.userProfileButton = document.getElementById('userProfileButton');
+                this.userInitials = document.getElementById('userInitials');
+                this.welcomeText = document.getElementById('welcomeText');
+                this.profilePopup = document.getElementById('profilePopup');
+                this.closePopup = document.getElementById('closePopup');
+                this.popupLogoutBtn = document.getElementById('popupLogoutBtn');
+                this.popupUsername = document.getElementById('popupUsername');
+                this.popupEmail = document.getElementById('popupEmail');
+                this.popupUserInitials = document.getElementById('popupUserInitials');
+                this.popupRole = document.getElementById('popupRole');
+                this.usageBar = document.getElementById('usageBar');
+                this.usagePercent = document.getElementById('usagePercent');
+                this.billingPeriod = document.getElementById('billingPeriod');
+                this.subscriptionStatus = document.getElementById('subscriptionStatus');
+                this.darkModeToggle = document.getElementById('darkModeToggle');
                 
                 this.init();
                 this.setupEventListeners();
@@ -35369,10 +35786,42 @@ class LoginSystem {
                     this.handleLogin();
                 });
                 
-                // Logout button
-                // this.logoutBtn.addEventListener('click', () => {
-                //     this.handleLogout();
-                // });
+                // Logout buttons
+                this.logoutBtn.addEventListener('click', () => {
+                    this.handleLogout();
+                });
+                
+                this.popupLogoutBtn.addEventListener('click', () => {
+                    this.handleLogout();
+                });
+                
+                // Profile button click
+                this.userProfileButton.addEventListener('click', () => {
+                    this.toggleProfilePopup();
+                });
+                
+                // Close popup button
+                this.closePopup.addEventListener('click', () => {
+                    this.hideProfilePopup();
+                });
+                
+                // Click outside to close popup
+                document.addEventListener('click', (e) => {
+                    if (!this.profilePopup.contains(e.target) && 
+                        !this.userProfileButton.contains(e.target) && 
+                        this.isProfilePopupVisible()) {
+                        this.hideProfilePopup();
+                    }
+                });
+                
+                // Dark mode toggle
+                this.darkModeToggle.addEventListener('change', () => {
+                    this.toggleDarkMode();
+                });
+            }
+            
+            isProfilePopupVisible() {
+                return !this.profilePopup.classList.contains('scale-0');
             }
             
             showLoginOverlay() {
@@ -35387,9 +35836,75 @@ class LoginSystem {
             
             showMainContent(user) {
                 this.hideLoginOverlay();
-                // this.userInfo.classList.remove('hidden');
-                // this.usernameDisplay.textContent = user.username;
+                this.userInfo.classList.remove('hidden');
+                this.usernameDisplay.textContent = user.username;
+                
+                // Show the floating user button
+                this.userProfileButton.classList.remove('hidden');
+                
+                // Set user initials (first letter of username)
+                const initials = user.username.charAt(0).toUpperCase();
+                this.userInitials.textContent = initials;
+                this.popupUserInitials.textContent = initials;
+                
+                // Set welcome text
+                this.welcomeText.textContent = `Welcome, ${user.username}`;
+                
+                // Update profile popup details
+                this.updateProfilePopup(user);
                 init()
+            }
+            
+            updateProfilePopup(user) {
+                // Set user details in popup
+                this.popupUsername.textContent = user.username;
+                this.popupEmail.textContent = user.email || 'No email provided';
+                this.popupRole.textContent = this.capitalizeFirstLetter(user.role);
+                
+                // Set usage bar
+                this.usageBar.style.width = `${user.usage}%`;
+                this.usagePercent.textContent = user.usage;
+                
+                // Set billing period
+                this.billingPeriod.textContent = user.billingPeriod || 'No active billing period';
+                
+                // Set subscription status
+                this.updateSubscriptionStatus(user.subscriptionStatus);
+                
+                // Set dark mode toggle
+                this.darkModeToggle.checked = user.darkModeEnabled || false;
+                if (user.darkModeEnabled) {
+                    this.applyDarkMode();
+                }
+            }
+            
+            updateSubscriptionStatus(status) {
+                let text, bgColor;
+                
+                switch (status) {
+                    case 'free-trial':
+                        text = 'Free Trial';
+                        bgColor = 'bg-green-100 text-green-800';
+                        break;
+                    case 'active':
+                        text = 'Active';
+                        bgColor = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'expired':
+                        text = 'Expired';
+                        bgColor = 'bg-red-100 text-red-800';
+                        break;
+                    default:
+                        text = 'Unknown';
+                        bgColor = 'bg-gray-100 text-gray-800';
+                }
+                
+                this.subscriptionStatus.textContent = text;
+                this.subscriptionStatus.className = `inline-block px-2 py-1 rounded text-sm font-medium ${bgColor}`;
+            }
+            
+            capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
             }
             
             showNotification(username) {
@@ -35406,7 +35921,6 @@ class LoginSystem {
                 const username = document.getElementById('loginUsername').value;
                 const password = document.getElementById('loginPassword').value;
                 
-                
                 try {
                     // // Call the login API endpoint
                     // const response = await fetch('/api/login', {
@@ -35419,9 +35933,8 @@ class LoginSystem {
                     
                     // const data = await response.json();
                     
-                    // if (response.ok) {
+                    if (this.testLogin(username,password)) {
                         // Save user to localStorage
-                    if(this.testLogin(username,password)){
                         localStorage.setItem('currentUser', JSON.stringify(data.user));
                         
                         // Show main content and notification
@@ -35443,19 +35956,98 @@ class LoginSystem {
                 // Clear localStorage
                 localStorage.removeItem('currentUser');
                 
-                // Hide user info
-                // this.userInfo.classList.add('hidden');
+                // Hide user info and profile button
+                this.userInfo.classList.add('hidden');
+                this.userProfileButton.classList.add('hidden');
+                this.hideProfilePopup();
                 
                 // Show login overlay
                 this.showLoginOverlay();
             }
             
+            toggleProfilePopup() {
+                if (this.isProfilePopupVisible()) {
+                    this.hideProfilePopup();
+                } else {
+                    this.showProfilePopup();
+                }
+            }
+            
+            showProfilePopup() {
+                this.profilePopup.classList.remove('hidden', 'scale-0');
+                // Add small delay for animation to work properly
+                setTimeout(() => {
+                    this.profilePopup.classList.add('scale-100');
+                }, 10);
+            }
+            
+            hideProfilePopup() {
+                this.profilePopup.classList.remove('scale-100');
+                this.profilePopup.classList.add('scale-0');
+                // Add transition delay before hiding completely
+                setTimeout(() => {
+                    this.profilePopup.classList.add('hidden');
+                }, 300);
+            }
+            
+            toggleDarkMode() {
+                const isDarkMode = this.darkModeToggle.checked;
+                
+                // Update user preference in localStorage
+                const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (storedUser) {
+                    storedUser.darkModeEnabled = isDarkMode;
+                    localStorage.setItem('currentUser', JSON.stringify(storedUser));
+                }
+                
+                if (isDarkMode) {
+                    this.applyDarkMode();
+                } else {
+                    this.removeDarkMode();
+                }
+            }
+            
+            applyDarkMode() {
+                document.body.classList.add('dark-theme');
+                document.body.style.backgroundColor = '#1a202c';
+                document.body.style.color = '#f7fafc';
+                
+                // You can add more specific dark mode styling here
+                // This is just a basic implementation
+            }
+            
+            removeDarkMode() {
+                document.body.classList.remove('dark-theme');
+                document.body.style.backgroundColor = '';
+                document.body.style.color = '';
+            }
+            
             // Method for client-side testing without a backend
             testLogin(username, password) {
-                // Hardcoded test users
+                // Hardcoded test users with extended profile information
                 const users = [
-                    { id: 1, username: 'testuser', password: 'password123', role: 'admin' },
-                    { id: 2, username: 'user', password: 'user123', role: 'user' }
+                    { 
+                        id: 1, 
+                        username: 'testuser', 
+                        password: 'password123', 
+                        role: 'admin',
+                        email: 'admin@example.com',
+                        usage: 45, 
+                        billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
+                        subscriptionStatus: 'free-trial', // Options: free-trial, active, expired
+                        darkModeEnabled: false
+                    },
+                    { 
+                        id: 2, 
+                        username: 'user', 
+                        password: 'user123', 
+                        role: 'user',
+                        email: 'user@example.com',
+                        usage: 68, 
+                        billingPeriod: 'Apr 10, 2025 - May 9, 2025',
+                        subscriptionStatus: 'active', // Options: free-trial, active, expired
+                        darkModeEnabled: true
+                    }
                 ];
                 
                 const user = users.find(u => u.username === username && u.password === password);
@@ -35464,7 +36056,12 @@ class LoginSystem {
                     const safeUser = {
                         id: user.id,
                         username: user.username,
-                        role: user.role
+                        role: user.role,
+                        email: user.email,
+                        usage: user.usage,
+                        billingPeriod: user.billingPeriod,
+                        subscriptionStatus: user.subscriptionStatus,
+                        darkModeEnabled: user.darkModeEnabled
                     };
                     
                     localStorage.setItem('currentUser', JSON.stringify(safeUser));
@@ -35493,6 +36090,7 @@ class LoginSystem {
             };
             */
         });
+
         
 // Don't call init again inside handleSearch
 // Initialize the module when DOM is ready
