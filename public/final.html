@@ -1152,6 +1152,7 @@
 
         <!-- PubMed Section (Initially Hidden) -->
 <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">PubMed Articles</h2>
 <!-- Loading state -->
 <div id="pubmedLoading" class="flex justify-center items-center py-12 hidden">
     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -2318,7 +2319,10 @@ appState.allTrialOutcomes = [];
 
         // DOM elements
         const elements = {
+            ema: document.getElementById('emaDataSection'),
+            ctSummary : document.getElementById('clinical-trials-dashboard'),
             drugSearch: document.getElementById('drugSearch'),
+            pubmedSection: document.getElementById('pubmedSection'),
             conditionSearch: document.getElementById('conditionSearch'),
             hasResultsOnly: document.getElementById('hasResultsOnly'),
             trdFocusOnly: document.getElementById('trdFocusOnly'),
@@ -24559,7 +24563,10 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
   elements.drugSearch.value = '';
   elements.conditionSearch.value = '';
 
+  showSection(elements.ctSummary, false)
+  showSection(elements.ema, false)
   showSection(elements.resultsOverview, false);
+  showSection(elements.pubmedSection, false)
     showSection(elements.studiesSection, false);
     showSection(elements.studyDetailSection, false);
     showSection(elements.fdaDataSection, false);
@@ -24863,6 +24870,7 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
     // 4. HANDLE EMA DATA IF REQUESTED
     if (drug && showEMA && typeof EmaDataModule !== 'undefined') {
       const emaPromise = (async () => {
+        showSection(elements.ema, true)
         EmaDataModule.init();
        
         await EmaDataModule.searchDrug(drug);
@@ -24878,6 +24886,7 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
     
     // 5. HANDLE PUBMED SEARCH IF REQUESTED
     if ((drug || condition) && showPubMed && typeof PubMedModule !== 'undefined') {
+        showSection(elements.pubmedSection, true)
       const pubmedPromise = (async () => {
         try {
           const pubmedOptions = {
@@ -31445,7 +31454,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 const PubMedModule = (function() {
-  const elements = {
+ const elements = {
     // Main containers
     pubmedSection: safeGetElement('pubmedSection'),
     pubmedLoading: safeGetElement('pubmedLoading'),
