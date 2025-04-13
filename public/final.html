@@ -24555,6 +24555,18 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
     return;
   }
   console.log("go on")
+
+  
+  showSection(elements.resultsOverview, false);
+    showSection(elements.studiesSection, false);
+    showSection(elements.studyDetailSection, false);
+    showSection(elements.fdaDataSection, false);
+    showSection(elements.placeholderMessage, false);
+    // Hide any other sections that might be visible
+    document.querySelectorAll('.results-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    displayLoading(true);
     // Get search parameters - if AI search, extract from query
   let drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, phaseFilter;
   
