@@ -19,6 +19,7 @@ const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
 const { handlePubMedSearch } = require('./pubmed.js');
+const nodemailer = require('nodemailer');
 // const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
 
 const { OpenAI } = require('openai');
@@ -420,6 +421,181 @@ const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 
 
+
+
+
+
+
+
+/**
+ * Generate FDA summary using OpenAI
+ * POST /api/generate-summary
+ */
+app.post('/api/generate-summary', async (req, res) => {
+  try {
+    const { prompt, maxTokens, temperature, drugName } = req.body;
+    const grokApiKey = GROK_API_KEY;
+    const grokApiUrl = GROK_API_URL; // Your Grok chat completions URL
+    
+    console.log(`Generating Grok summary for ${drugName}`);
+    
+    // Prepare the request for Grok API - FIXED to include model field
+    const response = await axios.post(grokApiUrl, {
+      model: "grok-1", // Add the required model field - update to your specific Grok model name if different
+      messages: [
+        {
+          role: "system",
+          content: "You are a specialized AI assistant focused on FDA regulatory information analysis. Your task is to create detailed, well-structured HTML summaries of FDA data for pharmaceutical drugs. Focus on critical safety information, organized presentation, and actionable insights."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: maxTokens || 1500,
+      temperature: temperature || 0.7
+    }, {
+      headers: {
+        'Authorization': `Bearer ${grokApiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Extract the response content from Grok API
+    const summary = response.data.choices[0].message.content.trim();
+    
+    res.json({ success: true, summary });
+  } catch (error) {
+    console.error('Grok API error:', error.response?.data || error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+/**
+ * Email the FDA summary to the user
+ * POST /api/email-summary
+ */
+app.post('/api/email-summary', async (req, res) => {
+  try {
+    const { email, name, subject, content, drugName } = req.body;
+    
+    console.log(`Sending summary email to ${email} for ${drugName}`);
+    
+    // Create email transporter
+    const transporter = nodemailer.createTransport({
+      // Your email service configuration
+      service: 'gmail',
+      auth: {
+        user: 'syneticslz@gmail.com',
+        pass: 'gble ksdb ntdq hqlx'
+      }
+    });
+    
+    // Clean up the HTML content to ensure it's email-friendly
+    let cleanContent = content;
+    
+    // Replace Tailwind classes with inline styles for email compatibility
+    cleanContent = cleanContent.replace(/class="[^"]*"/g, (match) => {
+      let styles = '';
+      
+      // Convert common Tailwind classes to inline styles
+      if (match.includes('text-xl')) styles += 'font-size: 1.25rem; ';
+      if (match.includes('font-semibold')) styles += 'font-weight: 600; ';
+      if (match.includes('mb-4')) styles += 'margin-bottom: 1rem; ';
+      if (match.includes('text-gray-600')) styles += 'color: #4b5563; ';
+      if (match.includes('text-gray-700')) styles += 'color: #374151; ';
+      if (match.includes('text-blue-800')) styles += 'color: #1e40af; ';
+      if (match.includes('bg-blue-50')) styles += 'background-color: #eff6ff; ';
+      if (match.includes('p-4')) styles += 'padding: 1rem; ';
+      if (match.includes('rounded-lg')) styles += 'border-radius: 0.5rem; ';
+      if (match.includes('border')) styles += 'border: 1px solid #e5e7eb; ';
+      if (match.includes('border-blue-200')) styles += 'border-color: #bfdbfe; ';
+      if (match.includes('grid')) styles += 'display: block; '; // Grids don't work well in email
+      
+      return styles ? `style="${styles}"` : '';
+    });
+    
+    // Prepare HTML email
+    const htmlEmail = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>FDA Summary for ${drugName}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          }
+          .header h1 {
+            color: #1e40af;
+            margin-bottom: 5px;
+          }
+          .header h2 {
+            color: #1e3a8a;
+            margin-top: 0;
+          }
+          .content {
+            background-color: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>FDA Regulatory Summary</h1>
+          <h2>${drugName}</h2>
+        </div>
+        
+        <p>Hello ${name || 'there'},</p>
+        
+        <p>Here is the FDA regulatory summary you requested for ${drugName}:</p>
+        
+        <div class="content">
+          ${cleanContent}
+        </div>
+        
+        <div class="footer">
+          <p>This summary was generated automatically based on FDA data as of ${new Date().toLocaleDateString()}.</p>
+          <p><strong>Disclaimer:</strong> This information is provided for informational purposes only and should not be used for clinical decision making. Always consult official FDA documentation and healthcare professionals.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Send email
+    await transporter.sendMail({
+      from: `"FDA Data Portal" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: subject || `FDA Regulatory Summary for ${drugName}`,
+      html: htmlEmail
+    });
+    
+    res.json({ success: true, message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 
 
