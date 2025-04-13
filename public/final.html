@@ -10755,6 +10755,14 @@ function displayStudies(studies, drug, condition) {
         // If we have a drug  without condition display the drug timeline
         console.log("Displaying drug timeline for:", drug);
         displayStudiesWithTimeline(studies, drug, 'drug');
+    } else if (drug && (drug.toLowerCase() == condition.toLowerCase())){
+        console.log("Displaying drug timeline for:", drug);
+        displayStudiesWithTimeline(studies, drug, 'drug');
+    } else if (drug && condition){
+        const existingTimeline = document.getElementById('entity-usage-timeline');
+    if (existingTimeline) {
+        existingTimeline.innerHTML = ``;
+    } 
     }
 
     // Display the first page of studies
