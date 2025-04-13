@@ -31520,7 +31520,7 @@ const PubMedModule = (function() {
     currentPage: 1,
     pageSize: 5,          // Number of articles to show per page
     totalResults: 0,
-    isLoading: false,
+    isLoading: false,  
     sortBy: 'relevance',
     fullTextOnly: false,
     yearFilter: '',
@@ -32113,44 +32113,172 @@ const PubMedModule = (function() {
     renderArticles();
   }
 
-  // Render articles in the list with pagination
-  function renderArticles() {
-    if (!elements.pubmedArticlesList) return;
+//   // Render articles in the list with pagination
+//   function renderArticles() {
+//     if (!elements.pubmedArticlesList) return;
     
-    elements.pubmedArticlesList.innerHTML = '';
+//     elements.pubmedArticlesList.innerHTML = '';
     
-    // Calculate pagination
-    const startIndex = 0;
-    const endIndex = state.displayedArticles.length;
+//     // Calculate pagination
+//     const startIndex = 0;
+//     const endIndex = state.displayedArticles.length;
     
-    // Render only the articles for the current page
-    state.displayedArticles.slice(startIndex, endIndex).forEach(article => {
-      const articleElement = createArticleElement(article);
-      elements.pubmedArticlesList.appendChild(articleElement);
-    });
+//     // Render only the articles for the current page
+//     state.displayedArticles.slice(startIndex, endIndex).forEach(article => {
+//       const articleElement = createArticleElement(article);
+//       elements.pubmedArticlesList.appendChild(articleElement);
+//     });
     
-    if (elements.pubmedResultCount) {
-      if (state.localSearchTerm && state.localSearchTerm.trim() !== '') {
-        elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.displayedArticles.length} of ${state.filteredArticles.length} matching "${state.localSearchTerm}")`;
-      } else {
-        elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.displayedArticles.length})`;
-      }
-    }
+//     if (elements.pubmedResultCount) {
+//       if (state.localSearchTerm && state.localSearchTerm.trim() !== '') {
+//         elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.displayedArticles.length} of ${state.filteredArticles.length} matching "${state.localSearchTerm}")`;
+//       } else {
+//         elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.displayedArticles.length})`;
+//       }
+//     }
     
-    // Show/hide load more button based on whether there are more results
-    const hasMoreResults = state.filteredArticles.length > state.displayedArticles.length || 
-                          state.displayedArticles.length < state.totalResults;
+//     // Show/hide load more button based on whether there are more results
+//     const hasMoreResults = state.filteredArticles.length > state.displayedArticles.length || 
+//                           state.displayedArticles.length < state.totalResults;
     
-    showComponent(elements.pubmedPagination, hasMoreResults);
+//     showComponent(elements.pubmedPagination, hasMoreResults);
     
-    if (elements.pubmedLoadMore) {
-      const remainingCount = Math.min(
-        state.filteredArticles.length - state.displayedArticles.length,
-        state.totalResults - state.displayedArticles.length
-      );
-      elements.pubmedLoadMore.textContent = `Load More (${remainingCount} remaining)`;
+//     if (elements.pubmedLoadMore) {
+//       const remainingCount = Math.min(
+//         state.filteredArticles.length - state.displayedArticles.length,
+//         state.totalResults - state.displayedArticles.length
+//       );
+//       elements.pubmedLoadMore.textContent = `Load More (${remainingCount} remaining)`;
+//     }
+//   }
+
+// Modify renderArticles function to handle pagination
+function renderArticles() {
+  if (!elements.pubmedArticlesList) return;
+  
+  elements.pubmedArticlesList.innerHTML = '';
+  
+  // Calculate start and end indices for the current page
+  const startIndex = 0;
+  const endIndex = state.displayedArticles.length;
+  
+  // Render only the articles for the current page
+  state.displayedArticles.slice(startIndex, endIndex).forEach(article => {
+    const articleElement = createArticleElement(article);
+    elements.pubmedArticlesList.appendChild(articleElement);
+  });
+  
+  if (elements.pubmedResultCount) {
+    if (state.localSearchTerm && state.localSearchTerm.trim() !== '') {
+      elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.displayedArticles.length} of ${state.filteredArticles.length} matching "${state.localSearchTerm}")`;
+    } else {
+      elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing page ${state.currentPage} of ${Math.ceil(state.totalResults / state.pageSize)})`;
     }
   }
+  
+  // Only show pagination if we have more than one page
+  const totalPages = Math.ceil(state.totalResults / state.pageSize);
+  const showPagination = totalPages > 1;
+  
+  showComponent(elements.pubmedPagination, showPagination);
+  
+  // If pagination is visible, update the pagination controls
+  if (showPagination && elements.pubmedPagination) {
+    renderPagination(totalPages);
+  }
+}
+
+// Add a new function to render pagination controls
+function renderPagination(totalPages) {
+  if (!elements.pubmedPagination) return;
+  
+  // Create pagination HTML
+  let paginationHTML = '<div class="flex flex-wrap justify-center items-center gap-2">';
+  
+  // Previous button
+  paginationHTML += `
+    <button class="page-btn previous-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center ${state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+            ${state.currentPage === 1 ? 'disabled' : 'data-page="' + (state.currentPage - 1) + '"'}>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Previous
+    </button>
+  `;
+  
+  // Determine which page buttons to show
+  let startPage = Math.max(1, state.currentPage - Math.floor(state.maxPageButtons / 2));
+  let endPage = Math.min(totalPages, startPage + state.maxPageButtons - 1);
+  
+  // Adjust if we're near the end
+  if (endPage === totalPages) {
+    startPage = Math.max(1, endPage - state.maxPageButtons + 1);
+  }
+  
+  // First page button (if not in the current range)
+  if (startPage > 1) {
+    paginationHTML += `
+      <button class="page-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+              data-page="1">1</button>
+    `;
+    
+    if (startPage > 2) {
+      paginationHTML += `
+        <span class="px-2 text-gray-500">...</span>
+      `;
+    }
+  }
+  
+  // Page buttons
+  for (let i = startPage; i <= endPage; i++) {
+    const isCurrentPage = i === state.currentPage;
+    paginationHTML += `
+      <button class="page-btn px-3 py-1 ${isCurrentPage ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'} rounded-lg transition-colors"
+              ${isCurrentPage ? 'disabled' : 'data-page="' + i + '"'}>
+        ${i}
+      </button>
+    `;
+  }
+  
+  // Last page button (if not in the current range)
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      paginationHTML += `
+        <span class="px-2 text-gray-500">...</span>
+      `;
+    }
+    
+    paginationHTML += `
+      <button class="page-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+              data-page="${totalPages}">${totalPages}</button>
+    `;
+  }
+  
+  // Next button
+  paginationHTML += `
+    <button class="page-btn next-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center ${state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+            ${state.currentPage === totalPages ? 'disabled' : 'data-page="' + (state.currentPage + 1) + '"'}>
+      Next
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  `;
+  
+  paginationHTML += '</div>';
+  
+  // Update the pagination element
+  elements.pubmedPagination.innerHTML = paginationHTML;
+  
+  // Add event listeners to page buttons
+  document.querySelectorAll('.page-btn').forEach(button => {
+    if (!button.disabled && button.dataset.page) {
+      button.addEventListener('click', () => {
+        goToPage(parseInt(button.dataset.page, 10));
+      });
+    }
+  });
+}
 
   // Render treatments for a condition
   function renderTreatmentsForCondition(condition) {
@@ -32533,35 +32661,71 @@ const PubMedModule = (function() {
     evidenceDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Load more articles function
-  function loadMoreArticles() {
-    // Add the next batch of articles to display
-    const currentLength = state.displayedArticles.length;
-    const nextBatch = state.filteredArticles.slice(currentLength, currentLength + state.pageSize);
+//   // Load more articles function
+//   function loadMoreArticles() {
+//     // Add the next batch of articles to display
+//     const currentLength = state.displayedArticles.length;
+//     const nextBatch = state.filteredArticles.slice(currentLength, currentLength + state.pageSize);
     
-    if (nextBatch.length > 0) {
-      state.displayedArticles = [...state.displayedArticles, ...nextBatch];
-      renderArticles();
-    } else if (currentLength < state.totalResults) {
-      // Need to fetch more from the API
-      const options = {
-        page: state.currentPage + 1,
-        sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
-        fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
-        yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
-        journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
-        yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange
-      };
+//     if (nextBatch.length > 0) {
+//       state.displayedArticles = [...state.displayedArticles, ...nextBatch];
+//       renderArticles();
+//     } else if (currentLength < state.totalResults) {
+//       // Need to fetch more from the API
+//       const options = {
+//         page: state.currentPage + 1,
+//         sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+//         fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+//         yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+//         journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+//         yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange
+//       };
       
-      if (state.searchType === 'condition') {
-        searchPubMedByCondition(state.term, options);
-      } else if (state.searchType === 'drug') {
-        searchPubMedByDrug(state.term, options);
-      } else {
-        searchPubMed(state.term, options);
-      }
+//       if (state.searchType === 'condition') {
+//         searchPubMedByCondition(state.term, options);
+//       } else if (state.searchType === 'drug') {
+//         searchPubMedByDrug(state.term, options);
+//       } else {
+//         searchPubMed(state.term, options);
+//       }
+//     }
+//   }
+  
+  
+  function goToPage(pageNumber) {
+  if (state.isLoading || pageNumber === state.currentPage) return;
+  
+  // Calculate start and end indices for the requested page
+  const startIndex = (pageNumber - 1) * state.pageSize;
+  
+  // Check if we already have the articles for this page in filteredArticles
+  if (startIndex < state.filteredArticles.length) {
+    // We have the articles for this page, just update the display
+    state.currentPage = pageNumber;
+    state.displayedArticles = state.filteredArticles.slice(startIndex, startIndex + state.pageSize);
+    renderArticles();
+  } else {
+    // We need to fetch more articles from the API
+    const options = {
+      page: pageNumber,
+      sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+      fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+      yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+      journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+      yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange
+    };
+    
+    if (state.searchType === 'condition') {
+      searchPubMedByCondition(state.term, options);
+    } else if (state.searchType === 'drug') {
+      searchPubMedByDrug(state.term, options);
+    } else {
+      searchPubMed(state.term, options);
     }
   }
+}
+
+
 
   // Build year filter string based on year range
   function buildYearFilterString(yearRange) {
@@ -33053,12 +33217,12 @@ const PubMedModule = (function() {
     }
     
     // Load more button
-    if (elements.pubmedLoadMore) {
-      elements.pubmedLoadMore.addEventListener('click', () => {
-        if (state.isLoading) return;
-        loadMoreArticles();
-      });
-    }
+    // if (elements.pubmedLoadMore) {
+    //   elements.pubmedLoadMore.addEventListener('click', () => {
+    //     if (state.isLoading) return;
+    //     loadMoreArticles();
+    //   });
+    // }
     
     // Advanced toggle
     if (elements.pubmedAdvancedToggle && elements.pubmedAdvancedOptions) {
@@ -33174,6 +33338,22 @@ const PubMedModule = (function() {
   // Create essential elements if they don't exist
   function ensureRequiredElements() {
     // Create main container if needed
+
+    if (!document.getElementById('pubmedPagination') && elements.pubmedArticles) {
+    console.log(`PubMed Module: Creating pagination elements`);
+    
+    const pagination = document.createElement('div');
+    pagination.id = 'pubmedPagination';
+    pagination.className = 'mt-6 hidden';
+    pagination.innerHTML = ''; // Will be populated by renderPagination
+    
+    elements.pubmedArticles.appendChild(pagination);
+    
+    // Update element references 
+    elements.pubmedPagination = document.getElementById('pubmedPagination');
+  }
+
+
     if (!document.getElementById('pubmedSection')) {
       console.log("PubMed Module: Creating missing pubmedSection element");
       const section = document.createElement('div');
