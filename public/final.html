@@ -24555,8 +24555,10 @@ async function handleAISearch(isAISearch = false, aiQuery = '') {
     return;
   }
   console.log("go on")
-
   
+  elements.drugSearch.value = '';
+  elements.conditionSearch.value = '';
+
   showSection(elements.resultsOverview, false);
     showSection(elements.studiesSection, false);
     showSection(elements.studyDetailSection, false);
