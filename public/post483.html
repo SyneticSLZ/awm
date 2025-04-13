@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FDA Inspection Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- Fallback for browsers that don't support SVG favicons -->
+<link rel="alternate icon" href="favicon.ico">
+<!-- Apple Touch Icon for iOS devices -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Web App Manifest -->
+<link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .glass {
@@ -61,11 +68,11 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-4">
                     <div class="text-2xl font-bold">FDA Inspection Hub</div>
-                    <div class="hidden md:flex space-x-6">
-                        <a href="./final.html" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300 active-nav" data-section="home">
+                    <div class="hidden md:flex space-x-6" style="display: none;">
+                        <a href="https://sunday-fsfq.onrender.com" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300 active-nav" data-section="home">
                             <i class="fas fa-home mr-2"></i>Home
                         </a>
-                        <a href="./wl.html" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="warning-letters">
+                        <a href="https://sunday-fsfq.onrender.com/wl.html" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="warning-letters">
                             <i class="fas fa-exclamation-triangle mr-2"></i>Warning Letters
                         </a>
                     </div>
