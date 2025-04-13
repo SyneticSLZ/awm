@@ -93,7 +93,11 @@ const FDAvalidateDrugName = (req, res, next) => {
   next();
 };
 
-
+app.get('/config', (req, res) => {
+  res.json({
+    apiUrl: process.env.PUBLIC_API_URL || 'http://localhost:3000/api', // Fallback for local testing
+  });
+});
 
 // // Load and parse the EMA medicine data CSV file
 // let emaMedicines = [];

@@ -348,42 +348,7 @@
         </nav>
     </div>
 </header>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const sunIcon = document.getElementById('sunIcon');
-        const moonIcon = document.getElementById('moonIcon');
-        
-        // Check for saved theme preference or use system preference
-        const savedTheme = localStorage.getItem('theme');
-        
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            document.documentElement.classList.remove('dark');
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        }
-        
-        // Toggle theme
-        themeToggle.addEventListener('click', function() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                sunIcon.classList.add('hidden');
-                moonIcon.classList.remove('hidden');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                sunIcon.classList.remove('hidden');
-                moonIcon.classList.add('hidden');
-            }
-        });
-    });
-    </script>
+
        <!-- Login overlay (shown if not logged in) -->
        <div id="loginOverlay" class="login-overlay hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -2384,7 +2349,25 @@
     <script>
         // API Base URL - Use our local backend
         // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
-         const API_BASE_URL = 'http://localhost:3000/api';
+        //  const API_BASE_URL = 'http://localhost:3000/api';
+
+let API_BASE_URL = null;
+
+// Fetch config on page load
+window.onload = async () => {
+  try {
+    const response = await fetch('/config');
+    const data = await response.json();
+    API_BASE_URL = data.apiUrl;
+    // document.getElementById('api-url').textContent = API_BASE_URL;
+    console.log(API_BASE_URL)
+  } catch (err) {
+    console.error('Error fetching config:', err);
+    API_BASE_URL = 'https://sunday-fsfq.onrender.com/api'; // Fallback
+    // document.getElementById('api-url').textContent = API_BASE_URL;
+  }
+};
+
 
         // State management
         const appState = {
