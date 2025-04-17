@@ -18333,6 +18333,192 @@ function initFdaDataSection() {
 //   }
 // }
 
+// async function displayFdaData(drugName, condition) {
+//   // Initialize the FDA data section
+//   initFdaDataSection();
+  
+//   // Store current drug name globally for the summary feature
+//   window.currentDrugName = drugName;
+  
+//   // Show loading state
+//   const loadingTemplate = `
+//     <div class="flex justify-center items-center py-8">
+//       <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       <span class="ml-2 text-gray-600">Loading FDA data...</span>
+//     </div>
+//   `;
+  
+//   elements.fdaDocuments.innerHTML = loadingTemplate;
+//   elements.orangeBookData.innerHTML = loadingTemplate;
+//   elements.dailyMedData.innerHTML = loadingTemplate;
+//   elements.warningLettersData.innerHTML = loadingTemplate;
+  
+//   try {
+//     // Fetch comprehensive FDA drug data
+//     const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
+//     const fdaData = await fdaResponse.json();
+    
+//     if (fdaResponse.ok && !fdaData.error) {
+//       // Store FDA data globally for the summary feature
+//       window.fdaData = fdaData;
+      
+//       // Display the comprehensive FDA data
+//       displayComprehensiveFdaData(fdaData, drugName);
+      
+//       // Show the summary container and loading indicator
+//       const summaryContainer = document.getElementById('fda-summary-container');
+//       if (summaryContainer) {
+//         summaryContainer.innerHTML = `
+//           <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4 summary-card">
+//             <div class="flex items-center">
+//               <div class="mr-3">
+//                 <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+//               </div>
+//               <h3 class="text-lg font-medium text-blue-800">Generating Regulatory Summary...</h3>
+//             </div>
+//             <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drugName} with Grok AI. This might take a moment.</p>
+//           </div>
+//         `;
+//         summaryContainer.classList.remove('hidden');
+//       }
+//     } else {
+//       elements.fdaDocuments.innerHTML = createErrorMessage("Could not retrieve FDA data");
+//     }
+    
+//     // Continue with existing Orange Book and DailyMed fetches
+//     const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drugName)}`);
+//     const orangeBookData = await orangeBookResponse.json();
+//     const companies = orangeBookData.results?.companies || [];
+
+//     if (orangeBookResponse.ok && !orangeBookData.error) {
+//       // Store Orange Book data globally for the summary
+//       window.orangeBookData = orangeBookData;
+      
+//       displayOrangeBookData(orangeBookData);
+      
+//       // Fetch warning letters for the companies
+//       await fetchWarningLetters(companies);
+      
+//       // Refresh the summary after Orange Book data is loaded
+//       refreshSummary();
+//     } else {
+//       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+//     }
+    
+//     try {
+//       // Fetch data from the DailyMed API
+//       const dailyMedResponse = await fetch(`${API_BASE_URL}/fda/dailymed?name=${encodeURIComponent(drugName)}`);
+//       const rawData = await dailyMedResponse.json();
+      
+//       // Format the data to work with your display function
+//       const dailyMedData = {
+//         label_info: Array.isArray(rawData) ? rawData.map(drug => ({
+//           title: drug.productName || drug.title || "Unknown Drug",
+//           published: drug.effectiveTime || "N/A",
+//           setId: drug.splId || "",
+//           manufacturer: drug.manufacturer || "Unknown",
+//           dosageForm: drug.dosageForms ? drug.dosageForms.join(', ') : "Not specified",
+//           activeIngredients: drug.activeIngredients || ["Unknown"],
+//           indications: drug.indications || "Not specified",
+//           warnings: drug.warnings || "Not specified",
+//           dosage: drug.dosage || "Not specified",
+//           contraindications: drug.contraindications || "Not specified",
+//           adverseReactions: drug.adverseReactions || "Not specified",
+//           drugInteractions: drug.drugInteractions || "Not specified",
+//           labelUrl: drug.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drug.splId}`
+//         })) : []
+//       };
+      
+//       if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
+//         // Store DailyMed data globally for the summary
+//         window.dailyMedData = dailyMedData;
+        
+//         displayDailyMedData(dailyMedData);
+        
+//         // Refresh the summary after DailyMed data is loaded
+//         refreshSummary();
+//       } else {
+//         elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+//       }
+//     } catch (error) {
+//       console.error("Error fetching DailyMed data:", error);
+//       elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
+//     }
+    
+//     // Generate an automated summary with Grok AI when all data is loaded
+//     setTimeout(async () => {
+//       try {
+//         const summaryContainer = document.getElementById('fda-summary-container');
+//         if (summaryContainer && window.fdaData) {
+//           // Collect all FDA data
+//           const allData = collectAllFdaData(drugName);
+          
+//           // First show a basic summary
+//           summaryContainer.innerHTML = generateLocalSummary(allData);
+          
+//           // Then try to get an enhanced summary from Grok AI
+//           try {
+//             const aiSummary = await generateGrokAISummary(allData);
+//             if (aiSummary) {
+//               summaryContainer.innerHTML = aiSummary;
+              
+//               // Add an email button and Grok badge to the summary container
+//               const summaryFooter = document.createElement('div');
+//               summaryFooter.className = 'flex items-center justify-between mt-4';
+              
+//               // Email button
+//               const emailButton = document.createElement('button');
+//               emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+//               emailButton.innerHTML = `
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+//                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+//                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+//                 </svg>
+//                 Email Me This Summary
+//               `;
+//               emailButton.onclick = function() {
+//                 emailSummary(drugName, aiSummary);
+//               };
+              
+//               // Grok badge
+//               const grokBadge = document.createElement('div');
+//               grokBadge.className = 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center';
+//               grokBadge.innerHTML = `
+//                 <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+//                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+//                 </svg>
+//                 Powered by Grok AI
+//               `;
+              
+//               // Add elements to the footer
+//               summaryFooter.appendChild(emailButton);
+//               summaryFooter.appendChild(grokBadge);
+              
+//               // Add footer to the summary container
+//               summaryContainer.appendChild(summaryFooter);
+//             }
+//           } catch (aiError) {
+//             console.error("Error generating Grok AI summary:", aiError);
+//             // Keep the local summary if AI fails
+//           }
+//         }
+//       } catch (summaryError) {
+//         console.error("Error generating summary:", summaryError);
+//       }
+//     }, 1000); // Small delay to ensure all data is loaded
+    
+//   } catch (error) {
+//     console.error("Error fetching FDA data:", error);
+//     elements.fdaDocuments.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.orangeBookData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.dailyMedData.innerHTML = createErrorMessage("Error fetching FDA data");
+//     elements.warningLettersData.innerHTML = createErrorMessage("Error fetching FDA data");
+//   }
+// }
+
 async function displayFdaData(drugName, condition) {
   // Initialize the FDA data section
   initFdaDataSection();
@@ -18357,7 +18543,7 @@ async function displayFdaData(drugName, condition) {
   elements.warningLettersData.innerHTML = loadingTemplate;
   
   try {
-    // Fetch comprehensive FDA drug data
+    // Fetch comprehensive FDA data
     const fdaResponse = await fetch(`${API_BASE_URL}/fda/drug/${encodeURIComponent(drugName)}`);
     const fdaData = await fdaResponse.json();
     
@@ -18368,7 +18554,7 @@ async function displayFdaData(drugName, condition) {
       // Display the comprehensive FDA data
       displayComprehensiveFdaData(fdaData, drugName);
       
-      // Show the summary container and loading indicator
+      // Show the summary container with a loading indicator initially
       const summaryContainer = document.getElementById('fda-summary-container');
       if (summaryContainer) {
         summaryContainer.innerHTML = `
@@ -18377,9 +18563,9 @@ async function displayFdaData(drugName, condition) {
               <div class="mr-3">
                 <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
               </div>
-              <h3 class="text-lg font-medium text-blue-800">Generating Regulatory Summary...</h3>
+              <h3 class="text-lg font-medium text-blue-800">Generating Basic Regulatory Summary...</h3>
             </div>
-            <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drugName} with Grok AI. This might take a moment.</p>
+            <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drugName}. This might take a moment.</p>
           </div>
         `;
         summaryContainer.classList.remove('hidden');
@@ -18401,9 +18587,6 @@ async function displayFdaData(drugName, condition) {
       
       // Fetch warning letters for the companies
       await fetchWarningLetters(companies);
-      
-      // Refresh the summary after Orange Book data is loaded
-      refreshSummary();
     } else {
       elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
     }
@@ -18437,9 +18620,6 @@ async function displayFdaData(drugName, condition) {
         window.dailyMedData = dailyMedData;
         
         displayDailyMedData(dailyMedData);
-        
-        // Refresh the summary after DailyMed data is loaded
-        refreshSummary();
       } else {
         elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
       }
@@ -18448,65 +18628,183 @@ async function displayFdaData(drugName, condition) {
       elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
     }
     
-    // Generate an automated summary with Grok AI when all data is loaded
+    // Generate and display the basic summary after all data is loaded
     setTimeout(async () => {
       try {
         const summaryContainer = document.getElementById('fda-summary-container');
         if (summaryContainer && window.fdaData) {
-          // Collect all FDA data
+          // Collect all FDA data including Orange Book
           const allData = collectAllFdaData(drugName);
           
-          // First show a basic summary
-          summaryContainer.innerHTML = generateLocalSummary(allData);
+          // Display the basic summary
+          const basicSummary = generateLocalSummary(allData);
           
-          // Then try to get an enhanced summary from Grok AI
-          try {
-            const aiSummary = await generateGrokAISummary(allData);
-            if (aiSummary) {
-              summaryContainer.innerHTML = aiSummary;
+          // Create a footer div for the basic summary with the AI summary button
+          const summaryFooter = document.createElement('div');
+          summaryFooter.className = 'flex items-center justify-between mt-4';
+          
+          // Email button for basic summary
+          const emailButton = document.createElement('button');
+          emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+          emailButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+            Email Me This Summary
+          `;
+          emailButton.onclick = function() {
+            emailSummary(drugName, summaryContainer.innerHTML);
+          };
+          
+          // AI summary button
+          const aiSummaryButton = document.createElement('button');
+          aiSummaryButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
+          aiSummaryButton.innerHTML = `
+            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+            Generate AI-Enhanced Summary
+          `;
+          
+          // Event handler for the AI summary button
+          aiSummaryButton.onclick = async function() {
+            // Show loading state when generating AI summary
+            summaryContainer.innerHTML = `
+              <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4 summary-card">
+                <div class="flex items-center">
+                  <div class="mr-3">
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  </div>
+                  <h3 class="text-lg font-medium text-blue-800">Generating AI-Enhanced Summary...</h3>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drugName} with Grok AI. This might take a moment.</p>
+              </div>
+            `;
+            
+            try {
+              // Generate the AI summary
+              const aiSummary = await generateGrokAISummary(allData);
               
-              // Add an email button and Grok badge to the summary container
-              const summaryFooter = document.createElement('div');
-              summaryFooter.className = 'flex items-center justify-between mt-4';
+              if (aiSummary) {
+                // Display the AI summary
+                summaryContainer.innerHTML = aiSummary;
+                
+                // Add an updated footer for the AI summary
+                const aiSummaryFooter = document.createElement('div');
+                aiSummaryFooter.className = 'flex items-center justify-between mt-4';
+                
+                // Email button for AI summary
+                const aiEmailButton = document.createElement('button');
+                aiEmailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+                aiEmailButton.innerHTML = emailButton.innerHTML;
+                aiEmailButton.onclick = function() {
+                  emailSummary(drugName, aiSummary);
+                };
+                
+                // Back to basic summary button
+                const backToBasicButton = document.createElement('button');
+                backToBasicButton.className = 'px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors flex items-center';
+                backToBasicButton.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                  </svg>
+                  Back to Basic Summary
+                `;
+                backToBasicButton.onclick = function() {
+                  // Restore the basic summary
+                  summaryContainer.innerHTML = basicSummary;
+                  
+                  // Restore the original footer with AI summary button
+                  const basicFooter = document.createElement('div');
+                  basicFooter.className = 'flex items-center justify-between mt-4';
+                  basicFooter.appendChild(emailButton.cloneNode(true));
+                  basicFooter.appendChild(aiSummaryButton.cloneNode(true));
+                  
+                  // Re-attach event handlers
+                  basicFooter.children[0].onclick = function() {
+                    emailSummary(drugName, basicSummary);
+                  };
+                  basicFooter.children[1].onclick = aiSummaryButton.onclick;
+                  
+                  summaryContainer.appendChild(basicFooter);
+                };
+                
+                // Grok badge
+                const grokBadge = document.createElement('div');
+                grokBadge.className = 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center';
+                grokBadge.innerHTML = `
+                  <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  </svg>
+                  Powered by Grok AI
+                `;
+                
+                // Add containers to footer
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex space-x-2';
+                buttonContainer.appendChild(aiEmailButton);
+                buttonContainer.appendChild(backToBasicButton);
+                
+                aiSummaryFooter.appendChild(buttonContainer);
+                aiSummaryFooter.appendChild(grokBadge);
+                
+                // Add footer to the summary container
+                summaryContainer.appendChild(aiSummaryFooter);
+              } else {
+                // If AI summary generation fails, go back to the basic summary
+                summaryContainer.innerHTML = basicSummary;
+                summaryContainer.appendChild(summaryFooter);
+              }
+            } catch (aiError) {
+              console.error("Error generating Grok AI summary:", aiError);
+              // Show an error message and revert to basic summary
+              summaryContainer.innerHTML = basicSummary;
               
-              // Email button
-              const emailButton = document.createElement('button');
-              emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
-              emailButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
-                Email Me This Summary
+              // Add error notification
+              const errorNotice = document.createElement('div');
+              errorNotice.className = 'p-3 bg-red-50 text-red-700 border border-red-200 rounded mt-2 mb-2';
+              errorNotice.innerHTML = `
+                <div class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  <span>AI summary generation failed. Using basic summary instead.</span>
+                </div>
               `;
-              emailButton.onclick = function() {
-                emailSummary(drugName, aiSummary);
-              };
-              
-              // Grok badge
-              const grokBadge = document.createElement('div');
-              grokBadge.className = 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center';
-              grokBadge.innerHTML = `
-                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                </svg>
-                Powered by Grok AI
-              `;
-              
-              // Add elements to the footer
-              summaryFooter.appendChild(emailButton);
-              summaryFooter.appendChild(grokBadge);
-              
-              // Add footer to the summary container
+              summaryContainer.insertBefore(errorNotice, summaryContainer.firstChild);
               summaryContainer.appendChild(summaryFooter);
             }
-          } catch (aiError) {
-            console.error("Error generating Grok AI summary:", aiError);
-            // Keep the local summary if AI fails
-          }
+          };
+          
+          // Add button containers to the footer
+          summaryFooter.appendChild(emailButton);
+          summaryFooter.appendChild(aiSummaryButton);
+          
+          // Set the basic summary content
+          summaryContainer.innerHTML = basicSummary;
+          
+          // Add the footer to the summary container
+          summaryContainer.appendChild(summaryFooter);
         }
       } catch (summaryError) {
         console.error("Error generating summary:", summaryError);
+        
+        // Display error message in the summary container
+        const summaryContainer = document.getElementById('fda-summary-container');
+        if (summaryContainer) {
+          summaryContainer.innerHTML = `
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="text-lg font-medium text-red-800">Error Generating Summary</h3>
+              </div>
+              <p class="text-sm text-red-600 mt-2">There was a problem generating the regulatory summary. Please try again later.</p>
+            </div>
+          `;
+        }
       }
     }, 1000); // Small delay to ensure all data is loaded
     
@@ -18519,6 +18817,18 @@ async function displayFdaData(drugName, condition) {
   }
 }
 
+// Helper function to ensure Orange Book data is included in the summary
+function collectAllFdaData(drugName) {
+  const allData = {
+    drugName: drugName,
+    fdaData: window.fdaData || {},
+    orangeBookData: window.orangeBookData || {},
+    dailyMedData: window.dailyMedData || { label_info: [] },
+    warningLetters: window.warningLetters || []
+  };
+  
+  return allData;
+}
 
 // // Helper function to refresh the summary when new data is available
 // function refreshSummary() {
