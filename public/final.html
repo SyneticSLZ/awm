@@ -17646,6 +17646,7 @@ function emailSummary(drugName, content = null) {
 function prepareDataForGrokAPI(allData) {
   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
   
+  console.log(allData)
   let prompt = `Generate a comprehensive, well-structured summary of all the FDA regulatory information for the drug "${drugName}". Include critical insights and highlight important safety information. Here's the available data:\n\n`;
   
   // FDA Application Data
@@ -17775,8 +17776,8 @@ function prepareDataForGrokAPI(allData) {
   
   // Orange Book Data
   prompt += "\nORANGE BOOK DATA:\n";
-  if (orangeBookData && orangeBookData.results) {
-    const results = orangeBookData.results;
+  if (orangeBookData) {
+    const results = orangeBookData;
     
     prompt += `- Total entries: ${results.total || 0}\n`;
     prompt += `- Patents: ${results.patents || 0}\n`;
