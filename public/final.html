@@ -19514,12 +19514,129 @@ document.querySelectorAll('.view-ndc-btn').forEach(button => {
 
 // Function to initialize adverse events chart
 // Function to initialize adverse events chart with proper heights
+// function initializeAdverseEventsChart(eventData) {
+//   if (!eventData || eventData.length === 0 || !document.getElementById('adverse-events-chart')) {
+//     return;
+//   }
+  
+//   // Count the types of reactions
+//   const reactionCounts = {};
+  
+//   eventData.forEach(event => {
+//     const reactions = event.patient?.reaction || [];
+    
+//     reactions.forEach(reaction => {
+//       const reactionName = reaction.reactionmeddrapt || 'Unknown';
+//       if (!reactionCounts[reactionName]) {
+//         reactionCounts[reactionName] = 0;
+//       }
+//       reactionCounts[reactionName]++;
+//     });
+//   });
+  
+//   // Sort and take top 10 reactions
+//   const sortedReactions = Object.entries(reactionCounts)
+//     .sort((a, b) => b[1] - a[1])
+//     .slice(0, 10);
+  
+//   // Prepare chart data
+//   const labels = sortedReactions.map(([name]) => name);
+//   const counts = sortedReactions.map(([, count]) => count);
+  
+//   // Calculate the maximum count for scaling
+//   const maxCount = Math.max(...counts);
+  
+//   // Create a proper bar chart with specific heights
+//   let chartHtml = `
+//     <div class="flex flex-col h-full">
+//       <h4 class="text-sm font-medium text-gray-700 mb-4">Top 10 Reported Reactions</h4>
+//       <div class="flex-1 flex flex-col">
+//   `;
+  
+//   // Create chart container with grid for bars
+//   chartHtml += `
+//     <div class="flex-1 relative">
+//       <!-- Y-axis labels -->
+//       <div class="absolute left-0 top-0 bottom-0 w-10 flex flex-col justify-between text-xs text-gray-500 pr-2">
+//         <div>${maxCount}</div>
+//         <div>${Math.round(maxCount * 0.75)}</div>
+//         <div>${Math.round(maxCount * 0.5)}</div>
+//         <div>${Math.round(maxCount * 0.25)}</div>
+//         <div>0</div>
+//       </div>
+      
+//       <!-- Grid lines -->
+//       <div class="absolute left-10 right-0 top-0 bottom-0">
+//         <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 0%"></div>
+//         <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 25%"></div>
+//         <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 50%"></div>
+//         <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 75%"></div>
+//         <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 100%"></div>
+//       </div>
+      
+//       <!-- Bars -->
+//       <div class="absolute left-12 right-2 top-0 bottom-8 flex items-end justify-around">
+//   `;
+  
+//   // Add each bar
+//   for (let i = 0; i < labels.length; i++) {
+//     const percentage = (counts[i] / maxCount) * 100;
+    
+//     chartHtml += `
+//       <div class="flex flex-col items-center group" style="height: 100%;">
+//         <div class="text-xs text-gray-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+//           ${counts[i]}
+//         </div>
+//         <div class="w-12 bg-blue-500 rounded-t transition-all hover:bg-blue-600" 
+//              style="height: ${percentage}%; min-height: 4px;"></div>
+//       </div>
+//     `;
+//   }
+  
+//   // Close bars container
+//   chartHtml += `
+//       </div>
+      
+//       <!-- X-axis labels -->
+//       <div class="absolute left-12 right-2 bottom-0 h-8 flex justify-around">
+//   `;
+  
+//   // Add X-axis labels
+//   for (let i = 0; i < labels.length; i++) {
+//     chartHtml += `
+//       <div class="text-xs text-gray-600 transform -rotate-45 origin-top-left overflow-hidden whitespace-nowrap w-12 truncate" 
+//            title="${labels[i]}">
+//         ${truncateText(labels[i], 15)}
+//       </div>
+//     `;
+//   }
+  
+//   // Close X-axis container and rest of the chart
+//   chartHtml += `
+//       </div>
+//     </div>
+//   </div>
+// </div>
+//   `;
+  
+//   document.getElementById('adverse-events-chart').innerHTML = chartHtml;
+// }
+
 function initializeAdverseEventsChart(eventData) {
-  if (!eventData || eventData.length === 0 || !document.getElementById('adverse-events-chart')) {
+  // Check if data and DOM element exist
+  const chartContainer = document.getElementById('adverse-events-chart');
+  if (!eventData || eventData.length === 0 || !chartContainer) {
+    if (chartContainer) {
+      chartContainer.innerHTML = `
+        <div class="flex items-center justify-center h-64 bg-gray-50 rounded border border-gray-200">
+          <p class="text-gray-500">No adverse event data available</p>
+        </div>
+      `;
+    }
     return;
   }
   
-  // Count the types of reactions
+  // Count reaction types
   const reactionCounts = {};
   
   eventData.forEach(event => {
@@ -19527,10 +19644,7 @@ function initializeAdverseEventsChart(eventData) {
     
     reactions.forEach(reaction => {
       const reactionName = reaction.reactionmeddrapt || 'Unknown';
-      if (!reactionCounts[reactionName]) {
-        reactionCounts[reactionName] = 0;
-      }
-      reactionCounts[reactionName]++;
+      reactionCounts[reactionName] = (reactionCounts[reactionName] || 0) + 1;
     });
   });
   
@@ -19545,49 +19659,56 @@ function initializeAdverseEventsChart(eventData) {
   
   // Calculate the maximum count for scaling
   const maxCount = Math.max(...counts);
+  const chartHeight = 280; // Fixed chart height
   
-  // Create a proper bar chart with specific heights
+  // Create chart HTML with flexbox layout
   let chartHtml = `
-    <div class="flex flex-col h-full">
-      <h4 class="text-sm font-medium text-gray-700 mb-4">Top 10 Reported Reactions</h4>
-      <div class="flex-1 flex flex-col">
+    <div class="flex flex-col h-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <h4 class="text-sm font-semibold text-gray-800 mb-4">Top 10 Reported Adverse Reactions</h4>
+      
+      <!-- Chart container -->
+      <div class="flex flex-1 min-h-[${chartHeight}px]">
+        
+        <!-- Y-axis labels -->
+        <div class="flex flex-col justify-between pr-2 text-xs text-gray-500">
+          <div>${maxCount}</div>
+          <div>${Math.round(maxCount * 0.75)}</div>
+          <div>${Math.round(maxCount * 0.5)}</div>
+          <div>${Math.round(maxCount * 0.25)}</div>
+          <div>0</div>
+        </div>
+        
+        <!-- Chart grid and bars -->
+        <div class="flex-1 relative">
+          <!-- Grid lines -->
+          <div class="absolute left-0 right-0 top-0 bottom-8 flex flex-col justify-between">
+            <div class="border-b border-gray-200 w-full"></div>
+            <div class="border-b border-gray-200 w-full"></div>
+            <div class="border-b border-gray-200 w-full"></div>
+            <div class="border-b border-gray-200 w-full"></div>
+            <div class="border-b border-gray-200 w-full"></div>
+          </div>
+          
+          <!-- Bars container -->
+          <div class="absolute left-0 right-0 top-0 bottom-8 flex items-end justify-around">
   `;
   
-  // Create chart container with grid for bars
-  chartHtml += `
-    <div class="flex-1 relative">
-      <!-- Y-axis labels -->
-      <div class="absolute left-0 top-0 bottom-0 w-10 flex flex-col justify-between text-xs text-gray-500 pr-2">
-        <div>${maxCount}</div>
-        <div>${Math.round(maxCount * 0.75)}</div>
-        <div>${Math.round(maxCount * 0.5)}</div>
-        <div>${Math.round(maxCount * 0.25)}</div>
-        <div>0</div>
-      </div>
-      
-      <!-- Grid lines -->
-      <div class="absolute left-10 right-0 top-0 bottom-0">
-        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 0%"></div>
-        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 25%"></div>
-        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 50%"></div>
-        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 75%"></div>
-        <div class="absolute left-0 right-0 h-px bg-gray-200" style="top: 100%"></div>
-      </div>
-      
-      <!-- Bars -->
-      <div class="absolute left-12 right-2 top-0 bottom-8 flex items-end justify-around">
-  `;
+  // Add each bar with proper spacing and hover effect
+  const barWidth = Math.min(40, Math.floor(100 / labels.length) - 4);
   
-  // Add each bar
   for (let i = 0; i < labels.length; i++) {
     const percentage = (counts[i] / maxCount) * 100;
+    const label = labels[i];
     
     chartHtml += `
       <div class="flex flex-col items-center group" style="height: 100%;">
-        <div class="text-xs text-gray-600 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <!-- Count tooltip -->
+        <div class="px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity mb-1">
           ${counts[i]}
         </div>
-        <div class="w-12 bg-blue-500 rounded-t transition-all hover:bg-blue-600" 
+        
+        <!-- Bar -->
+        <div class="w-${barWidth} bg-blue-500 hover:bg-blue-600 transition-colors rounded-t" 
              style="height: ${percentage}%; min-height: 4px;"></div>
       </div>
     `;
@@ -19595,31 +19716,44 @@ function initializeAdverseEventsChart(eventData) {
   
   // Close bars container
   chartHtml += `
-      </div>
-      
-      <!-- X-axis labels -->
-      <div class="absolute left-12 right-2 bottom-0 h-8 flex justify-around">
+          </div>
+          
+          <!-- X-axis labels with proper truncation -->
+          <div class="absolute left-0 right-0 bottom-0 flex justify-around">
   `;
   
-  // Add X-axis labels
+  // Add X-axis labels with better handling
   for (let i = 0; i < labels.length; i++) {
+    const displayLabel = truncateText(labels[i], 12);
+    
     chartHtml += `
-      <div class="text-xs text-gray-600 transform -rotate-45 origin-top-left overflow-hidden whitespace-nowrap w-12 truncate" 
-           title="${labels[i]}">
-        ${truncateText(labels[i], 15)}
+      <div class="text-xs text-gray-600 max-w-[${barWidth + 10}px] text-center" title="${labels[i]}">
+        ${displayLabel}
       </div>
     `;
   }
   
-  // Close X-axis container and rest of the chart
+  // Close the chart
   chartHtml += `
+          </div>
+        </div>
+      </div>
+      
+      <!-- Legend or additional info -->
+      <div class="mt-4 text-xs text-gray-500 text-center">
+        Based on ${eventData.length} reported cases
       </div>
     </div>
-  </div>
-</div>
   `;
   
-  document.getElementById('adverse-events-chart').innerHTML = chartHtml;
+  // Set the HTML content
+  chartContainer.innerHTML = chartHtml;
+}
+
+// Helper function to truncate text with ellipsis
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 }
 
 // Alternative implementation using HTML Canvas for more precise control
