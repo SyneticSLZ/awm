@@ -17647,6 +17647,19 @@ function prepareDataForGrokAPI(allData) {
   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
   
   console.log(allData)
+  // Trigger JSON download
+  const jsonString = JSON.stringify(allData, null, 2); // Pretty-print JSON with indentation
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${drugName}_regulatory_data.json`; // File name for download
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url); // Clean up the URL object
+  return
+  
   let prompt = `Generate a comprehensive, well-structured summary of all the FDA regulatory information for the drug "${drugName}". Include critical insights and highlight important safety information. Here's the available data:\n\n`;
   
   // FDA Application Data
@@ -17872,6 +17885,7 @@ function prepareDataForGrokAPI(allData) {
 
   return prompt;
 }
+
 
 // Function to call Grok API for enhanced summary
 async function generateGrokAISummary(allData) {
