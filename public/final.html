@@ -625,7 +625,7 @@
     </div>
     
     <!-- AI Search Box -->
-    <div class="mt-5 relative">
+    <!-- <div class="mt-5 relative">
         <div class="absolute left-3 top-3.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M13.5 3.25a.75.75 0 00-1.5 0V4h-1.5a.75.75 0 000 1.5H12v1.5a.75.75 0 001.5 0V5.5h1.5a.75.75 0 000-1.5H13.5v-1.25zm-8.25 4a.75.75 0 00-.75.75v6.5c0 .414.336.75.75.75h6.5a.75.75 0 00.75-.75v-6.5a.75.75 0 00-.75-.75h-6.5zm8.25-1.5a.75.75 0 00-.75.75v8a.75.75 0 01-.75.75h-8a.75.75 0 00-.75.75v.25c0 .414.336.75.75.75h8.75a1.5 1.5 0 001.5-1.5v-9a.75.75 0 00-.75-.75z" clip-rule="evenodd" />
@@ -640,7 +640,7 @@
             AI Search
         </button>
         <p class="text-xs text-gray-500 mt-1.5 ml-2">Example: "Trials for ketamine targeting TRD in adults from the last 3 years"</p>
-    </div>
+    </div> -->
     
     <!-- Timeline Slider -->
     <div class="mt-7">
@@ -25187,6 +25187,9 @@ async function handleSearch() {
     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
     
     // 1. HIDE ABSOLUTELY EVERYTHING FIRST
+    showSection(elements.ctSummary, false)
+  showSection(elements.ema, false)
+  showSection(elements.pubmedSection, false)
     showSection(elements.resultsOverview, false);
     showSection(elements.studiesSection, false);
     showSection(elements.studyDetailSection, false);
