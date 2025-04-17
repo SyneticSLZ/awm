@@ -15691,7 +15691,11 @@ async function fetchWarningLetters(companies, filters = {}) {
     displayWarningLetters({ results: lettersArray, total: allLetters.size }, companies);
   } catch (error) {
     console.error("Error fetching warning letters:", error);
-    elements.warningLettersData.innerHTML = createErrorMessage("Error fetching warning letters for companies");
+    elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters found </p>
+      </div>`;
+
+    console.log("Error fetching warning letters for companies");
     elements.warningLettersCount.textContent = "0 letters";
   }
 }
@@ -19286,7 +19290,11 @@ async function displayFdaData(drugName, condition) {
       // Fetch warning letters for the companies
       await fetchWarningLetters(companies);
     } else {
-      elements.orangeBookData.innerHTML = createErrorMessage("Could not retrieve Orange Book data");
+      elements.orangeBookData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Orangebook data found for "${drugName}"</p>
+      </div>`;
+      
+      console.log("Could not retrieve Orange Book data");
     }
     
     try {
@@ -19319,11 +19327,19 @@ async function displayFdaData(drugName, condition) {
         
         displayDailyMedData(dailyMedData);
       } else {
-        elements.dailyMedData.innerHTML = createErrorMessage("Could not retrieve DailyMed data");
+        console.log("dailymed error")
+        elements.dailyMedData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No DailyMed data found for "${drugName}"</p>
+      </div>`;
+        //  = createErrorMessage("Could not retrieve DailyMed data");
       }
     } catch (error) {
       console.error("Error fetching DailyMed data:", error);
-      elements.dailyMedData.innerHTML = createErrorMessage("Error retrieving DailyMed data");
+  elements.dailyMedData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+      </div>`;
+    // createErrorMessage("Error retrieving DailyMed data");
+    
     }
     
     // Generate and display the basic summary after all data is loaded
