@@ -17642,250 +17642,1194 @@ function emailSummary(drugName, content = null) {
 
 
 
-// Function to prepare data for the Grok API
+// // Function to prepare data for the Grok API
+// function prepareDataForGrokAPI(allData) {
+//   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
+  
+//   console.log(allData)
+//   // Trigger JSON download
+//   const jsonString = JSON.stringify(allData, null, 2); // Pretty-print JSON with indentation
+//   const blob = new Blob([jsonString], { type: 'application/json' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = `${drugName}_regulatory_data.json`; // File name for download
+//   document.body.appendChild(a);
+//   a.click();
+//   document.body.removeChild(a);
+//   URL.revokeObjectURL(url); // Clean up the URL object
+//   return
+
+//   let prompt = `Generate a comprehensive, well-structured summary of all the FDA regulatory information for the drug "${drugName}". Include critical insights and highlight important safety information. Here's the available data:\n\n`;
+  
+//   // FDA Application Data
+//   prompt += "FDA APPLICATIONS DATA:\n";
+//   if (fdaData && fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+//     let allProducts = [];
+//     let manufacturers = new Set();
+//     let dosageForms = new Set();
+    
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           allProducts.push({...product, strength});
+//           if (product.manufacturerName) manufacturers.add(product.manufacturerName);
+//           if (product.sponsorName) manufacturers.add(product.sponsorName);
+//           if (product.dosageForm) dosageForms.add(product.dosageForm);
+//         });
+//       });
+//     });
+    
+//     prompt += `- Found ${allProducts.length} total applications\n`;
+//     prompt += `- Manufacturers: ${Array.from(manufacturers).join(', ') || 'Unknown'}\n`;
+//     prompt += `- Dosage Forms: ${Array.from(dosageForms).join(', ') || 'Unknown'}\n`;
+    
+//     // Include a few sample applications
+//     if (allProducts.length > 0) {
+//       prompt += "Sample applications:\n";
+//       allProducts.slice(0, 3).forEach(product => {
+//         prompt += `  * ${product.brandName}, ${product.strength}, ${product.dosageForm}, Approval: ${product.approvalDate}\n`;
+//       });
+//     }
+//   } else {
+//     prompt += "No application data available.\n";
+//   }
+  
+//   // FDA Label Data
+//   prompt += "\nFDA LABELING DATA:\n";
+//   const labelData = fdaData?.raw?.endpoints?.label?.data || [];
+//   if (labelData.length > 0) {
+//     const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
+    
+//     prompt += `- Found ${labelData.length} drug labels\n`;
+//     prompt += `- Contains boxed warnings: ${hasBoxedWarning ? 'Yes' : 'No'}\n`;
+    
+//     // Extract important label information
+//     if (labelData.length > 0) {
+//       const firstLabel = labelData[0];
+      
+//       if (firstLabel.indications_and_usage && firstLabel.indications_and_usage.length > 0) {
+//         prompt += `- Indications: ${firstLabel.indications_and_usage[0].substring(0, 300)}...\n`;
+//       }
+      
+//       if (hasBoxedWarning && firstLabel.boxed_warning && firstLabel.boxed_warning.length > 0) {
+//         prompt += `- Boxed Warning: ${firstLabel.boxed_warning[0].substring(0, 300)}...\n`;
+//       }
+      
+//       if (firstLabel.warnings && firstLabel.warnings.length > 0) {
+//         prompt += `- Warnings: ${firstLabel.warnings[0].substring(0, 300)}...\n`;
+//       }
+      
+//       if (firstLabel.adverse_reactions && firstLabel.adverse_reactions.length > 0) {
+//         prompt += `- Adverse Reactions: ${firstLabel.adverse_reactions[0].substring(0, 300)}...\n`;
+//       }
+//     }
+//   } else {
+//     prompt += "No labeling data available.\n";
+//   }
+  
+//   // FDA Adverse Events
+//   prompt += "\nFDA ADVERSE EVENTS DATA:\n";
+//   const eventData = fdaData?.raw?.endpoints?.event?.data || [];
+//   if (eventData.length > 0) {
+//     // Count serious vs non-serious
+//     const seriousCount = eventData.filter(event => event.serious).length;
+//     const nonSeriousCount = eventData.length - seriousCount;
+    
+//     prompt += `- Found ${eventData.length} adverse event reports\n`;
+//     prompt += `- Serious reports: ${seriousCount}, Non-serious reports: ${nonSeriousCount}\n`;
+    
+//     // Count reaction types
+//     const reactionCounts = {};
+//     eventData.forEach(event => {
+//       const reactions = event.patient?.reaction || [];
+//       reactions.forEach(reaction => {
+//         const reactionName = reaction.reactionmeddrapt || 'Unknown';
+//         reactionCounts[reactionName] = (reactionCounts[reactionName] || 0) + 1;
+//       });
+//     });
+    
+//     // Get top 5 reactions
+//     const topReactions = Object.entries(reactionCounts)
+//       .sort((a, b) => b[1] - a[1])
+//       .slice(0, 5);
+    
+//     if (topReactions.length > 0) {
+//       prompt += "- Top reported reactions:\n";
+//       topReactions.forEach(([name, count]) => {
+//         prompt += `  * ${name}: ${count} reports\n`;
+//       });
+//     }
+//   } else {
+//     prompt += "No adverse event data available.\n";
+//   }
+  
+//   // FDA Enforcement
+//   prompt += "\nFDA ENFORCEMENT DATA:\n";
+//   const enforcementData = fdaData?.raw?.endpoints?.enforcement?.data || [];
+//   if (enforcementData.length > 0) {
+//     // Count by classification
+//     const classI = enforcementData.filter(report => report.classification && report.classification.includes('Class I')).length;
+//     const classII = enforcementData.filter(report => report.classification && report.classification.includes('Class II')).length;
+//     const classIII = enforcementData.filter(report => report.classification && report.classification.includes('Class III')).length;
+    
+//     prompt += `- Found ${enforcementData.length} enforcement actions/recalls\n`;
+//     prompt += `- Class I (most severe): ${classI}, Class II: ${classII}, Class III: ${classIII}\n`;
+    
+//     // Include a few recent enforcement actions
+//     if (enforcementData.length > 0) {
+//       prompt += "Recent recall reasons:\n";
+//       enforcementData.slice(0, 3).forEach(report => {
+//         prompt += `  * ${report.product_description || 'Unknown product'}: ${report.reason_for_recall || 'Unknown reason'}\n`;
+//       });
+//     }
+//   } else {
+//     prompt += "No enforcement data available.\n";
+//   }
+  
+//   // Orange Book Data
+//   prompt += "\nORANGE BOOK DATA:\n";
+//   if (orangeBookData) {
+//     const results = orangeBookData;
+    
+//     prompt += `- Total entries: ${results.total || 0}\n`;
+//     prompt += `- Patents: ${results.patents || 0}\n`;
+//     prompt += `- Exclusivities: ${results.exclusivities || 0}\n`;
+    
+//     if (results.products && results.products.length > 0) {
+//       prompt += "Sample products:\n";
+//       results.products.slice(0, 3).forEach(product => {
+//         prompt += `  * ${product.brandName || 'Unknown'}, ${product.dosageForm || 'Unknown form'}, ${product.route || 'Unknown route'}\n`;
+//       });
+//     }
+//   } else {
+//     prompt += "No Orange Book data available.\n";
+//   }
+  
+//   // DailyMed Data
+//   prompt += "\nDAILYMED DATA:\n";
+//   if (dailyMedData && dailyMedData.label_info && dailyMedData.label_info.length > 0) {
+//     const labelInfo = dailyMedData.label_info;
+    
+//     prompt += `- Total labels: ${labelInfo.length}\n`;
+    
+//     // Count unique manufacturers
+//     const manufacturers = new Set(labelInfo.map(label => label.manufacturer).filter(m => m));
+//     prompt += `- Manufacturers: ${manufacturers.size}\n`;
+    
+//     if (labelInfo.length > 0) {
+//       prompt += "Sample labels:\n";
+//       labelInfo.slice(0, 3).forEach(label => {
+//         prompt += `  * ${label.title || 'Unknown'}, Manufacturer: ${label.manufacturer || 'Unknown'}\n`;
+//         if (label.indications) {
+//           prompt += `    Indications: ${typeof label.indications === 'string' ? label.indications.substring(0, 200) : 'Not available'}...\n`;
+//         }
+//       });
+//     }
+//   } else {
+//     prompt += "No DailyMed data available.\n";
+//   }
+  
+//   // Warning Letters
+//   prompt += "\nWARNING LETTERS DATA:\n";
+//   if (warningLettersData && warningLettersData.length > 0) {
+//     prompt += `- Total warning letters: ${warningLettersData.length}\n`;
+    
+//     if (warningLettersData.length > 0) {
+//       prompt += "Sample warning letters:\n";
+//       warningLettersData.slice(0, 3).forEach(letter => {
+//         prompt += `  * Date: ${letter.posted_date || 'Unknown'}, Company: ${letter.company_name || 'Unknown'}\n`;
+//         prompt += `    Subject: ${letter.subject || 'Unknown'}\n`;
+//       });
+//     }
+//   } else {
+//     prompt += "No warning letters data available.\n";
+//   }
+  
+//   prompt += "\nINSTRUCTIONS FOR SUMMARY GENERATION:\n";
+//   prompt += "1. Start with a brief overall assessment of the drug's regulatory status.\n";
+//   prompt += "2. Highlight any critical safety information, especially boxed warnings, serious adverse events, or Class I recalls.\n";
+//   prompt += "3. Organize the summary into clear sections by data category.\n";
+//   prompt += "4. Use bullet points where appropriate for readability.\n";
+//   prompt += "5. Mention if there are any notable patterns across the different data sources.\n";
+//   prompt += "6. End with a brief conclusion summarizing the key regulatory insights.\n";
+//   prompt += "7. The summary should be comprehensive but concise, using HTML formatting with proper CSS classes for styling.\n";
+//   prompt += "8. Use the following HTML structure with Tailwind CSS classes for your response:\n\n";
+//   prompt += `
+// <div class="text-xl font-semibold mb-4">Regulatory Summary for ${drugName}</div>
+// <div class="text-sm text-gray-600 mb-4">[Your brief intro summary]</div>
+
+// <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//   <!-- Application data card -->
+//   <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//     <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
+//     <p class="text-gray-700">[Your summary]</p>
+//     <ul class="list-disc ml-6 mt-1 text-sm text-gray-600">
+//       <li>[Key point 1]</li>
+//       <!-- more list items as needed -->
+//     </ul>
+//   </div>
+  
+//   <!-- More sections cards with similar structure -->
+  
+// </div>
+
+// <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+//   <h3 class="text-lg font-medium text-blue-800 mb-2">Key Insights</h3>
+//   <p class="text-gray-700">[Your key insights]</p>
+// </div>
+
+// <div class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-300">
+//   <p>Summary based on FDA data as of [current date]. Generated with AI assistance.</p>
+// </div>`;
+
+//   return prompt;
+// }
+
 function prepareDataForGrokAPI(allData) {
-  const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
+  const { fdaData, orangeBookData, dailyMedData, warningLetters, drugName } = allData;
   
-  console.log(allData)
-  // Trigger JSON download
-  const jsonString = JSON.stringify(allData, null, 2); // Pretty-print JSON with indentation
-  const blob = new Blob([jsonString], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${drugName}_regulatory_data.json`; // File name for download
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url); // Clean up the URL object
-  return
-  
-  let prompt = `Generate a comprehensive, well-structured summary of all the FDA regulatory information for the drug "${drugName}". Include critical insights and highlight important safety information. Here's the available data:\n\n`;
-  
-  // FDA Application Data
-  prompt += "FDA APPLICATIONS DATA:\n";
-  if (fdaData && fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
-    let allProducts = [];
-    let manufacturers = new Set();
-    let dosageForms = new Set();
+  // Create structured data focused on pharmaceutical development and regulatory strategy
+  const pharmaDevData = {
+    drugName,
     
-    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
-      Object.entries(strengths).forEach(([strength, products]) => {
-        products.forEach(product => {
-          allProducts.push({...product, strength});
-          if (product.manufacturerName) manufacturers.add(product.manufacturerName);
-          if (product.sponsorName) manufacturers.add(product.sponsorName);
-          if (product.dosageForm) dosageForms.add(product.dosageForm);
-        });
-      });
-    });
+    // Market and product landscape
+    market: {
+      products: extractProductLandscape(fdaData, orangeBookData, dailyMedData),
+      manufacturers: extractCompetitiveLandscape(fdaData, orangeBookData, dailyMedData),
+      patentProtection: extractPatentLandscape(orangeBookData)
+    },
     
-    prompt += `- Found ${allProducts.length} total applications\n`;
-    prompt += `- Manufacturers: ${Array.from(manufacturers).join(', ') || 'Unknown'}\n`;
-    prompt += `- Dosage Forms: ${Array.from(dosageForms).join(', ') || 'Unknown'}\n`;
+    // Regulatory path and history
+    regulatory: {
+      approvalPathways: extractApprovalPathways(fdaData, orangeBookData),
+      applicationHistory: extractApplicationHistory(fdaData, orangeBookData),
+      regulatoryIssues: extractRegulatoryIssues(fdaData, warningLetters)
+    },
     
-    // Include a few sample applications
-    if (allProducts.length > 0) {
-      prompt += "Sample applications:\n";
-      allProducts.slice(0, 3).forEach(product => {
-        prompt += `  * ${product.brandName}, ${product.strength}, ${product.dosageForm}, Approval: ${product.approvalDate}\n`;
-      });
+    // Critical development risks
+    developmentRisks: {
+      safetyIssues: extractSafetyIssues(fdaData, dailyMedData),
+      manufacturingIssues: extractManufacturingIssues(fdaData),
+      postMarketIssues: extractPostMarketIssues(fdaData)
+    },
+    
+    // Product specifications and formulation insights
+    productDetails: {
+      formulations: extractFormulationDetails(fdaData, dailyMedData, orangeBookData),
+      dosageStrengths: extractDosageStrengths(fdaData, orangeBookData),
+      administrationRoutes: extractAdministrationDetails(fdaData, dailyMedData)
+    },
+    
+    // Clinical positioning
+    clinicalProfile: {
+      indications: extractIndicationsDetail(fdaData, dailyMedData),
+      efficacy: extractEfficacyData(dailyMedData),
+      safetyProfile: extractDetailedSafetyProfile(fdaData, dailyMedData)
     }
-  } else {
-    prompt += "No application data available.\n";
-  }
+  };
   
-  // FDA Label Data
-  prompt += "\nFDA LABELING DATA:\n";
-  const labelData = fdaData?.raw?.endpoints?.label?.data || [];
-  if (labelData.length > 0) {
-    const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
-    
-    prompt += `- Found ${labelData.length} drug labels\n`;
-    prompt += `- Contains boxed warnings: ${hasBoxedWarning ? 'Yes' : 'No'}\n`;
-    
-    // Extract important label information
-    if (labelData.length > 0) {
-      const firstLabel = labelData[0];
-      
-      if (firstLabel.indications_and_usage && firstLabel.indications_and_usage.length > 0) {
-        prompt += `- Indications: ${firstLabel.indications_and_usage[0].substring(0, 300)}...\n`;
-      }
-      
-      if (hasBoxedWarning && firstLabel.boxed_warning && firstLabel.boxed_warning.length > 0) {
-        prompt += `- Boxed Warning: ${firstLabel.boxed_warning[0].substring(0, 300)}...\n`;
-      }
-      
-      if (firstLabel.warnings && firstLabel.warnings.length > 0) {
-        prompt += `- Warnings: ${firstLabel.warnings[0].substring(0, 300)}...\n`;
-      }
-      
-      if (firstLabel.adverse_reactions && firstLabel.adverse_reactions.length > 0) {
-        prompt += `- Adverse Reactions: ${firstLabel.adverse_reactions[0].substring(0, 300)}...\n`;
-      }
-    }
-  } else {
-    prompt += "No labeling data available.\n";
-  }
+  // Generate a prompt focused on pharma development and competitive intelligence
+  let prompt = `Generate a comprehensive analysis of ${drugName} for pharmaceutical development teams creating similar products. Focus on ALL regulatory issues, development risks, and market opportunities. This analysis must include every critical detail from the data that would impact development strategy, regulatory pathway selection, and competitive positioning.\n\n`;
   
-  // FDA Adverse Events
-  prompt += "\nFDA ADVERSE EVENTS DATA:\n";
-  const eventData = fdaData?.raw?.endpoints?.event?.data || [];
-  if (eventData.length > 0) {
-    // Count serious vs non-serious
-    const seriousCount = eventData.filter(event => event.serious).length;
-    const nonSeriousCount = eventData.length - seriousCount;
-    
-    prompt += `- Found ${eventData.length} adverse event reports\n`;
-    prompt += `- Serious reports: ${seriousCount}, Non-serious reports: ${nonSeriousCount}\n`;
-    
-    // Count reaction types
-    const reactionCounts = {};
-    eventData.forEach(event => {
-      const reactions = event.patient?.reaction || [];
-      reactions.forEach(reaction => {
-        const reactionName = reaction.reactionmeddrapt || 'Unknown';
-        reactionCounts[reactionName] = (reactionCounts[reactionName] || 0) + 1;
-      });
-    });
-    
-    // Get top 5 reactions
-    const topReactions = Object.entries(reactionCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    
-    if (topReactions.length > 0) {
-      prompt += "- Top reported reactions:\n";
-      topReactions.forEach(([name, count]) => {
-        prompt += `  * ${name}: ${count} reports\n`;
-      });
-    }
-  } else {
-    prompt += "No adverse event data available.\n";
-  }
+  prompt += "PHARMACEUTICAL DEVELOPMENT DATA:\n";
+  prompt += JSON.stringify(pharmaDevData, null, 2);
   
-  // FDA Enforcement
-  prompt += "\nFDA ENFORCEMENT DATA:\n";
-  const enforcementData = fdaData?.raw?.endpoints?.enforcement?.data || [];
-  if (enforcementData.length > 0) {
-    // Count by classification
-    const classI = enforcementData.filter(report => report.classification && report.classification.includes('Class I')).length;
-    const classII = enforcementData.filter(report => report.classification && report.classification.includes('Class II')).length;
-    const classIII = enforcementData.filter(report => report.classification && report.classification.includes('Class III')).length;
-    
-    prompt += `- Found ${enforcementData.length} enforcement actions/recalls\n`;
-    prompt += `- Class I (most severe): ${classI}, Class II: ${classII}, Class III: ${classIII}\n`;
-    
-    // Include a few recent enforcement actions
-    if (enforcementData.length > 0) {
-      prompt += "Recent recall reasons:\n";
-      enforcementData.slice(0, 3).forEach(report => {
-        prompt += `  * ${report.product_description || 'Unknown product'}: ${report.reason_for_recall || 'Unknown reason'}\n`;
-      });
-    }
-  } else {
-    prompt += "No enforcement data available.\n";
-  }
+  prompt += "\n\nINSTRUCTIONS FOR PHARMACEUTICAL DEVELOPMENT ANALYSIS:\n";
+  prompt += "1. Identify ALL regulatory challenges, warnings, and safety issues that would impact development\n";
+  prompt += "2. Analyze patent landscape completely to identify potential entry opportunities\n";
+  prompt += "3. Detail formulation approaches and manufacturing considerations\n";
+  prompt += "4. Highlight potential competitive advantages and market positioning\n";
+  prompt += "5. Identify possible regulatory pathways and their requirements\n";
+  prompt += "6. Outline ALL safety concerns and their implications for clinical development\n";
+  prompt += "7. Use technical language appropriate for pharmaceutical R&D and regulatory affairs professionals\n";
+  prompt += "8. Format with HTML and Tailwind CSS for readability\n";
   
-  // Orange Book Data
-  prompt += "\nORANGE BOOK DATA:\n";
-  if (orangeBookData) {
-    const results = orangeBookData;
-    
-    prompt += `- Total entries: ${results.total || 0}\n`;
-    prompt += `- Patents: ${results.patents || 0}\n`;
-    prompt += `- Exclusivities: ${results.exclusivities || 0}\n`;
-    
-    if (results.products && results.products.length > 0) {
-      prompt += "Sample products:\n";
-      results.products.slice(0, 3).forEach(product => {
-        prompt += `  * ${product.brandName || 'Unknown'}, ${product.dosageForm || 'Unknown form'}, ${product.route || 'Unknown route'}\n`;
-      });
-    }
-  } else {
-    prompt += "No Orange Book data available.\n";
-  }
-  
-  // DailyMed Data
-  prompt += "\nDAILYMED DATA:\n";
-  if (dailyMedData && dailyMedData.label_info && dailyMedData.label_info.length > 0) {
-    const labelInfo = dailyMedData.label_info;
-    
-    prompt += `- Total labels: ${labelInfo.length}\n`;
-    
-    // Count unique manufacturers
-    const manufacturers = new Set(labelInfo.map(label => label.manufacturer).filter(m => m));
-    prompt += `- Manufacturers: ${manufacturers.size}\n`;
-    
-    if (labelInfo.length > 0) {
-      prompt += "Sample labels:\n";
-      labelInfo.slice(0, 3).forEach(label => {
-        prompt += `  * ${label.title || 'Unknown'}, Manufacturer: ${label.manufacturer || 'Unknown'}\n`;
-        if (label.indications) {
-          prompt += `    Indications: ${typeof label.indications === 'string' ? label.indications.substring(0, 200) : 'Not available'}...\n`;
-        }
-      });
-    }
-  } else {
-    prompt += "No DailyMed data available.\n";
-  }
-  
-  // Warning Letters
-  prompt += "\nWARNING LETTERS DATA:\n";
-  if (warningLettersData && warningLettersData.length > 0) {
-    prompt += `- Total warning letters: ${warningLettersData.length}\n`;
-    
-    if (warningLettersData.length > 0) {
-      prompt += "Sample warning letters:\n";
-      warningLettersData.slice(0, 3).forEach(letter => {
-        prompt += `  * Date: ${letter.posted_date || 'Unknown'}, Company: ${letter.company_name || 'Unknown'}\n`;
-        prompt += `    Subject: ${letter.subject || 'Unknown'}\n`;
-      });
-    }
-  } else {
-    prompt += "No warning letters data available.\n";
-  }
-  
-  prompt += "\nINSTRUCTIONS FOR SUMMARY GENERATION:\n";
-  prompt += "1. Start with a brief overall assessment of the drug's regulatory status.\n";
-  prompt += "2. Highlight any critical safety information, especially boxed warnings, serious adverse events, or Class I recalls.\n";
-  prompt += "3. Organize the summary into clear sections by data category.\n";
-  prompt += "4. Use bullet points where appropriate for readability.\n";
-  prompt += "5. Mention if there are any notable patterns across the different data sources.\n";
-  prompt += "6. End with a brief conclusion summarizing the key regulatory insights.\n";
-  prompt += "7. The summary should be comprehensive but concise, using HTML formatting with proper CSS classes for styling.\n";
-  prompt += "8. Use the following HTML structure with Tailwind CSS classes for your response:\n\n";
-  prompt += `
-<div class="text-xl font-semibold mb-4">Regulatory Summary for ${drugName}</div>
-<div class="text-sm text-gray-600 mb-4">[Your brief intro summary]</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <!-- Application data card -->
-  <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-    <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
-    <p class="text-gray-700">[Your summary]</p>
-    <ul class="list-disc ml-6 mt-1 text-sm text-gray-600">
-      <li>[Key point 1]</li>
-      <!-- more list items as needed -->
-    </ul>
-  </div>
-  
-  <!-- More sections cards with similar structure -->
-  
-</div>
-
-<div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-  <h3 class="text-lg font-medium text-blue-800 mb-2">Key Insights</h3>
-  <p class="text-gray-700">[Your key insights]</p>
-</div>
-
-<div class="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-300">
-  <p>Summary based on FDA data as of [current date]. Generated with AI assistance.</p>
-</div>`;
-
   return prompt;
 }
 
+// Helper functions focused on pharmaceutical development needs
+
+function extractProductLandscape(fdaData, orangeBookData, dailyMedData) {
+  const products = [];
+  
+  // Gather Orange Book products (most reliable for approved products)
+  if (orangeBookData && orangeBookData.products) {
+    orangeBookData.products.forEach(product => {
+      products.push({
+        tradeName: product.Trade_Name,
+        generic: product.Ingredient,
+        dosageForm: product["DF;Route"],
+        strength: product.Strength,
+        applicant: product.Applicant_Full_Name || product.Applicant,
+        applicationType: product.Appl_Type,  // NDA or ANDA
+        applicationNumber: product.Appl_No,
+        productNumber: product.Product_No,
+        referenceStandard: product.RS === "Yes",
+        referenceListed: product.RLD === "Yes",
+        teCode: product.TE_Code,
+        approvalDate: product.Approval_Date,
+        marketing: product.Type // RX or OTC
+      });
+    });
+  }
+  
+  // Add NDC products for additional market details
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const ndcProducts = fdaData.raw.combinedResults.filter(item => item.source === "ndc");
+    
+    ndcProducts.forEach(product => {
+      // Check if not already included
+      const exists = products.some(p => 
+        (p.tradeName === product.name || p.generic === product.genericName) && 
+        p.dosageForm?.includes(product.dosageForm)
+      );
+      
+      if (!exists) {
+        products.push({
+          ndcCode: product.ndcCode,
+          tradeName: product.name,
+          generic: product.genericName,
+          dosageForm: product.dosageForm,
+          route: product.routeOfAdmin,
+          packaging: product.packageDescription,
+          manufacturer: product.labelerName,
+          productType: product.productType
+        });
+      }
+    });
+  }
+  
+  // Get additional details from DailyMed
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      // Check if this product is already in our list
+      const matchingProduct = products.find(p => 
+        p.tradeName === label.title || 
+        (p.generic && label.title && p.generic.toLowerCase().includes(label.title.toLowerCase()))
+      );
+      
+      if (matchingProduct) {
+        // Add additional information that may not be in the Orange Book
+        if (label.dosageForm && !matchingProduct.dosageForm) {
+          matchingProduct.dosageForm = label.dosageForm;
+        }
+        if (label.manufacturer && !matchingProduct.manufacturer) {
+          matchingProduct.manufacturer = label.manufacturer;
+        }
+        if (label.activeIngredients && !matchingProduct.activeIngredients) {
+          matchingProduct.activeIngredients = label.activeIngredients;
+        }
+      } else {
+        // Add as a new product
+        products.push({
+          tradeName: label.title,
+          generic: label.genericName,
+          dosageForm: label.dosageForm,
+          manufacturer: label.manufacturer,
+          activeIngredients: label.activeIngredients
+        });
+      }
+    });
+  }
+  
+  return products;
+}
+
+function extractCompetitiveLandscape(fdaData, orangeBookData, dailyMedData) {
+  const manufacturers = new Map(); // Using Map to store company name -> products count
+  
+  // Process Orange Book data
+  if (orangeBookData) {
+    // Get companies from the companies array if available
+    if (orangeBookData.companies && Array.isArray(orangeBookData.companies)) {
+      orangeBookData.companies.forEach(company => {
+        manufacturers.set(company, (manufacturers.get(company) || 0) + 1);
+      });
+    }
+    
+    // Get companies from products
+    if (orangeBookData.products) {
+      orangeBookData.products.forEach(product => {
+        const company = product.Applicant_Full_Name || product.Applicant;
+        if (company) {
+          manufacturers.set(company, (manufacturers.get(company) || 0) + 1);
+        }
+      });
+    }
+  }
+  
+  // Process FDA data for additional manufacturers
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    fdaData.raw.combinedResults.forEach(item => {
+      let company = null;
+      
+      if (item.sponsorName) company = item.sponsorName;
+      else if (item.manufacturerName) company = item.manufacturerName;
+      else if (item.labelerName) company = item.labelerName;
+      
+      if (company) {
+        manufacturers.set(company, (manufacturers.get(company) || 0) + 1);
+      }
+    });
+  }
+  
+  // Process DailyMed data
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      if (label.manufacturer) {
+        manufacturers.set(label.manufacturer, (manufacturers.get(label.manufacturer) || 0) + 1);
+      }
+    });
+  }
+  
+  // Convert to array of objects with company name and product count
+  return Array.from(manufacturers).map(([company, count]) => ({
+    company,
+    productCount: count
+  }));
+}
+
+function extractPatentLandscape(orangeBookData) {
+  const patentInfo = [];
+  
+  if (orangeBookData) {
+    // Extract patents
+    if (orangeBookData.related_patents && Array.isArray(orangeBookData.related_patents)) {
+      orangeBookData.related_patents.forEach(patent => {
+        patentInfo.push({
+          patentNumber: patent.Patent_No,
+          expirationDate: patent.Patent_Expire_Date_Text,
+          applicationNumber: patent.Appl_No,
+          productNumber: patent.Product_No,
+          drugSubstance: patent.Drug_Substance_Flag === 'Y',
+          drugProduct: patent.Drug_Product_Flag === 'Y',
+          useCode: patent.Patent_Use_Code,
+          submissionDate: patent.Submission_Date,
+          delistRequested: patent.Delist_Flag === 'Y'
+        });
+      });
+    }
+    
+    // Extract exclusivity periods
+    if (orangeBookData.exclusivity && Array.isArray(orangeBookData.exclusivity)) {
+      const exclusivity = orangeBookData.exclusivity.map(ex => ({
+        code: ex.Exclusivity_Code,
+        expirationDate: ex.Exclusivity_Date,
+        applicationNumber: ex.Appl_No,
+        productNumber: ex.Product_No
+      }));
+      
+      return {
+        patents: patentInfo,
+        exclusivity
+      };
+    }
+  }
+  
+  return {
+    patents: patentInfo,
+    exclusivity: []
+  };
+}
+
+function extractApprovalPathways(fdaData, orangeBookData) {
+  const pathways = {
+    nda: [],
+    anda: [],
+    bla: [],
+    other: []
+  };
+  
+  // Process Orange Book data for approved pathways
+  if (orangeBookData && orangeBookData.products) {
+    orangeBookData.products.forEach(product => {
+      const pathway = {
+        applicationNumber: product.Appl_No,
+        productNumber: product.Product_No,
+        tradeName: product.Trade_Name,
+        ingredient: product.Ingredient,
+        strength: product.Strength,
+        dosageForm: product["DF;Route"],
+        applicant: product.Applicant_Full_Name || product.Applicant,
+        approvalDate: product.Approval_Date,
+        referenceStandard: product.RS === "Yes",
+        referenceListed: product.RLD === "Yes"
+      };
+      
+      // Categorize by application type
+      if (product.Appl_Type === "N") {
+        pathways.nda.push(pathway);
+      } else if (product.Appl_Type === "A") {
+        pathways.anda.push(pathway);
+      } else if (product.Appl_Type === "B") {
+        pathways.bla.push(pathway);
+      } else {
+        pathways.other.push(pathway);
+      }
+    });
+  }
+  
+  // Process FDA data for additional pathway details
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const applications = fdaData.raw.combinedResults.filter(item => item.type === "application");
+    
+    applications.forEach(app => {
+      // Check if already included from Orange Book
+      const existsInPathways = Object.values(pathways).some(pathwayArray => 
+        pathwayArray.some(p => p.applicationNumber === app.applicationNumber)
+      );
+      
+      if (!existsInPathways && app.applicationNumber) {
+        const pathway = {
+          applicationNumber: app.applicationNumber,
+          name: app.name,
+          sponsorName: app.sponsorName,
+          productType: app.productType,
+          status: app.status,
+          description: app.description
+        };
+        
+        // Try to categorize by application number format
+        if (app.applicationNumber.startsWith("N")) {
+          pathways.nda.push(pathway);
+        } else if (app.applicationNumber.startsWith("A")) {
+          pathways.anda.push(pathway);
+        } else if (app.applicationNumber.startsWith("B")) {
+          pathways.bla.push(pathway);
+        } else {
+          pathways.other.push(pathway);
+        }
+      }
+    });
+  }
+  
+  return pathways;
+}
+
+function extractApplicationHistory(fdaData, orangeBookData) {
+  const history = [];
+  
+  // Process Orange Book data for approval history
+  if (orangeBookData && orangeBookData.products) {
+    orangeBookData.products.forEach(product => {
+      if (product.Approval_Date) {
+        history.push({
+          date: product.Approval_Date,
+          type: "Approval",
+          applicationNumber: product.Appl_No,
+          productNumber: product.Product_No,
+          tradeName: product.Trade_Name,
+          dosageForm: product["DF;Route"],
+          strength: product.Strength,
+          applicant: product.Applicant_Full_Name || product.Applicant
+        });
+      }
+    });
+  }
+  
+  // Process FDA data for additional history
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    // Look for enforcement actions that might indicate regulatory activity
+    const enforcements = fdaData.raw.combinedResults.filter(
+      item => item.type === "recall" || item.source === "enforcement"
+    );
+    
+    enforcements.forEach(action => {
+      if (action.recallInitiationDate) {
+        history.push({
+          date: action.recallInitiationDate,
+          type: "Recall",
+          recallNumber: action.recallNumber,
+          classification: action.classification,
+          reason: action.recallReason,
+          status: action.status,
+          description: action.description
+        });
+      }
+    });
+  }
+  
+  // Sort by date (newest first)
+  return history.sort((a, b) => {
+    // Convert dates to comparable format
+    const dateA = new Date(a.date.replace(/Approved Prior to /, ""));
+    const dateB = new Date(b.date.replace(/Approved Prior to /, ""));
+    return dateB - dateA;
+  });
+}
+
+function extractRegulatoryIssues(fdaData, warningLetters) {
+  const issues = [];
+  
+  // Extract recalls and enforcement actions
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const enforcements = fdaData.raw.combinedResults.filter(
+      item => item.type === "recall" || item.source === "enforcement"
+    );
+    
+    enforcements.forEach(action => {
+      issues.push({
+        type: "Recall/Enforcement",
+        date: action.recallInitiationDate,
+        id: action.recallNumber,
+        classification: action.classification,
+        reason: action.recallReason,
+        status: action.status,
+        description: action.description
+      });
+    });
+  }
+  
+  // Extract warning letters
+  if (warningLetters && Array.isArray(warningLetters)) {
+    warningLetters.forEach(letter => {
+      issues.push({
+        type: "Warning Letter",
+        date: letter.posted_date,
+        company: letter.company_name,
+        subject: letter.subject,
+        issueType: letter.issue_type,
+        responseLetterDate: letter.response_letter_posted_date
+      });
+    });
+  }
+  
+  return issues;
+}
+
+function extractSafetyIssues(fdaData, dailyMedData) {
+  const safetyIssues = {
+    boxedWarnings: [],
+    contraindications: [],
+    significantWarnings: [],
+    seriousAdverseEvents: []
+  };
+  
+  // Extract boxed warnings and other significant warnings
+  let foundBoxedWarning = false;
+  
+  // First check DailyMed data (usually more comprehensive)
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      // Look for boxed warnings
+      if (label.warnings && 
+         (label.warnings.includes("WARNING") || 
+          label.warnings.includes("BOXED WARNING"))) {
+        safetyIssues.boxedWarnings.push(label.warnings);
+        foundBoxedWarning = true;
+      }
+      
+      // Get contraindications
+      if (label.contraindications) {
+        safetyIssues.contraindications.push(label.contraindications);
+      }
+      
+      // Extract serious adverse events
+      if (label.adverseReactions && 
+         (label.adverseReactions.includes("serious") || 
+          label.adverseReactions.includes("Serious") || 
+          label.adverseReactions.includes("severe") || 
+          label.adverseReactions.includes("Severe"))) {
+        // Try to extract only the serious adverse events section
+        const matches = label.adverseReactions.match(/([Ss]erious|[Ss]evere).*?(reactions|events|effects).*?(\.|:).*?(?=\n\n|\n[A-Z]|$)/gs);
+        
+        if (matches && matches.length > 0) {
+          safetyIssues.seriousAdverseEvents.push(...matches);
+        } else {
+          // If no clear section, include the whole thing
+          safetyIssues.seriousAdverseEvents.push(label.adverseReactions);
+        }
+      }
+    });
+  }
+  
+  // Check FDA data if needed
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const labels = fdaData.raw.combinedResults.filter(item => item.type === "label");
+    
+    labels.forEach(label => {
+      // Look for boxed warnings if not found yet
+      if (!foundBoxedWarning && label.warnings && 
+         (label.warnings.includes("WARNING") || 
+          label.warnings.includes("BOXED WARNING"))) {
+        safetyIssues.boxedWarnings.push(label.warnings);
+      }
+      
+      // Extract significant warnings
+      if (label.warnings && !safetyIssues.significantWarnings.includes(label.warnings)) {
+        safetyIssues.significantWarnings.push(label.warnings);
+      }
+      
+      // Look for adverse reactions if none found yet
+      if (safetyIssues.seriousAdverseEvents.length === 0 && 
+          label.adverseReactions && 
+         (label.adverseReactions.includes("serious") || 
+          label.adverseReactions.includes("Serious") || 
+          label.adverseReactions.includes("severe") || 
+          label.adverseReactions.includes("Severe"))) {
+        safetyIssues.seriousAdverseEvents.push(label.adverseReactions);
+      }
+    });
+  }
+  
+  return safetyIssues;
+}
+
+function extractManufacturingIssues(fdaData) {
+  const manufacturingIssues = [];
+  
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    // Look for recalls related to manufacturing
+    const manufacturingRecalls = fdaData.raw.combinedResults.filter(item => 
+      (item.type === "recall" || item.source === "enforcement") &&
+      item.recallReason &&
+      (item.recallReason.includes("Manufacturing") ||
+       item.recallReason.includes("manufacturing") ||
+       item.recallReason.includes("Quality") ||
+       item.recallReason.includes("quality") ||
+       item.recallReason.includes("cGMP") ||
+       item.recallReason.includes("Contamination") ||
+       item.recallReason.includes("contamination") ||
+       item.recallReason.includes("Sterility") ||
+       item.recallReason.includes("sterility") ||
+       item.recallReason.includes("Impurity") ||
+       item.recallReason.includes("impurity"))
+    );
+    
+    manufacturingRecalls.forEach(recall => {
+      manufacturingIssues.push({
+        type: "Manufacturing Recall",
+        date: recall.recallInitiationDate,
+        recallNumber: recall.recallNumber,
+        reason: recall.recallReason,
+        classification: recall.classification,
+        status: recall.status,
+        description: recall.description
+      });
+    });
+  }
+  
+  return manufacturingIssues;
+}
+
+function extractPostMarketIssues(fdaData) {
+  const postMarketIssues = [];
+  
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    // Filter for recalls not related to manufacturing
+    const postMarketRecalls = fdaData.raw.combinedResults.filter(item => 
+      (item.type === "recall" || item.source === "enforcement") &&
+      item.recallReason &&
+      !(item.recallReason.includes("Manufacturing") ||
+        item.recallReason.includes("manufacturing") ||
+        item.recallReason.includes("Quality") ||
+        item.recallReason.includes("quality") ||
+        item.recallReason.includes("cGMP") ||
+        item.recallReason.includes("Contamination") ||
+        item.recallReason.includes("contamination") ||
+        item.recallReason.includes("Sterility") ||
+        item.recallReason.includes("sterility"))
+    );
+    
+    postMarketRecalls.forEach(recall => {
+      postMarketIssues.push({
+        type: "Post-Market Recall",
+        date: recall.recallInitiationDate,
+        recallNumber: recall.recallNumber,
+        reason: recall.recallReason,
+        classification: recall.classification,
+        status: recall.status,
+        description: recall.description
+      });
+    });
+  }
+  
+  return postMarketIssues;
+}
+
+function extractFormulationDetails(fdaData, dailyMedData, orangeBookData) {
+  const formulations = [];
+  
+  // Start with Orange Book data (most structured)
+  if (orangeBookData && orangeBookData.products) {
+    orangeBookData.products.forEach(product => {
+      formulations.push({
+        ingredient: product.Ingredient,
+        dosageForm: product["DF;Route"],
+        strength: product.Strength,
+        tradeName: product.Trade_Name,
+        applicant: product.Applicant_Full_Name || product.Applicant
+      });
+    });
+  }
+  
+  // Add details from NDC products
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const ndcProducts = fdaData.raw.combinedResults.filter(item => item.source === "ndc");
+    
+    ndcProducts.forEach(product => {
+      // Check if already included
+      const exists = formulations.some(f => 
+        f.dosageForm === product.dosageForm && 
+        (f.ingredient === product.genericName || f.tradeName === product.name)
+      );
+      
+      if (!exists) {
+        formulations.push({
+          tradeName: product.name,
+          ingredient: product.genericName,
+          dosageForm: product.dosageForm,
+          route: product.routeOfAdmin,
+          packaging: product.packageDescription,
+          manufacturer: product.labelerName
+        });
+      }
+    });
+  }
+  
+  // Extract formulation details from DailyMed dosage sections
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      if (label.dosage && label.dosage.length > 100) {
+        // Try to extract formulation details from dosage text
+        const preparation = {
+          label: label.title,
+          dosageText: label.dosage,
+          // Try to extract specific formulation information
+          preparationDetails: extractPreparationDetailsFromText(label.dosage)
+        };
+        
+        formulations.push(preparation);
+      }
+    });
+  }
+  
+  return formulations;
+}
+
+function extractPreparationDetailsFromText(text) {
+  // This is a helper function to extract structured preparation details from text
+  const details = [];
+  
+  // Look for dilution instructions
+  const dilutionMatch = text.match(/dilut.*?(with|using).*?([^\.]+)/i);
+  if (dilutionMatch) {
+    details.push({
+      type: "Dilution",
+      text: dilutionMatch[0]
+    });
+  }
+  
+  // Look for reconstitution instructions
+  const reconMatch = text.match(/reconstitut.*?([^\.]+)/i);
+  if (reconMatch) {
+    details.push({
+      type: "Reconstitution",
+      text: reconMatch[0]
+    });
+  }
+  
+  // Look for storage conditions
+  const storageMatch = text.match(/stor.*?(at|below|above|between).*?([^\.]+)/i);
+  if (storageMatch) {
+    details.push({
+      type: "Storage",
+      text: storageMatch[0]
+    });
+  }
+  
+  // Look for concentration information
+  const concentrationMatches = text.match(/(\d+\s*mg.*?per\s*ml|\d+\s*mg\/ml)/gi);
+  if (concentrationMatches) {
+    details.push({
+      type: "Concentration",
+      values: concentrationMatches
+    });
+  }
+  
+  return details;
+}
+
+function extractDosageStrengths(fdaData, orangeBookData) {
+  const strengths = new Set();
+  
+  // Extract from Orange Book
+  if (orangeBookData && orangeBookData.products) {
+    orangeBookData.products.forEach(product => {
+      if (product.Strength) {
+        strengths.add(product.Strength);
+      }
+    });
+  }
+  
+  // Extract from FDA data
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    // Look for strength info in labels and descriptions
+    fdaData.raw.combinedResults.forEach(item => {
+      if (item.description) {
+        // Look for patterns like "XX mg" or "XX mg/mL"
+        const strengthMatches = item.description.match(/\d+(\.\d+)?\s*(mg|mcg|g|ml|%)(\/\d+(\.\d+)?\s*(mg|mcg|g|ml|%))?/gi);
+        if (strengthMatches) {
+          strengthMatches.forEach(match => strengths.add(match));
+        }
+      }
+    });
+  }
+  
+  return Array.from(strengths);
+}
+
+function extractAdministrationDetails(fdaData, dailyMedData) {
+  const administrationDetails = {
+    routes: new Set(),
+    instructions: []
+  };
+  
+  // Extract routes from FDA data
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    fdaData.raw.combinedResults.forEach(item => {
+      if (item.routeOfAdmin) {
+        administrationDetails.routes.add(item.routeOfAdmin);
+      }
+      
+      // Look for routes in descriptions
+      if (item.description) {
+        const routePatterns = [
+          /intravenous/i, /intramuscular/i, /subcutaneous/i, 
+          /oral/i, /topical/i, /inhalation/i, /rectal/i, 
+          /ophthalmic/i, /otic/i, /nasal/i, /transdermal/i
+        ];
+        
+        routePatterns.forEach(pattern => {
+          if (pattern.test(item.description)) {
+            administrationDetails.routes.add(pattern.source.replace(/\/i$/, ""));
+          }
+        });
+      }
+    });
+  }
+  
+  // Extract detailed instructions from DailyMed
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      if (label.dosage) {
+        administrationDetails.instructions.push({
+          source: label.title,
+          dosageText: label.dosage
+        });
+      }
+    });
+  }
+  
+  return {
+    routes: Array.from(administrationDetails.routes),
+    instructions: administrationDetails.instructions
+  };
+}
+
+function extractIndicationsDetail(fdaData, dailyMedData) {
+  const indications = [];
+  
+  // Extract from DailyMed (usually most comprehensive)
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      if (label.indications && label.indications.length > 0) {
+        indications.push({
+          source: label.title,
+          text: label.indications
+        });
+      }
+    });
+  }
+  
+  // Extract from FDA data if needed
+  if (indications.length === 0 && fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const labels = fdaData.raw.combinedResults.filter(item => item.type === "label");
+    
+    labels.forEach(label => {
+      if (label.description) {
+        // Look for indications section
+        const indicationMatch = label.description.match(/INDICATIONS.*?USAGE.*?([^]*?)(?=\n\s*\d|$)/i);
+        if (indicationMatch) {
+          indications.push({
+            source: label.name,
+            text: indicationMatch[0]
+          });
+        }
+      }
+    });
+  }
+  
+  return indications;
+}
+
+function extractEfficacyData(dailyMedData) {
+  const efficacyData = [];
+  
+  // Extract from DailyMed clinical studies section
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      // Look for clinical studies section
+      if (label.adverseReactions) {
+        const clinicalStudiesMatch = label.adverseReactions.match(/CLINICAL (STUDIES|TRIALS).*?([^]*?)(?=\n\s*\d|$)/i);
+        if (clinicalStudiesMatch) {
+          efficacyData.push({
+            source: label.title,
+            text: clinicalStudiesMatch[0]
+          });
+        }
+      }
+    });
+  }
+  
+  return efficacyData;
+}
+
+function extractDetailedSafetyProfile(fdaData, dailyMedData) {
+  const safetyProfile = {
+    boxedWarnings: [],
+    warnings: [],
+    precautions: [],
+    contraindications: [],
+    adverseReactions: {
+      serious: [],
+      common: [],
+      demographicSpecific: [],
+      postmarketing: []
+    },
+    drugInteractions: []
+  };
+  
+  // First extract from DailyMed (most structured and comprehensive)
+  if (dailyMedData && dailyMedData.label_info) {
+    dailyMedData.label_info.forEach(label => {
+      // Boxed warnings
+      if (label.warnings && (
+          label.warnings.toUpperCase().includes("BOXED WARNING") || 
+          label.warnings.includes("WARNING:") ||
+          label.warnings.includes("WARNING:"))) {
+        safetyProfile.boxedWarnings.push({
+          source: label.title,
+          text: label.warnings
+        });
+      } else if (label.warnings) {
+        // Regular warnings
+        safetyProfile.warnings.push({
+          source: label.title,
+          text: label.warnings
+        });
+      }
+      
+      // Contraindications
+      if (label.contraindications) {
+        safetyProfile.contraindications.push({
+          source: label.title,
+          text: label.contraindications
+        });
+      }
+      
+      // Adverse reactions
+      if (label.adverseReactions) {
+        // Look for serious adverse reactions
+        if (label.adverseReactions.includes("serious") || 
+            label.adverseReactions.includes("Serious") || 
+            label.adverseReactions.includes("severe") || 
+            label.adverseReactions.includes("Severe")) {
+          // Extract serious adverse reactions section
+          const seriousMatch = label.adverseReactions.match(/([Ss]erious|[Ss]evere).*?(reactions|events|effects).*?(\.|:).*?(?=\n\n|\n[A-Z]|$)/gs);
+          if (seriousMatch) {
+            safetyProfile.adverseReactions.serious.push({
+              source: label.title,
+              text: seriousMatch[0]
+            });
+          }
+        }
+        
+        // Look for postmarketing experience
+        const postMarketingMatch = label.adverseReactions.match(/[Pp]ost[- ]?[Mm]arketing.*?([^]*?)(?=\n\n|\n[A-Z]|$)/s);
+        if (postMarketingMatch) {
+          safetyProfile.adverseReactions.postmarketing.push({
+            source: label.title,
+            text: postMarketingMatch[0]
+          });
+        }
+        
+        // Look for demographic-specific reactions
+        const demographicPatterns = [
+          /[Pp]ediatric/,
+          /[Gg]eriatric/,
+          /[Ee]lderly/,
+          /[Gg]ender/,
+          /[Rr]ace/,
+          /[Pp]regnancy/,
+          /[Ll]actation/,
+          /[Rr]enal/,
+          /[Hh]epatic/
+        ];
+        
+        demographicPatterns.forEach(pattern => {
+          const match = label.adverseReactions.match(new RegExp(pattern.source + ".*?([^]*?)(?=\\n\\n|\\n[A-Z]|$)", "s"));
+          if (match) {
+            safetyProfile.adverseReactions.demographicSpecific.push({
+              source: label.title,
+              population: pattern.source.replace(/[\\[\]]/g, ""),
+              text: match[0]
+            });
+          }
+        });
+        
+        // General adverse reactions if not captured above
+        if (safetyProfile.adverseReactions.serious.length === 0 && 
+            safetyProfile.adverseReactions.postmarketing.length === 0 &&
+            safetyProfile.adverseReactions.demographicSpecific.length === 0) {
+          safetyProfile.adverseReactions.common.push({
+            source: label.title,
+            text: label.adverseReactions
+          });
+        }
+      }
+      
+      // Drug interactions
+      if (label.drugInteractions) {
+        safetyProfile.drugInteractions.push({
+          source: label.title,
+          text: label.drugInteractions
+        });
+      }
+    });
+  }
+  
+  // Extract from FDA data if needed to fill gaps
+  if (fdaData && fdaData.raw && fdaData.raw.combinedResults) {
+    const labels = fdaData.raw.combinedResults.filter(item => item.type === "label");
+    
+    labels.forEach(label => {
+      // Only add if we don't already have this information
+      
+      // Warnings
+      if (safetyProfile.warnings.length === 0 && label.warnings && 
+          label.warnings !== "No warnings information") {
+        safetyProfile.warnings.push({
+          source: label.name,
+          text: label.warnings
+        });
+      }
+      
+      // Adverse reactions
+      if (safetyProfile.adverseReactions.common.length === 0 && 
+          label.adverseReactions && 
+          label.adverseReactions !== "No adverse reactions information") {
+        safetyProfile.adverseReactions.common.push({
+          source: label.name,
+          text: label.adverseReactions
+        });
+      }
+    });
+  }
+  
+  return safetyProfile;
+}
 
 // Function to call Grok API for enhanced summary
 async function generateGrokAISummary(allData) {
