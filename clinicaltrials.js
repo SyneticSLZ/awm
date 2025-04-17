@@ -444,9 +444,14 @@ app.post('/api/generate-summary', async (req, res) => {
     const response = await axios.post(grokApiUrl, {
       model: "grok-2", // Add the required model field - update to your specific Grok model name if different
       messages: [
-        {
-          role: "system",
-          content: "You are a specialized AI assistant focused on FDA regulatory information analysis. Your task is to create detailed, well-structured HTML summaries of FDA data for pharmaceutical drugs. Focus on critical safety information, organized presentation, and actionable insights."
+        // {
+        //   role: "system",
+        //   content: "You are a specialized AI assistant focused on FDA regulatory information analysis. Your task is to create detailed, well-structured HTML summaries of FDA data for pharmaceutical drugs. Focus on critical safety information, organized presentation, and actionable insights."
+        // },
+
+        { role: "system", 
+          content: "You are an advanced AI assistant specializing in FDA regulatory information analysis for pharmaceutical drugs. Your task is to create visually appealing, highly structured, and responsive HTML summaries of FDA data, prioritizing critical safety information, dosing details, and actionable insights. Enhance the user experience with modern UI design, including vibrant colors, smooth animations, and a professional layout using Tailwind CSS and custom styles. Incorporate a dedicated section for research insights, ensuring all information is 100% accurate with verified, working links to credible sources (e.g., FDA.gov, DailyMed, peer-reviewed journals). Ensure the design is fully responsive across devices, with hover effects, clear typography, and intuitive navigation. Verify all data for accuracy as of the current date and include a footer with source attribution and update timestamp." 
+
         },
         {
           role: "user",
