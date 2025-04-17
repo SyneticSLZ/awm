@@ -18673,7 +18673,8 @@ async function displayFdaData(drugName, condition) {
               const aiSummary = await generateGrokAISummary(allData);
               
               if (aiSummary) {
-                // Sanitize the AI summary to remove any ```html tags and other code formatting artifacts
+                // Sanitize the AI summary to remove any ```html tags, other code formatting artifacts,
+                // and any explanatory text that might be included at the end
                 let cleanedSummary = aiSummary;
                 
                 // Remove markdown code blocks (```html and ```)
@@ -18681,6 +18682,13 @@ async function displayFdaData(drugName, condition) {
                 
                 // Remove any leftover single backticks
                 cleanedSummary = cleanedSummary.replace(/`([^`]*)`/g, '$1');
+                
+                // Remove explanatory text commonly found at the end of AI-generated summaries
+                cleanedSummary = cleanedSummary.replace(/This HTML summary provides?[\s\S]*?(with AI assistance\.?|for healthcare providers\.?|for readability\.?)$/g, '');
+                cleanedSummary = cleanedSummary.replace(/Summary based on FDA data[\s\S]*?Generated with AI assistance\.?$/g, '');
+                
+                // Remove any trailing explanatory paragraphs (common pattern)
+                cleanedSummary = cleanedSummary.replace(/<p>This (summary|regulatory|report|overview)[\s\S]*?<\/p>$/g, '');
                 
                 // Display the cleaned AI summary
                 summaryContainer.innerHTML = cleanedSummary;
@@ -18733,7 +18741,7 @@ async function displayFdaData(drugName, condition) {
                   <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
                   </svg>
-                  Powered by AI
+                  Powered by Grok AI
                 `;
                 
                 // Add containers to footer
@@ -19653,7 +19661,7 @@ function initializeAdverseEventsChart(eventData) {
       <h4 class="text-sm font-semibold text-gray-800 mb-4">Top 10 Reported Adverse Reactions</h4>
       
       <!-- Chart container -->
-      <div class="flex flex-1 min-h-[${chartHeight}px]">
+      <div class="flex flex-1" style="min-height: ${chartHeight}px;">
         
         <!-- Y-axis labels -->
         <div class="flex flex-col justify-between pr-2 text-xs text-gray-500">
@@ -19680,11 +19688,11 @@ function initializeAdverseEventsChart(eventData) {
   `;
   
   // Add each bar with proper spacing and hover effect
-  const barWidth = Math.min(40, Math.floor(100 / labels.length) - 4);
+  // Fix: Don't use Tailwind's dynamic class generation for width - use inline style instead
   
   for (let i = 0; i < labels.length; i++) {
     const percentage = (counts[i] / maxCount) * 100;
-    const label = labels[i];
+    const barWidthPx = Math.min(40, Math.floor(100 / labels.length) - 4);
     
     chartHtml += `
       <div class="flex flex-col items-center group" style="height: 100%;">
@@ -19693,9 +19701,9 @@ function initializeAdverseEventsChart(eventData) {
           ${counts[i]}
         </div>
         
-        <!-- Bar -->
-        <div class="w-${barWidth} bg-blue-500 hover:bg-blue-600 transition-colors rounded-t" 
-             style="height: ${percentage}%; min-height: 4px;"></div>
+        <!-- Bar - using inline style for width instead of Tailwind class -->
+        <div class="bg-blue-500 hover:bg-blue-600 transition-colors rounded-t" 
+             style="width: ${barWidthPx}px; height: ${percentage}%; min-height: 4px;"></div>
       </div>
     `;
   }
@@ -19711,9 +19719,10 @@ function initializeAdverseEventsChart(eventData) {
   // Add X-axis labels with better handling
   for (let i = 0; i < labels.length; i++) {
     const displayLabel = truncateText(labels[i], 12);
+    const labelWidthPx = Math.min(40, Math.floor(100 / labels.length) - 4) + 10;
     
     chartHtml += `
-      <div class="text-xs text-gray-600 max-w-[${barWidth + 10}px] text-center" title="${labels[i]}">
+      <div class="text-xs text-gray-600 text-center" style="max-width: ${labelWidthPx}px;" title="${labels[i]}">
         ${displayLabel}
       </div>
     `;
