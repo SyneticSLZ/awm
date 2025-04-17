@@ -10532,6 +10532,7 @@ function addCompareButton(timelineElement, entityName, entityType) {
             </svg>
             Compare
         `;
+        compareButton.style.display = 'none'
         
         compareButton.addEventListener('click', () => {
             // Show a modal with comparison options
@@ -10583,7 +10584,7 @@ function showComparisonModal(entityName, entityType) {
                     </div>
                 </div>
                 
-                <div class="mb-4">
+                <div class="mb-4" >
                     <label class="block text-sm font-medium text-gray-700 mb-1">Compare with a ${oppositeType}:</label>
                     <div class="flex">
                         <input type="text" id="compare-opposite" placeholder="Enter ${oppositeTypeName} name..." 
@@ -15855,6 +15856,137 @@ function normalizeCompanyName(name) {
 }
 
 
+// Function to show warning letter modal
+function showWarningLetterModal(content, title = 'Warning Letter Details') {
+  // Check if modal already exists
+  let modal = document.getElementById('warning-letter-modal');
+  
+  if (!modal) {
+    // Create modal if it doesn't exist
+    modal = document.createElement('div');
+    modal.id = 'warning-letter-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    
+    // Build modal HTML
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold" id="warning-letter-modal-title">${title}</h2>
+          <button id="close-warning-letter-modal" class="text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="overflow-y-auto p-6" id="warning-letter-modal-content">
+          ${content}
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listener to close button
+    document.getElementById('close-warning-letter-modal').addEventListener('click', closeWarningLetterModal);
+    
+    // Close on click outside content
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeWarningLetterModal();
+      }
+    });
+    
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('flex')) {
+        closeWarningLetterModal();
+      }
+    });
+  } else {
+    // Update modal content
+    document.getElementById('warning-letter-modal-title').textContent = title;
+    document.getElementById('warning-letter-modal-content').innerHTML = content;
+    
+    // Show the modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  
+  // Prevent body scrolling
+  document.body.style.overflow = 'hidden';
+}
+
+// Function to close warning letter modal
+function closeWarningLetterModal() {
+  const modal = document.getElementById('warning-letter-modal');
+  if (modal) {
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    
+    // Allow body scrolling again
+    document.body.style.overflow = '';
+  }
+}
+
+// Helper function to highlight search terms in text
+function highlightSearchTerm(text, searchTerm) {
+  if (!text || !searchTerm) return text;
+  
+  // Escape special characters in the search term
+  const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  
+  // Create a regular expression to find the search term
+  const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
+  
+  // Replace matches with highlighted spans
+  return text.replace(regex, '<span class="highlight bg-yellow-200 px-0.5 rounded">$1</span>');
+}
+
+// Helper function to format date
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown Date';
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateString;
+  }
+}
+
+// Helper function to create error message
+function createErrorMessage(message) {
+  return `
+    <div class="text-center p-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-red-600">${message}</p>
+    </div>
+  `;
+}
+
+// Helper function to show/hide a section
+function showSection(element, show) {
+  if (show) {
+    element.classList.remove('hidden');
+  } else {
+    element.classList.add('hidden');
+  }
+}
+
+
+
 // // New function to fetch warning letters
 // async function fetchWarningLetters(searchTerm, filters = {}) {
 //   try {
@@ -16365,135 +16497,6 @@ function normalizeCompanyName(name) {
 //     `, 'Error');
 //   }
 // }
-
-// Function to show warning letter modal
-function showWarningLetterModal(content, title = 'Warning Letter Details') {
-  // Check if modal already exists
-  let modal = document.getElementById('warning-letter-modal');
-  
-  if (!modal) {
-    // Create modal if it doesn't exist
-    modal = document.createElement('div');
-    modal.id = 'warning-letter-modal';
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    
-    // Build modal HTML
-    modal.innerHTML = `
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-        <div class="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 class="text-xl font-semibold" id="warning-letter-modal-title">${title}</h2>
-          <button id="close-warning-letter-modal" class="text-gray-400 hover:text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        
-        <div class="overflow-y-auto p-6" id="warning-letter-modal-content">
-          ${content}
-        </div>
-      </div>
-    `;
-    
-    // Add to document
-    document.body.appendChild(modal);
-    
-    // Add event listener to close button
-    document.getElementById('close-warning-letter-modal').addEventListener('click', closeWarningLetterModal);
-    
-    // Close on click outside content
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) {
-        closeWarningLetterModal();
-      }
-    });
-    
-    // Close on ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.classList.contains('flex')) {
-        closeWarningLetterModal();
-      }
-    });
-  } else {
-    // Update modal content
-    document.getElementById('warning-letter-modal-title').textContent = title;
-    document.getElementById('warning-letter-modal-content').innerHTML = content;
-    
-    // Show the modal
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
-  
-  // Prevent body scrolling
-  document.body.style.overflow = 'hidden';
-}
-
-// Function to close warning letter modal
-function closeWarningLetterModal() {
-  const modal = document.getElementById('warning-letter-modal');
-  if (modal) {
-    modal.classList.remove('flex');
-    modal.classList.add('hidden');
-    
-    // Allow body scrolling again
-    document.body.style.overflow = '';
-  }
-}
-
-// Helper function to highlight search terms in text
-function highlightSearchTerm(text, searchTerm) {
-  if (!text || !searchTerm) return text;
-  
-  // Escape special characters in the search term
-  const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  
-  // Create a regular expression to find the search term
-  const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
-  
-  // Replace matches with highlighted spans
-  return text.replace(regex, '<span class="highlight bg-yellow-200 px-0.5 rounded">$1</span>');
-}
-
-// Helper function to format date
-function formatDate(dateString) {
-  if (!dateString) return 'Unknown Date';
-  
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-    
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  } catch (e) {
-    return dateString;
-  }
-}
-
-// Helper function to create error message
-function createErrorMessage(message) {
-  return `
-    <div class="text-center p-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <p class="text-sm text-red-600">${message}</p>
-    </div>
-  `;
-}
-
-// Helper function to show/hide a section
-function showSection(element, show) {
-  if (show) {
-    element.classList.remove('hidden');
-  } else {
-    element.classList.add('hidden');
-  }
-}
 
 // // Function to search warning letters directly
 // async function searchWarningLetters(searchTerm, type = null, issuingOffice = null) {
