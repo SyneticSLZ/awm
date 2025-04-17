@@ -19430,10 +19430,10 @@ html += `</div>`;
       this.setAttribute('aria-selected', 'true');
       
 // If it's the adverse events tab, initialize the chart with the updated function
-    if (tabId === 'events-content' && document.getElementById('adverse-events-chart')) {
-      // Use the fixed chart implementation
-      initializeAdverseEventsChart(endpointsData.event?.data || []);
-    }
+    // if (tabId === 'events-content' && document.getElementById('adverse-events-chart')) {
+    //   // Use the fixed chart implementation
+    //   initializeAdverseEventsChart(endpointsData.event?.data || []);
+    // }
   });
 });
   
