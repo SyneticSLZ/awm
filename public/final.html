@@ -1427,7 +1427,9 @@
   </section>
 
   <div id="clinical-trials-dashboard" class="mb-8 hidden">
-
+<div>
+    <p></p>
+</div>
   </div>
 
 <!-- EMA Data Section -->
@@ -19237,11 +19239,11 @@ function displayComprehensiveFdaData(fdaData, drugName) {
 const eventData = endpointsData.event?.data || [];
 if (eventData.length > 0) {
   // Create a summary chart of adverse event types with fixed height
-  html += `
-    <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
-      <div id="adverse-events-chart" style="height: 300px; min-height: 300px;"></div>
-    </div>
-  `;
+//   html += `
+//     <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
+//       <div id="adverse-events-chart" style="height: 300px; min-height: 300px;"></div>
+//     </div>
+//   `;
   
   // Add a list of recent adverse events
   html += `
