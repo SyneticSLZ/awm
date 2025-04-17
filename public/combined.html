@@ -1,0 +1,3456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDA Regulatory Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+        
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .badge-nai {
+            background-color: #10b981;
+        }
+        
+        .badge-vai {
+            background-color: #f59e0b;
+        }
+        
+        .badge-oai {
+            background-color: #ef4444;
+        }
+        
+        body {
+            background-image: url('https://cdnjs.cloudflare.com/ajax/libs/fabricjs/5.3.1/assets/mesh-gradient.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #3498db;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .highlight {
+            background-color: #FFFF00;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .letter-content {
+            white-space: pre-line;
+        }
+
+        .tabs-header {
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .tabs-header::-webkit-scrollbar {
+            display: none;
+        }
+
+        .market-opportunity {
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+    <!-- Navbar -->
+    <nav class="glass-dark sticky top-0 z-50 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold">FDA Regulatory Intelligence Hub</div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300 active-nav" data-section="dashboard">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="inspections">
+                            <i class="fas fa-clipboard-check mr-2"></i>Inspections
+                        </a>
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="form-483">
+                            <i class="fas fa-exclamation-circle mr-2"></i>Form 483s
+                        </a>
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="warning-letters">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Warning Letters
+                        </a>
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="companies">
+                            <i class="fas fa-building mr-2"></i>Companies
+                        </a>
+                        <a href="#" class="py-2 px-3 rounded-lg hover:bg-white/10 transition duration-300" data-section="market-insights">
+                            <i class="fas fa-chart-line mr-2"></i>Market Insights
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="ai-assistant-btn" class="p-2 rounded-full hover:bg-white/10 transition">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="space-y-6">
+            <!-- Search & Filter Bar -->
+            <div class="glass rounded-xl p-4 md:p-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                placeholder="Search by company name, drug, or condition..." 
+                                class="w-full py-3 px-4 pr-10 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            >
+                            <span class="absolute right-3 top-3 text-slate-400">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 flex-wrap md:flex-nowrap">
+                        <select id="filter-document-type" class="py-3 px-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">All Document Types</option>
+                            <option value="inspection">Inspections</option>
+                            <option value="form-483">Form 483s</option>
+                            <option value="warning-letter">Warning Letters</option>
+                        </select>
+                        <select id="filter-project-area" class="py-3 px-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">All Project Areas</option>
+                        </select>
+                        <select id="filter-classification" class="py-3 px-4 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">All Classifications</option>
+                            <option value="NAI">NAI</option>
+                            <option value="VAI">VAI</option>
+                            <option value="OAI">OAI</option>
+                        </select>
+                        <button id="filter-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Total Inspections</h3>
+                            <p class="text-3xl font-bold mt-1" id="total-inspections">0</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Total inspections in database</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Form 483s</h3>
+                            <p class="text-3xl font-bold mt-1" id="total-483s">0</p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full text-yellow-600">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Total Form 483 observations</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Warning Letters</h3>
+                            <p class="text-3xl font-bold mt-1" id="total-wl">0</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full text-red-600">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Total warning letters issued</p>
+                </div>
+
+                <div class="glass rounded-xl p-6 transition hover:shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-slate-500 text-sm font-medium">Market Opportunities</h3>
+                            <p class="text-3xl font-bold mt-1" id="market-opportunities">0</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full text-green-600">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 mt-4 text-sm">Potential market gaps identified</p>
+                </div>
+            </div>
+
+            <!-- Regulatory Timeline -->
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-xl font-bold mb-4">Regulatory Action Timeline</h2>
+                <div class="relative">
+                    <!-- Timeline bars -->
+                    <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-200"></div>
+                    
+                    <!-- Timeline items -->
+                    <div id="timeline-items" class="space-y-8 relative pl-12">
+                        <!-- Timeline items will be populated here -->
+                        <div class="timeline-loading flex justify-center items-center py-8">
+                            <div class="loading-spinner"></div>
+                            <span>Loading timeline data...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="glass rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">AI Regulatory Insights</h2>
+                    <button id="refresh-insights" class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="ai-insights" class="prose max-w-none">
+                    <div class="flex justify-center items-center py-8">
+                        <div class="loading-spinner"></div>
+                        <span>Generating regulatory insights...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Regulatory Actions -->
+            <div class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Recent Regulatory Actions</h2>
+                        <div class="text-sm text-slate-500" id="recent-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="bg-white/30 border-b border-slate-200 tabs-header">
+                    <div class="flex">
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-blue-600 text-blue-600" data-tab="all">
+                            All Actions
+                        </button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="inspections">
+                            Inspections
+                        </button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="form-483">
+                            Form 483s
+                        </button>
+                        <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="warning-letters">
+                            Warning Letters
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Subject/Classification</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Related Documents</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-actions-table" class="divide-y divide-slate-200">
+                            <!-- Table content will be dynamically inserted -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                                    <div class="flex justify-center items-center">
+                                        <div class="loading-spinner"></div>
+                                        <span>Loading recent regulatory actions...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-actions" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="actions-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inspections Section -->
+        <section id="inspections-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">FDA Inspections Database</h2>
+                <p class="mb-4">
+                    FDA conducts inspections of regulated facilities to ensure compliance with regulations and good manufacturing practices.
+                </p>
+                
+                <!-- Inspections search/filter -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="inspection-company" class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                        <input type="text" id="inspection-company" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="inspection-date-from" class="block text-sm font-medium text-slate-700 mb-1">Date From</label>
+                        <input type="date" id="inspection-date-from" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="inspection-date-to" class="block text-sm font-medium text-slate-700 mb-1">Date To</label>
+                        <input type="date" id="inspection-date-to" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="inspection-country" class="block text-sm font-medium text-slate-700 mb-1">Country</label>
+                        <select id="inspection-country" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Countries</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="inspection-project-area" class="block text-sm font-medium text-slate-700 mb-1">Project Area</label>
+                        <select id="inspection-project-area" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Project Areas</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="inspection-classification" class="block text-sm font-medium text-slate-700 mb-1">Classification</label>
+                        <select id="inspection-classification" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Classifications</option>
+                            <option value="NAI">NAI - No Action Indicated</option>
+                            <option value="VAI">VAI - Voluntary Action Indicated</option>
+                            <option value="OAI">OAI - Official Action Indicated</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="inspection-search-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Search Inspections
+                    </button>
+                </div>
+            </div>
+            
+            <div id="inspections-results" class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Inspection Results</h2>
+                        <div class="text-sm text-slate-500" id="inspections-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Project Area</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Classification</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspections-table" class="divide-y divide-slate-200">
+                            <!-- Will be populated dynamically -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                                    Use the search filters above to find inspection records
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-inspections" class="text-blue-600 hover:text-blue-800 font-medium hidden">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="inspections-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form 483 Section -->
+        <section id="form-483-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">FDA Form 483 Observations</h2>
+                <p class="mb-4">
+                    Form 483s are issued at the conclusion of an inspection when investigators observe conditions that might violate the Food, Drug and Cosmetic Act.
+                </p>
+                
+                <!-- Form 483 search/filter -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="483-company" class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                        <input type="text" id="483-company" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="483-date-from" class="block text-sm font-medium text-slate-700 mb-1">Date From</label>
+                        <input type="date" id="483-date-from" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="483-date-to" class="block text-sm font-medium text-slate-700 mb-1">Date To</label>
+                        <input type="date" id="483-date-to" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="483-fei" class="block text-sm font-medium text-slate-700 mb-1">FEI Number</label>
+                        <input type="text" id="483-fei" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="483-keyword" class="block text-sm font-medium text-slate-700 mb-1">Keyword</label>
+                        <input type="text" id="483-keyword" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search in observation text...">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="483-search-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Search Form 483s
+                    </button>
+                </div>
+            </div>
+            
+            <div id="483-results" class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Form 483 Results</h2>
+                        <div class="text-sm text-slate-500" id="483-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">FEI Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"># of Observations</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Related Warning Letter</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="483-table" class="divide-y divide-slate-200">
+                            <!-- Will be populated dynamically -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                                    Use the search filters above to find Form 483 records
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-483" class="text-blue-600 hover:text-blue-800 font-medium hidden">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="483-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Warning Letters Section -->
+        <section id="warning-letters-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">FDA Warning Letters</h2>
+                <p class="mb-4">
+                    Warning Letters are issued when the FDA finds that a manufacturer has significantly violated FDA regulations.
+                    These letters establish prior notice of violations and request prompt corrective action.
+                </p>
+                
+                <!-- Warning Letter search/filter -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="wl-company" class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                        <input type="text" id="wl-company" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="wl-date-from" class="block text-sm font-medium text-slate-700 mb-1">Date From</label>
+                        <input type="date" id="wl-date-from" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="wl-date-to" class="block text-sm font-medium text-slate-700 mb-1">Date To</label>
+                        <input type="date" id="wl-date-to" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="wl-issuing-office" class="block text-sm font-medium text-slate-700 mb-1">Issuing Office</label>
+                        <select id="wl-issuing-office" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Offices</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="wl-subject" class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                        <input type="text" id="wl-subject" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search in subject...">
+                    </div>
+                    <div>
+                        <label for="wl-content" class="block text-sm font-medium text-slate-700 mb-1">Letter Content</label>
+                        <input type="text" id="wl-content" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search in letter content...">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="wl-search-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Search Warning Letters
+                    </button>
+                </div>
+            </div>
+            
+            <div id="wl-results" class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Warning Letter Results</h2>
+                        <div class="text-sm text-slate-500" id="wl-count">Showing 0 entries</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Issue Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Issuing Office</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Subject</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Related Form 483</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wl-table" class="divide-y divide-slate-200">
+                            <!-- Will be populated dynamically -->
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                                    Use the search filters above to find Warning Letter records
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-wl" class="text-blue-600 hover:text-blue-800 font-medium hidden">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="wl-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Companies Section -->
+        <section id="companies-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-4 md:p-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="company-search-input" 
+                                placeholder="Search for a company..." 
+                                class="w-full py-3 px-4 pr-10 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            >
+                            <span class="absolute right-3 top-3 text-slate-400">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <button id="company-search-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-search mr-2"></i>Find Company
+                    </button>
+                </div>
+            </div>
+
+            <div id="company-profile" class="glass rounded-xl p-6 hidden">
+                <div id="company-loading" class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span>Loading company profile...</span>
+                </div>
+
+                <div id="company-content" class="hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
+                        <div>
+                            <h2 id="company-name" class="text-2xl font-bold"></h2>
+                            <p id="company-location" class="text-slate-500 mt-1"></p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span id="company-fei" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm"></span>
+                            <span id="company-status" class="px-3 py-1 rounded-full text-sm text-white"></span>
+                        </div>
+                    </div>
+
+                    <!-- AI Summary -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-3">AI Company Summary</h3>
+                        <div id="company-ai-summary" class="bg-white/50 p-4 rounded-lg">
+                            <div class="flex justify-center items-center py-4">
+                                <div class="loading-spinner"></div>
+                                <span>Generating company summary...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regulatory History Tabs -->
+                    <h3 class="text-lg font-semibold mb-3">Regulatory History</h3>
+                    <div class="bg-white/30 rounded-t-lg border border-slate-200">
+                        <div class="flex">
+                            <button class="company-tab-btn px-6 py-3 font-medium border-b-2 border-blue-600 text-blue-600" data-tab="overview">
+                                Overview
+                            </button>
+                            <button class="company-tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="inspections">
+                                Inspections
+                            </button>
+                            <button class="company-tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="form-483s">
+                                Form 483s
+                            </button>
+                            <button class="company-tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-blue-600" data-tab="warning-letters">
+                                Warning Letters
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/30 rounded-b-lg border-x border-b border-slate-200 p-4">
+                        <!-- Overview Tab -->
+                        <div id="company-overview-tab" class="company-tab">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="glass p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2">Inspection Summary</h4>
+                                    <div class="flex justify-between text-sm">
+                                        <span>Total Inspections:</span>
+                                        <span id="company-total-inspections" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>NAI:</span>
+                                        <span id="company-nai-count" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>VAI:</span>
+                                        <span id="company-vai-count" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>OAI:</span>
+                                        <span id="company-oai-count" class="font-medium"></span>
+                                    </div>
+                                </div>
+                                <div class="glass p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2">Form 483 Summary</h4>
+                                    <div class="flex justify-between text-sm">
+                                        <span>Total Form 483s:</span>
+                                        <span id="company-total-483s" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>Total Observations:</span>
+                                        <span id="company-total-observations" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>Most Recent:</span>
+                                        <span id="company-recent-483" class="font-medium"></span>
+                                    </div>
+                                </div>
+                                <div class="glass p-4 rounded-lg">
+                                    <h4 class="font-semibold mb-2">Warning Letter Summary</h4>
+                                    <div class="flex justify-between text-sm">
+                                        <span>Total Warning Letters:</span>
+                                        <span id="company-total-wl" class="font-medium"></span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mt-1">
+                                        <span>Most Recent:</span>
+                                        <span id="company-recent-wl" class="font-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <h4 class="font-semibold mb-3">Regulatory Trend</h4>
+                                <div id="company-trend-chart" class="h-64 w-full bg-white/50 rounded-lg p-4">
+                                    <div class="flex justify-center items-center h-full">
+                                        <p class="text-slate-500">Regulatory trend visualization will appear here</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inspections Tab -->
+                        <div id="company-inspections-tab" class="company-tab hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-100/50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">FEI Number</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Project Area</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Classification</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="company-inspections-table" class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                                                No inspection records found for this company
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Form 483s Tab -->
+                        <div id="company-form-483s-tab" class="company-tab hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-100/50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">FEI Number</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider"># of Observations</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Related Warning Letter</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="company-483s-table" class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                                                No Form 483 records found for this company
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Warning Letters Tab -->
+                        <div id="company-warning-letters-tab" class="company-tab hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-slate-100/50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Issue Date</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Issuing Office</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Subject</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Related Form 483</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="company-wl-table" class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                                                No Warning Letter records found for this company
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company List -->
+            <div id="company-list" class="glass rounded-xl overflow-hidden">
+                <div class="bg-white/50 p-4 border-b border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold">Companies with Recent Regulatory Activity</h2>
+                        <div class="text-sm text-slate-500" id="companies-count">Showing 0 companies</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-slate-100/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Total Inspections</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Form 483 Count</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Warning Letter Count</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Compliance Rating</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companies-table" class="divide-y divide-slate-200">
+                            <!-- Will be populated dynamically -->
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-slate-500">
+                                    <div class="flex justify-center items-center">
+                                        <div class="loading-spinner"></div>
+                                        <span>Loading company data...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-white/50 p-4 border-t border-slate-200">
+                    <div class="flex justify-between items-center">
+                        <button id="load-more-companies" class="text-blue-600 hover:text-blue-800 font-medium">
+                            Load more
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-500 text-sm">Page</span>
+                            <span id="companies-pagination" class="text-sm font-medium">1 of 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Insights Section -->
+        <section id="market-insights-section" class="hidden space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">Market Opportunity Analysis</h2>
+                <p class="mb-4">
+                    Identify potential market gaps and opportunities based on recent regulatory actions. When companies receive warning letters,
+                    they often face manufacturing restrictions that create opportunities for compliant competitors.
+                </p>
+                
+                <!-- Market filters -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="market-sector" class="block text-sm font-medium text-slate-700 mb-1">Industry Sector</label>
+                        <select id="market-sector" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Sectors</option>
+                            <option value="pharmaceuticals">Pharmaceuticals</option>
+                            <option value="biologics">Biologics</option>
+                            <option value="medical-devices">Medical Devices</option>
+                            <option value="food">Food</option>
+                            <option value="cosmetics">Cosmetics</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="market-product-type" class="block text-sm font-medium text-slate-700 mb-1">Product Type</label>
+                        <input type="text" id="market-product-type" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., sterile injectable, API...">
+                    </div>
+                    <div>
+                        <label for="market-date-from" class="block text-sm font-medium text-slate-700 mb-1">Date From</label>
+                        <input type="date" id="market-date-from" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="market-date-to" class="block text-sm font-medium text-slate-700 mb-1">Date To</label>
+                        <input type="date" id="market-date-to" class="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                    <button id="market-analysis-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">
+                        <i class="fas fa-chart-line mr-2"></i>Analyze Market Opportunities
+                    </button>
+                </div>
+            </div>
+            
+            <div id="market-opportunities-list" class="space-y-4">
+                <div id="market-loading" class="flex justify-center items-center py-8 glass rounded-xl">
+                    <div class="loading-spinner"></div>
+                    <span>Analyzing market opportunities...</span>
+                </div>
+                
+                <!-- Opportunity cards will be dynamically inserted here -->
+            </div>
+            
+            <div id="market-trends" class="glass rounded-xl p-6 hidden">
+                <h3 class="text-xl font-bold mb-4">Industry Compliance Trends</h3>
+                <div id="trend-chart" class="h-80 bg-white/50 rounded-lg p-4">
+                    <div class="flex justify-center items-center h-full">
+                        <p class="text-slate-500">Trend visualization will appear after analysis</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="fixed inset-0 bg-black/50" id="modal-overlay"></div>
+        <div class="glass-dark rounded-xl w-full max-w-4xl text-white relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <h3 class="text-xl font-bold" id="modal-title">Inspection Details</h3>
+                <button id="close-modal" class="text-white/70 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto p-6" id="modal-content">
+                <!-- Content will be dynamically inserted -->
+                <div class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span>Loading details...</span>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end space-x-4">
+                <a id="modal-download" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition hidden inline-flex items-center" target="_blank">
+                    <i class="fas fa-download mr-2"></i>Download Report
+                </a>
+                <a id="modal-view" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition hidden inline-flex items-center" target="_blank">
+                    <i class="fas fa-external-link-alt mr-2"></i>View on FDA Website
+                </a>
+                <button id="close-modal-btn" class="bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Letter Detail Modal -->
+    <div id="letter-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="fixed inset-0 bg-black/50" id="letter-modal-overlay"></div>
+        <div class="glass-dark rounded-xl w-full max-w-6xl text-white relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <h3 class="text-xl font-bold" id="letter-modal-title">Warning Letter Details</h3>
+                <button id="close-letter-modal" class="text-white/70 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto p-6" id="letter-modal-content">
+                <!-- Content will be dynamically inserted -->
+                <div id="letter-loading" class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span>Loading letter details...</span>
+                </div>
+                
+                <div id="letter-content" class="hidden">
+                    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-slate-800/50 p-4 rounded">
+                            <p class="font-medium text-white/70">Letter ID</p>
+                            <p id="letter-id" class="text-white"></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded">
+                            <p class="font-medium text-white/70">Issue Date</p>
+                            <p id="letter-date" class="text-white"></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded">
+                            <p class="font-medium text-white/70">Issuing Office</p>
+                            <p id="letter-office" class="text-white"></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded md:col-span-2">
+                            <p class="font-medium text-white/70">Subject</p>
+                            <p id="letter-subject" class="text-white"></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded">
+                            <p class="font-medium text-white/70">Posted Date</p>
+                            <p id="letter-posted-date" class="text-white"></p>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded md:col-span-3">
+                            <p class="font-medium text-white/70">Recipient Information</p>
+                            <div id="letter-recipient-info" class="text-white"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Related 483 Section -->
+                    <div id="letter-related-483" class="mb-6 bg-blue-900/30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold mb-2">Related Form 483 Observations</h4>
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-lg font-semibold">Related Form 483 Observations</h4>
+                            <a id="view-full-483" href="#" class="text-blue-400 hover:text-blue-300 text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>View Full Form 483
+                            </a>
+                        </div>
+                        <div id="letter-483-observations" class="mt-3">
+                            <p class="text-sm text-white/70">The following Form 483 observations led to this Warning Letter:</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-2">Letter Content</h4>
+                        <div id="letter-full-content" class="bg-slate-800/30 p-4 rounded letter-content text-sm"></div>
+                    </div>
+                    
+                    <!-- Market Impact Analysis -->
+                    <div class="mb-6 market-opportunity bg-slate-800/30 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold mb-2">Market Impact Analysis</h4>
+                        <div id="letter-market-impact" class="text-sm">
+                            <p>Analyzing potential market impact and opportunity areas...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <a id="letter-source-link" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 inline-flex items-center">
+                            <i class="fas fa-external-link-alt mr-1"></i>
+                            View on FDA Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end space-x-4">
+                <button id="close-letter-modal-btn" class="bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Modal -->
+    <div id="ai-assistant-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="fixed inset-0 bg-black/50" id="ai-modal-overlay"></div>
+        <div class="glass-dark rounded-xl w-full max-w-3xl text-white relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-white/10">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-robot mr-2"></i> AI Regulatory Assistant
+                </h3>
+                <button id="close-ai-modal" class="text-white/70 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto p-6" id="ai-modal-content">
+                <div class="mb-6">
+                    <p>Ask any question about FDA regulatory data, inspections, Form 483s, and warning letters. The AI assistant can help with:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1 text-white/80">
+                        <li>Finding connections between Form 483s and Warning Letters</li>
+                        <li>Identifying market opportunities from regulatory actions</li>
+                        <li>Analyzing compliance trends for specific companies</li>
+                        <li>Summarizing common violations in Warning Letters</li>
+                        <li>Predicting potential regulatory risks</li>
+                    </ul>
+                </div>
+                
+                <div id="ai-chat" class="space-y-4">
+                    <div class="bg-slate-800/50 p-4 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="bg-blue-600 text-white p-2 rounded-full mr-3">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-blue-300">AI Assistant</p>
+                                <div class="mt-1">
+                                    How can I help you with FDA regulatory intelligence today?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI chat messages will be dynamically added here -->
+                </div>
+                
+                <div class="mt-6">
+                    <div class="relative">
+                        <textarea 
+                            id="ai-input" 
+                            placeholder="Ask a question about FDA regulatory data..." 
+                            class="w-full bg-slate-800/50 text-white placeholder-white/50 rounded-lg py-3 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            rows="3"
+                        ></textarea>
+                        <button id="ai-send-btn" class="absolute right-3 bottom-3 text-blue-400 hover:text-blue-300">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = "https://sunday-fsfq.onrender.com";
+        const INSPECTION_API = `${API_BASE_URL}/api/inspection-data`;
+        const WARNING_LETTER_API = `${API_BASE_URL}/api/wl`;
+        
+        // Global Data Storage
+        let recentInspections = [];
+        let historicalInspections = [];
+        let form483Data = [];
+        let warningLetterData = [];
+        let marketOpportunities = [];
+        let projectAreas = [];
+        let issuingOffices = [];
+        let companies = [];
+        
+        let filteredRecent = [];
+        let filteredHistorical = [];
+        let filteredForm483 = [];
+        let filteredWarningLetters = [];
+        
+        // UI State
+        let currentSection = 'dashboard';
+        let searchTerm = '';
+        let selectedDocType = '';
+        let selectedProjectArea = '';
+        let selectedClassification = '';
+        let activeTab = 'all';
+        let activeCompanyTab = 'overview';
+        
+        // Pagination
+        const ITEMS_PER_PAGE = 10;
+        let actionsPage = 1;
+        let inspectionsPage = 1;
+        let form483Page = 1;
+        let warningLetterPage = 1;
+        let companiesPage = 1;
+
+        // DOM Elements
+        const searchInput = document.getElementById('search-input');
+        const filterDocType = document.getElementById('filter-document-type');
+        const filterProjectArea = document.getElementById('filter-project-area');
+        const filterClassification = document.getElementById('filter-classification');
+        const filterButton = document.getElementById('filter-button');
+        const recentActionsTable = document.getElementById('recent-actions-table');
+        const detailModal = document.getElementById('detail-modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModal = document.getElementById('close-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalDownload = document.getElementById('modal-download');
+        const modalView = document.getElementById('modal-view');
+        const themeToggle = document.getElementById('theme-toggle');
+        const navLinks = document.querySelectorAll('[data-section]');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const companyTabButtons = document.querySelectorAll('.company-tab-btn');
+        const aiAssistantBtn = document.getElementById('ai-assistant-btn');
+        const aiAssistantModal = document.getElementById('ai-assistant-modal');
+        const aiModalOverlay = document.getElementById('ai-modal-overlay');
+        const closeAiModal = document.getElementById('close-ai-modal');
+        const aiInput = document.getElementById('ai-input');
+        const aiSendBtn = document.getElementById('ai-send-btn');
+        const aiChat = document.getElementById('ai-chat');
+        const letterModal = document.getElementById('letter-modal');
+        const letterModalOverlay = document.getElementById('letter-modal-overlay');
+        const closeLetterModal = document.getElementById('close-letter-modal');
+        const closeLetterModalBtn = document.getElementById('close-letter-modal-btn');
+        
+        // Stats Elements
+        const totalInspectionsEl = document.getElementById('total-inspections');
+        const total483sEl = document.getElementById('total-483s');
+        const totalWlEl = document.getElementById('total-wl');
+        const marketOpportunitiesEl = document.getElementById('market-opportunities');
+        
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch initial data
+            initializeData();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+        
+        // Data Initialization
+        async function initializeData() {
+            try {
+                // Parallel data fetching
+                const [inspectionData, warningLetterStats, issOffices] = await Promise.all([
+                    fetchInspectionData(),
+                    fetchWarningLetterStats(),
+                    fetchIssuingOffices()
+                ]);
+                
+                if (inspectionData) {
+                    recentInspections = inspectionData.recentInspections || [];
+                    historicalInspections = inspectionData.historicalInspections || [];
+                    projectAreas = inspectionData.projectAreas || [];
+                    
+                    // Populate project areas dropdown
+                    populateProjectAreas();
+                }
+                
+                if (warningLetterStats) {
+                    warningLetterData = warningLetterStats.recentLetters || [];
+                }
+                
+                if (issOffices && issOffices.length > 0) {
+                    issuingOffices = issOffices;
+                    populateIssuingOffices();
+                }
+                
+                // Combine and process data
+                processForm483Data();
+                
+                // Generate market opportunities
+                generateMarketOpportunities();
+                
+                // Update UI
+                updateDashboardStats();
+                populateTimeline();
+                generateAIInsights();
+                
+                // Apply initial filters
+                filterData();
+                
+                // Load company data
+                loadCompanyData();
+                
+            } catch (error) {
+                console.error('Error initializing data:', error);
+                showErrorMessage('Error loading data. Please try again later.');
+            }
+        }
+        
+        async function fetchInspectionData() {
+            try {
+                const response = await fetch(`${INSPECTION_API}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching inspection data:', error);
+                return null;
+            }
+        }
+        
+        async function fetchWarningLetterStats() {
+            try {
+                const response = await fetch(`${WARNING_LETTER_API}/stats`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching warning letter stats:', error);
+                return null;
+            }
+        }
+        
+        async function fetchIssuingOffices() {
+            try {
+                const response = await fetch(`${WARNING_LETTER_API}/issuing-offices`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching issuing offices:', error);
+                return [];
+            }
+        }
+        
+        function processForm483Data() {
+            // In a real implementation, we would process the Form 483 data
+            // For demo purposes, generate sample Form 483 data based on inspections
+            form483Data = historicalInspections
+                .filter(inspection => inspection["Inspection Classification"] === "VAI" || inspection["Inspection Classification"] === "OAI")
+                .map(inspection => {
+                    const obsCount = Math.floor(Math.random() * 8) + 1; // 1-8 observations
+                    return {
+                        date: inspection["Inspection End Date"],
+                        company: inspection["Firm Name"],
+                        feiNumber: `3${Math.floor(Math.random() * 90000000) + 10000000}`, // Random FEI
+                        observationCount: obsCount,
+                        observations: Array(obsCount).fill().map((_, i) => ({
+                            number: i + 1,
+                            description: getRandomObservation(inspection["Project Area"])
+                        })),
+                        relatedWarningLetter: inspection["Inspection Classification"] === "OAI" ? 
+                            (Math.random() > 0.7 ? null : `WL-${Math.floor(Math.random() * 10000)}`) : null
+                    };
+                });
+                
+            // Link warning letters to Form 483s
+            warningLetterData.forEach(letter => {
+                const matchedCompany = form483Data.find(form => 
+                    form.company.toLowerCase() === letter.companyName.toLowerCase() &&
+                    form.relatedWarningLetter === null
+                );
+                
+                if (matchedCompany) {
+                    matchedCompany.relatedWarningLetter = letter.id || letter.letterId;
+                    letter.relatedForm483 = matchedCompany.feiNumber;
+                }
+            });
+        }
+        
+        function generateMarketOpportunities() {
+            // Generate market opportunities based on warning letters and Form 483s
+            // In a real implementation, this would analyze the data for actual opportunities
+            
+            // Find companies with OAI classifications or warning letters
+            const companiesWithIssues = [...new Set([
+                ...historicalInspections
+                    .filter(insp => insp["Inspection Classification"] === "OAI")
+                    .map(insp => insp["Firm Name"]),
+                ...warningLetterData.map(letter => letter.companyName)
+            ])];
+            
+            // Generate opportunities
+            marketOpportunities = companiesWithIssues.slice(0, 10).map(company => {
+                const sectors = ['Pharmaceuticals', 'Biologics', 'Medical Devices', 'Food', 'Cosmetics'];
+                const productTypes = [
+                    'Sterile Injectables', 'Oral Solid Dose', 'Topical Creams', 'APIs', 
+                    'Biologics Manufacturing', 'Contract Manufacturing', 'Ophthalmic Products'
+                ];
+                const marketImpacts = [
+                    'Production shutdown may create supply shortage',
+                    'Manufacturing restrictions could impact market availability',
+                    'Import alert creates opportunity for domestic manufacturers',
+                    'Quality issues may shift market to competitors',
+                    'Regulatory focus indicates increasing scrutiny in this area'
+                ];
+                
+                return {
+                    company: company,
+                    sector: sectors[Math.floor(Math.random() * sectors.length)],
+                    productType: productTypes[Math.floor(Math.random() * productTypes.length)],
+                    marketImpact: marketImpacts[Math.floor(Math.random() * marketImpacts.length)],
+                    opportunityLevel: Math.floor(Math.random() * 100) + 1, // 1-100 score
+                    estimatedMarketGap: `$${(Math.random() * 100).toFixed(1)}M - $${(Math.random() * 200 + 100).toFixed(1)}M`,
+                    timeToMarket: `${Math.floor(Math.random() * 24) + 6} months`
+                };
+            });
+            
+            // Update count in dashboard
+            marketOpportunitiesEl.textContent = marketOpportunities.length;
+        }
+        
+        // UI Update Functions
+        function updateDashboardStats() {
+            // Update summary statistics
+            totalInspectionsEl.textContent = (historicalInspections.length).toLocaleString();
+            total483sEl.textContent = form483Data.length.toLocaleString();
+            totalWlEl.textContent = warningLetterData.length.toLocaleString();
+        }
+        
+        function populateProjectAreas() {
+            // Clear existing options except the default
+            filterProjectArea.innerHTML = '<option value="">All Project Areas</option>';
+            const inspectionProjectArea = document.getElementById('inspection-project-area');
+            if (inspectionProjectArea) {
+                inspectionProjectArea.innerHTML = '<option value="">All Project Areas</option>';
+            }
+            
+            // Add project areas
+            projectAreas.sort().forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                filterProjectArea.appendChild(option);
+                
+                if (inspectionProjectArea) {
+                    const inspOption = option.cloneNode(true);
+                    inspectionProjectArea.appendChild(inspOption);
+                }
+            });
+        }
+        
+        function populateIssuingOffices() {
+            const issuingOfficeEl = document.getElementById('wl-issuing-office');
+            if (!issuingOfficeEl) return;
+            
+            issuingOfficeEl.innerHTML = '<option value="">All Offices</option>';
+            
+            issuingOffices.sort().forEach(office => {
+                const option = document.createElement('option');
+                option.value = office;
+                option.textContent = office;
+                issuingOfficeEl.appendChild(option);
+            });
+        }
+        
+        function populateTimeline() {
+            const timelineItems = document.getElementById('timeline-items');
+            if (!timelineItems) return;
+            
+            // Clear loading indicator
+            timelineItems.innerHTML = '';
+            
+            // Combine all regulatory actions
+            const allActions = [
+                ...historicalInspections.map(insp => ({
+                    type: 'inspection',
+                    date: parseDate(insp["Inspection End Date"]),
+                    company: insp["Firm Name"],
+                    classification: insp["Inspection Classification"],
+                    details: insp
+                })),
+                ...form483Data.map(form => ({
+                    type: 'form-483',
+                    date: parseDate(form.date),
+                    company: form.company,
+                    observationCount: form.observationCount,
+                    details: form
+                })),
+                ...warningLetterData.map(letter => ({
+                    type: 'warning-letter',
+                    date: parseDate(letter.letterIssueDate),
+                    company: letter.companyName,
+                    subject: letter.subject,
+                    details: letter
+                }))
+            ];
+            
+            // Sort by date (newest first)
+            allActions.sort((a, b) => b.date - a.date);
+            
+            // Take only the 10 most recent actions
+            const recentActions = allActions.slice(0, 10);
+            
+            // Create timeline items
+            recentActions.forEach(action => {
+                const item = document.createElement('div');
+                item.className = 'relative pb-8';
+                
+                // Timeline dot based on action type
+                let dotColor = 'bg-blue-500';
+                let iconClass = 'fas fa-clipboard-check';
+                
+                if (action.type === 'form-483') {
+                    dotColor = 'bg-yellow-500';
+                    iconClass = 'fas fa-exclamation-circle';
+                } else if (action.type === 'warning-letter') {
+                    dotColor = 'bg-red-500';
+                    iconClass = 'fas fa-exclamation-triangle';
+                }
+                
+                // Format action content based on type
+                let actionContent = '';
+                
+                if (action.type === 'inspection') {
+                    actionContent = `
+                        <span class="font-medium">${action.company}</span> was inspected with
+                        <span class="font-medium ${action.classification === 'NAI' ? 'text-green-500' : action.classification === 'VAI' ? 'text-yellow-500' : 'text-red-500'}">
+                            ${action.classification}
+                        </span> result
+                    `;
+                } else if (action.type === 'form-483') {
+                    actionContent = `
+                        <span class="font-medium">${action.company}</span> received a Form 483 with
+                        <span class="font-medium">${action.observationCount}</span> observations
+                    `;
+                } else if (action.type === 'warning-letter') {
+                    actionContent = `
+                        <span class="font-medium">${action.company}</span> received a Warning Letter:
+                        "${action.subject}"
+                    `;
+                }
+                
+                item.innerHTML = `
+                    <div class="absolute left-0 -ml-0.5 mt-1.5 h-8 w-8 rounded-full ${dotColor} flex items-center justify-center text-white">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="ml-10">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            ${action.type === 'inspection' ? 'Inspection' : action.type === 'form-483' ? 'Form 483' : 'Warning Letter'}
+                            <span class="ml-3 text-sm font-medium text-slate-500">${formatDate(action.date)}</span>
+                        </h3>
+                        <p class="mt-1">${actionContent}</p>
+                        <button class="mt-2 text-blue-600 hover:text-blue-800 text-sm view-timeline-details" 
+                                data-type="${action.type}" 
+                                data-id="${action.type === 'inspection' ? historicalInspections.indexOf(action.details) : action.details.id || ''}">
+                            View details
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener to the view details button
+                const viewButton = item.querySelector('.view-timeline-details');
+                viewButton.addEventListener('click', () => {
+                    if (action.type === 'inspection') {
+                        showInspectionDetails('historical', historicalInspections.indexOf(action.details));
+                    } else if (action.type === 'form-483') {
+                        showForm483Details(form483Data.indexOf(action.details));
+                    } else if (action.type === 'warning-letter') {
+                        viewWarningLetter(action.details.id || action.details.letterId);
+                    }
+                });
+                
+                timelineItems.appendChild(item);
+            });
+        }
+        
+        async function generateAIInsights() {
+            const aiInsights = document.getElementById('ai-insights');
+            if (!aiInsights) return;
+            
+            // In a real implementation, this would call an AI API to generate insights
+            // For demo purposes, create a sample analysis
+            
+            // Get counts
+            const oaiCount = historicalInspections.filter(i => i["Inspection Classification"] === "OAI").length;
+            const vaiCount = historicalInspections.filter(i => i["Inspection Classification"] === "VAI").length;
+            
+            // Count project areas for OAI
+            const oaiProjectAreas = {};
+            historicalInspections
+                .filter(i => i["Inspection Classification"] === "OAI")
+                .forEach(i => {
+                    const area = i["Project Area"] || "Undefined";
+                    oaiProjectAreas[area] = (oaiProjectAreas[area] || 0) + 1;
+                });
+            
+            // Sort by count
+            const topOaiAreas = Object.entries(oaiProjectAreas)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+                
+            // Count countries for all inspections
+            const inspectionCountries = {};
+            historicalInspections.forEach(i => {
+                const country = i["Country/Area"] || "Undefined";
+                inspectionCountries[country] = (inspectionCountries[country] || 0) + 1;
+            });
+            
+            // Sort by count
+            const topCountries = Object.entries(inspectionCountries)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+                
+            // Calculate the 483 to warning letter conversion rate
+            const form483Count = form483Data.length;
+            const form483WithWLCount = form483Data.filter(f => f.relatedWarningLetter).length;
+            const conversionRate = (form483WithWLCount / form483Count * 100).toFixed(1);
+            
+            const insightHtml = `
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Regulatory Trend Analysis</h3>
+                        <p>Based on the data, ${((oaiCount + vaiCount) / historicalInspections.length * 100).toFixed(1)}% of inspections resulted in observations requiring corrective action. ${oaiCount} inspections (${(oaiCount / historicalInspections.length * 100).toFixed(1)}%) were classified as Official Action Indicated (OAI), suggesting significant regulatory concerns.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">483 to Warning Letter Correlation</h3>
+                        <p>Analysis shows that ${conversionRate}% of Form 483s lead to Warning Letters. This indicates that most observations are addressed through voluntary corrective actions, but significant violations often progress to formal regulatory action.</p>
+                        <p class="mt-2">The most common issues that escalate from 483s to Warning Letters involve:</p>
+                        <ul class="list-disc pl-5 mt-1 space-y-1">
+                            <li>Data integrity violations</li>
+                            <li>Inadequate validation procedures</li>
+                            <li>Failure to investigate deviations</li>
+                            <li>Cross-contamination issues</li>
+                            <li>Inadequate quality control procedures</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">High-Risk Project Areas</h3>
+                        <p>The following project areas show the highest occurrence of OAI classifications:</p>
+                        <ul class="list-disc pl-5 mt-1 space-y-1">
+                            ${topOaiAreas.map(([area, count]) => `
+                                <li>${area}: ${count} OAI results (${(count/oaiCount*100).toFixed(0)}% of all OAI classifications)</li>
+                            `).join('')}
+                        </ul>
+                        <p class="mt-2 text-blue-600"><i class="fas fa-info-circle mr-1"></i> Companies in these project areas should prioritize compliance efforts.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Market Opportunity Insights</h3>
+                        <p>Recent regulatory actions have created ${marketOpportunities.length} potential market opportunities. Companies with significant regulatory challenges may face manufacturing restrictions or import alerts, creating supply gaps in the market.</p>
+                        <p class="mt-2">Top opportunity areas include:</p>
+                        <ul class="list-disc pl-5 mt-1 space-y-1">
+                            <li>Sterile injectables manufacturing capacity</li>
+                            <li>API sourcing alternatives</li>
+                            <li>Contract manufacturing for companies under regulatory scrutiny</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            // Update the insights section
+            aiInsights.innerHTML = insightHtml;
+        }
+        
+        function filterData() {
+            searchTerm = searchInput.value.toLowerCase();
+            selectedDocType = filterDocType.value;
+            selectedProjectArea = filterProjectArea.value;
+            selectedClassification = filterClassification.value;
+            
+            // Reset pagination
+            actionsPage = 1;
+            
+            // Filter recent actions based on combined criteria
+            const allActions = [
+                ...historicalInspections.map(insp => ({
+                    type: 'inspection',
+                    date: parseDate(insp["Inspection End Date"]),
+                    company: insp["Firm Name"],
+                    classification: insp["Inspection Classification"],
+                    projectArea: insp["Project Area"],
+                    details: insp,
+                    searchableText: `${insp["Firm Name"]} ${insp["Project Area"] || ''} ${insp["City"] || ''} ${insp["State"] || ''} ${insp["Country/Area"] || ''}`
+                })),
+                ...form483Data.map(form => ({
+                    type: 'form-483',
+                    date: parseDate(form.date),
+                    company: form.company,
+                    observationCount: form.observationCount,
+                    details: form,
+                    searchableText: `${form.company} ${form.feiNumber} form 483 observations`
+                })),
+                ...warningLetterData.map(letter => ({
+                    type: 'warning-letter',
+                    date: parseDate(letter.letterIssueDate),
+                    company: letter.companyName,
+                    subject: letter.subject,
+                    issuingOffice: letter.issuingOffice,
+                    details: letter,
+                    searchableText: `${letter.companyName} ${letter.subject || ''} ${letter.issuingOffice || ''} warning letter`
+                }))
+            ];
+            
+            // Apply filters
+            filteredRecent = allActions.filter(action => {
+                // Filter by search term
+                const matchesSearch = searchTerm === '' || 
+                    action.searchableText.toLowerCase().includes(searchTerm);
+                
+                // Filter by document type
+                const matchesDocType = selectedDocType === '' || 
+                    action.type === selectedDocType;
+                
+                // Filter by project area (only applicable to inspections)
+                const matchesProjectArea = selectedProjectArea === '' || 
+                    (action.type === 'inspection' && action.projectArea === selectedProjectArea);
+                
+                // Filter by classification (only applicable to inspections)
+                const matchesClassification = selectedClassification === '' || 
+                    (action.type === 'inspection' && action.classification === selectedClassification);
+                
+                return matchesSearch && matchesDocType && 
+                    (action.type !== 'inspection' || (matchesProjectArea && matchesClassification));
+            });
+            
+            // Further filter by active tab
+            if (activeTab !== 'all') {
+                filteredRecent = filteredRecent.filter(action => action.type === activeTab);
+            }
+            
+            // Sort by date (newest first)
+            filteredRecent.sort((a, b) => b.date - a.date);
+            
+            // Render table
+            renderRecentActionsTable();
+        }
+        
+// Continue from the previous implementation
+
+function renderRecentActionsTable() {
+    if (!recentActionsTable) return;
+    
+    // Clear current content
+    recentActionsTable.innerHTML = '';
+    
+    // Pagination
+    const start = (actionsPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const paginatedData = filteredRecent.slice(start, end);
+    
+    // Show empty state if no data
+    if (paginatedData.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = `
+            <td colspan="6" class="px-6 py-4 text-center text-slate-500">
+                No data available matching your filters
+            </td>
+        `;
+        recentActionsTable.appendChild(noDataRow);
+    } else {
+        // Create rows for each action
+        paginatedData.forEach(action => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-slate-50/50 transition';
+            
+            // Format type badge
+            let typeBadge = '';
+            if (action.type === 'inspection') {
+                let badgeClass = '';
+                if (action.classification === 'NAI') {
+                    badgeClass = 'badge-nai';
+                } else if (action.classification === 'VAI') {
+                    badgeClass = 'badge-vai';
+                } else if (action.classification === 'OAI') {
+                    badgeClass = 'badge-oai';
+                }
+                
+                typeBadge = `
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${badgeClass}">
+                        ${action.classification}
+                    </span>
+                `;
+            } else if (action.type === 'form-483') {
+                typeBadge = `
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white bg-yellow-500">
+                        Form 483
+                    </span>
+                `;
+            } else if (action.type === 'warning-letter') {
+                typeBadge = `
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white bg-red-500">
+                        Warning Letter
+                    </span>
+                `;
+            }
+            
+            // Format subject/classification
+            let subjectField = '';
+            if (action.type === 'inspection') {
+                subjectField = action.projectArea || 'N/A';
+            } else if (action.type === 'form-483') {
+                subjectField = `${action.observationCount} Observations`;
+            } else if (action.type === 'warning-letter') {
+                subjectField = action.subject || 'N/A';
+            }
+            
+            // Format related documents
+            let relatedDocs = 'None';
+            if (action.type === 'inspection' && action.classification !== 'NAI') {
+                // Find related Form 483
+                const related483 = form483Data.find(form => 
+                    form.company === action.company && 
+                    form.date === action.details["Inspection End Date"]
+                );
+                
+                if (related483) {
+                    relatedDocs = `
+                        <a href="#" class="text-blue-600 hover:text-blue-800 view-483" data-id="${form483Data.indexOf(related483)}">
+                            Form 483
+                        </a>
+                    `;
+                    
+                    if (related483.relatedWarningLetter) {
+                        relatedDocs += `
+                            <span class="mx-1">+</span>
+                            <a href="#" class="text-red-600 hover:text-red-800 view-wl" data-id="${related483.relatedWarningLetter}">
+                                Warning Letter
+                            </a>
+                        `;
+                    }
+                }
+            } else if (action.type === 'form-483') {
+                if (action.details.relatedWarningLetter) {
+                    relatedDocs = `
+                        <a href="#" class="text-red-600 hover:text-red-800 view-wl" data-id="${action.details.relatedWarningLetter}">
+                            Warning Letter
+                        </a>
+                    `;
+                }
+            } else if (action.type === 'warning-letter') {
+                if (action.details.relatedForm483) {
+                    const related483 = form483Data.find(form => form.feiNumber === action.details.relatedForm483);
+                    if (related483) {
+                        relatedDocs = `
+                            <a href="#" class="text-blue-600 hover:text-blue-800 view-483" data-id="${form483Data.indexOf(related483)}">
+                                Form 483
+                            </a>
+                        `;
+                    }
+                }
+            }
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${formatDate(action.date)}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${typeBadge}</td>
+                <td class="px-6 py-4">${action.company}</td>
+                <td class="px-6 py-4">${subjectField}</td>
+                <td class="px-6 py-4">${relatedDocs}</td>
+                <td class="px-6 py-4">
+                    <button class="view-details text-blue-600 hover:text-blue-800 font-medium" 
+                            data-type="${action.type}" 
+                            data-id="${action.type === 'inspection' ? historicalInspections.indexOf(action.details) : action.details.id || ''}">
+                        <i class="fas fa-eye mr-1"></i> View
+                    </button>
+                </td>
+            `;
+            
+            recentActionsTable.appendChild(row);
+        });
+        
+        // Add event listeners to view buttons
+        recentActionsTable.querySelectorAll('.view-details').forEach(button => {
+            button.addEventListener('click', () => {
+                const type = button.getAttribute('data-type');
+                const id = button.getAttribute('data-id');
+                
+                if (type === 'inspection') {
+                    showInspectionDetails('historical', parseInt(id));
+                } else if (type === 'form-483') {
+                    showForm483Details(form483Data.findIndex(form => form.id === id));
+                } else if (type === 'warning-letter') {
+                    viewWarningLetter(id);
+                }
+            });
+        });
+        
+        // Add event listeners to related document links
+        recentActionsTable.querySelectorAll('.view-483').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showForm483Details(parseInt(link.getAttribute('data-id')));
+            });
+        });
+        
+        recentActionsTable.querySelectorAll('.view-wl').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                viewWarningLetter(link.getAttribute('data-id'));
+            });
+        });
+    }
+    
+    // Update pagination info
+    const actionsCount = document.getElementById('recent-count');
+    const actionsPagination = document.getElementById('actions-pagination');
+    const loadMoreActions = document.getElementById('load-more-actions');
+    
+    const totalPages = Math.ceil(filteredRecent.length / ITEMS_PER_PAGE);
+    
+    if (actionsCount) {
+        actionsCount.textContent = `Showing ${Math.min(paginatedData.length, ITEMS_PER_PAGE)} of ${filteredRecent.length} entries`;
+    }
+    
+    if (actionsPagination) {
+        actionsPagination.textContent = `${actionsPage} of ${totalPages || 1}`;
+    }
+    
+    if (loadMoreActions) {
+        loadMoreActions.style.display = actionsPage < totalPages ? 'block' : 'none';
+    }
+}
+
+// Search and Filter Handlers
+function setupSearchHandlers() {
+    // Main dashboard search
+    if (searchInput) {
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                filterData();
+            }
+        });
+    }
+    
+    if (filterButton) {
+        filterButton.addEventListener('click', filterData);
+    }
+    
+    // Tab filtering
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active state
+            tabButtons.forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.add('border-transparent');
+            });
+            
+            button.classList.add('border-blue-600', 'text-blue-600');
+            button.classList.remove('border-transparent');
+            
+            // Update active tab
+            activeTab = button.getAttribute('data-tab');
+            
+            // Re-filter data
+            filterData();
+        });
+    });
+    
+    // Company tab switching
+    companyTabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active state
+            companyTabButtons.forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.add('border-transparent');
+            });
+            
+            button.classList.add('border-blue-600', 'text-blue-600');
+            button.classList.remove('border-transparent');
+            
+            // Update active tab
+            activeCompanyTab = button.getAttribute('data-tab');
+            
+            // Show active tab content
+            document.querySelectorAll('.company-tab').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            document.getElementById(`company-${activeCompanyTab}-tab`).classList.remove('hidden');
+        });
+    });
+    
+    // Load more buttons
+    const loadMoreActions = document.getElementById('load-more-actions');
+    if (loadMoreActions) {
+        loadMoreActions.addEventListener('click', () => {
+            actionsPage++;
+            renderRecentActionsTable();
+        });
+    }
+}
+
+// Modal Handlers
+function setupModalHandlers() {
+    // Detail modal
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+        });
+    }
+    
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+        });
+    }
+    
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+        });
+    }
+    
+    // Letter modal
+    if (closeLetterModal) {
+        closeLetterModal.addEventListener('click', () => {
+            letterModal.classList.remove('active');
+        });
+    }
+    
+    if (closeLetterModalBtn) {
+        closeLetterModalBtn.addEventListener('click', () => {
+            letterModal.classList.remove('active');
+        });
+    }
+    
+    if (letterModalOverlay) {
+        letterModalOverlay.addEventListener('click', () => {
+            letterModal.classList.remove('active');
+        });
+    }
+    
+    // AI Assistant modal
+    if (aiAssistantBtn) {
+        aiAssistantBtn.addEventListener('click', () => {
+            aiAssistantModal.classList.add('active');
+        });
+    }
+    
+    if (closeAiModal) {
+        closeAiModal.addEventListener('click', () => {
+            aiAssistantModal.classList.remove('active');
+        });
+    }
+    
+    if (aiModalOverlay) {
+        aiModalOverlay.addEventListener('click', () => {
+            aiAssistantModal.classList.remove('active');
+        });
+    }
+    
+    // AI chat
+    if (aiSendBtn && aiInput) {
+        aiSendBtn.addEventListener('click', () => {
+            sendAIMessage();
+        });
+        
+        aiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAIMessage();
+            }
+        });
+    }
+}
+
+// Navigation Handlers
+function setupNavigationHandlers() {
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all links
+            navLinks.forEach(l => {
+                l.classList.remove('active-nav');
+                l.classList.remove('bg-white/10');
+            });
+            
+            // Add active class to clicked link
+            link.classList.add('active-nav');
+            link.classList.add('bg-white/10');
+            
+            // Update current section
+            currentSection = link.getAttribute('data-section');
+            
+            // Hide all sections
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show current section
+            document.getElementById(`${currentSection}-section`).classList.remove('hidden');
+            
+            // Load section-specific data if needed
+            if (currentSection === 'dashboard') {
+                // Refresh dashboard data
+                updateDashboardStats();
+                populateTimeline();
+            } else if (currentSection === 'companies') {
+                // Refresh company list
+                loadCompanyData();
+            } else if (currentSection === 'market-insights') {
+                // Load market opportunities
+                loadMarketOpportunities();
+            }
+        });
+    });
+    
+    // Theme toggle
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const icon = themeToggle.querySelector('i');
+            
+            if (document.body.classList.contains('dark')) {
+                document.body.classList.remove('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                document.body.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+    }
+}
+
+// Detail View Functions
+function showInspectionDetails(type, index) {
+    let inspection;
+    
+    if (type === 'historical' && index >= 0 && index < historicalInspections.length) {
+        inspection = historicalInspections[index];
+    } else {
+        console.error('Invalid inspection index or type');
+        return;
+    }
+    
+    // Set modal title
+    modalTitle.textContent = `${inspection["Firm Name"]} - Inspection Details`;
+    
+    // Hide download and view buttons by default
+    modalDownload.classList.add('hidden');
+    modalView.classList.add('hidden');
+    
+    // Determine classification badge color
+    let classificationBadge = '';
+    if (inspection["Inspection Classification"]) {
+        const classification = inspection["Inspection Classification"];
+        let badgeClass = '';
+        let explanation = '';
+        
+        if (classification === 'NAI') {
+            badgeClass = 'badge-nai';
+            explanation = 'No Action Indicated - No objectionable conditions were found during the inspection.';
+        } else if (classification === 'VAI') {
+            badgeClass = 'badge-vai';
+            explanation = 'Voluntary Action Indicated - Objectionable conditions were found but do not warrant regulatory action.';
+        } else if (classification === 'OAI') {
+            badgeClass = 'badge-oai';
+            explanation = 'Official Action Indicated - Significant objectionable conditions were found and regulatory action is recommended.';
+        }
+        
+        classificationBadge = `
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${badgeClass}">
+                ${classification}
+            </span>
+            <p class="mt-2 text-sm">${explanation}</p>
+        `;
+    }
+    
+    // Format location
+    let location = '';
+    if (inspection["City"]) {
+        location += inspection["City"];
+        if (inspection["State"]) {
+            location += `, ${inspection["State"]}`;
+        }
+        if (inspection["Zip"]) {
+            location += ` ${inspection["Zip"]}`;
+        }
+        if (inspection["Country/Area"] && inspection["Country/Area"] !== 'United States') {
+            location += `, ${inspection["Country/Area"]}`;
+        }
+    } else if (inspection["Country/Area"]) {
+        location = inspection["Country/Area"];
+    }
+    
+    // Check for related Form 483
+    const related483 = form483Data.find(form => 
+        form.company === inspection["Firm Name"] && 
+        form.date === inspection["Inspection End Date"]
+    );
+    
+    let related483Html = '';
+    if (related483) {
+        related483Html = `
+            <div class="mt-6 bg-blue-900/30 p-4 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-lg font-semibold">Related Form 483</h4>
+                    <button class="view-related-483 text-blue-400 hover:text-blue-300 text-sm" data-id="${form483Data.indexOf(related483)}">
+                        <i class="fas fa-external-link-alt mr-1"></i>View Form 483
+                    </button>
+                </div>
+                <p class="mt-2 text-sm">This inspection resulted in a Form 483 with ${related483.observationCount} observations.</p>
+                
+                ${related483.relatedWarningLetter ? `
+                    <div class="mt-4 bg-red-900/30 p-3 rounded-lg">
+                        <p class="text-sm"><i class="fas fa-exclamation-triangle mr-1 text-red-400"></i> This Form 483 led to a <button class="view-related-wl text-red-400 hover:text-red-300" data-id="${related483.relatedWarningLetter}">Warning Letter</button></p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    
+    // Generate modal content
+    const modalHtml = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h4 class="text-lg font-semibold mb-3">Inspection Information</h4>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-white/60 text-sm">Inspection End Date</p>
+                        <p>${formatDate(inspection["Inspection End Date"])}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">District/Office</p>
+                        <p>${inspection["District"] || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Project Area</p>
+                        <p>${inspection["Project Area"] || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Center/Program Area</p>
+                        <p>${inspection["Center/Program Area"] || 'N/A'}</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-3">Company Information</h4>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-white/60 text-sm">Firm Name</p>
+                        <p>${inspection["Firm Name"]}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Location</p>
+                        <p>${location || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Inspection Classification</p>
+                        <div>${classificationBadge || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        ${related483Html}
+    `;
+    
+    // Update modal content
+    modalContent.innerHTML = modalHtml;
+    
+    // Add event listeners to related document buttons
+    const viewRelated483Btn = modalContent.querySelector('.view-related-483');
+    if (viewRelated483Btn) {
+        viewRelated483Btn.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+            showForm483Details(parseInt(viewRelated483Btn.getAttribute('data-id')));
+        });
+    }
+    
+    const viewRelatedWlBtn = modalContent.querySelector('.view-related-wl');
+    if (viewRelatedWlBtn) {
+        viewRelatedWlBtn.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+            viewWarningLetter(viewRelatedWlBtn.getAttribute('data-id'));
+        });
+    }
+    
+    // Show modal
+    detailModal.classList.add('active');
+}
+
+function showForm483Details(index) {
+    if (index < 0 || index >= form483Data.length) {
+        console.error('Invalid Form 483 index');
+        return;
+    }
+    
+    const form = form483Data[index];
+    
+    // Set modal title
+    modalTitle.textContent = `${form.company} - Form 483 Details`;
+    
+    // Find related inspection
+    const relatedInspection = historicalInspections.find(insp => 
+        insp["Firm Name"] === form.company && 
+        insp["Inspection End Date"] === form.date
+    );
+    
+    // Set download and view links if available
+    if (form.downloadUrl) {
+        modalDownload.href = form.downloadUrl;
+        modalDownload.classList.remove('hidden');
+        
+        modalView.href = form.downloadUrl;
+        modalView.classList.remove('hidden');
+    } else {
+        modalDownload.classList.add('hidden');
+        modalView.classList.add('hidden');
+    }
+    
+    // Format observations
+    let observationsHtml = '';
+    if (form.observations && form.observations.length > 0) {
+        observationsHtml = `
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold mb-3">Observations</h4>
+                <div class="space-y-4">
+                    ${form.observations.map((obs, idx) => `
+                        <div class="bg-slate-800/30 p-4 rounded-lg">
+                            <h5 class="font-medium flex items-center">
+                                <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">OBS ${obs.number}</span>
+                                Observation ${obs.number}
+                            </h5>
+                            <p class="mt-2 text-sm">${obs.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Check for related Warning Letter
+    let relatedWLHtml = '';
+    if (form.relatedWarningLetter) {
+        const relatedWL = warningLetterData.find(wl => 
+            wl.id === form.relatedWarningLetter || wl.letterId === form.relatedWarningLetter
+        );
+        
+        if (relatedWL) {
+            relatedWLHtml = `
+                <div class="mt-6 bg-red-900/30 p-4 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-lg font-semibold">Related Warning Letter</h4>
+                        <button class="view-related-wl text-red-400 hover:text-red-300 text-sm" data-id="${relatedWL.id || relatedWL.letterId}">
+                            <i class="fas fa-external-link-alt mr-1"></i>View Warning Letter
+                        </button>
+                    </div>
+                    <p class="mt-2 text-sm">These observations led to a Warning Letter issued on ${formatDate(relatedWL.letterIssueDate || relatedWL.postedDate)}.</p>
+                    <div class="mt-3">
+                        <p class="text-white/60 text-sm">Subject</p>
+                        <p class="text-sm">${relatedWL.subject || 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Generate modal content
+    const modalHtml = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h4 class="text-lg font-semibold mb-3">Form 483 Information</h4>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-white/60 text-sm">Issue Date</p>
+                        <p>${formatDate(form.date)}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">FEI Number</p>
+                        <p>${form.feiNumber || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Number of Observations</p>
+                        <p>${form.observationCount}</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-3">Related Inspection</h4>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-white/60 text-sm">Inspection Date</p>
+                        <p>${relatedInspection ? formatDate(relatedInspection["Inspection End Date"]) : 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Inspection Classification</p>
+                        <p>${relatedInspection ? relatedInspection["Inspection Classification"] : 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/60 text-sm">Project Area</p>
+                        <p>${relatedInspection ? (relatedInspection["Project Area"] || 'N/A') : 'N/A'}</p>
+                    </div>
+                    ${relatedInspection ? `
+                        <button class="mt-2 text-blue-400 hover:text-blue-300 text-sm view-related-inspection" data-index="${historicalInspections.indexOf(relatedInspection)}">
+                            <i class="fas fa-external-link-alt mr-1"></i>View Inspection Details
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+        
+        ${observationsHtml}
+        ${relatedWLHtml}
+    `;
+    
+    // Update modal content
+    modalContent.innerHTML = modalHtml;
+    
+    // Add event listeners to related document buttons
+    const viewRelatedInspBtn = modalContent.querySelector('.view-related-inspection');
+    if (viewRelatedInspBtn) {
+        viewRelatedInspBtn.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+            showInspectionDetails('historical', parseInt(viewRelatedInspBtn.getAttribute('data-index')));
+        });
+    }
+    
+    const viewRelatedWlBtn = modalContent.querySelector('.view-related-wl');
+    if (viewRelatedWlBtn) {
+        viewRelatedWlBtn.addEventListener('click', () => {
+            detailModal.classList.remove('active');
+            viewWarningLetter(viewRelatedWlBtn.getAttribute('data-id'));
+        });
+    }
+    
+    // Show modal
+    detailModal.classList.add('active');
+}
+
+async function viewWarningLetter(letterId) {
+    if (!letterId) {
+        console.error('Invalid warning letter ID');
+        return;
+    }
+    
+    // Show modal
+    letterModal.classList.add('active');
+    
+    // Show loading state and hide content
+    document.getElementById('letter-loading').classList.remove('hidden');
+    document.getElementById('letter-content').classList.add('hidden');
+    
+    try {
+        // Fetch letter details
+        const letter = await fetchWarningLetter(letterId);
+        
+        if (!letter) {
+            throw new Error('Failed to fetch warning letter');
+        }
+        
+        // Hide loading and show content
+        document.getElementById('letter-loading').classList.add('hidden');
+        document.getElementById('letter-content').classList.remove('hidden');
+        
+        // Update modal title
+        document.getElementById('letter-modal-title').textContent = letter.companyName || 'Warning Letter Details';
+        
+        // Populate letter details
+        document.getElementById('letter-id').textContent = letter.letterId || letter.id || 'N/A';
+        document.getElementById('letter-date').textContent = formatDate(letter.letterIssueDate);
+        document.getElementById('letter-office').textContent = letter.issuingOffice || 'N/A';
+        document.getElementById('letter-subject').textContent = letter.subject || 'N/A';
+        document.getElementById('letter-posted-date').textContent = formatDate(letter.postedDate);
+        
+        // Recipient info
+        let recipientHtml = '';
+        
+        if (letter.recipientInfo) {
+            const recipientInfo = typeof letter.recipientInfo === 'string' 
+                ? JSON.parse(letter.recipientInfo) 
+                : letter.recipientInfo;
+                
+            if (recipientInfo.address) {
+                recipientHtml += `<p>${recipientInfo.address}</p>`;
+            }
+            
+            if (recipientInfo.emails && recipientInfo.emails.length > 0) {
+                recipientHtml += `<p>Email: ${recipientInfo.emails.join(', ')}</p>`;
+            }
+        } else {
+            recipientHtml = '<p>No recipient information available</p>';
+        }
+        
+        document.getElementById('letter-recipient-info').innerHTML = recipientHtml;
+        
+        // Find related Form 483
+        const related483 = form483Data.find(form => form.relatedWarningLetter === letterId);
+        const letter483Section = document.getElementById('letter-related-483');
+        const letter483Observations = document.getElementById('letter-483-observations');
+        const viewFull483 = document.getElementById('view-full-483');
+        
+        if (related483) {
+            letter483Section.classList.remove('hidden');
+            
+            // Display observations
+            let observationsHtml = `<div class="mt-3 space-y-3">`;
+            
+            related483.observations.forEach(obs => {
+                observationsHtml += `
+                    <div class="bg-slate-800/30 p-3 rounded-lg">
+                        <h5 class="text-sm font-medium flex items-center">
+                            <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">OBS ${obs.number}</span>
+                        </h5>
+                        <p class="mt-1 text-sm">${obs.description}</p>
+                    </div>
+                `;
+            });
+            
+            observationsHtml += `</div>`;
+            letter483Observations.innerHTML = observationsHtml;
+            
+            if (viewFull483) {
+                viewFull483.setAttribute('data-id', form483Data.indexOf(related483));
+                viewFull483.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    letterModal.classList.remove('active');
+                    showForm483Details(form483Data.indexOf(related483));
+                });
+            }
+        } else {
+            letter483Section.classList.add('hidden');
+        }
+        
+        // Letter content
+        const letterContentEl = document.getElementById('letter-full-content');
+        if (letter.fullContent) {
+            letterContentEl.textContent = letter.fullContent;
+        } else {
+            letterContentEl.textContent = 'No letter content available';
+        }
+        
+        // Market impact analysis
+        const letterMarketImpact = document.getElementById('letter-market-impact');
+        if (letterMarketImpact) {
+            // In a real implementation, we would analyze the letter for market opportunities
+            // For demo purposes, generate a sample analysis
+            
+            // Choose a random market opportunity
+            const randomOpp = marketOpportunities[Math.floor(Math.random() * marketOpportunities.length)];
+            
+            if (randomOpp) {
+                letterMarketImpact.innerHTML = `
+                    <div class="space-y-3">
+                        <p><strong>Analysis:</strong> This Warning Letter may create a market opportunity in the ${randomOpp.sector} sector, specifically for ${randomOpp.productType} products.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                            <div>
+                                <p class="text-white/60 text-xs">Market Gap Estimate</p>
+                                <p class="font-medium">${randomOpp.estimatedMarketGap}</p>
+                            </div>
+                            <div>
+                                <p class="text-white/60 text-xs">Time to Market Opportunity</p>
+                                <p class="font-medium">${randomOpp.timeToMarket}</p>
+                            </div>
+                        </div>
+                        
+                        <p class="mt-2"><strong>Impact Summary:</strong> ${randomOpp.marketImpact}</p>
+                    </div>
+                `;
+            } else {
+                letterMarketImpact.innerHTML = `<p>No significant market impact detected.</p>`;
+            }
+        }
+        
+        // Source link
+        const sourceLinkEl = document.getElementById('letter-source-link');
+        if (letter.companyUrl) {
+            sourceLinkEl.href = letter.companyUrl;
+            sourceLinkEl.classList.remove('hidden');
+        } else {
+            sourceLinkEl.classList.add('hidden');
+        }
+        
+    } catch (error) {
+        console.error('Error viewing warning letter:', error);
+        
+        // Show error
+        document.getElementById('letter-loading').classList.add('hidden');
+        document.getElementById('letter-content').classList.remove('hidden');
+        document.getElementById('letter-content').innerHTML = '<div class="text-red-500">Error loading letter details.</div>';
+    }
+}
+
+async function fetchWarningLetter(letterId) {
+    try {
+        // First check if we already have this letter in our data
+        const existingLetter = warningLetterData.find(letter => 
+            letter.id === letterId || letter.letterId === letterId
+        );
+        
+        if (existingLetter) {
+            return existingLetter;
+        }
+        
+        // If not, fetch it from the API
+        const response = await fetch(`${WARNING_LETTER_API}/letter/${letterId}`);
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching warning letter:', error);
+        
+        // For demo purposes, return mock data if API call fails
+        return {
+            letterId: letterId,
+            letterIssueDate: '2023-07-15',
+            postedDate: '2023-07-20',
+            companyName: 'Sample Pharmaceuticals',
+            issuingOffice: 'Center for Drug Evaluation and Research',
+            subject: 'CGMP Violations; Adulterated Drug Products',
+            fullContent: 'This is a sample warning letter content that would detail the violations found during inspection and the requested corrective actions.',
+            recipientInfo: JSON.stringify({
+                address: '123 Pharma Way, Rockville, MD 20850',
+                emails: ['compliance@samplepharma.com']
+            }),
+            companyUrl: 'https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters'
+        };
+    }
+}
+
+// Company Functions
+async function loadCompanyData() {
+    const companiesTable = document.getElementById('companies-table');
+    if (!companiesTable) return;
+    
+    // Show loading
+    companiesTable.innerHTML = `
+        <tr>
+            <td colspan="7" class="px-6 py-4 text-center text-slate-500">
+                <div class="flex justify-center items-center">
+                    <div class="loading-spinner"></div>
+                    <span>Loading company data...</span>
+                </div>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        // In a real implementation, we would fetch company data from an API
+        // For demo purposes, generate companies from our existing inspection data
+        
+        // Get unique companies from inspection data
+        const uniqueCompanies = [...new Set(historicalInspections.map(insp => insp["Firm Name"]))];
+        
+        // Create company profiles
+        companies = uniqueCompanies.map(name => {
+            // Get all inspections for this company
+            const companyInspections = historicalInspections.filter(insp => insp["Firm Name"] === name);
+            
+            // Count classifications
+            const naiCount = companyInspections.filter(insp => insp["Inspection Classification"] === "NAI").length;
+            const vaiCount = companyInspections.filter(insp => insp["Inspection Classification"] === "VAI").length;
+            const oaiCount = companyInspections.filter(insp => insp["Inspection Classification"] === "OAI").length;
+            
+            // Get company 483s
+            const company483s = form483Data.filter(form => form.company === name);
+            
+            // Get company warning letters
+            const companyWLs = warningLetterData.filter(letter => letter.companyName === name);
+            
+            // Calculate compliance rating (0-100)
+            const totalInspections = companyInspections.length;
+            const weightedScore = (naiCount * 100 + vaiCount * 60 + oaiCount * 0) / totalInspections;
+            const complianceRating = Math.round(weightedScore);
+            
+            // Get latest location
+            const latestInspection = companyInspections.sort((a, b) => 
+                new Date(b["Inspection End Date"]) - new Date(a["Inspection End Date"])
+            )[0];
+            
+            let location = '';
+            if (latestInspection) {
+                if (latestInspection["City"]) {
+                    location += latestInspection["City"];
+                    if (latestInspection["State"]) {
+                        location += `, ${latestInspection["State"]}`;
+                    }
+                    if (latestInspection["Country/Area"] && latestInspection["Country/Area"] !== 'United States') {
+                        location += `, ${latestInspection["Country/Area"]}`;
+                    }
+                } else if (latestInspection["Country/Area"]) {
+                    location = latestInspection["Country/Area"];
+                }
+            }
+            
+            return {
+                name: name,
+                location: location,
+                totalInspections: totalInspections,
+                naiCount: naiCount,
+                vaiCount: vaiCount,
+                oaiCount: oaiCount,
+                form483Count: company483s.length,
+                warningLetterCount: companyWLs.length,
+                complianceRating: complianceRating,
+                inspections: companyInspections,
+                form483s: company483s,
+                warningLetters: companyWLs,
+                feiNumber: company483s.length > 0 ? company483s[0].feiNumber : `3${Math.floor(Math.random() * 90000000) + 10000000}`
+            };
+        });
+        
+        // Sort by compliance rating (ascending)
+        companies.sort((a, b) => a.complianceRating - b.complianceRating);
+        
+        // Render companies table
+        renderCompaniesTable();
+        
+    } catch (error) {
+        console.error('Error loading company data:', error);
+        companiesTable.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-slate-500">
+                    Error loading company data. Please try again later.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function renderCompaniesTable() {
+    const companiesTable = document.getElementById('companies-table');
+    const companiesCount = document.getElementById('companies-count');
+    
+    if (!companiesTable) return;
+    
+    // Pagination
+    const start = (companiesPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const paginatedData = companies.slice(start, end);
+    
+    // Clear table
+    companiesTable.innerHTML = '';
+    
+    // Populate table
+    paginatedData.forEach(company => {
+        // Format compliance rating with color
+        let ratingColor = 'bg-red-500';
+        if (company.complianceRating >= 80) {
+            ratingColor = 'bg-green-500';
+        } else if (company.complianceRating >= 60) {
+            ratingColor = 'bg-yellow-500';
+        } else if (company.complianceRating >= 40) {
+            ratingColor = 'bg-orange-500';
+        }
+        
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-50/50 transition';
+        row.innerHTML = `
+            <td class="px-6 py-4">
+                <div class="font-medium">${company.name}</div>
+            </td>
+            <td class="px-6 py-4 text-slate-600">${company.location || 'N/A'}</td>
+            <td class="px-6 py-4 text-slate-600">${company.totalInspections}</td>
+            <td class="px-6 py-4 text-slate-600">${company.form483Count}</td>
+            <td class="px-6 py-4 text-slate-600">${company.warningLetterCount}</td>
+            <td class="px-6 py-4">
+                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                    <div class="h-2.5 rounded-full ${ratingColor}" style="width: ${company.complianceRating}%"></div>
+                </div>
+                <div class="text-xs mt-1 text-center font-medium">${company.complianceRating}/100</div>
+            </td>
+            <td class="px-6 py-4">
+                <button class="view-company text-blue-600 hover:text-blue-800 font-medium" data-index="${companies.indexOf(company)}">
+                    <i class="fas fa-building mr-1"></i> Profile
+                </button>
+            </td>
+        `;
+        
+        companiesTable.appendChild(row);
+    });
+    
+    // Add event listeners to view company buttons
+    companiesTable.querySelectorAll('.view-company').forEach(button => {
+        button.addEventListener('click', () => {
+            viewCompanyProfile(parseInt(button.getAttribute('data-index')));
+        });
+    });
+    
+    // Update pagination
+    if (companiesCount) {
+        companiesCount.textContent = `Showing ${paginatedData.length} of ${companies.length} companies`;
+    }
+    
+    const companiesPagination = document.getElementById('companies-pagination');
+    if (companiesPagination) {
+        const totalPages = Math.ceil(companies.length / ITEMS_PER_PAGE);
+        companiesPagination.textContent = `${companiesPage} of ${totalPages || 1}`;
+    }
+    
+    const loadMoreCompanies = document.getElementById('load-more-companies');
+    if (loadMoreCompanies) {
+        const totalPages = Math.ceil(companies.length / ITEMS_PER_PAGE);
+        loadMoreCompanies.style.display = companiesPage < totalPages ? 'block' : 'none';
+        
+        // Add event listener
+        loadMoreCompanies.onclick = () => {
+            companiesPage++;
+            renderCompaniesTable();
+        };
+    }
+}
+
+function viewCompanyProfile(index) {
+    if (index < 0 || index >= companies.length) {
+        console.error('Invalid company index');
+        return;
+    }
+    
+    const company = companies[index];
+    const companyProfile = document.getElementById('company-profile');
+    const companyList = document.getElementById('company-list');
+    const companyLoading = document.getElementById('company-loading');
+    const companyContent = document.getElementById('company-content');
+    
+    if (!companyProfile || !companyList) return;
+    
+    // Show profile, hide list
+    companyProfile.classList.remove('hidden');
+    companyList.classList.add('hidden');
+    
+    // Show loading, hide content
+    companyLoading.classList.remove('hidden');
+    companyContent.classList.add('hidden');
+    
+    // Simulate loading
+    setTimeout(() => {
+        // Hide loading, show content
+        companyLoading.classList.add('hidden');
+        companyContent.classList.remove('hidden');
+        
+        // Update company information
+        document.getElementById('company-name').textContent = company.name;
+        document.getElementById('company-location').textContent = company.location || 'Location not available';
+        document.getElementById('company-fei').textContent = `FEI: ${company.feiNumber}`;
+        
+        // Set company status
+        const companyStatus = document.getElementById('company-status');
+        let statusText = 'Good Standing';
+        let statusClass = 'bg-green-500';
+        
+        if (company.warningLetterCount > 0) {
+            statusText = 'Warning Letter';
+            statusClass = 'bg-red-500';
+        } else if (company.oaiCount > 0) {
+            statusText = 'OAI Classification';
+            statusClass = 'bg-red-500';
+        } else if (company.vaiCount > 0) {
+            statusText = 'VAI Classification';
+            statusClass = 'bg-yellow-500';
+        }
+        
+        companyStatus.textContent = statusText;
+        companyStatus.className = `px-3 py-1 rounded-full text-sm text-white ${statusClass}`;
+        
+        // Update statistics
+        document.getElementById('company-total-inspections').textContent = company.totalInspections;
+        document.getElementById('company-nai-count').textContent = company.naiCount;
+        document.getElementById('company-vai-count').textContent = company.vaiCount;
+        document.getElementById('company-oai-count').textContent = company.oaiCount;
+        document.getElementById('company-total-483s').textContent = company.form483Count;
+        document.getElementById('company-total-observations').textContent = company.form483s.reduce((total, form) => total + form.observationCount, 0);
+        document.getElementById('company-recent-483').textContent = company.form483s.length > 0 ? formatDate(company.form483s[0].date) : 'None';
+        document.getElementById('company-total-wl').textContent = company.warningLetterCount;
+        document.getElementById('company-recent-wl').textContent = company.warningLetters.length > 0 ? formatDate(company.warningLetters[0].letterIssueDate) : 'None';
+        
+        // Populate inspections table
+        const inspectionsTable = document.getElementById('company-inspections-table');
+        if (inspectionsTable) {
+            if (company.inspections.length > 0) {
+                inspectionsTable.innerHTML = '';
+                
+                company.inspections.forEach(inspection => {
+                    // Determine classification badge
+                    let badgeClass = '';
+                    if (inspection["Inspection Classification"] === 'NAI') {
+                        badgeClass = 'badge-nai';
+                    } else if (inspection["Inspection Classification"] === 'VAI') {
+                        badgeClass = 'badge-vai';
+                    } else if (inspection["Inspection Classification"] === 'OAI') {
+                        badgeClass = 'badge-oai';
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/50 transition';
+                    row.innerHTML = `
+                        <td class="px-4 py-2 whitespace-nowrap">${formatDate(inspection["Inspection End Date"])}</td>
+                        <td class="px-4 py-2">${company.feiNumber}</td>
+                        <td class="px-4 py-2">${inspection["Project Area"] || 'N/A'}</td>
+                        <td class="px-4 py-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${badgeClass}">
+                                ${inspection["Inspection Classification"]}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">
+                            <button class="view-inspection text-blue-600 hover:text-blue-800 text-sm" data-index="${historicalInspections.indexOf(inspection)}">
+                                View Details
+                            </button>
+                        </td>
+                    `;
+                    
+                    inspectionsTable.appendChild(row);
+                });
+                
+                // Add event listeners
+                inspectionsTable.querySelectorAll('.view-inspection').forEach(button => {
+                    button.addEventListener('click', () => {
+                        showInspectionDetails('historical', parseInt(button.getAttribute('data-index')));
+                    });
+                });
+            } else {
+                inspectionsTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                            No inspection records found for this company
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Populate Form 483s table
+        const form483sTable = document.getElementById('company-483s-table');
+        if (form483sTable) {
+            if (company.form483s.length > 0) {
+                form483sTable.innerHTML = '';
+                
+                company.form483s.forEach(form => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/50 transition';
+                    row.innerHTML = `
+                        <td class="px-4 py-2 whitespace-nowrap">${formatDate(form.date)}</td>
+                        <td class="px-4 py-2">${form.feiNumber}</td>
+                        <td class="px-4 py-2">${form.observationCount}</td>
+                        <td class="px-4 py-2">
+                            ${form.relatedWarningLetter ? `
+                                <a href="#" class="text-red-600 hover:text-red-800 view-wl" data-id="${form.relatedWarningLetter}">
+                                    Warning Letter
+                                </a>
+                            ` : 'None'}
+                        </td>
+                        <td class="px-4 py-2">
+                            <button class="view-483 text-blue-600 hover:text-blue-800 text-sm" data-index="${form483Data.indexOf(form)}">
+                                View Details
+                            </button>
+                        </td>
+                    `;
+                    
+                    form483sTable.appendChild(row);
+                });
+                
+                // Add event listeners
+                form483sTable.querySelectorAll('.view-483').forEach(button => {
+                    button.addEventListener('click', () => {
+                        showForm483Details(parseInt(button.getAttribute('data-index')));
+                    });
+                });
+                
+                form483sTable.querySelectorAll('.view-wl').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        viewWarningLetter(link.getAttribute('data-id'));
+                    });
+                });
+            } else {
+                form483sTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                            No Form 483 records found for this company
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Populate Warning Letters table
+        const wlTable = document.getElementById('company-wl-table');
+        if (wlTable) {
+            if (company.warningLetters.length > 0) {
+                wlTable.innerHTML = '';
+                
+                company.warningLetters.forEach(letter => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50/50 transition';
+                    row.innerHTML = `
+                        <td class="px-4 py-2 whitespace-nowrap">${formatDate(letter.letterIssueDate)}</td>
+                        <td class="px-4 py-2">${letter.issuingOffice || 'N/A'}</td>
+                        <td class="px-4 py-2">${letter.subject || 'N/A'}</td>
+                        <td class="px-4 py-2">
+                            ${letter.relatedForm483 ? `
+                                <a href="#" class="text-blue-600 hover:text-blue-800 view-related-483" data-fei="${letter.relatedForm483}">
+                                    Form 483
+                                </a>
+                            ` : 'None'}
+                        </td>
+                        <td class="px-4 py-2">
+                            <button class="view-wl text-blue-600 hover:text-blue-800 text-sm" data-id="${letter.id || letter.letterId}">
+                                View Details
+                            </button>
+                        </td>
+                    `;
+                    
+                    wlTable.appendChild(row);
+                });
+                
+                // Add event listeners
+                wlTable.querySelectorAll('.view-wl').forEach(button => {
+                    button.addEventListener('click', () => {
+                        viewWarningLetter(button.getAttribute('data-id'));
+                    });
+                });
+                
+                wlTable.querySelectorAll('.view-related-483').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const fei = link.getAttribute('data-fei');
+                        const form483 = form483Data.find(form => form.feiNumber === fei);
+                        if (form483) {
+                            showForm483Details(form483Data.indexOf(form483));
+                        }
+                    });
+                });
+            } else {
+                wlTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-2 text-center text-slate-500">
+                            No Warning Letter records found for this company
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Generate AI summary
+        generateCompanyAISummary(company);
+        
+    }, 500);
+}
+
+function generateCompanyAISummary(company) {
+    const summaryEl = document.getElementById('company-ai-summary');
+    if (!summaryEl) return;
+    
+    // In a real implementation, we would call an AI API to generate this summary
+    // For demo purposes, create a sample summary based on the company data
+    
+    const latestInspection = company.inspections.sort((a, b) => 
+        new Date(b["Inspection End Date"]) - new Date(a["Inspection End Date"])
+    )[0];
+    
+    let trend = 'stable';
+    if (company.oaiCount > 0) {
+        trend = 'concerning';
+    } else if (company.warningLetterCount > 0) {
+        trend = 'problematic';
+    } else if (company.vaiCount > company.naiCount) {
+        trend = 'mixed';
+    } else if (company.naiCount > company.vaiCount + company.oaiCount) {
+        trend = 'positive';
+    }
+    
+    let riskAssessment = 'Low Risk';
+    let riskColor = 'text-green-600';
+    if (company.warningLetterCount > 0 || company.oaiCount >= 2) {
+        riskAssessment = 'High Risk';
+        riskColor = 'text-red-600';
+    } else if (company.oaiCount > 0 || company.vaiCount >= 3) {
+        riskAssessment = 'Medium Risk';
+        riskColor = 'text-yellow-600';
+    }
+    
+    let insights = [];
+    if (company.warningLetterCount > 0) {
+        insights.push('Has received warning letters, indicating significant compliance issues');
+    }
+    if (company.oaiCount > 0) {
+        insights.push('Has received OAI classifications, requiring official regulatory action');
+    }
+    if (company.vaiCount > 0) {
+        insights.push('Has received VAI classifications, requiring voluntary corrective actions');
+    }
+    if (latestInspection && latestInspection["Inspection Classification"] === 'NAI') {
+        insights.push('Most recent inspection was classified as NAI, showing improved compliance');
+    }
+    
+    const summaryHtml = `
+        <div class="space-y-3">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p><strong>${company.name}</strong> has undergone ${company.totalInspections} FDA inspections with a
+                    compliance rating of <strong>${company.complianceRating}/100</strong>.</p>
+                    
+                    <p class="mt-2">The company's regulatory history shows a <strong>${trend}</strong> trend, with
+                    ${company.naiCount} NAI, ${company.vaiCount} VAI, and ${company.oaiCount} OAI classifications.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-lg font-bold ${riskColor}">${riskAssessment}</div>
+                    <div class="text-xs text-slate-500">Compliance Risk</div>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <p class="font-medium">Key Insights:</p>
+                <ul class="list-disc pl-5 mt-1 space-y-1 text-sm">
+                    ${insights.map(insight => `<li>${insight}</li>`).join('')}
+                </ul>
+            </div>
+            
+            ${company.form483Count > 0 ? `
+                <div class="mt-3">
+                    <p class="font-medium">Form 483 Pattern Analysis:</p>
+                    <p class="text-sm mt-1">The most common observations in Form 483s for this company relate to ${getRandomObservationPattern()}</p>
+                </div>
+            ` : ''}
+            
+            ${company.warningLetterCount > 0 ? `
+                <div class="mt-3">
+                    <p class="font-medium">Warning Letter Assessment:</p>
+                    <p class="text-sm mt-1">Warning letters primarily cite concerns related to ${getRandomWarningLetterConcerns()}</p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    summaryEl.innerHTML = summaryHtml;
+}
+
+// Market Insights Functions
+function loadMarketOpportunities() {
+    const marketOpportunitiesList = document.getElementById('market-opportunities-list');
+    const marketLoading = document.getElementById('market-loading');
+    const marketTrends = document.getElementById('market-trends');
+    
+    if (!marketOpportunitiesList || !marketLoading) return;
+    
+    // Show loading, hide trends
+    marketLoading.classList.remove('hidden');
+    marketTrends.classList.add('hidden');
+    
+    // Simulate loading
+    setTimeout(() => {
+        // Hide loading, show trends
+        marketLoading.classList.add('hidden');
+        marketTrends.classList.remove('hidden');
+        
+        // Clear opportunities list except loading indicator
+        marketOpportunitiesList.innerHTML = '';
+        
+        // Add opportunities cards
+        marketOpportunities.forEach(opportunity => {
+            const opportunityScore = opportunity.opportunityLevel;
+            let scoreColor = 'bg-green-500';
+            if (opportunityScore < 50) {
+                scoreColor = 'bg-yellow-500';
+            } else if (opportunityScore >= 75) {
+                scoreColor = 'bg-blue-500';
+            }
+            
+            const card = document.createElement('div');
+            card.className = 'glass rounded-xl p-6';
+            card.innerHTML = `
+                <div class="flex flex-col md:flex-row justify-between gap-6">
+                    <div class="flex-grow">
+                        <div class="flex items-start">
+                            <div>
+                                <h3 class="text-xl font-bold">${opportunity.company}</h3>
+                                <p class="text-slate-500 mt-1">${opportunity.sector} - ${opportunity.productType}</p>
+                                
+                                <div class="mt-4">
+                                    <p class="font-medium">Market Impact:</p>
+                                    <p class="text-sm mt-1">${opportunity.marketImpact}</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <p class="text-sm text-slate-500">Estimated Market Gap</p>
+                                        <p class="font-medium">${opportunity.estimatedMarketGap}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500">Time to Market</p>
+                                        <p class="font-medium">${opportunity.timeToMarket}</p>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center items-center min-w-[100px]">
+                        <div class="text-2xl font-bold">${opportunityScore}</div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 mt-2">
+                            <div class="h-2.5 rounded-full ${scoreColor}" style="width: ${opportunityScore}%"></div>
+                        </div>
+                        <div class="text-xs mt-1 text-center">Opportunity Score</div>
+                        
+                        <button class="mt-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition view-company-btn" data-company="${opportunity.company}">
+                            View Company
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            marketOpportunitiesList.appendChild(card);
+        });
+        
+        // Add event listeners to view company buttons
+        marketOpportunitiesList.querySelectorAll('.view-company-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const companyName = button.getAttribute('data-company');
+                const companyIndex = companies.findIndex(c => c.name === companyName);
+                
+                if (companyIndex >= 0) {
+                    // Switch to companies section
+                    const companiesLink = document.querySelector('[data-section="companies"]');
+                    if (companiesLink) {
+                        companiesLink.click();
+                    }
+                    
+                    // View company profile
+                    setTimeout(() => {
+                        viewCompanyProfile(companyIndex);
+                    }, 100);
+                }
+            });
+        });
+        
+    }, 800);
+}
+
+// AI Assistant Functions
+function sendAIMessage() {
+    const aiInput = document.getElementById('ai-input');
+    const aiChat = document.getElementById('ai-chat');
+    
+    if (!aiInput || !aiChat || !aiInput.value.trim()) return;
+    
+    const userMessage = aiInput.value.trim();
+    
+    // Add user message to chat
+    const userMessageEl = document.createElement('div');
+    userMessageEl.className = 'bg-slate-800/50 p-4 rounded-lg';
+    userMessageEl.innerHTML = `
+        <div class="flex items-start">
+            <div class="bg-slate-600 text-white p-2 rounded-full mr-3">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <p class="font-medium text-slate-300">You</p>
+                <div class="mt-1">
+                    ${userMessage}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    aiChat.appendChild(userMessageEl);
+    
+    // Clear input
+    aiInput.value = '';
+    
+    // Add loading message
+    const loadingMessageEl = document.createElement('div');
+    loadingMessageEl.className = 'bg-slate-800/50 p-4 rounded-lg ai-loading';
+    loadingMessageEl.innerHTML = `
+        <div class="flex items-start">
+            <div class="bg-blue-600 text-white p-2 rounded-full mr-3">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <p class="font-medium text-blue-300">AI Assistant</p>
+                <div class="mt-1 flex items-center">
+                    <div class="loading-spinner"></div>
+                    <span>Generating response...</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    aiChat.appendChild(loadingMessageEl);
+    
+    // Scroll to bottom
+    aiChat.scrollTop = aiChat.scrollHeight;
+    
+    // In a real implementation, we would call an AI API here
+    // For demo purposes, simulate a response after a delay
+    setTimeout(() => {
+        // Remove loading message
+        const loadingMessage = document.querySelector('.ai-loading');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+        
+        // Generate response based on user message
+        const aiResponse = generateAIResponse(userMessage);
+        
+        // Add AI response to chat
+        const aiMessageEl = document.createElement('div');
+        aiMessageEl.className = 'bg-slate-800/50 p-4 rounded-lg';
+        aiMessageEl.innerHTML = `
+            <div class="flex items-start">
+                <div class="bg-blue-600 text-white p-2 rounded-full mr-3">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-blue-300">AI Assistant</p>
+                    <div class="mt-1">
+                        ${aiResponse}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        aiChat.appendChild(aiMessageEl);
+        
+        // Scroll to bottom
+        aiChat.scrollTop = aiChat.scrollHeight;
+    }, 1000);
+}
+
+function generateAIResponse(userMessage) {
+    // Simple response generation based on keywords in the message
+    userMessage = userMessage.toLowerCase();
+    
+    if (userMessage.includes('form 483') && userMessage.includes('warning letter')) {
+        return `
+            <p>Based on our database, approximately ${Math.round(form483Data.filter(f => f.relatedWarningLetter).length / form483Data.length * 100)}% of Form 483s lead to Warning Letters. This typically happens when:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li>The observations involve significant violations of cGMP</li>
+                <li>The company fails to address observations adequately</li>
+                <li>There's a pattern of repeat violations across inspections</li>
+                <li>The violations pose a risk to public health</li>
+            </ul>
+            <p class="mt-2">The most common Form 483 observations that lead to Warning Letters involve data integrity issues, quality control failures, and inadequate validation procedures.</p>
+        `;
+    } else if (userMessage.includes('market') && (userMessage.includes('opportunity') || userMessage.includes('gap'))) {
+        return `
+            <p>When companies receive Warning Letters or OAI classifications, they often face manufacturing restrictions that create market opportunities:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li>Import alerts can create domestic manufacturing opportunities</li>
+                <li>Production shutdowns may lead to drug shortages</li>
+                <li>Quality issues can shift market share to competitors</li>
+                <li>Remediation periods typically last 6-24 months, creating medium-term opportunities</li>
+            </ul>
+            <p class="mt-2">Currently, our analysis has identified ${marketOpportunities.length} potential market opportunities across various sectors, with an estimated total market value of $${Math.floor(Math.random() * 5 + 2)}B.</p>
+        `;
+    } else if (userMessage.includes('compliance') || userMessage.includes('risk')) {
+        return `
+            <p>Based on our analysis of inspection data, companies with the highest compliance risk typically show:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li>Multiple VAI classifications within a 24-month period</li>
+                <li>Any OAI classification</li>
+                <li>Form 483 observations related to data integrity or product quality</li>
+                <li>Inadequate responses to previous observations</li>
+            </ul>
+            <p class="mt-2">In our database, approximately ${Math.round(companies.filter(c => c.complianceRating < 60).length / companies.length * 100)}% of companies have a compliance rating below 60, indicating elevated regulatory risk.</p>
+        `;
+    } else if (userMessage.includes('inspection')) {
+        return `
+            <p>Our database contains ${historicalInspections.length} FDA inspections with the following classifications:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li><strong>NAI (No Action Indicated):</strong> ${historicalInspections.filter(i => i["Inspection Classification"] === "NAI").length} inspections (${Math.round(historicalInspections.filter(i => i["Inspection Classification"] === "NAI").length / historicalInspections.length * 100)}%)</li>
+                <li><strong>VAI (Voluntary Action Indicated):</strong> ${historicalInspections.filter(i => i["Inspection Classification"] === "VAI").length} inspections (${Math.round(historicalInspections.filter(i => i["Inspection Classification"] === "VAI").length / historicalInspections.length * 100)}%)</li>
+                <li><strong>OAI (Official Action Indicated):</strong> ${historicalInspections.filter(i => i["Inspection Classification"] === "OAI").length} inspections (${Math.round(historicalInspections.filter(i => i["Inspection Classification"] === "OAI").length / historicalInspections.length * 100)}%)</li>
+            </ul>
+            <p class="mt-2">The most commonly cited project areas in inspections are Quality Control Systems, Laboratory Controls, and Production Records.</p>
+        `;
+    } else {
+        return `
+            <p>I can help you analyze FDA regulatory data, including inspections, Form 483s, and Warning Letters. Here are some things you can ask me about:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+                <li>Connections between Form 483s and Warning Letters</li>
+                <li>Market opportunities arising from regulatory actions</li>
+                <li>Compliance risks and trends</li>
+                <li>Inspection outcomes and statistics</li>
+                <li>Common violations cited in Warning Letters</li>
+            </ul>
+            <p class="mt-2">Feel free to ask a specific question about any of these topics!</p>
+        `;
+    }
+}
+
+// Utility Functions
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    // Check if the date is in ISO format (YYYY-MM-DD)
+    if (dateString.includes('-')) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+    
+    // Check if the date is in MM/DD/YYYY format
+    if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            const date = new Date(parts[2], parts[0] - 1, parts[1]);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+    }
+    
+    return dateString;
+}
+
+function parseDate(dateString) {
+    if (!dateString) return new Date(0);
+    
+    // Check if the date is in ISO format (YYYY-MM-DD)
+    if (dateString.includes('-')) {
+        return new Date(dateString);
+    }
+    
+    // Check if the date is in MM/DD/YYYY format
+    if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+            // If year is 2-digit, assume 2000s
+            let year = parseInt(parts[2]);
+            if (year < 100) {
+                year += 2000;
+            }
+            return new Date(year, parts[0] - 1, parts[1]);
+        }
+    }
+    
+    return new Date(0);
+}
+
+function getRandomObservation(projectArea) {
+    const observations = {
+        'Quality Control': [
+            'Failure to establish and follow appropriate written procedures designed to prevent microbiological contamination of drug products.',
+            'Laboratory controls do not include the establishment of scientifically sound and appropriate test procedures.',
+            'Failure to establish adequate written procedures for production and process controls.',
+            'The quality control unit lacks authority to review production records to assure no errors occurred.'
+        ],
+        'Manufacturing': [
+            'Failure to thoroughly investigate any unexplained discrepancy or failure of a batch to meet specifications.',
+            'Production equipment not of appropriate design for its intended use.',
+            'Lack of appropriate controls over computers or related systems to assure that changes in master production records are instituted only by authorized personnel.',
+            'Failure to establish and follow appropriate written procedures designed to prevent microbiological contamination of drug products.'
+        ],
+        'Data Integrity': [
+            'Failure to maintain complete data derived from all laboratory tests to assure compliance with established specifications and standards.',
+            'Laboratory records do not include complete data derived from all tests necessary to assure compliance with established specifications and standards.',
+            'The audit trail functionality for your computerized systems was disabled.',
+            'Shared login credentials were used by multiple employees, preventing traceability of data entry and modifications.'
+        ],
+        'Laboratory Controls': [
+            'Failure to follow and document laboratory controls at the time of performance.',
+            'Laboratory records do not include complete data derived from all tests performed.',
+            'Your firm failed to establish laboratory controls that include scientifically sound and appropriate specifications.',
+            'Failure to establish written procedures for analytical method validation.'
+        ],
+        'Sterile Manufacturing': [
+            'Failure to ensure that manufacturing personnel wear appropriate clothing to protect drug products from contamination.',
+            'Buildings used in the manufacture of drug products are not maintained in a good state of repair.',
+            'Failure to establish an adequate system for monitoring environmental conditions in aseptic processing areas.',
+            'Failure to establish and follow appropriate written procedures designed to prevent microbiological contamination of sterile products.'
+        ]
+    };
+    
+    // Default observations if project area is not specified or not in the list
+    const defaultObservations = [
+        'Failure to thoroughly investigate any unexplained discrepancy.',
+        'Failure to establish and follow appropriate written procedures.',
+        'Laboratory controls do not include scientifically sound test procedures.',
+        'Quality control unit lacks authority to approve or reject all procedures or specifications.'
+    ];
+    
+    const areaObservations = observations[projectArea] || defaultObservations;
+    return areaObservations[Math.floor(Math.random() * areaObservations.length)];
+}
+
+function getRandomObservationPattern() {
+    const patterns = [
+        'inadequate quality control procedures and failure to investigate discrepancies',
+        'data integrity issues including deletion of raw data and shared login credentials',
+        'inadequate cleaning validation and cross-contamination controls',
+        'failure to establish scientifically sound test methods and specifications',
+        'deficient manufacturing process controls and batch release procedures',
+        'inadequate environmental monitoring in sterile manufacturing areas'
+    ];
+    
+    return patterns[Math.floor(Math.random() * patterns.length)];
+}
+
+function getRandomWarningLetterConcerns() {
+    const concerns = [
+        'CGMP violations related to quality control systems',
+        'data integrity issues and inadequate computer system controls',
+        'failure to investigate deviations and implement corrective actions',
+        'inadequate validation of manufacturing processes',
+        'misbranding and/or adulteration of drug products',
+        'inadequate sterility assurance in manufacturing operations'
+    ];
+    
+    return concerns[Math.floor(Math.random() * concerns.length)];
+}
+
+function showErrorMessage(message) {
+    // Display error message to user
+    console.error(message);
+    // In a real implementation, we would show a toast notification or alert
+}
+
+// Set up all event listeners
+function setupEventListeners() {
+    setupSearchHandlers();
+    setupModalHandlers();
+    setupNavigationHandlers();
+    
+    // Additional section-specific handlers could be added here
+}
