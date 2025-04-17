@@ -17,7 +17,7 @@
 <!-- Apple Touch Icon for iOS devices -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <!-- Web App Manifest -->
-<link rel="manifest" href="manifest.json">
+<!-- <link rel="manifest" href="manifest.json"> -->
 
     <script>
         tailwind.config = {
@@ -18466,8 +18466,8 @@ function extractPatentInfo(orangeBookData) {
     patents: []
   };
   
-  if (orangeBookData && orangeBookData.related_patents) {
-    for (const patent of orangeBookData.related_patents) {
+  if (orangeBookData && orangeBookData.patents) {
+    for (const patent of orangeBookData.patents) {
       patentInfo.patents.push({
         patentNumber: patent.Patent_No,
         expirationDate: patent.Patent_Expire_Date_Text
