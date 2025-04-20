@@ -8,7 +8,6 @@ const morgan = require('morgan');
 const path = require('path');
 const Bottleneck = require('bottleneck');
 const fs = require('fs');
-const bcrypt = require('bcrypt');
 const DataIntegration = require('./data-integration');
 const emaRoutes = require('./ema-routes');
 const cheerio = require('cheerio');
@@ -27,6 +26,7 @@ const { v4: uuidv4 } = require('uuid');
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const { OpenAI } = require('openai');
 const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
 
 const { 
   DrugClassification, 
@@ -137,97 +137,98 @@ function saveUsers(users, callback) {
   });
 }
 
+// Helper function to hash passwords
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return { hash, salt };
+}
+
+// Helper function to verify passwords
+function verifyPassword(password, hash, salt) {
+  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === verifyHash;
+}
+
 // Login endpoint
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-
+  
   getUsers((err, users) => {
-      if (err) {
-          console.error('Login error:', err);
-          return res.status(500).json({ message: 'Server error' });
-      }
-
-      const user = users.find(u => u.username === username);
-
-      if (!user) {
-          return res.status(401).json({ message: 'Invalid username or password' });
-      }
-
-      bcrypt.compare(password, user.password, (bcryptErr, isPasswordValid) => {
-          if (bcryptErr) {
-              console.error('Bcrypt error:', bcryptErr);
-              return res.status(500).json({ message: 'Server error' });
-          }
-
-          if (!isPasswordValid) {
-              return res.status(401).json({ message: 'Invalid username or password' });
-          }
-
-          // Remove password from response
-          const { password: _, ...safeUser } = user;
-
-          res.json({ user: safeUser });
-      });
+    if (err) {
+      console.error('Login error:', err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    
+    const user = users.find(u => u.username === username);
+    
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+    
+    const isPasswordValid = verifyPassword(password, user.passwordHash, user.salt);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+    
+    // Remove password data from response
+    const { passwordHash, salt, ...safeUser } = user;
+    
+    res.json({ user: safeUser });
   });
 });
 
 // Signup endpoint
 app.post('/api/signup', (req, res) => {
   const { username, email, password } = req.body;
-
+  
   getUsers((err, users) => {
-      if (err) {
-          console.error('Signup error:', err);
-          return res.status(500).json({ message: 'Server error' });
+    if (err) {
+      console.error('Signup error:', err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    
+    // Check if username or email already exists
+    if (users.find(u => u.username === username)) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+    if (users.find(u => u.email === email)) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    
+    // Hash password
+    const { hash: passwordHash, salt } = hashPassword(password);
+    
+    // Create new user
+    const newUser = {
+      id: uuidv4(),
+      username,
+      email,
+      passwordHash,
+      salt,
+      role: 'user',
+      usage: 0,
+      billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
+      subscriptionStatus: 'free-trial',
+      darkModeEnabled: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    
+    saveUsers(users, (saveErr) => {
+      if (saveErr) {
+        console.error('Signup error:', saveErr);
+        return res.status(500).json({ message: 'Server error' });
       }
-
-      // Check if username or email already exists
-      if (users.find(u => u.username === username)) {
-          return res.status(400).json({ message: 'Username already exists' });
-      }
-      if (users.find(u => u.email === email)) {
-          return res.status(400).json({ message: 'Email already exists' });
-      }
-
-      // Hash password
-      bcrypt.hash(password, 10, (bcryptErr, hashedPassword) => {
-          if (bcryptErr) {
-              console.error('Bcrypt error:', bcryptErr);
-              return res.status(500).json({ message: 'Server error' });
-          }
-
-          // Create new user
-          const newUser = {
-              id: uuidv4(),
-              username,
-              email,
-              password: hashedPassword,
-              role: 'user',
-              usage: 0,
-              billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
-              subscriptionStatus: 'free-trial',
-              darkModeEnabled: false,
-              createdAt: new Date().toISOString()
-          };
-
-          users.push(newUser);
-
-          saveUsers(users, (saveErr) => {
-              if (saveErr) {
-                  console.error('Signup error:', saveErr);
-                  return res.status(500).json({ message: 'Server error' });
-              }
-
-              // Remove password from response
-              const { password: _, ...safeUser } = newUser;
-
-              res.json({ user: safeUser });
-          });
-      });
+      
+      // Remove password data from response
+      const { passwordHash, salt, ...safeUser } = newUser;
+      
+      res.json({ user: safeUser });
+    });
   });
 });
-
-
 
 
 // Input validation middleware
