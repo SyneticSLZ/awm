@@ -22504,9 +22504,33 @@ For regulatory intelligence purposes only. Not for commercial use.
     return html;
   }
 
+   // Strip markdown code fences from API response
+   function stripCodeFences(htmlContent) {
+    // Match content between ```html and ```
+    const regex = /```html\s*([\s\S]*?)\s*```/;
+    const match = htmlContent.match(regex);
+    
+    if (match && match[1]) {
+      return match[1].trim(); // Return the HTML content between fences
+    }
+
+    // Fallback: If no match, try to clean up by removing known patterns
+    let cleanedContent = htmlContent
+      .replace(/```html\s*/g, '') // Remove opening ```html
+      .replace(/```\s*[\s\S]*/g, ''); // Remove closing ``` and anything after
+
+    // Warn if the cleaned content doesn't look like HTML
+    if (!cleanedContent.trim().startsWith('<')) {
+      console.warn('Cleaned content may not be valid HTML:', cleanedContent.substring(0, 100));
+    }
+
+    return cleanedContent.trim();
+  }
+
   
   // Function to generate AI summary
-  async function WLgenerateAISummary(drugName = '') {
+ // Generate AI summary by calling the new endpoint
+ async function WLgenerateAISummary() {
     const aiResults = document.getElementById('ai-analysis-results');
     aiResults.classList.remove('hidden');
 
@@ -22543,13 +22567,12 @@ For regulatory intelligence purposes only. Not for commercial use.
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          drugName,
           companies,
           warningLetters,
           form483s: inspections.recentInspections.filter(inspection => 
             inspection["Record Type"] === "483"
           ),
-          maxTokens: 2000,
+          maxTokens: 3000,
           temperature: 0.7
         })
       });
@@ -22559,6 +22582,7 @@ For regulatory intelligence purposes only. Not for commercial use.
         throw new Error(result.error);
       }
 
+      result.summary = stripCodeFences(result.summary);
       // Display the HTML summary
       document.getElementById('ai-analysis-content').innerHTML = `
         <div class="prose prose-sm max-w-none">
@@ -22580,7 +22604,7 @@ For regulatory intelligence purposes only. Not for commercial use.
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `warning_letter_summary_${drugName}.html`;
+        a.download = `regulatory_summary_${new Date().toISOString().split('T')[0]}.html`;
         a.click();
         URL.revokeObjectURL(url);
       });

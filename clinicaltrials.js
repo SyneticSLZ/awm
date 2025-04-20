@@ -16,6 +16,7 @@ const fsextra = require('fs-extra');
 const multer = require('multer');
 const { PDFDocument } = require('pdf-lib');
 const pdfParse = require('pdf-parse');
+
 const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
@@ -1050,7 +1051,7 @@ Your response should be thorough but concise, focusing on patterns and insights 
       temperature: 0.7
     }, {
       headers: {
-        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
+        'Authorization': `Bearer ${GROK_API_KEY}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1112,7 +1113,7 @@ Your response should be thorough but concise, focusing on patterns and insights 
       temperature: 0.7
     }, {
       headers: {
-        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
+        'Authorization': `Bearer ${GROK_API_KEY}`,
         'Content-Type': 'application/json'
       }
     });
@@ -1180,31 +1181,59 @@ function formatDate(dateString) {
 }
 
 
+
+
+// Helper function to parse Form 483 PDFs
+async function parseForm483Pdf(url) {
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const data = await pdfParse(response.data);
+    return data.text; // Extracted text from PDF
+  } catch (error) {
+    console.error(`Error parsing PDF from ${url}:`, error.message);
+    return 'Unable to parse PDF content';
+  }
+}
+
 // New endpoint for warning letter-specific summary
 app.post('/api/generate-warning-letter-summary', async (req, res) => {
   try {
-    const { drugName, companies, warningLetters, form483s, maxTokens = 2000, temperature = 0.7 } = req.body;
-    const grokApiKey = GROK_API_KEY; // Ensure GROK_API_KEY is set in environment
-    const grokApiUrl = GROK_API_URL; // Ensure GROK_API_URL is set
+    const { companies, warningLetters, form483s, maxTokens = 3000, temperature = 0.7 } = req.body;
+    const grokApiKey = GROK_API_KEY;
+    const grokApiUrl = GROK_API_URL;
 
     // Validate inputs
-    if (!drugName || !companies || !Array.isArray(companies) || companies.length === 0) {
-      return res.status(400).json({ success: false, error: 'drugName and companies are required' });
+    if (!companies || !Array.isArray(companies) || companies.length === 0) {
+      return res.status(400).json({ success: false, error: 'companies are required' });
     }
     if (!warningLetters || !form483s) {
       return res.status(400).json({ success: false, error: 'warningLetters and form483s are required' });
     }
 
-    console.log(`Generating Grok warning letter summary for ${drugName}`);
+    console.log(`Generating Grok warning letter summary for companies: ${companies.join(', ')}`);
+
+    // Parse Form 483 PDFs to extract observations
+    const form483sWithObservations = await Promise.all(form483s.map(async (form) => {
+      const observations = form["Download"] ? await parseForm483Pdf(form["Download"]) : 'No observations available';
+      return {
+        ...form,
+        observations: observations.substring(0, 1000) + (observations.length > 1000 ? '...' : '') // Limit length
+      };
+    }));
 
     // Construct detailed prompt for Grok AI
     const prompt = `
-      You are tasked with generating a detailed, professional HTML summary of FDA warning letters and Form 483s for the pharmaceutical drug "${drugName}" manufactured by the following companies: ${companies.join(', ')}. The summary must address the following requirements:
+      You are tasked with generating an in-depth, professional HTML summary of FDA warning letters and Form 483s for the following pharmaceutical companies: ${companies.join(', ')}. The analysis must be comprehensive, drug-agnostic, and focus on regulatory compliance issues and competitive opportunities. Address the following requirements in detail:
 
-      1. **Link Form 483s to Warning Letters**: Identify and list specific instances where a Form 483 preceded a warning letter for the same company, including dates and time gaps (in days).
-      2. **Analyze Form 483-to-Warning Letter Ratio**: Calculate the percentage of Form 483s that escalated to warning letters for each company and overall, indicating regulatory risk.
-      3. **Highlight Drug-Specific Issues**: Identify manufacturing deficiencies or issues related to "${drugName}" in warning letters and Form 483s. If Form 483 observations are unavailable, note this limitation.
-      4. **Provide Competitive Insights**: Suggest actionable opportunities for competitors, such as offering alternative supply sources, forming partnerships, or targeting customers of non-compliant companies. Include strategies for both non-compliant and compliant companies.
+      1. **Link Form 483s to Warning Letters**: Identify specific instances where a Form 483 preceded a warning letter for the same company, including dates, time gaps (in days), and nature of issues. Discuss the severity and implications of these progressions.
+      2. **Analyze Form 483-to-Warning Letter Ratio**: Calculate the percentage of Form 483s that escalated to warning letters for each company and overall. Assess regulatory risk (e.g., low, moderate, high) based on escalation rates and issue severity.
+      3. **Highlight Manufacturing Issues**: Identify and categorize manufacturing deficiencies from warning letters and Form 483 observations. Provide detailed descriptions, including root causes (if available), impact on operations, and potential market effects. Note limitations if Form 483 observations are incomplete.
+      4. **Provide Competitive Insights**: Offer detailed, actionable opportunities for competitors, such as:
+         - Offering alternative manufacturing or supply solutions for non-compliant companies.
+         - Forming partnerships or compliance consulting services.
+         - Targeting customers of non-compliant companies with targeted campaigns.
+         - Strategies for compliant companies (e.g., innovation, cost optimization, monitoring).
+      5. **Regulatory Trends and Risk Assessment**: Analyze trends in regulatory actions (e.g., increasing scrutiny, common issue types) and assess long-term risks for each company based on their compliance history.
 
       **Data Provided**:
       - **Warning Letters**: ${JSON.stringify(warningLetters.map(wl => ({
@@ -1215,42 +1244,45 @@ app.post('/api/generate-warning-letter-summary', async (req, res) => {
         fullContent: wl.fullContent?.substring(0, 500) + '...' || 'N/A',
         companyUrl: wl.companyUrl
       })))}
-      - **Form 483s**: ${JSON.stringify(form483s.map(f => ({
+      - **Form 483s**: ${JSON.stringify(form483sWithObservations.map(f => ({
         legalName: f["Legal Name"],
         recordDate: f["Record Date"],
         feiNumber: f["FEI Number"],
-        download: f["Download"]
+        download: f["Download"],
+        observations: f.observations
       })))}
 
       **Output Requirements**:
       - Generate a fully structured HTML summary using Tailwind CSS (CDN: https://cdn.tailwindcss.com) for styling.
-      - Include per-company sections and an overall market analysis.
+      - Include detailed per-company sections and an overall market analysis, with subheadings for regulatory profile, escalation risk, progression, manufacturing issues, competitive opportunities, and trends.
       - Use live, verified links to warning letters (e.g., https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/[letterId]) and Form 483s (use the Download URL).
       - Add a footer with source attribution (e.g., FDA.gov) and timestamp (current date: ${new Date().toISOString()}).
-      - Ensure responsive design, clear typography, hover effects, and professional layout.
-      - Verify all data for accuracy and relevance to "${drugName}".
+      - Ensure responsive design, clear typography, hover effects, and professional layout with vibrant colors and smooth animations.
+      - Verify all data for accuracy and relevance to the companies’ regulatory profiles.
 
       **Example Structure**:
       <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold">Warning Letter Summary for ${drugName}</h1>
+        <h1 class="text-3xl font-bold mb-4">Regulatory Compliance Summary</h1>
         <!-- Per-Company Sections -->
-        <div class="mt-4">
-          <h2 class="text-xl font-semibold">Company: [Company Name]</h2>
-          <p>Regulatory Profile: X Form 483s, Y Warning Letters</p>
-          <p>Escalation Risk: Z% of Form 483s escalated</p>
-          <p>Progression: <a href="[link]">Form 483 (date)</a> led to <a href="[link]">Warning Letter (date)</a></p>
-          <p>${drugName} Issues: [Issues or None]</p>
-          <p>Competitive Opportunities: [Opportunities]</p>
+        <div class="mt-6">
+          <h2 class="text-2xl font-semibold mb-2">Company: [Company Name]</h2>
+          <p><strong>Regulatory Profile:</strong> X Form 483s, Y Warning Letters</p>
+          <p><strong>Escalation Risk:</strong> Z% of Form 483s escalated ([Risk Level])</p>
+          <p><strong>Progression:</strong> <a href="[link]" class="text-blue-600 hover:underline">Form 483 (date)</a> led to <a href="[link]" class="text-blue-600 hover:underline">Warning Letter (date)</a></p>
+          <p><strong>Manufacturing Issues:</strong> [Detailed Issues]</p>
+          <p><strong>Competitive Opportunities:</strong> [Detailed Strategies]</p>
+          <p><strong>Regulatory Trends:</strong> [Trends and Risks]</p>
         </div>
         <!-- Overall Analysis -->
-        <div class="mt-4">
-          <h2 class="text-xl font-semibold">Overall Market Analysis</h2>
-          <p>Market Regulatory Profile: X Form 483s, Y Warning Letters</p>
-          <p>Market-Wide Opportunities: [Opportunities]</p>
+        <div class="mt-6">
+          <h2 class="text-2xl font-semibold mb-2">Overall Market Analysis</h2>
+          <p><strong>Market Regulatory Profile:</strong> X Form 483s, Y Warning Letters</p>
+          <p><strong>Market-Wide Opportunities:</strong> [Detailed Strategies]</p>
+          <p><strong>Industry Trends:</strong> [Trends and Risks]</p>
         </div>
         <!-- Footer -->
-        <footer class="mt-4 text-sm text-gray-600">
-          <p>Sources: <a href="https://www.fda.gov">FDA.gov</a></p>
+        <footer class="mt-6 text-sm text-gray-600">
+          <p>Sources: <a href="https://www.fda.gov" class="text-blue-600 hover:underline">FDA.gov</a></p>
           <p>Generated on: [Timestamp]</p>
         </footer>
       </div>
@@ -1258,11 +1290,11 @@ app.post('/api/generate-warning-letter-summary', async (req, res) => {
 
     // Call Grok API
     const response = await axios.post(grokApiUrl, {
-      model: "grok-2", // Update to your specific Grok model if different
+      model: "grok-2",
       messages: [
         {
           role: "system",
-          content: `You are an advanced AI assistant specializing in FDA regulatory information analysis for pharmaceutical drugs. Your task is to create visually appealing, highly structured, and responsive HTML summaries of FDA warning letters and Form 483s, prioritizing critical regulatory insights, drug-specific issues, and actionable competitive opportunities. Use Tailwind CSS for modern UI design with vibrant colors, smooth animations, and professional layout. Ensure all summaries include live, verified links to source documents (e.g., FDA warning letters, Form 483 PDFs) for professional verification. The design must be fully responsive, with hover effects, clear typography, and intuitive navigation. Verify all data for accuracy as of the current date (${new Date().toISOString().split('T')[0]}) and include a footer with source attribution and timestamp.`
+          content: `You are an advanced AI assistant specializing in FDA regulatory information analysis for pharmaceutical companies. Your task is to create in-depth, visually appealing, and responsive HTML summaries of FDA warning letters and Form 483s, prioritizing critical regulatory insights, manufacturing issues, and actionable competitive opportunities. Use Tailwind CSS for modern UI design with vibrant colors, smooth animations, and professional layout. Ensure all summaries include live, verified links to source documents (e.g., FDA warning letters, Form 483 PDFs) for professional verification. The design must be fully responsive, with hover effects, clear typography, and intuitive navigation. Verify all data for accuracy as of the current date (${new Date().toISOString().split('T')[0]}) and include a footer with source attribution and timestamp.`
         },
         {
           role: "user",
