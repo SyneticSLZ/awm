@@ -68,8 +68,25 @@ const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+
+const allowedOrigins = [
+  'https://syneticx.com', // Replace with your actual frontend domain
+  'http://localhost:3000', // For local development
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // If your app uses cookies or authentication
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10mb' }));

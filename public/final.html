@@ -20757,6 +20757,34 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
   });
   
   document.getElementById('generate-ai-summary').addEventListener('click', WLgenerateAISummary);
+
+  document.getElementById('generate-ai-summary').addEventListener('click', () => {
+  // Retrieve drug name from input field
+//   const drugName = document.getElementById('drug-name-input').value.trim();
+  
+  // Optional: Use a stored variable if input might be cleared
+  const drugName = window.currentDrugName || '';
+
+  // Validate drug name
+  if (!drugName) {
+    alert('Please enter a drug name and search Orange Book first');
+    return;
+  }
+
+  // Validate companies
+  const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
+    row.querySelector('td:first-child').textContent.trim()
+  );
+  if (companies.length === 0) {
+    alert('No companies found. Please search Orange Book first.');
+    return;
+  }
+
+  // Call WLgenerateAISummary with drugName
+  WLgenerateAISummary(drugName);
+});
+
+
   document.getElementById('email-summary-btn').addEventListener('click', WLemailSummary);
   
   document.querySelectorAll('.view-company-details').forEach(button => {
@@ -21667,243 +21695,291 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
     }
     
     // Helper function to generate a summary based on available data
+    // function generateSummary(data, companies) {
+    //   const { warningLetters, form483s, historicalInspections } = data;
+      
+    //   // Count inspections by classification
+    //   const classifications = { NAI: 0, VAI: 0, OAI: 0 };
+    //   historicalInspections.forEach(inspection => {
+    //     const classification = inspection["Inspection Classification"];
+    //     if (classification && classifications.hasOwnProperty(classification)) {
+    //       classifications[classification]++;
+    //     }
+    //   });
+      
+    //   // Get unique project areas
+    //   const projectAreas = [...new Set(historicalInspections
+    //     .map(inspection => inspection["Project Area"])
+    //     .filter(Boolean))];
+      
+    //   // Build summary text
+    //   let summary = `Based on the analysis of ${companies.length === 1 ? 'this company' : 'these companies'}, we found `;
+      
+    //   // Add warning letters info
+    //   if (warningLetters.length > 0) {
+    //     summary += `${warningLetters.length} warning letter${warningLetters.length !== 1 ? 's' : ''} `;
+    //   } else {
+    //     summary += 'no warning letters ';
+    //   }
+      
+    //   // Add Form 483 info
+    //   if (form483s.length > 0) {
+    //     summary += `and ${form483s.length} Form 483${form483s.length !== 1 ? 's' : ''}. `;
+    //   } else {
+    //     summary += 'and no Form 483s. ';
+    //   }
+      
+    //   // Add historical inspection info
+    //   if (historicalInspections.length > 0) {
+    //     summary += `There ${historicalInspections.length === 1 ? 'is' : 'are'} ${historicalInspections.length} historical inspection${historicalInspections.length !== 1 ? 's' : ''} on record. `;
+        
+    //     // Add classification breakdown if available
+    //     const classificationTotal = classifications.NAI + classifications.VAI + classifications.OAI;
+    //     if (classificationTotal > 0) {
+    //       summary += 'The inspection classifications breakdown is: ';
+          
+    //       if (classifications.NAI > 0) {
+    //         summary += `${classifications.NAI} NAI (No Action Indicated, ${Math.round(classifications.NAI / classificationTotal * 100)}%), `;
+    //       }
+          
+    //       if (classifications.VAI > 0) {
+    //         summary += `${classifications.VAI} VAI (Voluntary Action Indicated, ${Math.round(classifications.VAI / classificationTotal * 100)}%), `;
+    //       }
+          
+    //       if (classifications.OAI > 0) {
+    //         summary += `${classifications.OAI} OAI (Official Action Indicated, ${Math.round(classifications.OAI / classificationTotal * 100)}%). `;
+    //       }
+    //     }
+        
+    //     // Add project area info if available
+    //     if (projectAreas.length > 0) {
+    //       summary += `The most frequent inspection areas include ${projectAreas.slice(0, 3).join(', ')}${projectAreas.length > 3 ? ', among others' : ''}.`;
+    //     }
+    //   } else {
+    //     summary += 'There are no historical inspections on record.';
+    //   }
+      
+    //   return summary;
+    // }
+    // Helper function to generate a summary based on available data
     function generateSummary(data, companies) {
-      const { warningLetters, form483s, historicalInspections } = data;
-      
-      // Count inspections by classification
-      const classifications = { NAI: 0, VAI: 0, OAI: 0 };
-      historicalInspections.forEach(inspection => {
-        const classification = inspection["Inspection Classification"];
-        if (classification && classifications.hasOwnProperty(classification)) {
-          classifications[classification]++;
-        }
-      });
-      
-      // Get unique project areas
-      const projectAreas = [...new Set(historicalInspections
-        .map(inspection => inspection["Project Area"])
-        .filter(Boolean))];
-      
-      // Build summary text
-      let summary = `Based on the analysis of ${companies.length === 1 ? 'this company' : 'these companies'}, we found `;
-      
-      // Add warning letters info
-      if (warningLetters.length > 0) {
-        summary += `${warningLetters.length} warning letter${warningLetters.length !== 1 ? 's' : ''} `;
-      } else {
-        summary += 'no warning letters ';
+    const { warningLetters, form483s, historicalInspections } = data;
+    
+    // Count inspections by classification
+    const classifications = { NAI: 0, VAI: 0, OAI: 0 };
+    historicalInspections.forEach(inspection => {
+      const classification = inspection["Inspection Classification"];
+      if (classification && classifications.hasOwnProperty(classification)) {
+        classifications[classification]++;
       }
-      
-      // Add Form 483 info
-      if (form483s.length > 0) {
-        summary += `and ${form483s.length} Form 483${form483s.length !== 1 ? 's' : ''}. `;
-      } else {
-        summary += 'and no Form 483s. ';
-      }
-      
-      // Add historical inspection info
-      if (historicalInspections.length > 0) {
-        summary += `There ${historicalInspections.length === 1 ? 'is' : 'are'} ${historicalInspections.length} historical inspection${historicalInspections.length !== 1 ? 's' : ''} on record. `;
-        
-        // Add classification breakdown if available
-        const classificationTotal = classifications.NAI + classifications.VAI + classifications.OAI;
-        if (classificationTotal > 0) {
-          summary += 'The inspection classifications breakdown is: ';
-          
-          if (classifications.NAI > 0) {
-            summary += `${classifications.NAI} NAI (No Action Indicated, ${Math.round(classifications.NAI / classificationTotal * 100)}%), `;
-          }
-          
-          if (classifications.VAI > 0) {
-            summary += `${classifications.VAI} VAI (Voluntary Action Indicated, ${Math.round(classifications.VAI / classificationTotal * 100)}%), `;
-          }
-          
-          if (classifications.OAI > 0) {
-            summary += `${classifications.OAI} OAI (Official Action Indicated, ${Math.round(classifications.OAI / classificationTotal * 100)}%). `;
-          }
-        }
-        
-        // Add project area info if available
-        if (projectAreas.length > 0) {
-          summary += `The most frequent inspection areas include ${projectAreas.slice(0, 3).join(', ')}${projectAreas.length > 3 ? ', among others' : ''}.`;
-        }
-      } else {
-        summary += 'There are no historical inspections on record.';
-      }
-      
-      return summary;
+    });
+    
+    // Calculate Form 483 to Warning Letter ratio
+    const form483Count = form483s.length;
+    const warningLetterCount = warningLetters.length;
+    const escalationRatio = form483Count > 0 
+      ? Math.round((warningLetterCount / form483Count) * 100) 
+      : 0;
+    
+    // Build summary text
+    let summary = `**Overall Regulatory Profile for ${companies.length} ${companies.length === 1 ? 'Company' : 'Companies'} (${companies.join(', ')})**:\n\n`;
+    
+    // Form 483 and Warning Letter overview
+    summary += `- **Form 483s and Warning Letters**: Received ${form483Count} Form 483${form483Count !== 1 ? 's' : ''} and ${warningLetterCount} Warning Letter${warningLetterCount !== 1 ? 's' : ''}. `;
+    if (form483Count > 0) {
+      summary += `${escalationRatio}% of Form 483s escalated to Warning Letters, indicating ${escalationRatio > 50 ? 'significant' : 'moderate'} regulatory risk.\n`;
+    } else {
+      summary += 'No Form 483s recorded, suggesting a clean compliance history.\n';
     }
     
-    // Helper function to generate correlation analysis
-    function generateCorrelationAnalysis(data) {
-      const { warningLetters, form483s } = data;
-      
-      // If we don't have enough data, return a message
-      if (warningLetters.length === 0 || form483s.length === 0) {
-        return 'Insufficient data to perform correlation analysis between Form 483s and Warning Letters.';
+    // Historical inspection overview
+    if (historicalInspections.length > 0) {
+      summary += `- **Historical Inspections**: ${historicalInspections.length} inspection${historicalInspections.length !== 1 ? 's' : ''} recorded. `;
+      const classificationTotal = classifications.NAI + classifications.VAI + classifications.OAI;
+      if (classificationTotal > 0) {
+        summary += 'Outcomes: ';
+        if (classifications.NAI > 0) summary += `${classifications.NAI} NAI (${Math.round(classifications.NAI / classificationTotal * 100)}%), `;
+        if (classifications.VAI > 0) summary += `${classifications.VAI} VAI (${Math.round(classifications.VAI / classificationTotal * 100)}%), `;
+        if (classifications.OAI > 0) summary += `${classifications.OAI} OAI (${Math.round(classifications.OAI / classificationTotal * 100)}%).\n`;
       }
+    } else {
+      summary += `- **Historical Inspections**: No inspections recorded.\n`;
+    }
+    
+    return summary;
+  }
+  
+  // Helper function to generate correlation analysis
+  function generateCorrelationAnalysis(data) {
+    const { warningLetters, form483s } = data;
+    
+    if (warningLetters.length === 0 || form483s.length === 0) {
+      return 'Insufficient data to analyze Form 483 to Warning Letter correlations.';
+    }
+    
+    // Sort by date
+    const form483sSorted = [...form483s].sort((a, b) => 
+      new Date(a["Record Date"]) - new Date(b["Record Date"])
+    );
+    const warningLettersSorted = [...warningLetters].sort((a, b) => 
+      new Date(a.letterIssueDate) - new Date(b.letterIssueDate)
+    );
+    
+    // Find correlations
+    let correlations = [];
+    let correlationCount = 0;
+    
+    warningLettersSorted.forEach(letter => {
+      const letterDate = new Date(letter.letterIssueDate);
+      const letterCompany = letter.companyName ? letter.companyName.toLowerCase() : '';
       
-      // Sort items by date
-      const form483sSorted = [...form483s].sort((a, b) => 
-        new Date(a["Record Date"]) - new Date(b["Record Date"])
-      );
-      
-      const warningLettersSorted = [...warningLetters].sort((a, b) => 
-        new Date(a.letterIssueDate) - new Date(b.letterIssueDate)
-      );
-      
-      // Find potential correlations (warning letters that follow form 483s)
-      let correlations = [];
-      let correlationCount = 0;
-      
-      warningLettersSorted.forEach(letter => {
-        const letterDate = new Date(letter.letterIssueDate);
-        const letterCompany = letter.companyName ? letter.companyName.toLowerCase() : '';
-        
-        // Find form 483s that precede this warning letter for the same company
-        const relatedForm483s = form483sSorted.filter(form => {
-          const formDate = new Date(form["Record Date"]);
-          const formCompany = form["Legal Name"] ? form["Legal Name"].toLowerCase() : '';
-          
-          // Check if dates and companies match (form 483 before warning letter, same company)
-          return formDate < letterDate && 
-                 formCompany && 
-                 letterCompany && 
-                 (formCompany.includes(letterCompany) || letterCompany.includes(formCompany));
-        });
-        
-        if (relatedForm483s.length > 0) {
-          correlationCount++;
-          
-          // Get the most recent form 483 before this warning letter
-          const mostRecentForm483 = relatedForm483s[relatedForm483s.length - 1];
-          const daysBetween = Math.floor(
-            (letterDate - new Date(mostRecentForm483["Record Date"])) / (1000 * 60 * 60 * 24)
-          );
-          
-          correlations.push({
-            warningLetter: letter,
-            form483: mostRecentForm483,
-            daysBetween
-          });
-        }
+      const relatedForm483s = form483sSorted.filter(form => {
+        const formDate = new Date(form["Record Date"]);
+        const formCompany = form["Legal Name"] ? form["Legal Name"].toLowerCase() : '';
+        return formDate < letterDate && 
+               formCompany && 
+               letterCompany && 
+               isRelatedCompany(formCompany, letterCompany);
       });
       
-      // Generate correlation text
-      let correlationText = '';
-      
-      if (correlations.length > 0) {
-        // Calculate average days between form 483 and warning letter
-        const avgDays = Math.round(
-          correlations.reduce((sum, corr) => sum + corr.daysBetween, 0) / correlations.length
+      if (relatedForm483s.length > 0) {
+        correlationCount++;
+        const mostRecentForm483 = relatedForm483s[relatedForm483s.length - 1];
+        const daysBetween = Math.floor(
+          (letterDate - new Date(mostRecentForm483["Record Date"])) / (1000 * 60 * 60 * 24)
         );
         
-        correlationText = `Among the selected companies, ${correlationCount} warning letter${correlationCount !== 1 ? 's' : ''} (${Math.round(correlationCount / warningLetters.length * 100)}%) were preceded by Form 483s. On average, warning letters were issued ${avgDays} days after Form 483s. `;
-        
-        // Add more detailed information about specific correlations
-        if (correlations.length <= 3) {
-          // For a small number of correlations, include details on each one
-          correlationText += 'Specific correlations include: ';
-          
-          correlations.forEach((corr, index) => {
-            const company = corr.warningLetter.companyName || 'a company';
-            correlationText += `${company} received a Form 483 on ${WlformatDate(corr.form483["Record Date"])} and a warning letter ${corr.daysBetween} days later on ${WlformatDate(corr.warningLetter.letterIssueDate)}${index < correlations.length - 1 ? '; ' : '.'}`;
-          });
-        } else {
-          // For larger datasets, provide a summary of timeframes
-          const timeframes = {
-            'under30': 0,
-            '30to90': 0,
-            '90to180': 0,
-            'over180': 0
-          };
-          
-          correlations.forEach(corr => {
-            if (corr.daysBetween < 30) timeframes.under30++;
-            else if (corr.daysBetween < 90) timeframes['30to90']++;
-            else if (corr.daysBetween < 180) timeframes['90to180']++;
-            else timeframes.over180++;
-          });
-          
-          correlationText += 'The timeframe distribution between Form 483s and subsequent Warning Letters is: ';
-          correlationText += `${timeframes.under30} in less than 30 days, ${timeframes['30to90']} in 30-90 days, ${timeframes['90to180']} in 90-180 days, and ${timeframes.over180} taking more than 180 days.`;
-        }
-      } else {
-        correlationText = 'No direct correlations were found between Form 483s and Warning Letters for the selected companies. This could indicate that the companies addressed Form 483 observations adequately or that the Warning Letters were issued for different reasons than those identified in Form 483s.';
+        correlations.push({
+          warningLetter: letter,
+          form483: mostRecentForm483,
+          daysBetween
+        });
       }
+    });
+    
+    // Generate correlation text
+    let correlationText = `**Form 483 to Warning Letter Progression**: `;
+    
+    if (correlations.length > 0) {
+      const avgDays = Math.round(
+        correlations.reduce((sum, corr) => sum + corr.daysBetween, 0) / correlations.length
+      );
       
-      return correlationText;
+      correlationText += `${correlationCount} of ${warningLetters.length} Warning Letter${warningLetters.length !== 1 ? 's' : ''} (${Math.round(correlationCount / warningLetters.length * 100)}%) were preceded by Form 483s. On average, Warning Letters were issued ${avgDays} days after Form 483s.\n\n`;
+      
+      correlationText += 'Key Progressions:\n';
+      correlations.forEach(corr => {
+        correlationText += `- Form 483 on ${WlformatDate(corr.form483["Record Date"])} (${corr.form483["Legal Name"]}) led to Warning Letter on ${WlformatDate(corr.warningLetter.letterIssueDate)} (${corr.warningLetter.companyName}), ${corr.daysBetween} days later.\n`;
+      });
+    } else {
+      correlationText += 'No direct correlations found between Form 483s and Warning Letters. Companies may have addressed Form 483 observations effectively, or Warning Letters were issued for unrelated issues.';
     }
     
-    // Helper function to generate recommendations
-    function generateRecommendations(data, companies) {
-      const { warningLetters, form483s, historicalInspections } = data;
+    return correlationText;
+  }
+    
+    // // Helper function to generate correlation analysis
+    // function generateCorrelationAnalysis(data) {
+    //   const { warningLetters, form483s } = data;
       
-      // If we don't have enough data, return a generic recommendation
-      if (warningLetters.length === 0 && form483s.length === 0 && historicalInspections.length === 0) {
-        return 'Insufficient data to generate specific recommendations. Consider expanding your search to include more companies or a broader date range.';
-      }
+    //   // If we don't have enough data, return a message
+    //   if (warningLetters.length === 0 || form483s.length === 0) {
+    //     return 'Insufficient data to perform correlation analysis between Form 483s and Warning Letters.';
+    //   }
       
-      let recommendations = '';
+    //   // Sort items by date
+    //   const form483sSorted = [...form483s].sort((a, b) => 
+    //     new Date(a["Record Date"]) - new Date(b["Record Date"])
+    //   );
       
-      // Recommendations based on warning letters
-      if (warningLetters.length > 0) {
-        recommendations += 'Based on warning letter analysis: ';
-        
-        // Extract common topics from warning letters
-        const commonTopics = extractCommonTopics(warningLetters);
-        
-        if (commonTopics.length > 0) {
-          recommendations += `Focus compliance efforts on ${commonTopics.join(', ')}, which are common themes in the warning letters. `;
-        } else {
-          recommendations += 'Review the specific issues cited in each warning letter to identify areas for improvement. ';
-        }
-      }
+    //   const warningLettersSorted = [...warningLetters].sort((a, b) => 
+    //     new Date(a.letterIssueDate) - new Date(b.letterIssueDate)
+    //   );
       
-      // Recommendations based on Form 483s
-      if (form483s.length > 0) {
-        if (recommendations) recommendations += '\n\n';
-        recommendations += 'Based on Form 483 analysis: Prioritize addressing observations promptly to prevent escalation to warning letters. Implement robust corrective and preventive action (CAPA) systems to address root causes.';
-      }
+    //   // Find potential correlations (warning letters that follow form 483s)
+    //   let correlations = [];
+    //   let correlationCount = 0;
       
-      // Recommendations based on historical inspections
-      if (historicalInspections.length > 0) {
-        // Count inspections by classification
-        const classifications = { NAI: 0, VAI: 0, OAI: 0 };
-        historicalInspections.forEach(inspection => {
-          const classification = inspection["Inspection Classification"];
-          if (classification && classifications.hasOwnProperty(classification)) {
-            classifications[classification]++;
-          }
-        });
+    //   warningLettersSorted.forEach(letter => {
+    //     const letterDate = new Date(letter.letterIssueDate);
+    //     const letterCompany = letter.companyName ? letter.companyName.toLowerCase() : '';
         
-        if (recommendations) recommendations += '\n\n';
-        recommendations += 'Based on historical inspection trends: ';
+    //     // Find form 483s that precede this warning letter for the same company
+    //     const relatedForm483s = form483sSorted.filter(form => {
+    //       const formDate = new Date(form["Record Date"]);
+    //       const formCompany = form["Legal Name"] ? form["Legal Name"].toLowerCase() : '';
+          
+    //       // Check if dates and companies match (form 483 before warning letter, same company)
+    //       return formDate < letterDate && 
+    //              formCompany && 
+    //              letterCompany && 
+    //              (formCompany.includes(letterCompany) || letterCompany.includes(formCompany));
+    //     });
         
-        if (classifications.OAI > 0) {
-          recommendations += 'Address "Official Action Indicated" outcomes with urgency, as these often lead to enforcement actions. ';
-        }
-        
-        if (classifications.VAI > 0) {
-          recommendations += 'Develop comprehensive responses to "Voluntary Action Indicated" inspections to prevent repeat observations. ';
-        }
-        
-        // Get unique project areas
-        const projectAreas = [...new Set(historicalInspections
-          .map(inspection => inspection["Project Area"])
-          .filter(Boolean))];
-        
-        if (projectAreas.length > 0) {
-          recommendations += `Focus quality management efforts particularly on ${projectAreas.slice(0, 3).join(', ')} areas, which are frequently inspected.`;
-        }
-      }
+    //     if (relatedForm483s.length > 0) {
+    //       correlationCount++;
+          
+    //       // Get the most recent form 483 before this warning letter
+    //       const mostRecentForm483 = relatedForm483s[relatedForm483s.length - 1];
+    //       const daysBetween = Math.floor(
+    //         (letterDate - new Date(mostRecentForm483["Record Date"])) / (1000 * 60 * 60 * 24)
+    //       );
+          
+    //       correlations.push({
+    //         warningLetter: letter,
+    //         form483: mostRecentForm483,
+    //         daysBetween
+    //       });
+    //     }
+    //   });
       
-      // General recommendations
-      if (recommendations) recommendations += '\n\n';
-      recommendations += 'General recommendations: Maintain robust documentation practices, conduct regular internal audits, and ensure training programs are up-to-date with current regulations. Consider implementing a regulatory intelligence system to stay informed of changing FDA expectations and industry trends.';
+    //   // Generate correlation text
+    //   let correlationText = '';
       
-      return recommendations;
-    }
+    //   if (correlations.length > 0) {
+    //     // Calculate average days between form 483 and warning letter
+    //     const avgDays = Math.round(
+    //       correlations.reduce((sum, corr) => sum + corr.daysBetween, 0) / correlations.length
+    //     );
+        
+    //     correlationText = `Among the selected companies, ${correlationCount} warning letter${correlationCount !== 1 ? 's' : ''} (${Math.round(correlationCount / warningLetters.length * 100)}%) were preceded by Form 483s. On average, warning letters were issued ${avgDays} days after Form 483s. `;
+        
+    //     // Add more detailed information about specific correlations
+    //     if (correlations.length <= 3) {
+    //       // For a small number of correlations, include details on each one
+    //       correlationText += 'Specific correlations include: ';
+          
+    //       correlations.forEach((corr, index) => {
+    //         const company = corr.warningLetter.companyName || 'a company';
+    //         correlationText += `${company} received a Form 483 on ${WlformatDate(corr.form483["Record Date"])} and a warning letter ${corr.daysBetween} days later on ${WlformatDate(corr.warningLetter.letterIssueDate)}${index < correlations.length - 1 ? '; ' : '.'}`;
+    //       });
+    //     } else {
+    //       // For larger datasets, provide a summary of timeframes
+    //       const timeframes = {
+    //         'under30': 0,
+    //         '30to90': 0,
+    //         '90to180': 0,
+    //         'over180': 0
+    //       };
+          
+    //       correlations.forEach(corr => {
+    //         if (corr.daysBetween < 30) timeframes.under30++;
+    //         else if (corr.daysBetween < 90) timeframes['30to90']++;
+    //         else if (corr.daysBetween < 180) timeframes['90to180']++;
+    //         else timeframes.over180++;
+    //       });
+          
+    //       correlationText += 'The timeframe distribution between Form 483s and subsequent Warning Letters is: ';
+    //       correlationText += `${timeframes.under30} in less than 30 days, ${timeframes['30to90']} in 30-90 days, ${timeframes['90to180']} in 90-180 days, and ${timeframes.over180} taking more than 180 days.`;
+    //     }
+    //   } else {
+    //     correlationText = 'No direct correlations were found between Form 483s and Warning Letters for the selected companies. This could indicate that the companies addressed Form 483 observations adequately or that the Warning Letters were issued for different reasons than those identified in Form 483s.';
+    //   }
+      
+    //   return correlationText;
+    // }
+    
+
     
     // Helper function to extract common topics from warning letters
     function extractCommonTopics(warningLetters) {
@@ -22426,9 +22502,10 @@ For regulatory intelligence purposes only. Not for commercial use.
     
     return html;
   }
+
   
   // Function to generate AI summary
-  async function WLgenerateAISummary() {
+  async function WLgenerateAISummary(drugName = '') {
     const aiResults = document.getElementById('ai-analysis-results');
     aiResults.classList.remove('hidden');
     
@@ -22443,110 +22520,53 @@ For regulatory intelligence purposes only. Not for commercial use.
     `;
     
     try {
-      // Collect data from the UI for analysis
+      // Collect data from UI
       const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
         row.querySelector('td:first-child').textContent.trim()
       );
       
-      const form483Count = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).reduce((total, row) => {
-        const countText = row.querySelector('td:nth-child(2)').textContent.trim();
-        return total + (parseInt(countText) || 0);
-      }, 0);
+      // Fetch warning letters and inspections
+      const [warningLetters, inspections] = await Promise.all([
+        fetchWarningLettersWithTracking(companies, 1, 10),
+        fetchInspectionDataWithTracking(companies)
+      ]);
       
-      const wlCount = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).reduce((total, row) => {
-        const countText = row.querySelector('td:nth-child(3)').textContent.trim();
-        return total + (parseInt(countText) || 0);
-      }, 0);
+      const selectedCompanyData = {
+        warningLetters,
+        form483s: inspections.recentInspections.filter(inspection => 
+          inspection["Record Type"] === "483"
+        ),
+        historicalInspections: inspections.historicalInspections
+      };
       
-      // Generate summary based on available data
-      let summary = '';
-      let marketOpportunities = '';
-      let recommendedActions = '';
-      
-      if (companies.length > 0) {
-        // Generate market analysis
-        summary = `Based on analysis of FDA regulatory actions for ${companies.length} companies in the pharmaceutical/biotech sector, we've identified several key trends and patterns. `;
-        
-        if (form483Count > 0 || wlCount > 0) {
-          summary += `These companies have received a total of ${form483Count} Form 483s and ${wlCount} Warning Letters. `;
-          
-          // Add more specific observations based on the data visible in the UI
-          const classifications = {
-            NAI: document.querySelectorAll('.bg-green-100.text-green-800').length,
-            VAI: document.querySelectorAll('.bg-yellow-100.text-yellow-800').length,
-            OAI: document.querySelectorAll('.bg-red-100.text-red-800').length
-          };
-          
-          if (classifications.NAI > 0 || classifications.VAI > 0 || classifications.OAI > 0) {
-            summary += `In terms of inspection outcomes, we observed ${classifications.NAI} NAI (No Action Indicated), ${classifications.VAI} VAI (Voluntary Action Indicated), and ${classifications.OAI} OAI (Official Action Indicated) classifications. `;
-          }
-          
-          // Get project areas from the UI
-          const projectAreaEl = document.getElementById('project-area-filter');
-          if (projectAreaEl) {
-            const projectAreas = Array.from(projectAreaEl.options)
-              .map(option => option.value)
-              .filter(value => value !== 'all');
-              
-            if (projectAreas.length > 0) {
-              summary += `The most common inspection focus areas include ${projectAreas.slice(0, 3).join(', ')}.`;
-            }
-          }
-        } else {
-          summary += 'Interestingly, these companies have no recorded Form 483s or Warning Letters in our database, which could indicate strong compliance practices.';
-        }
-        
-        // Generate market opportunities
-        if (form483Count > 0 || wlCount > 0) {
-          marketOpportunities = 'Based on the regulatory patterns identified, several market opportunities exist: ';
-          
-          if (wlCount > 0) {
-            marketOpportunities += '1) Compliance consulting services focused on helping companies address warning letter remediation; ';
-          }
-          
-          if (form483Count > 0) {
-            marketOpportunities += '2) Quality management software solutions to help prevent common inspection findings; ';
-          }
-          
-          marketOpportunities += '3) Staff training programs on GMP requirements and data integrity practices; 4) Gap analysis services to identify compliance issues before FDA inspections.';
-        } else {
-          marketOpportunities = 'With the relatively clean regulatory history of the analyzed companies, market opportunities may exist in: 1) Benchmarking services to share compliance best practices; 2) Regulatory certification programs to validate quality systems; 3) Technology solutions for maintaining compliance excellence.';
-        }
-        
-        // Generate recommended actions
-        recommendedActions = 'To capitalize on these insights, we recommend: ';
-        
-        if (wlCount > 0) {
-          recommendedActions += '1) Developing specialized services targeting the specific compliance issues highlighted in warning letters; ';
-        }
-        
-        recommendedActions += '2) Creating educational content about effective compliance strategies; 3) Establishing partnerships with companies showing compliance challenges to offer remediation services; 4) Developing regulatory intelligence tools to help companies stay informed about FDA focus areas.';
-      } else {
-        summary = 'No company data is available for analysis. Please search for companies to generate market insights.';
-      }
+      // Generate summary components
+      const summary = generateSummary(selectedCompanyData, companies);
+      const correlation = selectedCompanyData.warningLetters.length > 0 && selectedCompanyData.form483s.length > 0 
+        ? generateCorrelationAnalysis(selectedCompanyData) 
+        : '';
+      const competitiveInsights = generateCompetitiveInsights(selectedCompanyData, companies, drugName);
       
       // Display the AI summary
       document.getElementById('ai-analysis-content').innerHTML = `
         <div class="prose prose-sm max-w-none">
-          <h5 class="text-base font-medium mb-2">Market Analysis & Regulatory Findings</h5>
+          <h5 class="text-base font-medium mb-2">Regulatory Intelligence Summary for ${drugName || 'Drug'}</h5>
           
           <div class="mb-4">
+            <h6 class="text-sm font-medium mb-1">Regulatory Overview</h6>
             <p>${summary}</p>
           </div>
           
-          ${marketOpportunities ? `
+          ${correlation ? `
             <div class="mb-4">
-              <h6 class="text-sm font-medium mb-1">Market Opportunities</h6>
-              <p>${marketOpportunities}</p>
+              <h6 class="text-sm font-medium mb-1">Form 483 to Warning Letter Analysis</h6>
+              <p>${correlation}</p>
             </div>
           ` : ''}
           
-          ${recommendedActions ? `
-            <div class="mb-4">
-              <h6 class="text-sm font-medium mb-1">Recommended Actions</h6>
-              <p>${recommendedActions}</p>
-            </div>
-          ` : ''}
+          <div class="mb-4">
+            <h6 class="text-sm font-medium mb-1">Competitive Insights for ${drugName || 'Drug'}</h6>
+            <p>${competitiveInsights}</p>
+          </div>
           
           <div class="text-right mt-4">
             <button id="download-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md inline-flex items-center transition-colors">
@@ -22563,12 +22583,12 @@ For regulatory intelligence purposes only. Not for commercial use.
       document.getElementById('download-ai-summary').addEventListener('click', () => {
         downloadAnalysis({
           summary,
-          marketOpportunities,
-          recommendedActions
-        }, ['All Companies']);
+          correlation,
+          competitiveInsights
+        }, companies);
       });
     } catch (error) {
-      console.error('Error generating summary:', error);
+      console.error('Error generating AI summary:', error);
       document.getElementById('ai-analysis-content').innerHTML = `
         <div class="text-center text-red-600 py-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22579,6 +22599,337 @@ For regulatory intelligence purposes only. Not for commercial use.
       `;
     }
   }
+  
+  // Helper function to extract manufacturing issues related to specific compounds
+  function extractManufacturingIssues(warningLetters, form483s, compoundKeywords) {
+    const issues = [];
+    
+    // Check warning letters
+    warningLetters.forEach(letter => {
+      const content = ((letter.fullContent || '') + ' ' + (letter.subject || '')).toLowerCase();
+      compoundKeywords.forEach(keyword => {
+        if (content.includes(keyword.toLowerCase())) {
+          issues.push({
+            company: letter.companyName || letter.sourceCompany || 'Unknown',
+            issue: letter.subject || `Manufacturing deficiency related to ${keyword}`,
+            source: 'Warning Letter',
+            date: letter.letterIssueDate
+          });
+        }
+      });
+    });
+    
+    // Check Form 483s (limited to Legal Name for now)
+    form483s.forEach(form => {
+      const content = (form["Legal Name"] || '').toLowerCase();
+      compoundKeywords.forEach(keyword => {
+        if (content.includes(keyword.toLowerCase())) {
+          issues.push({
+            company: form["Legal Name"] || 'Unknown',
+            issue: `Potential issue related to ${keyword} (detailed observations unavailable)`,
+            source: 'Form 483',
+            date: form["Record Date"]
+          });
+        }
+      });
+    });
+    
+    return issues.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+  
+  // Helper function to generate competitive insights
+  function generateCompetitiveInsights(data, companies, drugName = '') {
+    const { warningLetters, form483s } = data;
+    const drugNameLower = drugName.toLowerCase();
+    const compoundKeywords = drugName ? [drugNameLower] : ['drug'];
+    const manufacturingIssues = extractManufacturingIssues(warningLetters, form483s, compoundKeywords);
+    
+    let insights = `**Competitive Insights for ${drugName || 'the Drug'} Market**\n\n`;
+    
+    // Per-Company Analysis
+    insights += `### Per-Company Regulatory Analysis and Opportunities\n`;
+    companies.forEach(company => {
+      insights += `#### ${company}\n`;
+      
+      // Filter data for this company
+      const companyWarningLetters = warningLetters.filter(wl => 
+        isRelatedCompany((wl.companyName || '').toLowerCase(), company.toLowerCase())
+      );
+      const companyForm483s = form483s.filter(form => 
+        isRelatedCompany((form["Legal Name"] || '').toLowerCase(), company.toLowerCase())
+      );
+      const companyIssues = manufacturingIssues.filter(issue => 
+        isRelatedCompany(issue.company.toLowerCase(), company.toLowerCase())
+      );
+      
+      // Calculate escalation ratio
+      const form483Count = companyForm483s.length;
+      const warningLetterCount = companyWarningLetters.length;
+      const escalationRatio = form483Count > 0 
+        ? Math.round((warningLetterCount / form483Count) * 100) 
+        : 0;
+      
+      // Find Form 483 to Warning Letter correlations
+      let correlations = [];
+      companyWarningLetters.forEach(letter => {
+        const letterDate = new Date(letter.letterIssueDate);
+        const relatedForm483s = companyForm483s.filter(form => {
+          const formDate = new Date(form["Record Date"]);
+          return formDate < letterDate;
+        });
+        if (relatedForm483s.length > 0) {
+          const mostRecentForm483 = relatedForm483s.sort((a, b) => 
+            new Date(b["Record Date"]) - new Date(a["Record Date"])
+          )[0];
+          const daysBetween = Math.floor(
+            (letterDate - new Date(mostRecentForm483["Record Date"])) / (1000 * 60 * 60 * 24)
+          );
+          correlations.push({
+            form483: mostRecentForm483,
+            warningLetter: letter,
+            daysBetween
+          });
+        }
+      });
+      
+      // Regulatory Profile
+      insights += `- **Regulatory Profile**: ${form483Count} Form 483${form483Count !== 1 ? 's' : ''}, ${warningLetterCount} Warning Letter${warningLetterCount !== 1 ? 's' : ''}.\n`;
+      if (form483Count > 0) {
+        insights += `  - **Escalation Risk**: ${escalationRatio}% of Form 483s escalated to Warning Letters, indicating ${escalationRatio > 50 ? 'high' : 'moderate'} risk of further regulatory action.\n`;
+      } else {
+        insights += `  - **Escalation Risk**: No Form 483s recorded, suggesting strong compliance.\n`;
+      }
+      
+      // Form 483 to Warning Letter Progression
+      if (correlations.length > 0) {
+        insights += `  - **Progression**: The following Form 483s led to Warning Letters:\n`;
+        correlations.forEach(corr => {
+          insights += `    - Form 483 (${WlformatDate(corr.form483["Record Date"])}) led to Warning Letter (${WlformatDate(corr.warningLetter.letterIssueDate)}, Subject: ${corr.warningLetter.subject || 'N/A'}), ${corr.daysBetween} days later.\n`;
+        });
+      } else {
+        insights += `  - **Progression**: No clear progression from Form 483s to Warning Letters identified.\n`;
+      }
+      
+      // Drug-Specific Issues
+      if (companyIssues.length > 0) {
+        insights += `  - **${drugName || 'Drug'}-Related Issues**:\n`;
+        companyIssues.forEach(issue => {
+          insights += `    - ${issue.source} (${WlformatDate(issue.date)}): ${issue.issue}\n`;
+        });
+      } else {
+        insights += `  - **${drugName || 'Drug'}-Related Issues**: No specific issues related to ${drugName || 'the drug'} identified.\n`;
+      }
+      
+      // Competitive Opportunities
+      insights += `  - **Competitive Opportunities**:\n`;
+      if (companyIssues.length > 0 || warningLetterCount > 0) {
+        insights += `    - **Alternative Supply**: Offer ${drugName || 'the drug'} as an alternative to ${company}’s supply, highlighting your compliance to attract their customers.\n`;
+        insights += `    - **Partnerships**: Propose contract manufacturing or compliance support to help ${company} address ${drugName || 'drug'}-related deficiencies.\n`;
+        insights += `    - **Market Targeting**: Launch campaigns targeting ${company}’s customers, emphasizing your regulatory reliability for ${drugName || 'the drug'}.\n`;
+      } else {
+        insights += `    - **Innovation**: Differentiate by developing innovative ${drugName || 'drug'} formulations or delivery methods to compete with ${company}’s strong compliance.\n`;
+        insights += `    - **Cost Competition**: Optimize ${drugName || 'drug'} production to offer competitive pricing against ${company}.\n`;
+        insights += `    - **Monitoring**: Monitor ${company} for future ${drugName || 'drug'}-related regulatory issues to identify market entry points.\n`;
+      }
+    });
+    
+    // Overall Analysis
+    insights += `\n### Overall Market Analysis for ${drugName || 'the Drug'}\n`;
+    
+    // Overall regulatory stats
+    const overallForm483Count = form483s.length;
+    const overallWarningLetterCount = warningLetters.length;
+    const overallEscalationRatio = overallForm483Count > 0 
+      ? Math.round((overallWarningLetterCount / overallForm483Count) * 100) 
+      : 0;
+    
+    insights += `- **Market Regulatory Profile**: Across ${companies.length} ${companies.length === 1 ? 'company' : 'companies'}, there are ${overallForm483Count} Form 483${overallForm483Count !== 1 ? 's' : ''} and ${overallWarningLetterCount} Warning Letter${overallWarningLetterCount !== 1 ? 's' : ''}.\n`;
+    insights += `  - **Escalation Risk**: ${overallEscalationRatio}% of Form 483s escalated to Warning Letters, suggesting ${overallEscalationRatio > 50 ? 'significant' : 'moderate'} market-wide regulatory risk.\n`;
+    
+    // Overall drug-specific issues
+    if (manufacturingIssues.length > 0) {
+      insights += `  - **${drugName || 'Drug'}-Related Issues**: The following issues were identified across the market:\n`;
+      manufacturingIssues.forEach(issue => {
+        insights += `    - ${issue.company} (${issue.source}, ${WlformatDate(issue.date)}): ${issue.issue}\n`;
+      });
+    } else {
+      insights += `  - **${drugName || 'Drug'}-Related Issues**: No specific issues related to ${drugName || 'the drug'} identified across the market.\n`;
+    }
+    
+    // Overall competitive opportunities
+    insights += `  - **Market-Wide Opportunities**:\n`;
+    if (manufacturingIssues.length > 0 || overallWarningLetterCount > 0) {
+      insights += `    - **Alternative Supply Sources**: Enter the ${drugName || 'drug'} market as a reliable supplier, capitalizing on competitors’ regulatory issues.\n`;
+      insights += `    - **Compliance Partnerships**: Offer compliance consulting or contract manufacturing to companies struggling with ${drugName || 'drug'}-related regulations.\n`;
+      insights += `    - **Market Share Growth**: Target customers of non-compliant companies with campaigns emphasizing your ${drugName || 'drug'} quality and compliance.\n`;
+      insights += `    - **Risk Monitoring**: Continue tracking FDA actions for ${drugName || 'the drug'} to identify future supply disruptions.\n`;
+    } else {
+      insights += `    - **Innovation Leadership**: Invest in R&D for ${drugName || 'the drug'} to differentiate in a compliant market.\n`;
+      insights += `    - **Cost Leadership**: Optimize production to offer competitive pricing for ${drugName || 'the drug'}.\n`;
+      insights += `    - **Proactive Monitoring**: Monitor ${companies.join(', ')} for emerging ${drugName || 'drug'}-related issues to seize market opportunities.\n`;
+      insights += `    - **Strategic Alliances**: Partner with compliant companies to co-develop or co-market ${drugName || 'drug'} products.\n`;
+    }
+    
+    // General strategies
+    insights += `\n### General Strategies for the ${drugName || 'Drug'} Market\n`;
+    insights += `- **Regulatory Intelligence**: Continuously analyze FDA data to stay ahead in the ${drugName || 'drug'} market.\n`;
+    insights += `- **Customer Trust**: Build trust with ${drugName || 'drug'} stakeholders through transparent compliance and quality assurance.\n`;
+    insights += `- **Global Opportunities**: Explore international markets for ${drugName || 'the drug'} where regulatory barriers may be lower.\n`;
+    
+    return insights;
+  }
+  // Function to generate AI summary
+//   async function WLgenerateAISummary() {
+//     const aiResults = document.getElementById('ai-analysis-results');
+//     aiResults.classList.remove('hidden');
+    
+//     document.getElementById('ai-analysis-content').innerHTML = `
+//       <div class="flex justify-center items-center py-8">
+//         <svg class="animate-spin h-6 w-6 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//         </svg>
+//         <span class="ml-2 text-gray-600">Generating AI summary of regulatory findings...</span>
+//       </div>
+//     `;
+    
+//     try {
+//       // Collect data from the UI for analysis
+//       const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
+//         row.querySelector('td:first-child').textContent.trim()
+//       );
+      
+//       const form483Count = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).reduce((total, row) => {
+//         const countText = row.querySelector('td:nth-child(2)').textContent.trim();
+//         return total + (parseInt(countText) || 0);
+//       }, 0);
+      
+//       const wlCount = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).reduce((total, row) => {
+//         const countText = row.querySelector('td:nth-child(3)').textContent.trim();
+//         return total + (parseInt(countText) || 0);
+//       }, 0);
+      
+//       // Generate summary based on available data
+//       let summary = '';
+//       let marketOpportunities = '';
+//       let recommendedActions = '';
+      
+//       if (companies.length > 0) {
+//         // Generate market analysis
+//         summary = `Based on analysis of FDA regulatory actions for ${companies.length} companies in the pharmaceutical/biotech sector, we've identified several key trends and patterns. `;
+        
+//         if (form483Count > 0 || wlCount > 0) {
+//           summary += `These companies have received a total of ${form483Count} Form 483s and ${wlCount} Warning Letters. `;
+          
+//           // Add more specific observations based on the data visible in the UI
+//           const classifications = {
+//             NAI: document.querySelectorAll('.bg-green-100.text-green-800').length,
+//             VAI: document.querySelectorAll('.bg-yellow-100.text-yellow-800').length,
+//             OAI: document.querySelectorAll('.bg-red-100.text-red-800').length
+//           };
+          
+//           if (classifications.NAI > 0 || classifications.VAI > 0 || classifications.OAI > 0) {
+//             summary += `In terms of inspection outcomes, we observed ${classifications.NAI} NAI (No Action Indicated), ${classifications.VAI} VAI (Voluntary Action Indicated), and ${classifications.OAI} OAI (Official Action Indicated) classifications. `;
+//           }
+          
+//           // Get project areas from the UI
+//           const projectAreaEl = document.getElementById('project-area-filter');
+//           if (projectAreaEl) {
+//             const projectAreas = Array.from(projectAreaEl.options)
+//               .map(option => option.value)
+//               .filter(value => value !== 'all');
+              
+//             if (projectAreas.length > 0) {
+//               summary += `The most common inspection focus areas include ${projectAreas.slice(0, 3).join(', ')}.`;
+//             }
+//           }
+//         } else {
+//           summary += 'Interestingly, these companies have no recorded Form 483s or Warning Letters in our database, which could indicate strong compliance practices.';
+//         }
+        
+//         // Generate market opportunities
+//         if (form483Count > 0 || wlCount > 0) {
+//           marketOpportunities = 'Based on the regulatory patterns identified, several market opportunities exist: ';
+          
+//           if (wlCount > 0) {
+//             marketOpportunities += '1) Compliance consulting services focused on helping companies address warning letter remediation; ';
+//           }
+          
+//           if (form483Count > 0) {
+//             marketOpportunities += '2) Quality management software solutions to help prevent common inspection findings; ';
+//           }
+          
+//           marketOpportunities += '3) Staff training programs on GMP requirements and data integrity practices; 4) Gap analysis services to identify compliance issues before FDA inspections.';
+//         } else {
+//           marketOpportunities = 'With the relatively clean regulatory history of the analyzed companies, market opportunities may exist in: 1) Benchmarking services to share compliance best practices; 2) Regulatory certification programs to validate quality systems; 3) Technology solutions for maintaining compliance excellence.';
+//         }
+        
+//         // Generate recommended actions
+//         recommendedActions = 'To capitalize on these insights, we recommend: ';
+        
+//         if (wlCount > 0) {
+//           recommendedActions += '1) Developing specialized services targeting the specific compliance issues highlighted in warning letters; ';
+//         }
+        
+//         recommendedActions += '2) Creating educational content about effective compliance strategies; 3) Establishing partnerships with companies showing compliance challenges to offer remediation services; 4) Developing regulatory intelligence tools to help companies stay informed about FDA focus areas.';
+//       } else {
+//         summary = 'No company data is available for analysis. Please search for companies to generate market insights.';
+//       }
+      
+//       // Display the AI summary
+//       document.getElementById('ai-analysis-content').innerHTML = `
+//         <div class="prose prose-sm max-w-none">
+//           <h5 class="text-base font-medium mb-2">Market Analysis & Regulatory Findings</h5>
+          
+//           <div class="mb-4">
+//             <p>${summary}</p>
+//           </div>
+          
+//           ${marketOpportunities ? `
+//             <div class="mb-4">
+//               <h6 class="text-sm font-medium mb-1">Market Opportunities</h6>
+//               <p>${marketOpportunities}</p>
+//             </div>
+//           ` : ''}
+          
+//           ${recommendedActions ? `
+//             <div class="mb-4">
+//               <h6 class="text-sm font-medium mb-1">Recommended Actions</h6>
+//               <p>${recommendedActions}</p>
+//             </div>
+//           ` : ''}
+          
+//           <div class="text-right mt-4">
+//             <button id="download-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md inline-flex items-center transition-colors">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+//               </svg>
+//               Download Summary
+//             </button>
+//           </div>
+//         </div>
+//       `;
+      
+//       // Add event listener for download button
+//       document.getElementById('download-ai-summary').addEventListener('click', () => {
+//         downloadAnalysis({
+//           summary,
+//           marketOpportunities,
+//           recommendedActions
+//         }, ['All Companies']);
+//       });
+//     } catch (error) {
+//       console.error('Error generating summary:', error);
+//       document.getElementById('ai-analysis-content').innerHTML = `
+//         <div class="text-center text-red-600 py-4">
+//           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//           </svg>
+//           <p>Error generating AI summary. Please try again later.</p>
+//         </div>
+//       `;
+//     }
+//   }
   
   // Function to download analysis as PDF or text
   function downloadAnalysis(data, companies) {
