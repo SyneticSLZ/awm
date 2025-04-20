@@ -6482,6 +6482,7 @@ app.get('/api/studies/:nctId', async (req, res) => {
     const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies/${nctId}`, {
       params: params
     });
+    // console.log(response)
     // fs.writeFile(
     //   `xxclinical_trial_${nctId}.json`,
     //   JSON.stringify(response.data, null, 2),

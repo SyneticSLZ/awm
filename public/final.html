@@ -9514,6 +9514,8 @@ function showStudyDetailModal(studyData) {
 }
 
 // Function to create a summary of clinical information based on clinical trials
+
+// Additional improved function to create an approval summary based on clinical trials
 async function createApprovalSummary(studies) {
     if (!studies || studies.length === 0) {
         return `
@@ -9523,10 +9525,18 @@ async function createApprovalSummary(studies) {
         `;
     }
     
-    // Group studies by phase
+    // Group studies by phase - updated to handle the API response format
     const studiesByPhase = {};
     studies.forEach(study => {
-        const phase = study.phase || 'Unknown';
+        let phase = 'Unknown';
+        
+        // Try to extract phase from study data
+        if (study.phase) {
+            phase = study.phase;
+        } else if (study.details && study.details.phase) {
+            phase = study.details.phase;
+        }
+        
         if (!studiesByPhase[phase]) {
             studiesByPhase[phase] = [];
         }
@@ -9712,7 +9722,6 @@ async function createApprovalSummary(studies) {
 }
 
 
-
 // Function to create a comprehensive clinical summary from trial data
 async function createComprehensiveClinicalSummary(studies) {
     if (!studies || studies.length === 0) {
@@ -9730,12 +9739,63 @@ async function createComprehensiveClinicalSummary(studies) {
             // Replace with your actual backend endpoint
             const response = await fetch(`${API_BASE_URL}/studies/${study.id}`);
             if (response.ok) {
-                const details = await response.json();
-                console.log("STUDY : ", study)
-                studyDetails.push({
-                    ...study,
-                    details
-                });
+                const responseData = await response.json();
+                
+                // Map the API response data structure to our expected structure
+                // Based on the sample data in paste-2.txt
+                if (responseData.success && responseData.data) {
+                    const protocolSection = responseData.data.protocolSection || {};
+                    const derivedSection = responseData.data.derivedSection || {};
+                    
+                    // Extract relevant information from the response
+                    const details = {
+                        // Basic information
+                        title: protocolSection.identificationModule?.officialTitle || protocolSection.identificationModule?.briefTitle,
+                        status: protocolSection.statusModule?.overallStatus,
+                        phase: protocolSection.designModule?.phases?.[0],
+                        
+                        // Study design and enrollment
+                        enrollmentCount: protocolSection.designModule?.enrollmentInfo?.count || 0,
+                        designInfo: protocolSection.designModule?.designInfo,
+                        startDate: protocolSection.statusModule?.startDateStruct?.date,
+                        completionDate: protocolSection.statusModule?.completionDateStruct?.date,
+                        
+                        // Conditions and interventions
+                        conditions: protocolSection.conditionsModule?.conditions || [],
+                        interventions: protocolSection.armsInterventionsModule?.interventions?.map(intervention => ({
+                            type: intervention.type,
+                            name: intervention.name,
+                            description: intervention.description
+                        })) || [],
+                        
+                        // Outcomes
+                        primaryOutcomes: protocolSection.outcomesModule?.primaryOutcomes?.map(outcome => ({
+                            measure: outcome.measure,
+                            description: outcome.description,
+                            timeFrame: outcome.timeFrame
+                        })) || [],
+                        secondaryOutcomes: protocolSection.outcomesModule?.secondaryOutcomes?.map(outcome => ({
+                            measure: outcome.measure,
+                            description: outcome.description,
+                            timeFrame: outcome.timeFrame
+                        })) || [],
+                        
+                        // Safety data - this may need modification based on the actual data structure
+                        adverseEvents: [], // Default to empty if not provided in this API response format
+                        
+                        // Sponsor information
+                        sponsor: protocolSection.sponsorCollaboratorsModule?.leadSponsor?.name
+                    };
+                    
+                    studyDetails.push({
+                        ...study,
+                        details
+                    });
+                    
+                    console.log("Successfully processed study details:", study.id);
+                }
+            } else {
+                console.error(`Error fetching study ${study.id}: Response not OK`);
             }
         } catch (error) {
             console.error(`Error fetching details for study ${study.id}:`, error);
@@ -9821,7 +9881,7 @@ async function createComprehensiveClinicalSummary(studies) {
     // Categorize studies by phase
     const phaseEnrollment = {};
     studyDetails.forEach(study => {
-        const phase = study.phase || 'Unknown';
+        const phase = study.phase || study.details?.phase || 'Unknown';
         if (!phaseEnrollment[phase]) {
             phaseEnrollment[phase] = 0;
         }
@@ -10083,9 +10143,11 @@ async function createComprehensiveClinicalSummary(studies) {
     `;
 }
 
+
+// Helper functions remain the same
 // Helper function to get badge color based on study status
 function getStatusBadgeColor(status) {
-    const statusLower = status.toLowerCase();
+    const statusLower = (status || '').toLowerCase();
     if (statusLower.includes('completed')) return 'bg-green-100 text-green-700';
     if (statusLower.includes('recruiting')) return 'bg-blue-100 text-blue-700';
     if (statusLower.includes('active') || statusLower.includes('enrolling')) return 'bg-purple-100 text-purple-700';
@@ -10130,7 +10192,7 @@ function formatPhase(phase) {
         case 'PHASE1_PHASE2': return 'Phase 1/2';
         case 'PHASE2_PHASE3': return 'Phase 2/3';
         case 'PRE_PHASE': return 'Pre-Clinical';
-        default: return phase;
+        default: return phase || 'Unknown';
     }
 }
 
@@ -10148,34 +10210,7 @@ function getPhaseColor(phase) {
     }
 }
 
-// Helper function to get status color
-function getStatusColor(status) {
-    const statusLower = (status || '').toLowerCase();
-    if (statusLower.includes('completed')) return 'bg-green-100 text-green-700';
-    if (statusLower.includes('recruiting')) return 'bg-blue-100 text-blue-700';
-    if (statusLower.includes('active') || statusLower.includes('enrolling')) return 'bg-purple-100 text-purple-700';
-    if (statusLower.includes('terminated') || statusLower.includes('withdrawn')) return 'bg-red-100 text-red-700';
-    return 'bg-gray-100 text-gray-700';
-}
-
-// Helper function to get development status based on phases
-function getDevelopmentStatus(phases) {
-    const phaseSet = new Set(phases);
-    
-    if (phaseSet.has('PHASE4')) {
-        return 'Post-Market (FDA Approved)';
-    } else if (phaseSet.has('PHASE3')) {
-        return 'Late-Stage Development';
-    } else if (phaseSet.has('PHASE2') || phaseSet.has('PHASE2_PHASE3')) {
-        return 'Mid-Stage Development';
-    } else if (phaseSet.has('PHASE1') || phaseSet.has('PHASE1_PHASE2')) {
-        return 'Early-Stage Development';
-    } else {
-        return 'Pre-Clinical/Early Research';
-    }
-}
-
-// Helper function to summarize phase progression
+// Helper function to get phase progression description
 function getPhaseProgressionDescription(phases) {
     const phaseSet = new Set(phases);
     
@@ -10209,7 +10244,26 @@ function getSafetyOverview(adverseEvents) {
     }
 }
 
-// Helper function to generate key findings summary
+// Helper function to get development status based on phases
+function getDevelopmentStatus(phases) {
+    const phaseSet = new Set(phases);
+    
+    if (phaseSet.has('PHASE4')) {
+        return 'Post-Market (FDA Approved)';
+    } else if (phaseSet.has('PHASE3')) {
+        return 'Late-Stage Development';
+    } else if (phaseSet.has('PHASE2') || phaseSet.has('PHASE2_PHASE3')) {
+        return 'Mid-Stage Development';
+    } else if (phaseSet.has('PHASE1') || phaseSet.has('PHASE1_PHASE2')) {
+        return 'Early-Stage Development';
+    } else {
+        return 'Pre-Clinical/Early Research';
+    }
+}
+
+
+
+// Helper function to generate key findings summary (continuing from previous artifact)
 function getKeyFindingsSummary(studies, phaseEnrollment, adverseEvents, primaryOutcomes) {
     const phases = Object.keys(phaseEnrollment);
     const hasLatePhase = phases.some(phase => phase === 'PHASE3' || phase === 'PHASE4');
