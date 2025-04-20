@@ -1178,6 +1178,115 @@ function formatDate(dateString) {
     return dateString;
   }
 }
+
+
+// New endpoint for warning letter-specific summary
+app.post('/api/generate-warning-letter-summary', async (req, res) => {
+  try {
+    const { drugName, companies, warningLetters, form483s, maxTokens = 2000, temperature = 0.7 } = req.body;
+    const grokApiKey = GROK_API_KEY; // Ensure GROK_API_KEY is set in environment
+    const grokApiUrl = GROK_API_URL; // Ensure GROK_API_URL is set
+
+    // Validate inputs
+    if (!drugName || !companies || !Array.isArray(companies) || companies.length === 0) {
+      return res.status(400).json({ success: false, error: 'drugName and companies are required' });
+    }
+    if (!warningLetters || !form483s) {
+      return res.status(400).json({ success: false, error: 'warningLetters and form483s are required' });
+    }
+
+    console.log(`Generating Grok warning letter summary for ${drugName}`);
+
+    // Construct detailed prompt for Grok AI
+    const prompt = `
+      You are tasked with generating a detailed, professional HTML summary of FDA warning letters and Form 483s for the pharmaceutical drug "${drugName}" manufactured by the following companies: ${companies.join(', ')}. The summary must address the following requirements:
+
+      1. **Link Form 483s to Warning Letters**: Identify and list specific instances where a Form 483 preceded a warning letter for the same company, including dates and time gaps (in days).
+      2. **Analyze Form 483-to-Warning Letter Ratio**: Calculate the percentage of Form 483s that escalated to warning letters for each company and overall, indicating regulatory risk.
+      3. **Highlight Drug-Specific Issues**: Identify manufacturing deficiencies or issues related to "${drugName}" in warning letters and Form 483s. If Form 483 observations are unavailable, note this limitation.
+      4. **Provide Competitive Insights**: Suggest actionable opportunities for competitors, such as offering alternative supply sources, forming partnerships, or targeting customers of non-compliant companies. Include strategies for both non-compliant and compliant companies.
+
+      **Data Provided**:
+      - **Warning Letters**: ${JSON.stringify(warningLetters.map(wl => ({
+        companyName: wl.companyName,
+        letterId: wl.letterId,
+        letterIssueDate: wl.letterIssueDate,
+        subject: wl.subject,
+        fullContent: wl.fullContent?.substring(0, 500) + '...' || 'N/A',
+        companyUrl: wl.companyUrl
+      })))}
+      - **Form 483s**: ${JSON.stringify(form483s.map(f => ({
+        legalName: f["Legal Name"],
+        recordDate: f["Record Date"],
+        feiNumber: f["FEI Number"],
+        download: f["Download"]
+      })))}
+
+      **Output Requirements**:
+      - Generate a fully structured HTML summary using Tailwind CSS (CDN: https://cdn.tailwindcss.com) for styling.
+      - Include per-company sections and an overall market analysis.
+      - Use live, verified links to warning letters (e.g., https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/[letterId]) and Form 483s (use the Download URL).
+      - Add a footer with source attribution (e.g., FDA.gov) and timestamp (current date: ${new Date().toISOString()}).
+      - Ensure responsive design, clear typography, hover effects, and professional layout.
+      - Verify all data for accuracy and relevance to "${drugName}".
+
+      **Example Structure**:
+      <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold">Warning Letter Summary for ${drugName}</h1>
+        <!-- Per-Company Sections -->
+        <div class="mt-4">
+          <h2 class="text-xl font-semibold">Company: [Company Name]</h2>
+          <p>Regulatory Profile: X Form 483s, Y Warning Letters</p>
+          <p>Escalation Risk: Z% of Form 483s escalated</p>
+          <p>Progression: <a href="[link]">Form 483 (date)</a> led to <a href="[link]">Warning Letter (date)</a></p>
+          <p>${drugName} Issues: [Issues or None]</p>
+          <p>Competitive Opportunities: [Opportunities]</p>
+        </div>
+        <!-- Overall Analysis -->
+        <div class="mt-4">
+          <h2 class="text-xl font-semibold">Overall Market Analysis</h2>
+          <p>Market Regulatory Profile: X Form 483s, Y Warning Letters</p>
+          <p>Market-Wide Opportunities: [Opportunities]</p>
+        </div>
+        <!-- Footer -->
+        <footer class="mt-4 text-sm text-gray-600">
+          <p>Sources: <a href="https://www.fda.gov">FDA.gov</a></p>
+          <p>Generated on: [Timestamp]</p>
+        </footer>
+      </div>
+    `;
+
+    // Call Grok API
+    const response = await axios.post(grokApiUrl, {
+      model: "grok-2", // Update to your specific Grok model if different
+      messages: [
+        {
+          role: "system",
+          content: `You are an advanced AI assistant specializing in FDA regulatory information analysis for pharmaceutical drugs. Your task is to create visually appealing, highly structured, and responsive HTML summaries of FDA warning letters and Form 483s, prioritizing critical regulatory insights, drug-specific issues, and actionable competitive opportunities. Use Tailwind CSS for modern UI design with vibrant colors, smooth animations, and professional layout. Ensure all summaries include live, verified links to source documents (e.g., FDA warning letters, Form 483 PDFs) for professional verification. The design must be fully responsive, with hover effects, clear typography, and intuitive navigation. Verify all data for accuracy as of the current date (${new Date().toISOString().split('T')[0]}) and include a footer with source attribution and timestamp.`
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: maxTokens,
+      temperature: temperature
+    }, {
+      headers: {
+        'Authorization': `Bearer ${grokApiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Extract the HTML summary
+    const summary = response.data.choices[0].message.content.trim();
+
+    res.json({ success: true, summary });
+  } catch (error) {
+    console.error('Grok API error:', error.response?.data || error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 /**
  * Generate FDA summary using OpenAI
  * POST /api/generate-summary

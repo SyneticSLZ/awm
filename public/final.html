@@ -9710,6 +9710,7 @@ async function createComprehensiveClinicalSummary(studies) {
             const response = await fetch(`${API_BASE_URL}/studies/${study.id}`);
             if (response.ok) {
                 const details = await response.json();
+                console.log("STUDY : ", study)
                 studyDetails.push({
                     ...study,
                     details
@@ -22508,7 +22509,7 @@ For regulatory intelligence purposes only. Not for commercial use.
   async function WLgenerateAISummary(drugName = '') {
     const aiResults = document.getElementById('ai-analysis-results');
     aiResults.classList.remove('hidden');
-    
+
     document.getElementById('ai-analysis-content').innerHTML = `
       <div class="flex justify-center items-center py-8">
         <svg class="animate-spin h-6 w-6 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -22518,74 +22519,70 @@ For regulatory intelligence purposes only. Not for commercial use.
         <span class="ml-2 text-gray-600">Generating AI summary of regulatory findings...</span>
       </div>
     `;
-    
+
     try {
-      // Collect data from UI
+      // Collect companies from UI
       const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
         row.querySelector('td:first-child').textContent.trim()
       );
-      
+
+      if (companies.length === 0) {
+        throw new Error('No companies selected');
+      }
+
       // Fetch warning letters and inspections
       const [warningLetters, inspections] = await Promise.all([
         fetchWarningLettersWithTracking(companies, 1, 10),
         fetchInspectionDataWithTracking(companies)
       ]);
-      
-      const selectedCompanyData = {
-        warningLetters,
-        form483s: inspections.recentInspections.filter(inspection => 
-          inspection["Record Type"] === "483"
-        ),
-        historicalInspections: inspections.historicalInspections
-      };
-      
-      // Generate summary components
-      const summary = generateSummary(selectedCompanyData, companies);
-      const correlation = selectedCompanyData.warningLetters.length > 0 && selectedCompanyData.form483s.length > 0 
-        ? generateCorrelationAnalysis(selectedCompanyData) 
-        : '';
-      const competitiveInsights = generateCompetitiveInsights(selectedCompanyData, companies, drugName);
-      
-      // Display the AI summary
+
+      // Call the new endpoint
+      const response = await fetch(`${API_BASE_URL}/generate-warning-letter-summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          drugName,
+          companies,
+          warningLetters,
+          form483s: inspections.recentInspections.filter(inspection => 
+            inspection["Record Type"] === "483"
+          ),
+          maxTokens: 2000,
+          temperature: 0.7
+        })
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      // Display the HTML summary
       document.getElementById('ai-analysis-content').innerHTML = `
         <div class="prose prose-sm max-w-none">
-          <h5 class="text-base font-medium mb-2">Regulatory Intelligence Summary for ${drugName || 'Drug'}</h5>
-          
-          <div class="mb-4">
-            <h6 class="text-sm font-medium mb-1">Regulatory Overview</h6>
-            <p>${summary}</p>
-          </div>
-          
-          ${correlation ? `
-            <div class="mb-4">
-              <h6 class="text-sm font-medium mb-1">Form 483 to Warning Letter Analysis</h6>
-              <p>${correlation}</p>
-            </div>
-          ` : ''}
-          
-          <div class="mb-4">
-            <h6 class="text-sm font-medium mb-1">Competitive Insights for ${drugName || 'Drug'}</h6>
-            <p>${competitiveInsights}</p>
-          </div>
-          
-          <div class="text-right mt-4">
-            <button id="download-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md inline-flex items-center transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Download Summary
-            </button>
-          </div>
+          ${result.summary}
+        </div>
+        <div class="text-right mt-4">
+          <button id="download-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md inline-flex items-center transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Summary
+          </button>
         </div>
       `;
-      
+
       // Add event listener for download button
       document.getElementById('download-ai-summary').addEventListener('click', () => {
-        downloadAnalysis({
-          summary,
-          correlation,
-          competitiveInsights
-        }, companies);
+        const blob = new Blob([result.summary], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `warning_letter_summary_${drugName}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
       });
     } catch (error) {
       console.error('Error generating AI summary:', error);
@@ -22594,7 +22591,7 @@ For regulatory intelligence purposes only. Not for commercial use.
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p>Error generating AI summary. Please try again later.</p>
+          <p>Error generating AI summary: ${error.message}</p>
         </div>
       `;
     }
