@@ -2427,7 +2427,7 @@ async function analyzeChemistryReviewsWithGrokAPI(reviewTexts) {
     const response = await axios.post(GROK_API_URL, payload, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer xai-${GROK_API_KEY}`
+        'Authorization': `Bearer ${GROK_API_KEY}`
       },
       timeout: 90000 // 90 second timeout for processing multiple documents
     });
