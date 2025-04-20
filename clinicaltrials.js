@@ -23,7 +23,7 @@ const { handlePubMedSearch } = require('./pubmed.js');
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
 // const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
-// const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const { OpenAI } = require('openai');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
@@ -49,20 +49,20 @@ const ORANGE_BOOK_API_URL = 'https://api.fda.gov/drug/orangebook.json'; // Live 
 const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live FDA Guidance API
 
 
-const customDomain = 'syneticx.com';
+// const customDomain = 'syneticx.com';
 
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: true, // Keep validation on
-  checkServerIdentity: (host, cert) => {
-    // Only allow your specific domain to bypass strict validation if needed
-    if (host === customDomain) {
-      return undefined; // Allow connection
-    }
+// const httpsAgent = new https.Agent({
+//   rejectUnauthorized: true, // Keep validation on
+//   checkServerIdentity: (host, cert) => {
+//     // Only allow your specific domain to bypass strict validation if needed
+//     if (host === customDomain) {
+//       return undefined; // Allow connection
+//     }
     
-    // For all other hosts, use default certificate validation
-    return https.checkServerIdentity(host, cert);
-  }
-});
+//     // For all other hosts, use default certificate validation
+//     return https.checkServerIdentity(host, cert);
+//   }
+// });
 
 // Create Express app
 const app = express();
