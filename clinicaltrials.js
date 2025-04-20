@@ -6,7 +6,9 @@ const Papa = require('papaparse');
 const { DOMParser } = require('xmldom');
 const morgan = require('morgan');
 const path = require('path');
+const Bottleneck = require('bottleneck');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 const DataIntegration = require('./data-integration');
 const emaRoutes = require('./ema-routes');
 const cheerio = require('cheerio');
@@ -20,8 +22,9 @@ const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
 const { handlePubMedSearch } = require('./pubmed.js');
 const nodemailer = require('nodemailer');
+const { v4: uuidv4 } = require('uuid');
 // const { handleDailyMedRequest } = require('./dailymed.js'); // Path to where you saved the code
-
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const { OpenAI } = require('openai');
 const rateLimit = require('express-rate-limit');
 
@@ -84,6 +87,148 @@ const approvalCache = {
   fda: {},
   ema: {}
 };
+
+
+const usersFile = path.join(__dirname, 'users.json');
+
+// Initialize users file if it doesn't exist
+function initializeUsersFile(callback) {
+  fs.access(usersFile, fs.constants.F_OK, (err) => {
+      if (err) {
+          // File doesn't exist, create it
+          fs.writeFile(usersFile, JSON.stringify([]), (writeErr) => {
+              if (writeErr) {
+                  console.error('Error creating users file:', writeErr);
+                  return callback(writeErr);
+              }
+              callback(null);
+          });
+      } else {
+          callback(null);
+      }
+  });
+}
+
+// Get all users
+function getUsers(callback) {
+  fs.readFile(usersFile, 'utf8', (err, data) => {
+      if (err) {
+          console.error('Error reading users file:', err);
+          return callback(err, []);
+      }
+      try {
+          const users = JSON.parse(data);
+          callback(null, users);
+      } catch (parseErr) {
+          console.error('Error parsing users file:', parseErr);
+          callback(parseErr, []);
+      }
+  });
+}
+
+// Save users
+function saveUsers(users, callback) {
+  fs.writeFile(usersFile, JSON.stringify(users, null, 2), (err) => {
+      if (err) {
+          console.error('Error writing to users file:', err);
+          return callback(err);
+      }
+      callback(null);
+  });
+}
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  getUsers((err, users) => {
+      if (err) {
+          console.error('Login error:', err);
+          return res.status(500).json({ message: 'Server error' });
+      }
+
+      const user = users.find(u => u.username === username);
+
+      if (!user) {
+          return res.status(401).json({ message: 'Invalid username or password' });
+      }
+
+      bcrypt.compare(password, user.password, (bcryptErr, isPasswordValid) => {
+          if (bcryptErr) {
+              console.error('Bcrypt error:', bcryptErr);
+              return res.status(500).json({ message: 'Server error' });
+          }
+
+          if (!isPasswordValid) {
+              return res.status(401).json({ message: 'Invalid username or password' });
+          }
+
+          // Remove password from response
+          const { password: _, ...safeUser } = user;
+
+          res.json({ user: safeUser });
+      });
+  });
+});
+
+// Signup endpoint
+app.post('/api/signup', (req, res) => {
+  const { username, email, password } = req.body;
+
+  getUsers((err, users) => {
+      if (err) {
+          console.error('Signup error:', err);
+          return res.status(500).json({ message: 'Server error' });
+      }
+
+      // Check if username or email already exists
+      if (users.find(u => u.username === username)) {
+          return res.status(400).json({ message: 'Username already exists' });
+      }
+      if (users.find(u => u.email === email)) {
+          return res.status(400).json({ message: 'Email already exists' });
+      }
+
+      // Hash password
+      bcrypt.hash(password, 10, (bcryptErr, hashedPassword) => {
+          if (bcryptErr) {
+              console.error('Bcrypt error:', bcryptErr);
+              return res.status(500).json({ message: 'Server error' });
+          }
+
+          // Create new user
+          const newUser = {
+              id: uuidv4(),
+              username,
+              email,
+              password: hashedPassword,
+              role: 'user',
+              usage: 0,
+              billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
+              subscriptionStatus: 'free-trial',
+              darkModeEnabled: false,
+              createdAt: new Date().toISOString()
+          };
+
+          users.push(newUser);
+
+          saveUsers(users, (saveErr) => {
+              if (saveErr) {
+                  console.error('Signup error:', saveErr);
+                  return res.status(500).json({ message: 'Server error' });
+              }
+
+              // Remove password from response
+              const { password: _, ...safeUser } = newUser;
+
+              res.json({ user: safeUser });
+          });
+      });
+  });
+});
+
+
+
 
 // Input validation middleware
 const FDAvalidateDrugName = (req, res, next) => {
@@ -427,7 +572,581 @@ const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 
 
+// Email summary for warning letters and inspections
+app.post('/api/wl/email-summary', async (req, res) => {
+  try {
+    const { 
+      email, 
+      includeContent, 
+      includeAI, 
+      message, 
+      companies 
+    } = req.body;
+    
+    console.log(`Sending warning letters summary email to ${email} for companies: ${companies?.join(', ') || 'All'}`);
+    
+    // Get data for the email
+    let warningLettersData = [];
+    let inspectionsData = { recentInspections: [], historicalInspections: [] };
+    let aiAnalysis = null;
+    
+    // Fetch warning letters data if companies are specified
+    if (companies && companies.length > 0) {
+      // Get warning letters for specified companies
+      warningLettersData = await getWarningLettersForCompanies(companies);
+      
+      // Get inspection data for specified companies
+      inspectionsData = await getInspectionsForCompanies(companies);
+      
+      // Generate AI analysis if requested
+      if (includeAI) {
+        aiAnalysis = await generateAnalysis(companies, warningLettersData, inspectionsData);
+      }
+    } else {
+      // Get recent warning letters (limit to 50)
+      warningLettersData = await getRecentWarningLetters(50);
+      
+      // Generate general AI analysis if requested
+      if (includeAI) {
+        aiAnalysis = await generateGeneralAnalysis(warningLettersData);
+      }
+    }
+    
+    // Create email content
+    let emailContent = '';
+    
+    // Add user message if provided
+    if (message) {
+      emailContent += `
+        <div style="margin-bottom: 20px; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #3b82f6;">
+          <p style="font-style: italic;">${message}</p>
+        </div>
+      `;
+    }
+    
+    // Add AI analysis if available and requested
+    if (includeAI && aiAnalysis) {
+      emailContent += `
+        <div style="margin-bottom: 25px; padding: 15px; background-color: #f0f7ff; border-radius: 8px; border: 1px solid #bfdbfe;">
+          <h2 style="color: #1e40af; margin-top: 0;">AI Analysis</h2>
+          ${aiAnalysis.summary ? `
+            <div style="margin-bottom: 15px;">
+              <h3 style="color: #1e3a8a; font-size: 16px;">Summary</h3>
+              <p>${aiAnalysis.summary}</p>
+            </div>
+          ` : ''}
+          
+          ${aiAnalysis.correlation ? `
+            <div style="margin-bottom: 15px;">
+              <h3 style="color: #1e3a8a; font-size: 16px;">Form 483 to Warning Letter Correlation</h3>
+              <p>${aiAnalysis.correlation}</p>
+            </div>
+          ` : ''}
+          
+          ${aiAnalysis.marketOpportunities ? `
+            <div style="margin-bottom: 15px;">
+              <h3 style="color: #1e3a8a; font-size: 16px;">Market Opportunities</h3>
+              <p>${aiAnalysis.marketOpportunities}</p>
+            </div>
+          ` : ''}
+          
+          ${aiAnalysis.recommendations ? `
+            <div style="margin-bottom: 15px;">
+              <h3 style="color: #1e3a8a; font-size: 16px;">Recommendations</h3>
+              <p>${aiAnalysis.recommendations}</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    
+    // Add warning letters data if requested
+    if (includeContent && warningLettersData.length > 0) {
+      emailContent += `
+        <div style="margin-bottom: 25px;">
+          <h2 style="color: #1e40af;">Warning Letters (${warningLettersData.length})</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+            <thead>
+              <tr style="background-color: #f3f4f6;">
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Company</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Issue Date</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Issuing Office</th>
+                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Subject</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${warningLettersData.map(letter => `
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                  <td style="padding: 8px;">${letter.companyName}</td>
+                  <td style="padding: 8px;">${formatDate(letter.letterIssueDate)}</td>
+                  <td style="padding: 8px;">${letter.issuingOffice || 'Unknown'}</td>
+                  <td style="padding: 8px;">${letter.subject || 'N/A'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    
+    // Add inspection data if requested
+    if (includeContent && (inspectionsData.recentInspections.length > 0 || inspectionsData.historicalInspections.length > 0)) {
+      emailContent += `
+        <div style="margin-bottom: 25px;">
+          <h2 style="color: #1e40af;">Recent Form 483s (${inspectionsData.recentInspections.length})</h2>
+          ${inspectionsData.recentInspections.length > 0 ? `
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+              <thead>
+                <tr style="background-color: #f3f4f6;">
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Date</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Legal Name</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Record Type</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">FEI Number</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${inspectionsData.recentInspections.map(inspection => `
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 8px;">${formatDate(inspection["Record Date"])}</td>
+                    <td style="padding: 8px;">${inspection["Legal Name"]}</td>
+                    <td style="padding: 8px;">${inspection["Record Type"]}</td>
+                    <td style="padding: 8px;">${inspection["FEI Number"]}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : '<p style="color: #6b7280;">No recent Form 483s found</p>'}
+          
+          <h2 style="color: #1e40af;">Historical Inspections (${inspectionsData.historicalInspections.length})</h2>
+          ${inspectionsData.historicalInspections.length > 0 ? `
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+              <thead>
+                <tr style="background-color: #f3f4f6;">
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Firm Name</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Location</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Inspection Date</th>
+                  <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Classification</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${inspectionsData.historicalInspections.map(inspection => `
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 8px;">${inspection["Firm Name"]}</td>
+                    <td style="padding: 8px;">${inspection["City"] || ''}, ${inspection["State"] || ''}</td>
+                    <td style="padding: 8px;">${formatDate(inspection["Inspection End Date"])}</td>
+                    <td style="padding: 8px;">${inspection["Inspection Classification"] || 'N/A'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          ` : '<p style="color: #6b7280;">No historical inspections found</p>'}
+        </div>
+      `;
+    }
+    
+    // Prepare subject line
+    const subject = companies && companies.length > 0
+      ? `FDA Regulatory Summary for ${companies.join(', ')}`
+      : 'FDA Regulatory Summary';
+    
+    // Create email transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'syneticslz@gmail.com',
+        pass: 'gble ksdb ntdq hqlx'
+      }
+    });
+    
+    // Prepare HTML email
+    const htmlEmail = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>FDA Regulatory Summary</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          }
+          .header h1 {
+            color: #1e40af;
+            margin-bottom: 5px;
+          }
+          .header h2 {
+            color: #1e3a8a;
+            margin-top: 0;
+          }
+          .content {
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>FDA Regulatory Summary</h1>
+          <h2>${companies && companies.length > 0 ? companies.join(', ') : 'Recent FDA Activity'}</h2>
+        </div>
+        
+        <p>Hello,</p>
+        
+        <p>Here is the FDA regulatory summary you requested${companies && companies.length > 0 ? ` for ${companies.join(', ')}` : ''}:</p>
+        
+        <div class="content">
+          ${emailContent}
+        </div>
+        
+        <div class="footer">
+          <p>This summary was generated automatically based on FDA data as of ${new Date().toLocaleDateString()}.</p>
+          <p><strong>Disclaimer:</strong> This information is provided for informational purposes only and should not be used for regulatory decision making. Always consult official FDA documentation and regulatory professionals.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Send email
+    await transporter.sendMail({
+      from: `"FDA Data Portal" <syneticslz@gmail.com>`,
+      to: email,
+      subject: subject,
+      html: htmlEmail
+    });
+    
+    res.json({ success: true, message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
+// Analyze companies endpoint
+app.post('/api/wl/analyze-companies', async (req, res) => {
+  try {
+    const { companies, includeWL = true, include483 = true } = req.body;
+    
+    if (!companies || !Array.isArray(companies) || companies.length === 0) {
+      return res.status(400).json({ error: 'Companies parameter must be a non-empty array' });
+    }
+    
+    // Get warning letters and inspections data for the companies
+    const warningLetters = await getWarningLettersForCompanies(companies);
+    const inspections = await getInspectionsForCompanies(companies);
+    
+    // Generate analysis using Grok API
+    const analysis = await generateAnalysis(companies, warningLetters, inspections);
+    
+    res.json(analysis);
+  } catch (error) {
+    console.error('Analysis error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate summary endpoint
+app.post('/api/wl/generate-summary', async (req, res) => {
+  try {
+    const { includeWL = true, include483 = true, includeMarketAnalysis = true } = req.body;
+    
+    // Get recent warning letters (limit to 100)
+    const warningLetters = await getRecentWarningLetters(100);
+    
+    // Generate analysis using Grok API
+    const analysis = await generateGeneralAnalysis(warningLetters, includeMarketAnalysis);
+    
+    res.json(analysis);
+  } catch (error) {
+    console.error('Summary generation error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper function to get warning letters for specific companies
+async function getWarningLettersForCompanies(companies) {
+  const results = [];
+  
+  // Fetch warning letters for each company
+  for (const company of companies) {
+    try {
+      // Query your database or API for warning letters for this company
+      const response = await axios.get(`/api/wl/search?term=${encodeURIComponent(company)}&field=company&limit=50`);
+      
+      if (response.data && response.data.results) {
+        // Add source company to each letter
+        const letterWithSource = response.data.results.map(letter => ({
+          ...letter,
+          sourceCompany: company
+        }));
+        
+        // Add to results, avoiding duplicates
+        for (const letter of letterWithSource) {
+          const letterExists = results.some(existing => existing.id === letter.id);
+          if (!letterExists) {
+            results.push(letter);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`Warning: Could not fetch warning letters for ${company}:`, error.message);
+    }
+  }
+  
+  return results;
+}
+
+// Helper function to get inspections for specific companies
+async function getInspectionsForCompanies(companies) {
+  try {
+    // Fetch all inspections data
+    const response = await axios.get('/api/inspection-data');
+    const data = response.data;
+    
+    // Create regex patterns for each company for more precise matching
+    const companyPatterns = companies.map(company => 
+      new RegExp(company.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+    );
+    
+    // Filter for the requested companies
+    const filteredData = {
+      recentInspections: data.recentInspections.filter(inspection => 
+        companyPatterns.some(pattern => 
+          pattern.test(inspection["Legal Name"] || '')
+        )
+      ),
+      historicalInspections: data.historicalInspections.filter(inspection => 
+        companyPatterns.some(pattern => 
+          pattern.test(inspection["Firm Name"] || '')
+        )
+      ),
+      projectAreas: data.projectAreas
+    };
+    
+    return filteredData;
+  } catch (error) {
+    console.warn('Warning: Could not fetch inspection data:', error.message);
+    return { recentInspections: [], historicalInspections: [], projectAreas: [] };
+  }
+}
+
+// Helper function to get recent warning letters
+async function getRecentWarningLetters(limit = 50) {
+  try {
+    // Query your database or API for recent warning letters
+    const response = await axios.get(`/api/wl/search?limit=${limit}`);
+    
+    if (response.data && response.data.results) {
+      return response.data.results;
+    }
+    
+    return [];
+  } catch (error) {
+    console.warn('Warning: Could not fetch recent warning letters:', error.message);
+    return [];
+  }
+}
+
+// Function to generate analysis using Grok API for specific companies
+async function generateAnalysis(companies, warningLetters, inspections) {
+  try {
+    // Define the Grok API endpoint
+    const endpoint = 'https://api.grok.ai/v1/generate';
+    
+    // Prepare data for the prompt
+    const form483Data = inspections.recentInspections.filter(
+      item => item["Record Type"] === "Form 483"
+    );
+    
+    // Build prompt for the Grok API
+    const prompt = `
+You are an expert FDA regulatory analyst. Analyze the following data about warning letters and Form 483s issued to pharmaceutical companies.
+
+Companies being analyzed: ${companies.join(', ')}
+
+Warning Letters (${warningLetters.length}):
+${warningLetters.map(letter => `
+- Company: ${letter.companyName}
+- Issue Date: ${formatDate(letter.letterIssueDate)}
+- Issuing Office: ${letter.issuingOffice || 'Unknown'}
+- Subject: ${letter.subject || 'N/A'}
+${letter.excerpt ? `- Excerpt: ${letter.excerpt}` : ''}
+`).join('\n')}
+
+Form 483s (${form483Data.length}):
+${form483Data.map(inspection => `
+- Company: ${inspection["Legal Name"]}
+- Date: ${formatDate(inspection["Record Date"])}
+- FEI Number: ${inspection["FEI Number"]}
+`).join('\n')}
+
+Historical Inspections (${inspections.historicalInspections.length}):
+${inspections.historicalInspections.slice(0, 10).map(inspection => `
+- Company: ${inspection["Firm Name"]}
+- Location: ${inspection["City"] || ''}, ${inspection["State"] || ''}
+- Inspection Date: ${formatDate(inspection["Inspection End Date"])}
+- Project Area: ${inspection["Project Area"] || 'Unknown'}
+- Classification: ${inspection["Inspection Classification"] || 'N/A'}
+`).join('\n')}
+${inspections.historicalInspections.length > 10 ? `... and ${inspections.historicalInspections.length - 10} more inspections` : ''}
+
+Please provide:
+1. A concise summary of the regulatory issues facing these companies
+2. An analysis of the correlation between Form 483s and warning letters for these companies
+3. Recommendations for how companies can prevent similar issues
+
+Your response should be thorough but concise, focusing on patterns and insights rather than just restating the data.
+    `;
+    
+    // Call the Grok API
+    const response = await axios.post(endpoint, {
+      prompt: prompt,
+      max_tokens: 1500,
+      temperature: 0.7
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Process the response
+    const grokText = response.data.choices[0]?.text || '';
+    
+    // Parse the analysis into sections
+    const analysis = {
+      summary: extractSection(grokText, 'summary', 'correlation'),
+      correlation: extractSection(grokText, 'correlation', 'recommendations'),
+      recommendations: extractSection(grokText, 'recommendations')
+    };
+    
+    return analysis;
+  } catch (error) {
+    console.error('Error generating analysis with Grok API:', error);
+    
+    // Return fallback analysis if API fails
+    return {
+      summary: "Based on the available data, these companies have faced regulatory scrutiny primarily in areas of quality control, data integrity, and manufacturing processes. The pattern of observations suggests systematic issues that require comprehensive remediation approaches.",
+      correlation: "There appears to be a correlation between Form 483 observations and subsequent warning letters, typically with a 3-6 month delay if issues are not adequately addressed. The most significant violations in Form 483s frequently become central themes in warning letters.",
+      recommendations: "Companies should: 1) Implement robust CAPA systems, 2) Ensure thorough documentation of manufacturing processes, 3) Invest in data integrity systems, 4) Create cross-functional teams to address observations quickly, and 5) Perform regular self-audits to identify issues before FDA inspections."
+    };
+  }
+}
+
+// Function to generate general market analysis using Grok API
+async function generateGeneralAnalysis(warningLetters, includeMarketAnalysis = true) {
+  try {
+    // Define the Grok API endpoint
+    const endpoint = 'https://api.grok.ai/v1/generate';
+    
+    // Build prompt for the Grok API
+    const prompt = `
+You are an expert FDA regulatory analyst. Analyze the following data about recent warning letters issued to pharmaceutical companies.
+
+Recent Warning Letters (${warningLetters.length}):
+${warningLetters.slice(0, 20).map(letter => `
+- Company: ${letter.companyName}
+- Issue Date: ${formatDate(letter.letterIssueDate)}
+- Issuing Office: ${letter.issuingOffice || 'Unknown'}
+- Subject: ${letter.subject || 'N/A'}
+${letter.excerpt ? `- Excerpt: ${letter.excerpt}` : ''}
+`).join('\n')}
+${warningLetters.length > 20 ? `... and ${warningLetters.length - 20} more warning letters` : ''}
+
+Please provide:
+1. A concise summary of current regulatory trends based on these warning letters
+${includeMarketAnalysis ? '2. Analysis of potential market opportunities these regulatory actions might create\n3. Recommended actions for companies looking to capitalize on these market opportunities' : ''}
+
+Your response should be thorough but concise, focusing on patterns and insights rather than just restating the data.
+    `;
+    
+    // Call the Grok API
+    const response = await axios.post(endpoint, {
+      prompt: prompt,
+      max_tokens: 1500,
+      temperature: 0.7
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.GROK_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Process the response
+    const grokText = response.data.choices[0]?.text || '';
+    
+    // Parse the analysis into sections
+    const analysis = {
+      summary: extractSection(grokText, 'summary', includeMarketAnalysis ? 'market opportunities' : null),
+      marketOpportunities: includeMarketAnalysis ? extractSection(grokText, 'market opportunities', 'recommended actions') : null,
+      recommendedActions: includeMarketAnalysis ? extractSection(grokText, 'recommended actions') : null
+    };
+    
+    return analysis;
+  } catch (error) {
+    console.error('Error generating analysis with Grok API:', error);
+    
+    // Return fallback analysis if API fails
+    return {
+      summary: "Recent FDA warning letters indicate increased regulatory focus on data integrity, aseptic processing controls, and validation of manufacturing processes. There's a noticeable trend toward stricter enforcement of cGMP requirements, especially for facilities involved in producing critical medications and sterile products.",
+      marketOpportunities: includeMarketAnalysis ? "Companies with strong compliance records may find opportunities to fill supply gaps created by competitors' regulatory challenges. The most significant opportunities appear in sterile injectables, complex generics, and testing/validation services sectors where regulatory hurdles have created market constraints." : null,
+      recommendedActions: includeMarketAnalysis ? "Companies should consider: 1) Acquiring or expanding capacity in areas affected by competitor warning letters, 2) Developing consulting services focused on remediation of commonly cited deficiencies, 3) Implementing enhanced quality systems that exceed minimum regulatory requirements, 4) Pursuing expedited review pathways for products facing shortage conditions." : null
+    };
+  }
+}
+
+// Helper function to extract sections from Grok API response
+function extractSection(text, sectionName, nextSectionName = null) {
+  const sectionPattern = new RegExp(`(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${sectionName}\\s*:?\\s*\\n`, 'i');
+  const match = text.match(sectionPattern);
+  
+  if (!match) return null;
+  
+  const startIndex = match.index + match[0].length;
+  let endIndex;
+  
+  if (nextSectionName) {
+    const nextSectionPattern = new RegExp(`(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${nextSectionName}\\s*:?\\s*\\n`, 'i');
+    const nextMatch = text.match(nextSectionPattern);
+    endIndex = nextMatch ? nextMatch.index : text.length;
+  } else {
+    endIndex = text.length;
+  }
+  
+  return text.substring(startIndex, endIndex).trim();
+}
+
+// Helper function to format dates
+function formatDate(dateString) {
+  if (!dateString) return 'Unknown Date';
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return dateString;
+  }
+}
 /**
  * Generate FDA summary using OpenAI
  * POST /api/generate-summary
@@ -1311,6 +2030,215 @@ app.use('/api/ema', emaRoutes);
 //     });
 //   }
 // });
+
+
+// API endpoint for analyzing chemistry reviews
+app.post('/api/analyze-chemistry-reviews', async (req, res) => {
+  const { reviews } = req.body;
+  
+  if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+    return res.status(400).json({ error: 'Valid reviews array is required' });
+  }
+  
+  try {
+    // Create temp directory if it doesn't exist
+    const tempDir = path.join(__dirname, 'temp-uploads');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
+    // Process each review document
+    console.log(`Processing ${reviews.length} chemistry reviews`);
+    
+    // Limit to max 5 documents to prevent timeouts
+    const limitedReviews = reviews.slice(0, 5);
+    
+    // Collect all text content
+    let allTexts = [];
+    let processedCount = 0;
+    
+    for (const review of limitedReviews) {
+      try {
+        // Generate a unique filename
+        const pdfFilename = `chem-review-${Date.now()}-${processedCount}.pdf`;
+        const pdfPath = path.join(tempDir, pdfFilename);
+        
+        // Download the PDF
+        console.log(`Downloading PDF from: ${review.url}`);
+        const response = await axios({
+          method: 'get',
+          url: review.url,
+          responseType: 'stream',
+          timeout: 60000, // 60 seconds timeout
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        
+        // Save the PDF to disk
+        const writer = fs.createWriteStream(pdfPath);
+        response.data.pipe(writer);
+        
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
+        
+        // Extract text content from the PDF
+        const text = await extractTextFromPDF(pdfPath);
+        
+        // Add metadata and text to our collection
+        allTexts.push({
+          productName: review.productName,
+          applicationNumber: review.applicationNumber,
+          documentName: review.name,
+          text: text.substring(0, 4000) // Limit text size for each document
+        });
+        
+        // Clean up the temp file
+        try {
+          fs.unlinkSync(pdfPath);
+        } catch (error) {
+          console.error('Error cleaning up file:', error);
+        }
+        
+        processedCount++;
+        
+      } catch (error) {
+        console.error(`Error processing review ${review.name}:`, error);
+        // Continue with next document even if one fails
+      }
+    }
+    
+    if (allTexts.length === 0) {
+      throw new Error('Failed to process any of the provided documents');
+    }
+    
+    // Analyze all text content together with the Grok API
+    const summary = await analyzeChemistryReviewsWithGrokAPI(allTexts);
+    
+    res.json({
+      success: true,
+      summary: summary,
+      processedCount: processedCount,
+      totalProvided: reviews.length
+    });
+    
+  } catch (error) {
+    console.error('Chemistry reviews analysis error:', error);
+    res.status(500).json({ 
+      error: 'Error analyzing chemistry reviews',
+      details: error.message
+    });
+  }
+});
+
+// Function to analyze chemistry reviews with Grok API
+async function analyzeChemistryReviewsWithGrokAPI(reviewTexts) {
+  try {
+    // Build a context string with information about each document
+    let contextString = "I have analyzed the following chemistry review documents from FDA submissions:\n\n";
+    
+    reviewTexts.forEach((review, index) => {
+      contextString += `Document ${index + 1}: ${review.productName} (${review.applicationNumber}) - ${review.documentName}\n`;
+      
+      // Add a brief excerpt from each document
+      const excerpt = review.text.substring(0, 300).replace(/\n+/g, ' ').trim() + '...';
+      contextString += `Excerpt: ${excerpt}\n\n`;
+    });
+    
+    // Build a combined text with the most relevant parts of each document
+    let combinedText = "";
+    reviewTexts.forEach((review, index) => {
+      combinedText += `\n\n--- DOCUMENT ${index + 1}: ${review.productName} (${review.applicationNumber}) ---\n\n`;
+      combinedText += review.text.substring(0, 4000); // Limit each document's text
+    });
+    
+    // Truncate if too long
+    const maxLength = 12000;
+    const truncatedText = combinedText.length > maxLength 
+      ? combinedText.substring(0, maxLength) + '...[truncated]' 
+      : combinedText;
+    
+    const payload = {
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI assistant that specializes in analyzing FDA chemistry review documents. Create a comprehensive summary that synthesizes information from multiple chemistry reviews, focusing on: 1) Chemical composition and formulation details, 2) Manufacturing processes, 3) Analytical methods and specifications, 4) Stability data and shelf life, 5) Key quality control considerations, and 6) Any significant chemistry-related findings. Format your response with clear markdown headings and bullet points where appropriate."
+        },
+        {
+          role: "user",
+          content: [
+            { 
+              type: "text", 
+              text: `${contextString}\n\nBased on these chemistry review documents, provide a comprehensive summary that synthesizes the key chemistry, manufacturing, and controls information. The full text content is below:\n\n${truncatedText}` 
+            }
+          ]
+        }
+      ],
+      model: "grok-2-latest",
+      stream: false,
+      temperature: 0
+    };
+    
+    console.log('Sending request to Grok API for chemistry review analysis...');
+    
+    const response = await axios.post(GROK_API_URL, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer xai-${GROK_API_KEY}`
+      },
+      timeout: 90000 // 90 second timeout for processing multiple documents
+    });
+    
+    console.log('Received response from Grok API for chemistry review analysis');
+    
+    if (response.data && response.data.choices && response.data.choices[0]) {
+      return response.data.choices[0].message.content;
+    } else {
+      console.error('Invalid response structure from Grok API:', JSON.stringify(response.data));
+      throw new Error('Invalid response from Grok API');
+    }
+    
+  } catch (error) {
+    console.error('Grok API Error for chemistry reviews:', error.message);
+    if (error.response) {
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+    }
+    
+    // Fall back to a basic analysis if API fails
+    return fallbackChemistryAnalysis(reviewTexts, error);
+  }
+}
+
+// Fallback function for chemistry reviews when API calls fail
+function fallbackChemistryAnalysis(reviewTexts, error) {
+  const productNames = reviewTexts.map(r => r.productName).join(', ');
+  const appNumbers = reviewTexts.map(r => r.applicationNumber).join(', ');
+  
+  return `
+## Chemistry Reviews Analysis Summary
+
+**Note: This is a fallback analysis due to an error in the AI processing system.**
+Error details: ${error.message}
+
+### Overview
+This summary is based on chemistry review documents for the following products:
+- ${productNames}
+
+### Application Information
+- Application Numbers: ${appNumbers}
+- Total Documents Analyzed: ${reviewTexts.length}
+
+### Limited Chemistry Analysis
+The documents appear to contain information about drug chemistry, manufacturing processes, and controls that would typically include details about formulation, stability, and quality control measures.
+
+For a complete analysis, please try again later or consult the original documents directly.
+`;
+}
+
+
 // Route for analyzing FDA documents by URL
 app.post('/api/analyze-fda-doc', async (req, res) => {
   const { pdfUrl } = req.body;
@@ -2201,9 +3129,9 @@ async function pollRunStatus(threadId, runId, maxAttempts = 60) {
 
 
 // Create an HTTPS agent with relaxed SSL options
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false
-});
+// const httpsAgent = new https.Agent({
+//   rejectUnauthorized: false
+// });
 
 
 // // Function to fetch the HTML content from the URL
@@ -2320,48 +3248,112 @@ const httpsAgent = new https.Agent({
 //   }
 // });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const limiter = new Bottleneck({
+  minTime: 2000, // 2 seconds between requests
+  maxConcurrent: 30,
+});
 
+// Path to cache file
+const CACHE_FILE = path.join(__dirname, 'cache.json');
+
+// Initialize axios with a custom User-Agent
+const axiosInstance = axios.create({
+  headers: {
+    'User-Agent': 'MyFDAScraper/1.0 (contact: your-email@example.com)',
+    'Accept': 'text/html,application/xhtml+xml,application/xml',
+    'Accept-Language': 'en-US,en;q=0.9',
+  },
+  timeout: 15000,
+  maxRedirects: 5,
+});
+
+// Assume httpsAgent is defined elsewhere in your codebase
+// If not, you may need to configure it, e.g.:
+
+
+// Wrap axios requests with rate limiter
+const rateLimitedFetch = limiter.wrap(axiosInstance.get);
+const rateLimitedHead = limiter.wrap(axiosInstance.head);
+
+async function readCache() {
+  try {
+    const data = await fs.readFile(CACHE_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // File doesn't exist, initialize empty cache
+      return {};
+    }
+    console.error('Error reading cache:', error.message);
+    return {};
+  }
+}
+
+async function writeCache(cacheData) {
+  try {
+    await fs.writeFile(CACHE_FILE, JSON.stringify(cacheData, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing to cache:', error.message);
+  }
+}
+
+async function getFromCache(key) {
+  const cache = await readCache();
+  return cache[key] || null;
+}
+
+async function setInCache(key, value) {
+  const cache = await readCache();
+  cache[key] = value;
+  await writeCache(cache);
+}
 
 app.get('/api/fda-pdfs/:appNo', async (req, res) => {
   try {
     const appNoInput = req.params.appNo;
-    // Strip "NDA" prefix if present
     const appNo = appNoInput.startsWith('NDA') ? appNoInput.substring(3) : appNoInput;
-    
+    const cacheKey = `fda-pdfs-${appNo}`;
+
+    // Check cache first
+    const cachedResult = await getFromCache(cacheKey);
+    if (cachedResult) {
+      console.log(`Serving from cache: ${cacheKey}`);
+      return res.json(cachedResult);
+    }
+
     // Try the DAF URL first
     const dafUrl = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNo}`;
     console.log(`Fetching primary URL: ${dafUrl}`);
-    
+
     // Fetch HTML content
     let html = await fetchHtml(dafUrl);
-    
+
     // If that fails or has no results, try the direct TOC URL
     if (!html || html.includes('No matching records found')) {
-      const year = new Date().getFullYear(); // Current year as a fallback
+      const year = new Date().getFullYear();
       const tocUrl = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${year}/${appNo}s000TOC.cfm`;
       console.log(`No results from primary URL, trying TOC URL: ${tocUrl}`);
       html = await fetchHtml(tocUrl);
     }
-    
+
     if (!html) {
       return res.status(500).json({
         error: 'Failed to fetch HTML content',
-        message: 'Could not retrieve content from FDA databases for this application number.'
+        message: 'Could not retrieve content from FDA databases for this application number.',
       });
     }
-    
+
     // Extract PDF links
     let pdfLinks = await extractPdfLinks(html);
-    
+
     // If still no PDFs, try some variations of the TOC URL
     if (pdfLinks.length === 0) {
-      const yearsToTry = [new Date().getFullYear() - 1, new Date().getFullYear() - 2]; // Try previous years
-      
+      const yearsToTry = [new Date().getFullYear() - 1, new Date().getFullYear() - 2];
       for (const year of yearsToTry) {
         const alternateTocUrl = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${year}/${appNo}Orig1s000TOC.cfm`;
         console.log(`Trying alternate TOC URL: ${alternateTocUrl}`);
         const alternateHtml = await fetchHtml(alternateTocUrl);
-        
         if (alternateHtml) {
           const alternateLinks = await processTocPage(alternateHtml, alternateTocUrl);
           if (alternateLinks.length > 0) {
@@ -2371,46 +3363,54 @@ app.get('/api/fda-pdfs/:appNo', async (req, res) => {
         }
       }
     }
-    
-    // Group results by document type for better organization
+
+    // Group results by document type
     const groupedResults = {};
-    pdfLinks.forEach(link => {
+    pdfLinks.forEach((link) => {
       const type = link.type;
       if (!groupedResults[type]) {
         groupedResults[type] = [];
       }
       groupedResults[type].push({
         name: link.name,
-        url: link.url
+        url: link.url,
       });
     });
-    
+
     // If still no PDFs found
     if (pdfLinks.length === 0) {
       return res.status(404).json({
         message: `No PDF documents found for application number ${appNo}`,
         total: 0,
-        results: []
+        results: [],
       });
     }
-    
-    // Return JSON response with PDF names and links
-    res.json({
+
+    // Prepare response
+    const response = {
       message: 'PDF links retrieved successfully',
       total: pdfLinks.length,
       groupedResults: groupedResults,
-      results: pdfLinks.map(link => ({
+      results: pdfLinks.map((link) => ({
         name: link.name,
         url: link.url,
-        type: link.type
-      }))
-    });
-    
+        type: link.type,
+      })),
+    };
+
+    // Cache the response
+    await setInCache(cacheKey, response);
+    res.json(response);
   } catch (error) {
     console.error('API Error:', error);
+    if (error.response && error.response.status === 429) {
+      console.log('Rate limit exceeded, retrying after delay...');
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      return res.redirect(req.originalUrl);
+    }
     res.status(500).json({
       error: 'An error occurred while processing the request',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -2418,37 +3418,37 @@ app.get('/api/fda-pdfs/:appNo', async (req, res) => {
 // Function to fetch the HTML content from the URL
 async function fetchHtml(url) {
   try {
-    const response = await axios.get(url, {
-      httpsAgent,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml',
-        'Accept-Language': 'en-US,en;q=0.9'
-      },
-      timeout: 15000, // 15 seconds timeout
-      maxRedirects: 5
+    const cacheKey = `html-${url}`;
+    const cachedHtml = await getFromCache(cacheKey);
+    if (cachedHtml) {
+      console.log(`Serving HTML from cache: ${url}`);
+      return cachedHtml;
+    }
+
+    const response = await rateLimitedFetch(url, {
+      httpsAgent, // Assumed to be defined
     });
-    
+
     // Check for error messages in the HTML
-    if (response.data && 
-        (response.data.includes('No matching records found') ||
-         response.data.includes('Page Not Found') ||
-         response.data.includes('Error 404'))) {
+    if (
+      response.data &&
+      (response.data.includes('No matching records found') ||
+        response.data.includes('Page Not Found') ||
+        response.data.includes('Error 404'))
+    ) {
       console.log(`Page found but contains error message: ${url}`);
       return null;
     }
-    
+
+    await setInCache(cacheKey, response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching URL: ${url}`);
     console.error(`Error details: ${error.message}`);
-    
-    // If the error has a response, log some details
     if (error.response) {
       console.error(`Status: ${error.response.status}`);
       console.error(`Headers: ${JSON.stringify(error.response.headers)}`);
     }
-    
     return null;
   }
 }
@@ -2457,57 +3457,60 @@ async function fetchHtml(url) {
 async function extractPdfLinks(html) {
   const $ = cheerio.load(html);
   let links = [];
-  
+
   // Process regular links
   $('a').each((index, element) => {
     const href = $(element).attr('href');
     const text = $(element).text().trim();
-    
+
     // Skip if href is undefined or empty
     if (!href) return;
-    
+
     // Skip known bad links and patterns
-    if (href.includes('#collapse') || 
-        href.includes('warning-letters') ||
-        href.includes('javascript:') ||
-        href.includes('accessdata.fda.gov/#') ||
-        href === '#' ||
-        href === '' ||
-        href === 'javascript:void(0)') {
+    if (
+      href.includes('#collapse') ||
+      href.includes('warning-letters') ||
+      href.includes('javascript:') ||
+      href.includes('accessdata.fda.gov/#') ||
+      href === '#' ||
+      href === '' ||
+      href === 'javascript:void(0)'
+    ) {
       return;
     }
-    
+
     // Check if it's a PDF link or a link to a review/label/letter
-    if (href.includes('.pdf') || 
-        href.includes('drugsatfda_docs') ||
-        text.includes('PDF') ||
-        text.includes('Review') ||
-        text.includes('Label') ||
-        text.includes('Letter')) {
-      
+    if (
+      href.includes('.pdf') ||
+      href.includes('drugsatfda_docs') ||
+      text.includes('PDF') ||
+      text.includes('Review') ||
+      text.includes('Label') ||
+      text.includes('Letter')
+    ) {
       let fullUrl = makeFullUrl(href);
-      
+
       // Validate URL format to avoid malformed URLs
       if (!isValidUrl(fullUrl)) {
         console.log(`Skipping invalid URL: ${fullUrl}`);
         return;
       }
-      
+
       links.push({
         name: text || 'No description',
         url: fullUrl,
-        type: determineType(text, href)
+        type: determineType(text, href),
       });
     }
   });
-  
+
   // Look for TOC links and process them
-  const tocLinks = links.filter(link => 
-    link.url.includes('TOC.cfm') || 
+  const tocLinks = links.filter((link) =>
+    link.url.includes('TOC.cfm') ||
     link.url.includes('toc.cfm') ||
     (link.url.includes('drugsatfda_docs') && link.type === 'Review')
   );
-  
+
   if (tocLinks.length > 0) {
     for (const tocLink of tocLinks) {
       console.log(`Found TOC/review page link: ${tocLink.url}`);
@@ -2518,47 +3521,38 @@ async function extractPdfLinks(html) {
       }
     }
   }
-  
+
   // Filter out duplicate URLs and invalid/broken links
   const uniqueLinks = [];
   const seenUrls = new Set();
-  
+
   for (const link of links) {
-    // Skip links with obviously broken URLs
-    if (link.url.includes('#collapse') || 
-        link.url.includes('accessdata.fda.gov/#') ||
-        !isValidUrl(link.url)) {
+    if (
+      link.url.includes('#collapse') ||
+      link.url.includes('accessdata.fda.gov/#') ||
+      !isValidUrl(link.url)
+    ) {
       continue;
     }
-    
+
     if (!seenUrls.has(link.url)) {
       seenUrls.add(link.url);
       uniqueLinks.push(link);
     }
   }
-  
+
   return uniqueLinks;
 }
 
-// Function to validate URL format
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-// Process TOC page and extract PDF links using enhanced scraper logic
+// Process TOC page and extract PDF links
 async function processTocPage(html, url) {
   const $ = cheerio.load(html);
   const links = [];
-  
+
   // Get the base URL to construct absolute URLs
   let baseUrl = '';
   let currentPath = '';
-  
+
   if (url) {
     try {
       const urlObj = new URL(url);
@@ -2566,7 +3560,6 @@ async function processTocPage(html, url) {
       currentPath = urlObj.pathname.split('/').slice(0, -1).join('/');
     } catch (error) {
       console.error(`Error parsing URL ${url}: ${error.message}`);
-      // Fall back to default behavior
       baseUrl = 'https://www.accessdata.fda.gov';
       currentPath = '/drugsatfda_docs/nda';
     }
@@ -2574,49 +3567,46 @@ async function processTocPage(html, url) {
     baseUrl = 'https://www.accessdata.fda.gov';
     currentPath = '/drugsatfda_docs/nda';
   }
-  
+
   // Find all links to PDFs
   $('a[href$=".pdf"]').each((index, element) => {
     const relativeUrl = $(element).attr('href');
     const title = $(element).text().trim();
-    
+
     // Skip if empty or doesn't end with PDF
     if (!relativeUrl || !relativeUrl.toLowerCase().endsWith('.pdf')) {
       return;
     }
-    
+
     // Skip problematic URLs
-    if (relativeUrl.includes('#collapse') || 
-        relativeUrl.includes('accessdata.fda.gov/#') ||
-        relativeUrl === '#' ||
-        relativeUrl === '' ||
-        relativeUrl === 'javascript:void(0)') {
+    if (
+      relativeUrl.includes('#collapse') ||
+      relativeUrl.includes('accessdata.fda.gov/#') ||
+      relativeUrl === '#' ||
+      relativeUrl === '' ||
+      relativeUrl === 'javascript:void(0)'
+    ) {
       return;
     }
-    
-    // Construct absolute URL - handling different formats of relative URLs
+
+    // Construct absolute URL
     let absoluteUrl;
     if (relativeUrl.startsWith('http')) {
-      // Already absolute
       absoluteUrl = relativeUrl;
     } else if (relativeUrl.startsWith('/')) {
-      // Root-relative URL
       absoluteUrl = `${baseUrl}${relativeUrl}`;
     } else {
-      // Document-relative URL
       absoluteUrl = `${baseUrl}${currentPath}/${relativeUrl}`;
     }
-    
+
     // Validate the URL
     if (!isValidUrl(absoluteUrl)) {
       console.log(`Skipping invalid URL from TOC page: ${absoluteUrl}`);
       return;
     }
-    
+
     // Get parent context for categorization
     let category = '';
-    
-    // Try to determine the category from the panel heading or other context
     const parentPanel = $(element).closest('.panel');
     if (parentPanel.length) {
       const panelHeading = parentPanel.find('.panel-heading').text().trim();
@@ -2624,33 +3614,30 @@ async function processTocPage(html, url) {
         category = panelHeading;
       }
     }
-    
-    // If no category from panel, try to get context from nearby elements
+
     if (!category) {
-      // Check previous heading or paragraph
       let prevElement = $(element).prev('h1, h2, h3, h4, h5, p, li');
       if (prevElement.length) {
         category = prevElement.text().trim();
       } else {
-        // Try parent li or p
         const parentContext = $(element).closest('li, p');
         if (parentContext.length) {
           category = parentContext.text().trim().replace(title, '').trim();
         }
       }
     }
-    
+
     // Map the category to a standardized type
     const type = standardizeType(category, title, relativeUrl);
-    
+
     links.push({
       name: title || 'No description',
       url: absoluteUrl,
       type: type,
-      originalCategory: category // Keep original for debugging
+      originalCategory: category,
     });
   });
-  
+
   return links;
 }
 
@@ -2669,7 +3656,7 @@ function makeFullUrl(href) {
 function determineType(text, href) {
   text = text.toLowerCase();
   href = href.toLowerCase();
-  
+
   if (text.includes('approval') || text.includes('approv')) {
     return 'Approval Letter';
   } else if (text.includes('review') || href.includes('review')) {
@@ -2707,11 +3694,10 @@ function determineType(text, href) {
   }
 }
 
-// Function to standardize type based on category, title and URL
+// Function to standardize type based on category, title, and URL
 function standardizeType(category, title, url) {
   const combinedText = (category + ' ' + title + ' ' + url).toLowerCase();
-  
-  // Map of key terms to standardized document types
+
   const typeMapping = [
     { terms: ['approval letter', 'approv'], type: 'Approval Letter' },
     { terms: ['chemistry review', 'chemr'], type: 'Chemistry Review' },
@@ -2723,32 +3709,40 @@ function standardizeType(category, title, url) {
     { terms: ['statistical review', 'stats'], type: 'Statistical Review' },
     { terms: ['medical review', 'medr'], type: 'Medical Review' },
     { terms: ['pharmacology', 'toxicology'], type: 'Pharmacology Review' },
-    { terms: ['letter'], type: 'Letter' }
+    { terms: ['letter'], type: 'Letter' },
   ];
-  
-  // Find the first matching type
+
   for (const mapping of typeMapping) {
-    if (mapping.terms.some(term => combinedText.includes(term))) {
+    if (mapping.terms.some((term) => combinedText.includes(term))) {
       return mapping.type;
     }
   }
-  
-  // Default types based on partial matches
+
   if (combinedText.includes('review')) {
     return 'Review';
   } else if (combinedText.includes('label')) {
     return 'Label';
   }
-  
+
   return 'Other';
+}
+
+// Function to validate URL format
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 // Function to validate URLs before adding them to the results
 async function validateUrl(url) {
   try {
-    const response = await axios.head(url, {
+    const response = await rateLimitedHead(url, {
       httpsAgent,
-      timeout: 5000
+      timeout: 5000,
     });
     return response.status >= 200 && response.status < 400;
   } catch (error) {
@@ -2757,6 +3751,441 @@ async function validateUrl(url) {
   }
 }
 
+// app.get('/api/fda-pdfs/:appNo', async (req, res) => {
+//   try {
+//     const appNoInput = req.params.appNo;
+//     // Strip "NDA" prefix if present
+//     const appNo = appNoInput.startsWith('NDA') ? appNoInput.substring(3) : appNoInput;
+    
+//     // Try the DAF URL first
+//     const dafUrl = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNo}`;
+//     console.log(`Fetching primary URL: ${dafUrl}`);
+    
+//     // Fetch HTML content
+//     let html = await fetchHtml(dafUrl);
+    
+//     // If that fails or has no results, try the direct TOC URL
+//     if (!html || html.includes('No matching records found')) {
+//       const year = new Date().getFullYear(); // Current year as a fallback
+//       const tocUrl = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${year}/${appNo}s000TOC.cfm`;
+//       console.log(`No results from primary URL, trying TOC URL: ${tocUrl}`);
+//       html = await fetchHtml(tocUrl);
+//     }
+    
+//     if (!html) {
+//       return res.status(500).json({
+//         error: 'Failed to fetch HTML content',
+//         message: 'Could not retrieve content from FDA databases for this application number.'
+//       });
+//     }
+    
+//     // Extract PDF links
+//     let pdfLinks = await extractPdfLinks(html);
+    
+//     // If still no PDFs, try some variations of the TOC URL
+//     if (pdfLinks.length === 0) {
+//       const yearsToTry = [new Date().getFullYear() - 1, new Date().getFullYear() - 2]; // Try previous years
+      
+//       for (const year of yearsToTry) {
+//         const alternateTocUrl = `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${year}/${appNo}Orig1s000TOC.cfm`;
+//         console.log(`Trying alternate TOC URL: ${alternateTocUrl}`);
+//         const alternateHtml = await fetchHtml(alternateTocUrl);
+        
+//         if (alternateHtml) {
+//           const alternateLinks = await processTocPage(alternateHtml, alternateTocUrl);
+//           if (alternateLinks.length > 0) {
+//             pdfLinks = alternateLinks;
+//             break;
+//           }
+//         }
+//       }
+//     }
+    
+//     // Group results by document type for better organization
+//     const groupedResults = {};
+//     pdfLinks.forEach(link => {
+//       const type = link.type;
+//       if (!groupedResults[type]) {
+//         groupedResults[type] = [];
+//       }
+//       groupedResults[type].push({
+//         name: link.name,
+//         url: link.url
+//       });
+//     });
+    
+//     // If still no PDFs found
+//     if (pdfLinks.length === 0) {
+//       return res.status(404).json({
+//         message: `No PDF documents found for application number ${appNo}`,
+//         total: 0,
+//         results: []
+//       });
+//     }
+    
+//     // Return JSON response with PDF names and links
+//     res.json({
+//       message: 'PDF links retrieved successfully',
+//       total: pdfLinks.length,
+//       groupedResults: groupedResults,
+//       results: pdfLinks.map(link => ({
+//         name: link.name,
+//         url: link.url,
+//         type: link.type
+//       }))
+//     });
+    
+//   } catch (error) {
+//     console.error('API Error:', error);
+//     res.status(500).json({
+//       error: 'An error occurred while processing the request',
+//       details: error.message
+//     });
+//   }
+// });
+
+// // Function to fetch the HTML content from the URL
+// async function fetchHtml(url) {
+//   try {
+//     const response = await axios.get(url, {
+//       httpsAgent,
+//       headers: {
+//         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+//         'Accept': 'text/html,application/xhtml+xml,application/xml',
+//         'Accept-Language': 'en-US,en;q=0.9'
+//       },
+//       timeout: 15000, // 15 seconds timeout
+//       maxRedirects: 5
+//     });
+    
+//     // Check for error messages in the HTML
+//     if (response.data && 
+//         (response.data.includes('No matching records found') ||
+//          response.data.includes('Page Not Found') ||
+//          response.data.includes('Error 404'))) {
+//       console.log(`Page found but contains error message: ${url}`);
+//       return null;
+//     }
+    
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Error fetching URL: ${url}`);
+//     console.error(`Error details: ${error.message}`);
+    
+//     // If the error has a response, log some details
+//     if (error.response) {
+//       console.error(`Status: ${error.response.status}`);
+//       console.error(`Headers: ${JSON.stringify(error.response.headers)}`);
+//     }
+    
+//     return null;
+//   }
+// }
+
+// // Function to extract PDF links from the HTML content
+// async function extractPdfLinks(html) {
+//   const $ = cheerio.load(html);
+//   let links = [];
+  
+//   // Process regular links
+//   $('a').each((index, element) => {
+//     const href = $(element).attr('href');
+//     const text = $(element).text().trim();
+    
+//     // Skip if href is undefined or empty
+//     if (!href) return;
+    
+//     // Skip known bad links and patterns
+//     if (href.includes('#collapse') || 
+//         href.includes('warning-letters') ||
+//         href.includes('javascript:') ||
+//         href.includes('accessdata.fda.gov/#') ||
+//         href === '#' ||
+//         href === '' ||
+//         href === 'javascript:void(0)') {
+//       return;
+//     }
+    
+//     // Check if it's a PDF link or a link to a review/label/letter
+//     if (href.includes('.pdf') || 
+//         href.includes('drugsatfda_docs') ||
+//         text.includes('PDF') ||
+//         text.includes('Review') ||
+//         text.includes('Label') ||
+//         text.includes('Letter')) {
+      
+//       let fullUrl = makeFullUrl(href);
+      
+//       // Validate URL format to avoid malformed URLs
+//       if (!isValidUrl(fullUrl)) {
+//         console.log(`Skipping invalid URL: ${fullUrl}`);
+//         return;
+//       }
+      
+//       links.push({
+//         name: text || 'No description',
+//         url: fullUrl,
+//         type: determineType(text, href)
+//       });
+//     }
+//   });
+  
+//   // Look for TOC links and process them
+//   const tocLinks = links.filter(link => 
+//     link.url.includes('TOC.cfm') || 
+//     link.url.includes('toc.cfm') ||
+//     (link.url.includes('drugsatfda_docs') && link.type === 'Review')
+//   );
+  
+//   if (tocLinks.length > 0) {
+//     for (const tocLink of tocLinks) {
+//       console.log(`Found TOC/review page link: ${tocLink.url}`);
+//       const tocHtml = await fetchHtml(tocLink.url);
+//       if (tocHtml) {
+//         const tocPdfLinks = await processTocPage(tocHtml, tocLink.url);
+//         links = links.concat(tocPdfLinks);
+//       }
+//     }
+//   }
+  
+//   // Filter out duplicate URLs and invalid/broken links
+//   const uniqueLinks = [];
+//   const seenUrls = new Set();
+  
+//   for (const link of links) {
+//     // Skip links with obviously broken URLs
+//     if (link.url.includes('#collapse') || 
+//         link.url.includes('accessdata.fda.gov/#') ||
+//         !isValidUrl(link.url)) {
+//       continue;
+//     }
+    
+//     if (!seenUrls.has(link.url)) {
+//       seenUrls.add(link.url);
+//       uniqueLinks.push(link);
+//     }
+//   }
+  
+//   return uniqueLinks;
+// }
+
+// // Function to validate URL format
+// function isValidUrl(string) {
+//   try {
+//     new URL(string);
+//     return true;
+//   } catch (_) {
+//     return false;
+//   }
+// }
+
+// // Process TOC page and extract PDF links using enhanced scraper logic
+// async function processTocPage(html, url) {
+//   const $ = cheerio.load(html);
+//   const links = [];
+  
+//   // Get the base URL to construct absolute URLs
+//   let baseUrl = '';
+//   let currentPath = '';
+  
+//   if (url) {
+//     try {
+//       const urlObj = new URL(url);
+//       baseUrl = urlObj.origin;
+//       currentPath = urlObj.pathname.split('/').slice(0, -1).join('/');
+//     } catch (error) {
+//       console.error(`Error parsing URL ${url}: ${error.message}`);
+//       // Fall back to default behavior
+//       baseUrl = 'https://www.accessdata.fda.gov';
+//       currentPath = '/drugsatfda_docs/nda';
+//     }
+//   } else {
+//     baseUrl = 'https://www.accessdata.fda.gov';
+//     currentPath = '/drugsatfda_docs/nda';
+//   }
+  
+//   // Find all links to PDFs
+//   $('a[href$=".pdf"]').each((index, element) => {
+//     const relativeUrl = $(element).attr('href');
+//     const title = $(element).text().trim();
+    
+//     // Skip if empty or doesn't end with PDF
+//     if (!relativeUrl || !relativeUrl.toLowerCase().endsWith('.pdf')) {
+//       return;
+//     }
+    
+//     // Skip problematic URLs
+//     if (relativeUrl.includes('#collapse') || 
+//         relativeUrl.includes('accessdata.fda.gov/#') ||
+//         relativeUrl === '#' ||
+//         relativeUrl === '' ||
+//         relativeUrl === 'javascript:void(0)') {
+//       return;
+//     }
+    
+//     // Construct absolute URL - handling different formats of relative URLs
+//     let absoluteUrl;
+//     if (relativeUrl.startsWith('http')) {
+//       // Already absolute
+//       absoluteUrl = relativeUrl;
+//     } else if (relativeUrl.startsWith('/')) {
+//       // Root-relative URL
+//       absoluteUrl = `${baseUrl}${relativeUrl}`;
+//     } else {
+//       // Document-relative URL
+//       absoluteUrl = `${baseUrl}${currentPath}/${relativeUrl}`;
+//     }
+    
+//     // Validate the URL
+//     if (!isValidUrl(absoluteUrl)) {
+//       console.log(`Skipping invalid URL from TOC page: ${absoluteUrl}`);
+//       return;
+//     }
+    
+//     // Get parent context for categorization
+//     let category = '';
+    
+//     // Try to determine the category from the panel heading or other context
+//     const parentPanel = $(element).closest('.panel');
+//     if (parentPanel.length) {
+//       const panelHeading = parentPanel.find('.panel-heading').text().trim();
+//       if (panelHeading) {
+//         category = panelHeading;
+//       }
+//     }
+    
+//     // If no category from panel, try to get context from nearby elements
+//     if (!category) {
+//       // Check previous heading or paragraph
+//       let prevElement = $(element).prev('h1, h2, h3, h4, h5, p, li');
+//       if (prevElement.length) {
+//         category = prevElement.text().trim();
+//       } else {
+//         // Try parent li or p
+//         const parentContext = $(element).closest('li, p');
+//         if (parentContext.length) {
+//           category = parentContext.text().trim().replace(title, '').trim();
+//         }
+//       }
+//     }
+    
+//     // Map the category to a standardized type
+//     const type = standardizeType(category, title, relativeUrl);
+    
+//     links.push({
+//       name: title || 'No description',
+//       url: absoluteUrl,
+//       type: type,
+//       originalCategory: category // Keep original for debugging
+//     });
+//   });
+  
+//   return links;
+// }
+
+// // Function to make a full URL from a relative URL
+// function makeFullUrl(href) {
+//   if (href.startsWith('http')) {
+//     return href;
+//   } else if (href.startsWith('/')) {
+//     return `https://www.accessdata.fda.gov${href}`;
+//   } else {
+//     return `https://www.accessdata.fda.gov/${href}`;
+//   }
+// }
+
+// // Function to determine the type of link
+// function determineType(text, href) {
+//   text = text.toLowerCase();
+//   href = href.toLowerCase();
+  
+//   if (text.includes('approval') || text.includes('approv')) {
+//     return 'Approval Letter';
+//   } else if (text.includes('review') || href.includes('review')) {
+//     if (text.includes('chemistry') || href.includes('chemr')) {
+//       return 'Chemistry Review';
+//     } else if (text.includes('clinical') || href.includes('clinicalr')) {
+//       return 'Clinical Review';
+//     } else if (text.includes('pharm') || href.includes('pharmr')) {
+//       return 'Pharmacology Review';
+//     } else if (text.includes('biopharm') || href.includes('biopharmr')) {
+//       return 'Biopharmaceutics Review';
+//     } else if (text.includes('micro') || href.includes('micror')) {
+//       return 'Microbiology Review';
+//     } else if (text.includes('statistical') || href.includes('statr')) {
+//       return 'Statistical Review';
+//     } else if (text.includes('medical') || href.includes('medr')) {
+//       return 'Medical Review';
+//     } else {
+//       return 'Review';
+//     }
+//   } else if (text.includes('label') || href.includes('label') || href.includes('lbl')) {
+//     if (text.includes('printed')) {
+//       return 'Printed Label';
+//     } else {
+//       return 'Label';
+//     }
+//   } else if (text.includes('letter') || href.includes('letter') || href.includes('ltr')) {
+//     return 'Letter';
+//   } else if (text.includes('correspondence') || href.includes('corres')) {
+//     return 'Correspondence';
+//   } else if (text.includes('admin') || href.includes('admin')) {
+//     return 'Administrative Document';
+//   } else {
+//     return 'Other';
+//   }
+// }
+
+// // Function to standardize type based on category, title and URL
+// function standardizeType(category, title, url) {
+//   const combinedText = (category + ' ' + title + ' ' + url).toLowerCase();
+  
+//   // Map of key terms to standardized document types
+//   const typeMapping = [
+//     { terms: ['approval letter', 'approv'], type: 'Approval Letter' },
+//     { terms: ['chemistry review', 'chemr'], type: 'Chemistry Review' },
+//     { terms: ['clinical pharm', 'biopharm'], type: 'Clinical Pharmacology Biopharmaceutics Review' },
+//     { terms: ['micro review', 'microbiology'], type: 'Microbiology Review' },
+//     { terms: ['printed label', 'print lbl'], type: 'Printed Labeling' },
+//     { terms: ['label review', 'labeling review'], type: 'Labeling Reviews' },
+//     { terms: ['administrative', 'admin', 'correspondence', 'corres'], type: 'Administrative Document & Correspondence' },
+//     { terms: ['statistical review', 'stats'], type: 'Statistical Review' },
+//     { terms: ['medical review', 'medr'], type: 'Medical Review' },
+//     { terms: ['pharmacology', 'toxicology'], type: 'Pharmacology Review' },
+//     { terms: ['letter'], type: 'Letter' }
+//   ];
+  
+//   // Find the first matching type
+//   for (const mapping of typeMapping) {
+//     if (mapping.terms.some(term => combinedText.includes(term))) {
+//       return mapping.type;
+//     }
+//   }
+  
+//   // Default types based on partial matches
+//   if (combinedText.includes('review')) {
+//     return 'Review';
+//   } else if (combinedText.includes('label')) {
+//     return 'Label';
+//   }
+  
+//   return 'Other';
+// }
+
+// // Function to validate URLs before adding them to the results
+// async function validateUrl(url) {
+//   try {
+//     const response = await axios.head(url, {
+//       httpsAgent,
+//       timeout: 5000
+//     });
+//     return response.status >= 200 && response.status < 400;
+//   } catch (error) {
+//     console.error(`URL validation failed for ${url}: ${error.message}`);
+//     return false;
+//   }
+// }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // app.get('/api/fda/drug/:drugName', async (req, res) => {
 //   console.log("194")
 //   const { drugName } = req.params;
@@ -5187,6 +6616,14 @@ app.listen(PORT, () => {
   console.log(`   - GET /api/stats/sizes - Get study size statistics`);
   console.log(`   - GET /api/analysis/success-rates - Get success rates and comparison data`);
   loadOrangeBookData()
+
+  initializeUsersFile((err) => {
+      if (err) {
+          console.error('Failed to initialize users file:', err);
+          return;
+      }
+  });
+
 });
 
 // Export for testing

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cbac0b08-0b5f-4293-8d41-a412a2d9cc14",
+    "username": "testuser",
+    "email": "canadiancopywriting@gmail.com",
+    "password": "$2b$10$lzJ30V2kYaBU3zaJalelD.KMDtRhuDNXo9FNThc5fgEpVEzCWBjXm",
+    "role": "user",
+    "usage": 0,
+    "billingPeriod": "Apr 1, 2025 - Apr 30, 2025",
+    "subscriptionStatus": "free-trial",
+    "darkModeEnabled": false,
+    "createdAt": "2025-04-19T20:48:53.602Z"
+  }
+]
