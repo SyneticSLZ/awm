@@ -1,14 +1,28 @@
 [
   {
-    "id": "cbac0b08-0b5f-4293-8d41-a412a2d9cc14",
-    "username": "testuser",
-    "email": "canadiancopywriting@gmail.com",
-    "password": "$2b$10$lzJ30V2kYaBU3zaJalelD.KMDtRhuDNXo9FNThc5fgEpVEzCWBjXm",
+    "id": "a8ce6f8e-b0a4-4ce6-9fc2-42049babf3a8",
+    "username": "testuserasAS",
+    "email": "canadiancopywriting@gmail.comw",
+    "passwordHash": "103caa6a9a002d7381420b0e1137d3a4ff0d9331c7040b034d88bc036e5e428359e27d036e6c6b561ba4584969bf0618e8a652b91b0db12428e64433c57af916",
+    "salt": "9ed2c2e81a42f2ec21ac913fa3cd0d91",
     "role": "user",
     "usage": 0,
     "billingPeriod": "Apr 1, 2025 - Apr 30, 2025",
     "subscriptionStatus": "free-trial",
     "darkModeEnabled": false,
-    "createdAt": "2025-04-19T20:48:53.602Z"
+    "createdAt": "2025-04-20T11:22:11.132Z"
+  },
+  {
+    "id": "b3953dbd-2820-414b-898f-17e11abe55e5",
+    "username": "ro",
+    "email": "rohanmehmi72@gmail.com",
+    "passwordHash": "58a1da4cf86f363ec968b901bf7fe714ed208e89aa2100c7a0180e1d796302bbe039b37b47e1d8a602ab35c4b9fb7f9b35626db39847107a2274748318d43c33",
+    "salt": "43b3cb1040c91b5084b84ed685349640",
+    "role": "user",
+    "usage": 0,
+    "billingPeriod": "Apr 1, 2025 - Apr 30, 2025",
+    "subscriptionStatus": "free-trial",
+    "darkModeEnabled": false,
+    "createdAt": "2025-04-20T11:28:58.564Z"
   }
 ]

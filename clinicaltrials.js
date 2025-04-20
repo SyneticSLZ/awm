@@ -16,7 +16,7 @@ const fsextra = require('fs-extra');
 const multer = require('multer');
 const { PDFDocument } = require('pdf-lib');
 const pdfParse = require('pdf-parse');
-
+const handlebars = require('handlebars');
 const sharp = require('sharp');
 const { fromPath } = require('pdf2pic');
 const csv = require('csv-parser');
@@ -214,7 +214,7 @@ app.post('/api/login', (req, res) => {
 app.post('/api/signup', (req, res) => {
   const { username, email, password } = req.body;
   
-  getUsers((err, users) => {
+  getUsers(async (err, users) => {
     if (err) {
       console.error('Signup error:', err);
       return res.status(500).json({ message: 'Server error' });
@@ -248,7 +248,7 @@ app.post('/api/signup', (req, res) => {
     
     users.push(newUser);
     
-    saveUsers(users, (saveErr) => {
+    saveUsers(users, async (saveErr) => {
       if (saveErr) {
         console.error('Signup error:', saveErr);
         return res.status(500).json({ message: 'Server error' });
@@ -256,11 +256,79 @@ app.post('/api/signup', (req, res) => {
       
       // Remove password data from response
       const { passwordHash, salt, ...safeUser } = newUser;
-      
+
+      const emailSent = await sendWelcomeEmail(safeUser)
       res.json({ user: safeUser });
     });
   });
 });
+
+
+
+
+// Load the email template (you should save the HTML template from earlier artifact in a file)
+const emailTemplatePath = path.join(__dirname, 'templates', 'welcome-email.html');
+let emailTemplate;
+try {
+  const emailTemplateSource = fs.readFileSync(emailTemplatePath, 'utf-8');
+  emailTemplate = handlebars.compile(emailTemplateSource);
+} catch (error) {
+  console.error('Error loading email template:', error);
+}
+
+// Utility to calculate trial end date (30 days from now)
+const calculateTrialEndDate = () => {
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 30);
+  return endDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+// Function to send welcome email
+const sendWelcomeEmail = async (user) => {
+  // Set up email transporter with your credentials
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'syneticslz@gmail.com',
+    pass: 'gble ksdb ntdq hqlx'
+  }
+});
+
+  if (!emailTemplate) {
+    console.error('Email template not loaded');
+    return false;
+  }
+
+  try {
+    // Generate the HTML for the email using the template
+    const trialEndDate = calculateTrialEndDate();
+    const htmlToSend = emailTemplate({
+      username: user.username,
+      email: user.email,
+      trialEndDate
+    });
+
+    // Set up the email options
+    const mailOptions = {
+      from: '"Regulatory AI Dashboard" <syneticslz@gmail.com>',
+      to: user.email,
+      subject: 'Welcome to Your Regulatory AI Dashboard',
+      html: htmlToSend
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent to:', user.email, 'MessageID:', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    return false;
+  }
+};
 
 
 // Input validation middleware

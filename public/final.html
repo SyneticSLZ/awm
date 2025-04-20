@@ -377,157 +377,178 @@
     </div>
 </header>
 
-       <!-- Login overlay (shown if not logged in) -->
-       <div id="loginOverlay" class="fixed inset-0 flex items-center justify-center z-50 hidden backdrop">
-        <div class="w-full max-w-5xl flex rounded-xl overflow-hidden">
-            <!-- Left: Welcome message -->
-            <div class="hidden lg:block w-1/2 p-12 bg-white">
-                <h2 class="text-3xl font-bold mb-4 gradient-text animate-fade-in">Welcome to Your Regulatory AI Dashboard</h2>
-                <p class="text-gray-600 mb-6 animate-fade-in" style="animation-delay: 0.2s;">
-                    Log in to access advanced tools for FDA compliance, clinical trial analysis, and product approval tracking.
-                </p>
-                <div class="flex items-center space-x-3 animate-fade-in" style="animation-delay: 0.4s;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.5 3.5 0 005.33 0l8.135 8.136a3.5 3.5 0 010 4.95l-4.95 4.95a3.5 3.5 0 01-4.95 0l-8.135-8.136a3.5 3.5 0 010-4.95l4.95-4.95z" />
-                    </svg>
-                    <span class="text-gray-700">Trusted by clinicians and regulators</span>
-                </div>
+<div id="loginOverlay" class="fixed inset-0 flex items-center justify-center z-50 hidden backdrop">
+    <div class="w-full max-w-5xl flex rounded-xl overflow-hidden">
+        <!-- Left: Welcome message -->
+        <div class="hidden lg:block w-1/2 p-12 bg-white relative">
+            <h2 class="text-3xl font-bold mb-4 gradient-text animate-fade-in">Welcome to Your Regulatory AI Dashboard</h2>
+            <p class="text-gray-600 mb-6 animate-fade-in" style="animation-delay: 0.2s;">
+                Log in to access advanced tools for FDA compliance, clinical trial analysis, and product approval tracking.
+            </p>
+            <div class="flex items-center space-x-3 animate-fade-in" style="animation-delay: 0.4s;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.5 3.5 0 005.33 0l8.135 8.136a3.5 3.5 0 010 4.95l-4.95 4.95a3.5 3.5 0 01-4.95 0l-8.135-8.136a3.5 3.5 0 010-4.95l4.95-4.95z" />
+                </svg>
+                <span class="text-gray-700">Trusted by clinicians and regulators</span>
             </div>
-            <!-- Right: Login form -->
-            <div class="w-full lg:w-1/2 p-12 bg-white glass">
-                <button id="switchToSignup" class="absolute top-4 right-4 text-gray-600 hover:text-blue-600 transition-colors">
-                    Create Account
-                </button>
-                <h2 class="text-2xl font-semibold mb-8 text-gray-800 animate-fade-in">Login</h2>
-                <form id="loginForm" class="space-y-6">
-                    <div class="relative animate-fade-in" style="animation-delay: 0.2s;">
-                        <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
-                        <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <input type="text" id="loginUsername" name="username" required 
-                                class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
-                        </div>
-                    </div>
-                    <div class="relative animate-fade-in" style="animation-delay: 0.4s;">
-                        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
-                        <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.404 1.376 1 1.723V15h2v-2.277c.596-.347 1-.985 1-1.723zm9-6v14c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2V5c0-1.104.896-2 2-2h1V2h2v1h8V2h2v1h1c1.104 0 2 .896 2 2z" />
-                            </svg>
-                            <input type="password" id="loginPassword" name="password" required 
-                                class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
-                        </div>
-                    </div>
-                    <div class="animate-fade-in" style="animation-delay: 0.6s;">
-                        <button type="submit" 
-                            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-glow">
-                            <span id="loginButtonText">Sign In</span>
-                            <div id="loginSpinner" class="spinner ml-2"></div>
-                        </button>
-                    </div>
-                    <div id="loginError" class="text-red-600 text-center text-sm hidden animate-fade-in"></div>
-                </form>
+            <!-- SyneticX Logo -->
+            <div class="absolute bottom-6 left-6 flex items-center space-x-2 animate-fade-in" style="animation-delay: 0.8s;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Powered by SyneticX</span>
             </div>
         </div>
+        <!-- Right: Login form -->
+        <div class="w-full lg:w-1/2 p-12 bg-white glass relative">
+            <button id="switchToSignup" class="absolute top-4 right-4 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:translate-y-px flex items-center space-x-1">
+                <span>Create Account</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-semibold mb-8 text-gray-800 animate-fade-in">Login</h2>
+            <form id="loginForm" class="space-y-6">
+                <div class="relative animate-fade-in" style="animation-delay: 0.2s;">
+                    <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <input type="text" id="loginUsername" name="username" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+                <div class="relative animate-fade-in" style="animation-delay: 0.4s;">
+                    <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.404 1.376 1 1.723V15h2v-2.277c.596-.347 1-.985 1-1.723zm9-6v14c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2V5c0-1.104.896-2 2-2h1V2h2v1h8V2h2v1h1c1.104 0 2 .896 2 2z" />
+                        </svg>
+                        <input type="password" id="loginPassword" name="password" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+                <div class="animate-fade-in" style="animation-delay: 0.6s;">
+                    <button type="submit" 
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-glow">
+                        <span id="loginButtonText">Sign In</span>
+                        <div id="loginSpinner" class="spinner ml-2"></div>
+                    </button>
+                </div>
+                <div id="loginError" class="text-red-600 text-center text-sm hidden animate-fade-in"></div>
+            </form>
+            
+        </div>
     </div>
+</div>
 
-    <!-- Signup overlay -->
-    <div id="signupOverlay" class="fixed inset-0 flex items-center justify-center z-50 hidden backdrop">
-        <div class="w-full max-w-6xl flex rounded-xl overflow-hidden">
-            <!-- Left: Promotional section with metric cards -->
-            <div class="hidden lg:block w-1/2 p-12 bg-white">
-                <h2 class="text-3xl font-bold mb-4 gradient-text animate-fade-in">Streamline FDA Approvals</h2>
-                <p class="text-gray-600 mb-8 animate-fade-in" style="animation-delay: 0.2s;">
-                    Start your 30-day trial to access AI-powered tools for regulatory compliance and clinical trial management.
-                </p>
-                <!-- Metric cards -->
-                <div class="grid gap-6">
-                    <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.4s;">
-                        <div class="flex items-start space-x-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">Regulatory Compliance</h3>
-                                <p class="text-sm text-gray-600">Track FDA submissions with AI-driven insights.</p>
-                            </div>
+<!-- Signup overlay -->
+<div id="signupOverlay" class="fixed inset-0 flex items-center justify-center z-50 hidden backdrop">
+    <div class="w-full max-w-6xl flex rounded-xl overflow-hidden">
+        <!-- Left: Promotional section with metric cards -->
+        <div class="hidden lg:block w-1/2 p-12 bg-white relative">
+            <h2 class="text-3xl font-bold mb-4 gradient-text animate-fade-in">Streamline FDA Approvals</h2>
+            <p class="text-gray-600 mb-8 animate-fade-in" style="animation-delay: 0.2s;">
+                Start your 30-day trial to access AI-powered tools for regulatory compliance and clinical trial management.
+            </p>
+            <!-- Metric cards -->
+            <div class="grid gap-6">
+                <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex items-start space-x-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Regulatory Compliance</h3>
+                            <p class="text-sm text-gray-600">Track FDA submissions with AI-driven insights.</p>
                         </div>
                     </div>
-                    <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.6s;">
-                        <div class="flex items-start space-x-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">Trial Analytics</h3>
-                                <p class="text-sm text-gray-600">Real-time analysis of clinical trial data.</p>
-                            </div>
+                </div>
+                <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.6s;">
+                    <div class="flex items-start space-x-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Trial Analytics</h3>
+                            <p class="text-sm text-gray-600">Real-time analysis of clinical trial data.</p>
                         </div>
                     </div>
-                    <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.8s;">
-                        <div class="flex items-start space-x-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800">Secure Data</h3>
-                                <p class="text-sm text-gray-600">HIPAA-compliant data storage and processing.</p>
-                            </div>
+                </div>
+                <div class="glass p-6 rounded-lg hover-glow animate-fade-in" style="animation-delay: 0.8s;">
+                    <div class="flex items-start space-x-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Secure Data</h3>
+                            <p class="text-sm text-gray-600">HIPAA-compliant data storage and processing.</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Right: Signup form -->
-            <div class="w-full lg:w-1/2 p-12 bg-white glass">
-                <button id="switchToLogin" class="absolute top-4 right-4 text-gray-600 hover:text-blue-600 transition-colors">
-                    Sign In
-                </button>
-                <h2 class="text-2xl font-semibold mb-8 text-gray-800 animate-fade-in">Create Account</h2>
-                <form id="signupForm" class="space-y-6">
-                    <div class="relative animate-fade-in" style="animation-delay: 0.2s;">
-                        <label for="signupUsername" class="block text-sm font-medium text-gray-700">Username</label>
-                        <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <input type="text" id="signupUsername" name="username" required 
-                                class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
-                        </div>
+            
+        </div>
+        <!-- Right: Signup form -->
+        <div class="w-full lg:w-1/2 p-12 bg-white glass relative">
+            <button id="switchToLogin" class="absolute top-4 right-4 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:translate-y-px flex items-center space-x-1">
+                <span>Sign In</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-semibold mb-8 text-gray-800 animate-fade-in">Create Account</h2>
+            <form id="signupForm" class="space-y-6">
+                <div class="relative animate-fade-in" style="animation-delay: 0.2s;">
+                    <label for="signupUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <input type="text" id="signupUsername" name="username" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
                     </div>
-                    <div class="relative animate-fade-in" style="animation-delay: 0.4s;">
-                        <label for="signupEmail" class="block text-sm font-medium text-gray-700">Email</label>
-                        <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            <input type="email" id="signupEmail" name="email" required 
-                                class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
-                        </div>
+                </div>
+                <div class="relative animate-fade-in" style="animation-delay: 0.4s;">
+                    <label for="signupEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <input type="email" id="signupEmail" name="email" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
                     </div>
-                    <div class="relative animate-fade-in" style="animation-delay: 0.6s;">
-                        <label for="signupPassword" class="block text-sm font-medium text-gray-700">Password</label>
-                        <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.404 1.376 1 1.723V15h2v-2.277c.596-.347 1-.985 1-1.723zm9-6v14c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2V5c0-1.104.896-2 2-2h1V2h2v1h8V2h2v1h1c1.104 0 2 .896 2 2z" />
-                            </svg>
-                            <input type="password" id="signupPassword" name="password" required 
-                                class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
-                        </div>
+                </div>
+                <div class="relative animate-fade-in" style="animation-delay: 0.6s;">
+                    <label for="signupPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.404 1.376 1 1.723V15h2v-2.277c.596-.347 1-.985 1-1.723zm9-6v14c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2V5c0-1.104.896-2 2-2h1V2h2v1h8V2h2v1h1c1.104 0 2 .896 2 2z" />
+                        </svg>
+                        <input type="password" id="signupPassword" name="password" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
                     </div>
-                    <div class="animate-fade-in" style="animation-delay: 0.8s;">
-                        <button type="submit" 
-                            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-glow">
-                            <span id="signupButtonText">Start 30-Day Trial</span>
-                            <div id="signupSpinner" class="spinner ml-2"></div>
-                        </button>
-                    </div>
-                    <div id="signupError" class="text-red-600 text-center text-sm hidden animate-fade-in"></div>
-                </form>
+                </div>
+                <div class="animate-fade-in" style="animation-delay: 0.8s;">
+                    <button type="submit" 
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-glow">
+                        <span id="signupButtonText">Start 30-Day Trial</span>
+                        <div id="signupSpinner" class="spinner ml-2"></div>
+                    </button>
+                </div>
+                <div id="signupError" class="text-red-600 text-center text-sm hidden animate-fade-in"></div>
+            </form>
+            <!-- SyneticX Logo for all views -->
+            <div class="absolute bottom-6 left-6 flex items-center space-x-2 animate-fade-in" style="animation-delay: 1s;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Powered by SyneticX</span>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Notification element -->
     <div id="notification" class="notification">
@@ -49906,7 +49927,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const username = document.getElementById('loginUsername').value;
                 const password = document.getElementById('loginPassword').value;
-
+console.log(username, password)
                 try {
                     const response = await fetch(`${API_BASE_URL}/login`, {
                         method: 'POST',
@@ -49942,7 +49963,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const username = document.getElementById('signupUsername').value;
                 const email = document.getElementById('signupEmail').value;
                 const password = document.getElementById('signupPassword').value;
-
+                console.log(username, password, email)
                 try {
                     const response = await fetch(`${API_BASE_URL}/signup`, {
                         method: 'POST',
