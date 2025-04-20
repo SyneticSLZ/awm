@@ -30021,14 +30021,16 @@ function closeChemistryReviewsModal() {
 }
 
 // Function to update the Chemistry Reviews modal content
+
+// Function to update the Chemistry Reviews modal content with proper Tailwind UI
 function updateChemistryReviewsModal(message, isProcessing, isError = false) {
   const modalContent = document.getElementById('chemistryModalContent');
   if (!modalContent) return;
   
   if (isProcessing) {
-    // Show loading with message
+    // Show loading with message and Tailwind styling
     modalContent.innerHTML = `
-      <div class="flex items-start">
+      <div class="flex items-start p-4">
         <div class="mr-3">
           <svg class="animate-spin h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -30039,17 +30041,22 @@ function updateChemistryReviewsModal(message, isProcessing, isError = false) {
           ${message}
         </div>
       </div>
-      <div class="mt-4 h-1 w-full bg-gray-200 rounded overflow-hidden">
-        <div class="h-1 bg-green-500 animate-pulse"></div>
+      <div class="mt-4 px-4 pb-4">
+        <div class="h-1 w-full bg-gray-200 rounded overflow-hidden">
+          <div class="h-1 bg-green-500 animate-pulse"></div>
+        </div>
       </div>
     `;
     
     // Hide actions section during processing
-    document.getElementById('chemistryModalActions').classList.add('hidden');
+    const actionsSection = document.getElementById('chemistryModalActions');
+    if (actionsSection) {
+      actionsSection.classList.add('hidden');
+    }
   } else {
     // Show completed message without spinner
     modalContent.innerHTML = `
-      <div class="text-center py-4">
+      <div class="text-center py-6">
         ${isError 
           ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -30090,18 +30097,20 @@ async function generateChemistryReviewsSummary(productsWithReviews) {
     // Limit overall number of reviews to analyze (to avoid timeout)
     const limitedReviews = reviewsToAnalyze.slice(0, 5);
     
-    // Show which reviews are being analyzed
+    // Show which reviews are being analyzed with better formatting
     const reviewsList = limitedReviews.map(review => 
-      `${review.productName} (${review.applicationNumber}): ${review.name}`
-    ).join('<br>');
+      `<li class="text-sm mb-1">${escapeHtml(review.productName)} (${escapeHtml(review.applicationNumber)}): ${escapeHtml(review.name)}</li>`
+    ).join('');
     
     updateChemistryReviewsModal(
-      `Analyzing ${limitedReviews.length} chemistry reviews:<br>${reviewsList}`,
+      `<div class="text-left">
+        <p class="mb-3">Analyzing ${limitedReviews.length} chemistry reviews:</p>
+        <ul class="list-disc pl-5 text-gray-600">${reviewsList}</ul>
+       </div>`,
       true
     );
     
     // Make API call to analyze documents
-    // This would normally call your API endpoint similar to the existing AI summary functionality
     const response = await fetch('/api/analyze-chemistry-reviews', {
       method: 'POST',
       headers: {
@@ -30122,26 +30131,36 @@ async function generateChemistryReviewsSummary(productsWithReviews) {
       throw new Error(result.error);
     }
     
-    // Format the summary in a nice way
+    // Format the summary with Tailwind UI styling
     const formattedSummary = formatChemistryReviewsSummary(result.summary, productsWithReviews);
     
     // Update the modal with the formatted summary
     document.getElementById('chemistryModalContent').innerHTML = formattedSummary;
     
     // Show the email button
-    document.getElementById('chemistryModalActions').classList.remove('hidden');
+    const actionsSection = document.getElementById('chemistryModalActions');
+    if (actionsSection) {
+      actionsSection.classList.remove('hidden');
+    }
     
     // Store the summary for email functionality
-    document.getElementById('emailChemistryBtn').setAttribute('data-summary', JSON.stringify({
-      summary: result.summary,
-      productCount: productsWithReviews.length,
-      reviewCount: productsWithReviews.reduce((total, product) => total + product.reviews.length, 0)
-    }));
+    const emailButton = document.getElementById('emailChemistryBtn');
+    if (emailButton) {
+      emailButton.setAttribute('data-summary', JSON.stringify({
+        summary: result.summary,
+        productCount: productsWithReviews.length,
+        reviewCount: productsWithReviews.reduce((total, product) => total + product.reviews.length, 0)
+      }));
+    }
     
   } catch (error) {
     console.error("Error generating chemistry reviews summary:", error);
     updateChemistryReviewsModal(
-      `Error generating chemistry reviews summary: ${error.message}`,
+      `<div class="text-center">
+        <p class="text-lg mb-2">Error generating chemistry reviews summary:</p>
+        <p class="text-red-600 text-sm">${escapeHtml(error.message)}</p>
+        <p class="mt-4 text-sm">Please try again or contact support if the problem persists.</p>
+      </div>`,
       false,
       true
     );
@@ -30150,19 +30169,18 @@ async function generateChemistryReviewsSummary(productsWithReviews) {
 
 // Function to format the chemistry reviews summary
 function formatChemistryReviewsSummary(summary, productsWithReviews) {
-  // For demonstration, I'll create a simulated summary
-  // In a real implementation, you would format the actual API response
-  
   // Count total reviews
   const totalReviews = productsWithReviews.reduce((total, product) => total + product.reviews.length, 0);
   
-  // In a real implementation, you would replace this with the actual formatted summary
-  // This is just a placeholder to demonstrate the structure
+  // Parse the summary content if it's a string
+  let summaryContent = summary;
+  
+  // Create the formatted HTML with Tailwind classes
   let formattedHTML = `
-    <div class="chemistry-summary">
+    <div class="chemistry-summary max-h-[70vh] overflow-y-auto px-1">
       <div class="mb-4 bg-green-50 p-4 rounded-lg border border-green-100">
         <h4 class="text-lg font-semibold text-green-800 mb-2">Chemistry Reviews Summary</h4>
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex flex-wrap items-center justify-between mb-1">
           <div class="text-sm">
             <span class="font-medium">Products with chemistry reviews:</span> ${productsWithReviews.length}
           </div>
@@ -30174,40 +30192,40 @@ function formatChemistryReviewsSummary(summary, productsWithReviews) {
       
       <div class="mt-4 mb-6">
         <h5 class="text-md font-semibold border-b pb-2 mb-3">Key Findings</h5>
-        <div class="pl-4 border-l-2 border-green-200">
-          ${summary || `
-            <p class="my-2">The chemistry reviews examined primarily focus on drug formulation, manufacturing processes, and analytical methods.</p>
-            <p class="my-2">Most products show acceptable stability profiles with appropriate shelf-life determinations.</p>
-            <p class="my-2">Common quality control measures include dissolution testing, content uniformity, and impurity identification.</p>
-            <p class="my-2">Manufacturing processes generally follow standard GMP requirements with adequate controls.</p>
-          `}
+        <div class="pl-4 border-l-2 border-green-200 prose prose-sm max-w-none">
+          ${renderMarkdown(summaryContent)}
         </div>
       </div>
       
-      <div class="mt-4">
+      <div class="mt-6">
         <h5 class="text-md font-semibold border-b pb-2 mb-3">Products Analyzed</h5>
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
   `;
   
   // Add info for each product
   productsWithReviews.forEach(product => {
     formattedHTML += `
-      <div class="bg-white border border-gray-200 rounded-md p-3">
+      <div class="bg-white border border-gray-200 rounded-md p-3 hover:shadow-sm transition">
         <div class="flex justify-between items-start">
           <div>
-            <h6 class="text-sm font-medium">${product.brandName}</h6>
-            <p class="text-xs text-gray-500">Application: ${product.applicationNumber}</p>
+            <h6 class="text-sm font-medium">${escapeHtml(product.brandName)}</h6>
+            <p class="text-xs text-gray-500">Application: ${escapeHtml(product.applicationNumber)}</p>
           </div>
           <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">
-            ${product.reviews.length} reviews
+            ${product.reviews.length} ${product.reviews.length === 1 ? 'review' : 'reviews'}
           </span>
         </div>
         
         <div class="mt-2">
           <h6 class="text-xs font-medium text-gray-700">Chemistry Documents:</h6>
-          <ul class="mt-1 text-xs text-gray-600 list-disc list-inside">
+          <ul class="mt-1 text-xs text-gray-600 space-y-1">
             ${product.reviews.map(review => `
-              <li>${review.name}</li>
+              <li class="flex items-start">
+                <svg class="h-3 w-3 text-gray-400 mt-0.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                ${escapeHtml(review.name)}
+              </li>
             `).join('')}
           </ul>
         </div>
@@ -30227,6 +30245,46 @@ function formatChemistryReviewsSummary(summary, productsWithReviews) {
   
   return formattedHTML;
 }
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function renderMarkdown(content) {
+  if (!content) {
+    return '<p class="my-2">No content available.</p>';
+  }
+  
+  // For a real implementation, you would use a markdown library
+  // This is a simple implementation to handle basic markdown elements
+  
+  // Replace headers
+  let html = content
+    .replace(/### (.*)/g, '<h3 class="text-md font-semibold mt-4 mb-2">$1</h3>')
+    .replace(/#### (.*)/g, '<h4 class="text-sm font-semibold mt-3 mb-1">$1</h4>')
+    
+    // Replace bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    
+    // Replace lists
+    .replace(/^\s*[-*] (.*)/gm, '<li class="ml-4">$1</li>')
+    
+    // Replace paragraphs (must be after list items)
+    .replace(/^(?!<li|<h)[^\n]+$/gm, '<p class="my-2">$&</p>')
+    
+    // Wrap list items in <ul> tags
+    .replace(/<li class="ml-4">(.*?)(?=<h|<p|$)/gs, '<ul class="list-disc pl-5 my-3">$&</ul>');
+  
+  return html;
+}
+
 
 // Function to handle emailing the chemistry reviews summary
 function emailChemistryReviewsSummary() {
