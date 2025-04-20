@@ -2584,6 +2584,26 @@ window.onload = async () => {
     // document.getElementById('api-url').textContent = API_BASE_URL;
   }
 };
+// Module pattern to manage global searchTerm
+const SearchTermManager = (function () {
+  // Private global variable
+  let searchTerm = '';
+
+  // Public API
+  return {
+    // Function to read searchTerm
+    getSearchTerm: function () {
+      return searchTerm;
+    },
+    // Function to update searchTerm
+    setSearchTerm: function (term) {
+      searchTerm = term;
+      console.log('searchTerm updated:', searchTerm); // For debugging
+    }
+  };
+})();
+
+
 
 
         // State management
@@ -8659,7 +8679,956 @@ async function fetchClinicalTrialDetails(nctId) {
         return null;
     }
 }
+async function createComprehensiveClinicalSummary(studies, drugName) {
+    if (!studies || studies.length === 0) {
+        return `
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p class="text-yellow-700">No clinical trial data available to generate summary.</p>
+            </div>
+        `;
+    }
+    
+    let fdaData = null;
+    
+    // Attempt to fetch FDA data for the drug
+    try {
+        const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
+        if (fdaResponse.ok) {
+            fdaData = await fdaResponse.json();
+            console.log("Successfully fetched FDA data:", fdaData);
+        } else {
+            console.warn(`Failed to fetch FDA data for ${drugName}: ${fdaResponse.status}`);
+        }
+    } catch (error) {
+        console.error(`Error fetching FDA data for ${drugName}:`, error);
+    }
+    
+    // Process study details as before
+    const studyDetails = [];
+    for (const study of studies) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/studies/${study.id}`);
+            if (response.ok) {
+                const responseData = await response.json();
+                
+                // Map the API response data structure as before
+                if (responseData.success && responseData.data) {
+                    const protocolSection = responseData.data.protocolSection || {};
+                    const derivedSection = responseData.data.derivedSection || {};
+                    
+                    const details = {
+                        // Basic information (same as before)
+                        title: protocolSection.identificationModule?.officialTitle || protocolSection.identificationModule?.briefTitle,
+                        status: protocolSection.statusModule?.overallStatus,
+                        phase: protocolSection.designModule?.phases?.[0],
+                        
+                        // Study design and enrollment
+                        enrollmentCount: protocolSection.designModule?.enrollmentInfo?.count || 0,
+                        designInfo: protocolSection.designModel?.designInfo,
+                        startDate: protocolSection.statusModule?.startDateStruct?.date,
+                        completionDate: protocolSection.statusModule?.completionDateStruct?.date,
+                        
+                        // Conditions and interventions
+                        conditions: protocolSection.conditionsModule?.conditions || [],
+                        interventions: protocolSection.armsInterventionsModule?.interventions?.map(intervention => ({
+                            type: intervention.type,
+                            name: intervention.name,
+                            description: intervention.description
+                        })) || [],
+                        
+                        // Outcomes
+                        primaryOutcomes: protocolSection.outcomesModule?.primaryOutcomes?.map(outcome => ({
+                            measure: outcome.measure,
+                            description: outcome.description,
+                            timeFrame: outcome.timeFrame
+                        })) || [],
+                        secondaryOutcomes: protocolSection.outcomesModule?.secondaryOutcomes?.map(outcome => ({
+                            measure: outcome.measure,
+                            description: outcome.description,
+                            timeFrame: outcome.timeFrame
+                        })) || [],
+                        
+                        // Adverse events - using the extract function
+                        adverseEvents: extractAdverseEvents(responseData.data),
+                        
+                        // Sponsor information
+                        sponsor: protocolSection.sponsorCollaboratorsModule?.leadSponsor?.name
+                    };
+                    
+                    studyDetails.push({
+                        ...study,
+                        details
+                    });
+                }
+            } else {
+                console.error(`Error fetching study ${study.id}: Response not OK`);
+            }
+        } catch (error) {
+            console.error(`Error fetching details for study ${study.id}:`, error);
+        }
+    }
+    
+    // Extract and aggregate key information (same as before)
+    const totalEnrollment = studyDetails.reduce((total, study) => {
+        return total + (study.details?.enrollmentCount || 0);
+    }, 0);
+    
+    const interventionTypes = new Set();
+    studyDetails.forEach(study => {
+        if (study.details?.interventions) {
+            study.details.interventions.forEach(intervention => {
+                if (intervention.type) interventionTypes.add(intervention.type);
+            });
+        }
+    });
+    
+    const conditions = new Set();
+    studyDetails.forEach(study => {
+        if (study.details?.conditions) {
+            study.details.conditions.forEach(condition => {
+                conditions.add(condition);
+            });
+        }
+    });
+    
+    // Process adverse events from FDA if available
+    const fdaAdverseEvents = [];
+    if (fdaData && fdaData.raw && fdaData.raw.endpoints && fdaData.raw.endpoints.event && fdaData.raw.endpoints.event.status === "success") {
+        const eventData = fdaData.raw.endpoints.event.data;
+        
+        // Create a frequency map for adverse events
+        const eventFrequency = {};
+        
+        eventData.forEach(report => {
+            if (report.patient && report.patient.reaction) {
+                report.patient.reaction.forEach(reaction => {
+                    const term = reaction.reactionmeddrapt || 'Unspecified Reaction';
+                    
+                    if (!eventFrequency[term]) {
+                        eventFrequency[term] = {
+                            count: 0,
+                            serious: 0,
+                            reports: new Set()
+                        };
+                    }
+                    
+                    eventFrequency[term].count++;
+                    eventFrequency[term].reports.add(report.safetyreportid || 'unknown');
+                    
+                    // Check if the report is marked as serious
+                    if (report.serious === '1' || report.seriousnessdeath === '1' || 
+                        report.seriousnesshospitalization === '1' || report.seriousnesslifethreatening === '1') {
+                        eventFrequency[term].serious++;
+                    }
+                });
+            }
+        });
+        
+        // Convert to array and sort by frequency
+        for (const [term, data] of Object.entries(eventFrequency)) {
+            fdaAdverseEvents.push({
+                term,
+                count: data.count,
+                serious: data.serious,
+                reportCount: data.reports.size
+            });
+        }
+        
+        // Sort by count (most frequent first)
+        fdaAdverseEvents.sort((a, b) => b.count - a.count);
+    }
+    
+    // Extract FDA approval information
+    let fdaApprovalInfo = null;
+    if (fdaData && fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+        const categorizedDrugs = fdaData.categorized;
+        const drugKey = Object.keys(categorizedDrugs)[0]; // Get the first drug entry
+        
+        if (drugKey && categorizedDrugs[drugKey]) {
+            const strengthKey = Object.keys(categorizedDrugs[drugKey])[0]; // Get the first strength
+            
+            if (strengthKey && categorizedDrugs[drugKey][strengthKey] && categorizedDrugs[drugKey][strengthKey].length > 0) {
+                const drugInfo = categorizedDrugs[drugKey][strengthKey][0];
+                
+                fdaApprovalInfo = {
+                    brandName: drugInfo.brandName,
+                    genericName: drugInfo.activeIngredients?.map(ing => ing.name).join(', ') || 'Not specified',
+                    approvalDate: drugInfo.approvalDate,
+                    applicationNumber: drugInfo.applicationNumber,
+                    sponsorName: drugInfo.sponsorName,
+                    fdaPage: drugInfo.fdaPage,
+                    dosageForm: drugInfo.dosageForm,
+                    route: drugInfo.route,
+                    marketingStatus: drugInfo.marketingStatus
+                };
+            }
+        }
+    }
+    
+    // Process FDA label information for indications, warnings, etc.
+    let fdaLabelInfo = null;
+    if (fdaData && fdaData.raw && fdaData.raw.endpoints && fdaData.raw.endpoints.label && fdaData.raw.endpoints.label.status === "success") {
+        const labelData = fdaData.raw.endpoints.label.data[0]; // Get the first label
+        
+        if (labelData) {
+            fdaLabelInfo = {
+                indications: labelData.indications_and_usage || [],
+                contraindications: labelData.contraindications || [],
+                warnings: labelData.boxed_warning || labelData.warnings || labelData.warnings_and_precautions || [],
+                adverseReactions: labelData.adverse_reactions || [],
+                drugInteractions: labelData.drug_interactions || []
+            };
+        }
+    }
+    
+    // Process study adverse events as before
+    const adverseEvents = [];
+    studyDetails.forEach(study => {
+        if (study.details?.adverseEvents) {
+            study.details.adverseEvents.forEach(event => {
+                adverseEvents.push({
+                    term: event.term,
+                    count: event.count,
+                    serious: event.serious,
+                    studyId: study.id
+                });
+            });
+        }
+    });
+    
+    // Organize adverse events by frequency
+    const eventCounts = {};
+    adverseEvents.forEach(event => {
+        if (!eventCounts[event.term]) {
+            eventCounts[event.term] = {
+                total: 0,
+                serious: 0,
+                studies: new Set()
+            };
+        }
+        eventCounts[event.term].total += event.count || 1;
+        if (event.serious) eventCounts[event.term].serious += event.count || 1;
+        eventCounts[event.term].studies.add(event.studyId);
+    });
+    
+    // Sort adverse events by frequency
+    const sortedEvents = Object.entries(eventCounts)
+        .sort((a, b) => b[1].total - a[1].total)
+        .slice(0, 10); // Top 10 most common events
+    
+    // Analyze primary outcomes
+    const primaryOutcomes = [];
+    studyDetails.forEach(study => {
+        if (study.details?.primaryOutcomes) {
+            study.details.primaryOutcomes.forEach(outcome => {
+                primaryOutcomes.push({
+                    measure: outcome.measure,
+                    description: outcome.description,
+                    timeFrame: outcome.timeFrame,
+                    studyId: study.id,
+                    year: study.year
+                });
+            });
+        }
+    });
+    
+    // Categorize studies by phase
+    const phaseEnrollment = {};
+    studyDetails.forEach(study => {
+        const phase = study.phase || study.details?.phase || 'Unknown';
+        if (!phaseEnrollment[phase]) {
+            phaseEnrollment[phase] = 0;
+        }
+        phaseEnrollment[phase] += (study.details?.enrollmentCount || 0);
+    });
+    
+    // Study status summary
+    const statusCounts = {};
+    studyDetails.forEach(study => {
+        const status = study.details?.status || 'Unknown';
+        if (!statusCounts[status]) {
+            statusCounts[status] = 0;
+        }
+        statusCounts[status]++;
+    });
+    
+    // Create the clinical summary section with FDA data
+    return `
+        <div class="bg-white border rounded-lg shadow-sm overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-blue-50 to-white p-4 border-b">
+                <h4 class="text-lg font-medium flex items-center text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Comprehensive Clinical & Regulatory Summary: ${drugName}
+                </h4>
+            </div>
+            
+            <div class="p-4 bg-white">
+                <!-- FDA Approval Information (if available) -->
+                ${fdaApprovalInfo ? `
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        FDA Approval Status
+                    </h5>
+                    <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+                        <div class="flex items-start">
+                            <div class="bg-green-100 rounded-full p-2 mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h6 class="font-medium text-gray-800 mb-1">${fdaApprovalInfo.brandName} (${fdaApprovalInfo.genericName})</h6>
+                                <p class="text-sm text-gray-600">${fdaApprovalInfo.dosageForm} | ${fdaApprovalInfo.route} | ${fdaApprovalInfo.marketingStatus}</p>
+                                <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    <div>
+                                        <span class="text-xs text-gray-500">Approval Date:</span>
+                                        <span class="text-sm font-medium text-gray-700 ml-1">${formatDate(fdaApprovalInfo.approvalDate)}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500">Application Number:</span>
+                                        <span class="text-sm font-medium text-gray-700 ml-1">${fdaApprovalInfo.applicationNumber}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500">Sponsor:</span>
+                                        <span class="text-sm font-medium text-gray-700 ml-1">${fdaApprovalInfo.sponsorName}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="${fdaApprovalInfo.fdaPage}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        View FDA Drug Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <!-- Enrollment & Study Scope -->
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Study Population & Scope</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="text-sm text-blue-600 mb-1 font-medium">Total Enrollment</div>
+                            <div class="text-xl font-bold text-gray-800">${totalEnrollment} participants</div>
+                            <div class="mt-1 text-xs text-gray-500">Across ${studies.length} clinical trials</div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <div class="text-sm text-indigo-600 mb-1 font-medium">Research Timespan</div>
+                            <div class="text-xl font-bold text-gray-800">${Math.min(...studies.map(s => s.year))} - ${Math.max(...studies.map(s => s.year))}</div>
+                            <div class="mt-1 text-xs text-gray-500">${Math.max(...studies.map(s => s.year)) - Math.min(...studies.map(s => s.year)) + 1} years of clinical research</div>
+                        </div>
+                        
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <div class="text-sm text-purple-600 mb-1 font-medium">Study Status</div>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                ${Object.entries(statusCounts).map(([status, count]) => 
+                                    `<span class="px-2 py-1 rounded-full text-xs ${getStatusBadgeColor(status)}">
+                                        ${status}: ${count}
+                                    </span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conditions & Interventions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <h5 class="font-medium text-gray-700 mb-3">Conditions Studied</h5>
+                        ${conditions.size > 0 ? 
+                            `<ul class="space-y-2">
+                                ${Array.from(conditions).map(condition => 
+                                    `<li class="flex items-center">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                        <span class="text-gray-600">${condition}</span>
+                                    </li>`
+                                ).join('')}
+                            </ul>` : 
+                            `<p class="text-gray-500 italic">No condition information available</p>`
+                        }
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 border">
+                        <h5 class="font-medium text-gray-700 mb-3">Intervention Types</h5>
+                        ${interventionTypes.size > 0 ? 
+                            `<ul class="space-y-2">
+                                ${Array.from(interventionTypes).map(type => 
+                                    `<li class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        <span class="text-gray-600">${type}</span>
+                                    </li>`
+                                ).join('')}
+                            </ul>` : 
+                            `<p class="text-gray-500 italic">No intervention type information available</p>`
+                        }
+                    </div>
+                </div>
+                
+                <!-- FDA Label Information (if available) -->
+                ${fdaLabelInfo ? `
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        FDA Label Information
+                    </h5>
+                    
+                    <div class="space-y-4">
+                        <!-- Indications -->
+                        ${fdaLabelInfo.indications && fdaLabelInfo.indications.length > 0 ? `
+                        <div class="bg-white border rounded-lg p-4">
+                            <h6 class="font-medium text-gray-700 mb-2">Indications and Usage</h6>
+                            <div class="text-sm text-gray-600 prose max-w-none">
+                                ${formatFdaText(fdaLabelInfo.indications[0])}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Warnings -->
+                        ${fdaLabelInfo.warnings && fdaLabelInfo.warnings.length > 0 ? `
+                        <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+                            <h6 class="font-medium text-red-700 mb-2 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                Warnings and Precautions
+                            </h6>
+                            <div class="text-sm text-red-600 prose max-w-none">
+                                ${formatFdaText(fdaLabelInfo.warnings[0])}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Contraindications -->
+                        ${fdaLabelInfo.contraindications && fdaLabelInfo.contraindications.length > 0 ? `
+                        <div class="bg-orange-50 border border-orange-100 rounded-lg p-4">
+                            <h6 class="font-medium text-orange-700 mb-2">Contraindications</h6>
+                            <div class="text-sm text-orange-600 prose max-w-none">
+                                ${formatFdaText(fdaLabelInfo.contraindications[0])}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <!-- Phase Distribution & Enrollment -->
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Clinical Trial Phases</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg border">
+                            <h6 class="text-sm font-medium text-gray-700 mb-2">Trials by Phase</h6>
+                            <div class="space-y-2">
+                                ${Object.entries(phaseEnrollment).sort((a, b) => getPhaseOrder(a[0]) - getPhaseOrder(b[0])).map(([phase, count]) => 
+                                    `<div class="flex items-center">
+                                        <div class="w-24 text-sm font-medium text-gray-600">${formatPhase(phase)}</div>
+                                        <div class="flex-1 bg-gray-200 rounded-full h-3 ml-2">
+                                            <div class="bg-blue-500 h-3 rounded-full" style="width: ${Math.min(100, (count / totalEnrollment) * 100)}%"></div>
+                                        </div>
+                                        <div class="ml-2 text-sm text-gray-600 w-20 text-right">${count} patients</div>
+                                    </div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg border">
+                            <h6 class="text-sm font-medium text-gray-700 mb-2">Trial Progression</h6>
+                            <p class="text-sm text-gray-600 mb-3">
+                                ${getPhaseProgressionDescription(Object.keys(phaseEnrollment))}
+                            </p>
+                            <div class="flex justify-between items-center mt-4">
+                                ${Object.keys(phaseEnrollment).sort((a, b) => getPhaseOrder(a) - getPhaseOrder(b)).map((phase, index, arr) => 
+                                    `<div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full ${index < arr.length - 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} flex items-center justify-center text-sm font-medium">
+                                            ${getPhaseNumber(phase)}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">${formatPhase(phase)}</div>
+                                    </div>
+                                    ${index < arr.length - 1 ? 
+                                        `<div class="w-12 h-0.5 bg-gray-300"></div>` : 
+                                        ''
+                                    }`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Primary Outcomes -->
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Key Primary Outcomes</h5>
+                    ${primaryOutcomes.length > 0 ? 
+                        `<div class="space-y-3">
+                            ${primaryOutcomes.slice(0, 5).map(outcome => 
+                                `<div class="bg-gray-50 rounded p-3 border-l-4 border-blue-400">
+                                    <div class="font-medium text-gray-800">${outcome.measure || 'Unnamed outcome'}</div>
+                                    ${outcome.description ? 
+                                        `<p class="text-sm text-gray-600 mt-1">${outcome.description}</p>` : 
+                                        ''}
+                                    <div class="flex items-center mt-2 text-xs text-gray-500">
+                                        ${outcome.timeFrame ? 
+                                            `<span class="mr-3">Timeframe: ${outcome.timeFrame}</span>` : 
+                                            ''}
+                                        <span>Study year: ${outcome.year}</span>
+                                    </div>
+                                </div>`
+                            ).join('')}
+                            ${primaryOutcomes.length > 5 ? 
+                                `<div class="text-sm text-gray-600 italic">
+                                    +${primaryOutcomes.length - 5} more outcomes across all studies
+                                </div>` : 
+                                ''}
+                        </div>` : 
+                        `<p class="text-gray-500 italic p-3 bg-gray-50 rounded">No primary outcome information available</p>`
+                    }
+                </div>
+                
+                <!-- FDA Adverse Events (if available) -->
+                ${fdaAdverseEvents.length > 0 ? `
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        FDA Reported Adverse Events
+                    </h5>
+                    <p class="text-sm text-gray-600 mb-3">
+                        The following adverse events have been reported to the FDA through its adverse event reporting system. 
+                        These reports do not establish causality and represent post-marketing surveillance data.
+                    </p>
+                    <div class="bg-white p-0">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Adverse Event
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Frequency
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Serious Events
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Reports
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${fdaAdverseEvents.slice(0, 10).map(event => 
+                                        `<tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                ${event.term}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                ${event.count} occurrences
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                ${event.serious > 0 ? 
+                                                    `<span class="text-red-600 font-medium">${event.serious} serious events</span>` : 
+                                                    'None reported'}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                ${event.reportCount} reports
+                                            </td>
+                                        </tr>`
+                                    ).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-3 text-sm text-gray-500 italic">
+                            Showing top 10 of ${fdaAdverseEvents.length} reported adverse events. FDA adverse event reports are voluntarily submitted and may not reflect the total incidence.
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <!-- Study Adverse Events (if available) -->
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Clinical Trial Safety Profile</h5>
+                    ${sortedEvents.length > 0 ? 
+                        `<div class="bg-white p-0">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Adverse Event
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Frequency
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Serious Events
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Studies Reported
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        ${sortedEvents.map(([term, data]) => 
+                                            `<tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    ${term}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    ${data.total} occurrences
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    ${data.serious > 0 ? 
+                                                        `<span class="text-red-600 font-medium">${data.serious} serious events</span>` : 
+                                                        'None reported'}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    ${data.studies.size} ${data.studies.size === 1 ? 'study' : 'studies'}
+                                                </td>
+                                            </tr>`
+                                        ).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>` : 
+                        `<div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p class="text-gray-800 font-medium">No Clinical Trial Adverse Event Data Available</p>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        Detailed safety information from clinical trials is not available in the current data set. This may be because:
+                                        <ul class="list-disc ml-5 mt-2 space-y-1">
+                                            <li>The studies are in early phases where adverse events aren't yet reported</li>
+                                            <li>The complete safety data hasn't been published</li>
+                                            <li>Safety data is available in the full clinical study reports but not in this summary</li>
+                                        </ul>
+                                        ${fdaAdverseEvents.length > 0 ? 
+                                            `<p class="mt-2 text-sm font-medium">See the FDA Reported Adverse Events section above for post-marketing surveillance data.</p>` : 
+                                            ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>`
+                    }
+                </div>
+                
+                <!-- Key Findings -->
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Summary of Key Findings</h5>
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            ${getKeyFindingsSummary(studies, phaseEnrollment, sortedEvents, primaryOutcomes, fdaApprovalInfo, fdaAdverseEvents)}
+                        </p>
+                        
+                        <div class="mt-4 flex flex-col gap-2">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm text-blue-800 font-medium">
+                                    Development Status: ${fdaApprovalInfo ? 'FDA Approved' : getDevelopmentStatus(Object.keys(phaseEnrollment))}
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm text-blue-800 font-medium">
+                                    Research Duration: ${Math.max(...studies.map(s => s.year)) - Math.min(...studies.map(s => s.year)) + 1} years (${Math.min(...studies.map(s => s.year))} - ${Math.max(...studies.map(s => s.year))})
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm text-blue-800 font-medium">
+                                    Safety Overview: ${getSafetyOverview(sortedEvents, fdaAdverseEvents)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-xs text-gray-500 italic mt-4">
+                    Note: This comprehensive summary combines data from clinical trials and FDA regulatory information. 
+                    The information synthesizes findings from ${studies.length} clinical trials spanning from ${Math.min(...studies.map(s => s.year))} to ${Math.max(...studies.map(s => s.year))}.
+                    ${fdaData ? 'FDA data has been incorporated to provide regulatory context.' : ''}
+                    For definitive approval information, please consult official regulatory sources.
+                </div>
+            </div>
+        </div>
+    `;
+}
 
+// Helper function to format FDA text content (handles list formatting, etc.)
+function formatFdaText(text) {
+    if (!text) return '';
+    
+    // Replace bullet points with HTML list items
+    let formattedText = text;
+    
+    // Check if text has bullet points (common in FDA labels)
+    if (text.includes('•') || text.includes('* ') || text.includes('- ')) {
+        const lines = text.split(/\r?\n/);
+        const bulletPattern = /^[\s]*(•|-|\*)\s+(.+)$/;
+        
+        let inList = false;
+        let processedLines = [];
+        
+        for (const line of lines) {
+            const bulletMatch = line.match(bulletPattern);
+            
+            if (bulletMatch) {
+                if (!inList) {
+                    processedLines.push('<ul class="list-disc pl-5 my-2">');
+                    inList = true;
+                }
+                processedLines.push(`<li>${bulletMatch[2]}</li>`);
+            } else {
+                if (inList) {
+                    processedLines.push('</ul>');
+                    inList = false;
+                }
+                
+                if (line.trim()) {
+                    processedLines.push(`<p>${line}</p>`);
+                }
+            }
+        }
+        
+        if (inList) {
+            processedLines.push('</ul>');
+        }
+        
+        formattedText = processedLines.join('');
+    } else {
+        // Just handle basic paragraphs
+        formattedText = text.split(/\r?\n\r?\n/).map(p => `<p>${p}</p>`).join('');
+    }
+    
+    return formattedText;
+}
+
+// Format date (if available)
+function formatDate(dateString) {
+    if (!dateString || dateString === 'Unknown') return 'Unknown';
+    
+    try {
+        const date = new Date(dateString);
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            // If not a valid Date object, return original string
+            return dateString;
+        }
+        
+        // Format as Month DD, YYYY
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString; // Return original on error
+    }
+}
+
+// Extract adverse events function
+function extractAdverseEvents(studyData) {
+    const events = [];
+    
+    // Try multiple possible locations where adverse events might be stored
+    
+    // Option 1: Check in reportedEvents section if it exists
+    if (studyData.resultsSection && studyData.resultsSection.reportedEvents) {
+        const reportedEvents = studyData.resultsSection.reportedEvents;
+        
+        // Process serious events
+        if (reportedEvents.seriousEvents) {
+            reportedEvents.seriousEvents.forEach(event => {
+                events.push({
+                    term: event.term || event.title || 'Unnamed serious event',
+                    count: event.count || event.participants || 0,
+                    serious: true,
+                    category: event.category || 'Uncategorized'
+                });
+            });
+        }
+        
+        // Process other events
+        if (reportedEvents.otherEvents) {
+            reportedEvents.otherEvents.forEach(event => {
+                events.push({
+                    term: event.term || event.title || 'Unnamed non-serious event',
+                    count: event.count || event.participants || 0,
+                    serious: false,
+                    category: event.category || 'Uncategorized'
+                });
+            });
+        }
+    }
+    
+    // Option 2: Check in adverseEvents section if it exists
+    if (studyData.adverseEvents || studyData.safetyData?.adverseEvents) {
+        const adverseEvents = studyData.adverseEvents || studyData.safetyData?.adverseEvents || [];
+        
+        adverseEvents.forEach(event => {
+            events.push({
+                term: event.term || event.description || 'Unnamed event',
+                count: event.count || event.frequency || event.occurrences || 0,
+                serious: event.serious || event.isSeriousEvent || false,
+                category: event.category || event.type || 'Uncategorized'
+            });
+        });
+    }
+    
+    // Option 3: Check in safety results if it exists
+    if (studyData.resultsSection && studyData.resultsSection.safetyResults) {
+        const safetyResults = studyData.resultsSection.safetyResults;
+        
+        safetyResults.forEach(result => {
+            if (result.events) {
+                result.events.forEach(event => {
+                    events.push({
+                        term: event.term || event.title || 'Unnamed safety event',
+                        count: event.count || event.participants || 0,
+                        serious: event.serious || (event.severity === 'Serious') || false,
+                        category: event.category || result.title || 'Safety'
+                    });
+                });
+            }
+        });
+    }
+    
+    return events;
+}
+
+// Updated getSafetyOverview to incorporate FDA data
+function getSafetyOverview(clinicalEvents, fdaEvents) {
+    const hasClinicalEvents = clinicalEvents && clinicalEvents.length > 0;
+    const hasFdaEvents = fdaEvents && fdaEvents.length > 0;
+    
+    if (!hasClinicalEvents && !hasFdaEvents) {
+        return 'No adverse event data available';
+    }
+    
+    let totalSeriousEvents = 0;
+    
+    if (hasClinicalEvents) {
+        totalSeriousEvents += clinicalEvents.reduce((count, [_, data]) => count + data.serious, 0);
+    }
+    
+    let fdaSeriousCount = 0;
+    if (hasFdaEvents) {
+        fdaSeriousCount = fdaEvents.reduce((count, event) => count + (event.serious || 0), 0);
+    }
+    
+    // Combine both sources
+    if (hasClinicalEvents && hasFdaEvents) {
+        return `${totalSeriousEvents} serious events in clinical trials and ${fdaSeriousCount} in FDA reports`;
+    } else if (hasClinicalEvents) {
+        if (totalSeriousEvents === 0) {
+            return 'No serious adverse events reported in clinical trials';
+        } else if (totalSeriousEvents <= 3) {
+            return `Limited serious adverse events (${totalSeriousEvents}) in clinical trials`;
+        } else {
+            return `Multiple serious adverse events (${totalSeriousEvents}) in clinical trials`;
+        }
+    } else {
+        if (fdaSeriousCount === 0) {
+            return 'No serious adverse events in FDA reports';
+        } else if (fdaSeriousCount <= 3) {
+            return `Limited serious adverse events (${fdaSeriousCount}) in FDA reports`;
+        } else {
+            return `Multiple serious adverse events (${fdaSeriousCount}) in FDA reports`;
+        }
+    }
+}
+
+//asasas Updated key findings summary to incorporate FDA data
+function getKeyFindingsSummary(studies, phaseEnrollment, adverseEvents, primaryOutcomes, fdaApprovalInfo, fdaAdverseEvents) {
+    const phases = Object.keys(phaseEnrollment);
+    const hasLatePhase = phases.some(phase => phase === 'PHASE3' || phase === 'PHASE4');
+    const hasMidPhase = phases.some(phase => phase === 'PHASE2' || phase === 'PHASE2_PHASE3');
+    const totalEnrollment = Object.values(phaseEnrollment).reduce((sum, count) => sum + count, 0);
+    
+    let summary = `Based on the analysis of ${studies.length} clinical trials with a total enrollment of ${totalEnrollment} participants`;
+    
+    // If FDA approval data is available, mention it
+    if (fdaApprovalInfo) {
+        summary += `, this treatment received FDA approval on ${formatDate(fdaApprovalInfo.approvalDate)} (Application ${fdaApprovalInfo.applicationNumber}). `;
+    } else {
+        summary += `, `;
+        
+        if (hasLatePhase) {
+            summary += `this treatment has advanced to late-stage clinical development. `;
+            summary += `The trials include pivotal Phase 3 studies necessary for regulatory approval consideration. `;
+        } else if (hasMidPhase) {
+            summary += `this treatment has progressed to mid-stage clinical development. `;
+            summary += `Phase 2 trials have been conducted to evaluate preliminary efficacy. `;
+        } else {
+            summary += `this treatment is in early-stage clinical development. `;
+            summary += `Current research focuses primarily on safety assessment and dosing. `;
+        }
+    }
+    
+    if (primaryOutcomes.length > 0) {
+        summary += `Key outcome measures include ${primaryOutcomes.slice(0, 3).map(o => o.measure).join(', ')}${primaryOutcomes.length > 3 ? ', and others' : ''}. `;
+    }
+    
+    // Add combined safety information from both clinical trials and FDA data
+    const hasClinicalSafety = adverseEvents && adverseEvents.length > 0;
+    const hasFdaSafety = fdaAdverseEvents && fdaAdverseEvents.length > 0;
+    
+    if (hasClinicalSafety || hasFdaSafety) {
+        summary += `Safety monitoring has identified adverse events `;
+        
+        if (hasClinicalSafety && hasFdaSafety) {
+            const clinicalSeriousEvents = adverseEvents.reduce((count, [_, data]) => count + data.serious, 0);
+            const fdaSeriousEvents = fdaAdverseEvents.reduce((count, event) => count + (event.serious || 0), 0);
+            
+            summary += `both in clinical trials (${clinicalSeriousEvents} serious events) and post-marketing surveillance (${fdaSeriousEvents} serious events in FDA reports). `;
+        } else if (hasClinicalSafety) {
+            const totalSeriousEvents = adverseEvents.reduce((count, [_, data]) => count + data.serious, 0);
+            
+            if (totalSeriousEvents > 0) {
+                summary += `including ${totalSeriousEvents} serious events in clinical trials. `;
+            } else {
+                summary += `with no serious events reported in clinical trials. `;
+            }
+        } else {
+            const fdaSeriousEvents = fdaAdverseEvents.reduce((count, event) => count + (event.serious || 0), 0);
+            
+            if (fdaSeriousEvents > 0) {
+                summary += `including ${fdaSeriousEvents} serious events in FDA post-marketing reports. `;
+            } else {
+                summary += `with no serious events in FDA reports. `;
+            }
+        }
+    }
+    
+    // If FDA label information is available, add a brief sentence
+    if (fdaApprovalInfo) {
+        summary += `The drug is currently marketed as ${fdaApprovalInfo.brandName} (${fdaApprovalInfo.genericName}) by ${fdaApprovalInfo.sponsorName}. `;
+    }
+    
+    return summary;
+}
 // Function to create clinical summary from trial data
 async function createClinicalSummary(studies) {
     // Container for all trial details
@@ -8793,333 +9762,333 @@ function getStatusColor(status) {
 }
 
 // Updated showUsageDetailModal function to include clinical summary
-async function showUsageDetailModal(itemData, itemName, entityType) {
-    // Get or create modal container
-    let modal = document.getElementById('usage-detail-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'usage-detail-modal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
-        document.body.appendChild(modal);
-    }
+// async function showUsageDetailModal(itemData, itemName, entityType) {
+//     // Get or create modal container
+//     let modal = document.getElementById('usage-detail-modal');
+//     if (!modal) {
+//         modal = document.createElement('div');
+//         modal.id = 'usage-detail-modal';
+//         modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+//         document.body.appendChild(modal);
+//     }
     
-    // Show loading state
-    modal.innerHTML = `
-        <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
-            <div class="p-10 flex items-center justify-center">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-                <span class="ml-3 text-gray-600">Loading clinical data...</span>
-            </div>
-        </div>
-    `;
+//     // Show loading state
+//     modal.innerHTML = `
+//         <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
+//             <div class="p-10 flex items-center justify-center">
+//                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+//                 <span class="ml-3 text-gray-600">Loading clinical data...</span>
+//             </div>
+//         </div>
+//     `;
     
-    // Make sure modal is visible
-    modal.classList.remove('hidden');
+//     // Make sure modal is visible
+//     modal.classList.remove('hidden');
     
-    // Determine relation type based on entity type
-    const relationType = entityType === 'drug' ? 'condition' : 'drug';
-    const relationTypeName = entityType === 'drug' ? 'Condition' : 'Treatment';
+//     // Determine relation type based on entity type
+//     const relationType = entityType === 'drug' ? 'condition' : 'drug';
+//     const relationTypeName = entityType === 'drug' ? 'Condition' : 'Treatment';
     
-    // Sort studies by year (newest first)
-    const sortedStudies = [...(itemData.studies || [])].sort((a, b) => b.year - a.year);
+//     // Sort studies by year (newest first)
+//     const sortedStudies = [...(itemData.studies || [])].sort((a, b) => b.year - a.year);
     
-    // Group studies by phase
-    const studiesByPhase = {};
-    sortedStudies.forEach(study => {
-        const phase = study.phase || 'Unknown';
-        if (!studiesByPhase[phase]) {
-            studiesByPhase[phase] = [];
-        }
-        studiesByPhase[phase].push(study);
-    });
+//     // Group studies by phase
+//     const studiesByPhase = {};
+//     sortedStudies.forEach(study => {
+//         const phase = study.phase || 'Unknown';
+//         if (!studiesByPhase[phase]) {
+//             studiesByPhase[phase] = [];
+//         }
+//         studiesByPhase[phase].push(study);
+//     });
     
-    // Get phase order for sorting
-    const phaseOrder = {
-        "PHASE4": 1,
-        "PHASE3": 2,
-        "PHASE2": 3,
-        "PHASE1_PHASE2": 4,
-        "PHASE1": 5,
-        "PRE_PHASE": 6,
-        "Unknown": 7
-    };
+//     // Get phase order for sorting
+//     const phaseOrder = {
+//         "PHASE4": 1,
+//         "PHASE3": 2,
+//         "PHASE2": 3,
+//         "PHASE1_PHASE2": 4,
+//         "PHASE1": 5,
+//         "PRE_PHASE": 6,
+//         "Unknown": 7
+//     };
     
-    // Sort phases
-    const sortedPhases = Object.keys(studiesByPhase).sort((a, b) => 
-        (phaseOrder[a] || 999) - (phaseOrder[b] || 999)
-    );
+//     // Sort phases
+//     const sortedPhases = Object.keys(studiesByPhase).sort((a, b) => 
+//         (phaseOrder[a] || 999) - (phaseOrder[b] || 999)
+//     );
     
-    // Create timeline data for years
-    const yearData = [];
-    const years = Object.keys(itemData.years || {}).map(Number).sort((a, b) => a - b);
+//     // Create timeline data for years
+//     const yearData = [];
+//     const years = Object.keys(itemData.years || {}).map(Number).sort((a, b) => a - b);
     
-    // Find max studies in a year for scaling
-    const maxYearCount = Math.max(...Object.values(itemData.years || {}).map(count => Number(count)));
+//     // Find max studies in a year for scaling
+//     const maxYearCount = Math.max(...Object.values(itemData.years || {}).map(count => Number(count)));
     
-    years.forEach(year => {
-        const count = itemData.years[year] || 0;
-        yearData.push({
-            year,
-            count
-        });
-    });
+//     years.forEach(year => {
+//         const count = itemData.years[year] || 0;
+//         yearData.push({
+//             year,
+//             count
+//         });
+//     });
     
-    // Check if this item is marked as successful (for condition-drug view)
-    const successBadge = itemData.isSuccessful ? 
-        `<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Successful Treatment</span>` : '';
+//     // Check if this item is marked as successful (for condition-drug view)
+//     const successBadge = itemData.isSuccessful ? 
+//         `<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Successful Treatment</span>` : '';
     
-    // Create clinical summary section (async)
-    const clinicalSummaryHTML = await createClinicalSummary(sortedStudies);
+//     // Create clinical summary section (async)
+//     const clinicalSummaryHTML = await createClinicalSummary(sortedStudies);
     
-    // Create modal content
-    let modalContent = `
-        <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
-            <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-white">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-gray-800">${itemName} ${successBadge}</h3>
-                    <button id="close-usage-detail-modal" class="text-gray-500 hover:text-gray-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="flex items-center mt-1">
-                    <span class="text-sm text-gray-600 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        ${relationTypeName} studied from ${itemData.earliestYear} to ${itemData.latestYear} 
-                    </span>
-                    <div class="ml-3 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                        ${itemData.count} total studies
-                    </div>
-                </div>
-            </div>
+//     // Create modal content
+//     let modalContent = `
+//         <div class="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl">
+//             <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-white">
+//                 <div class="flex justify-between items-center">
+//                     <h3 class="text-xl font-bold text-gray-800">${itemName} ${successBadge}</h3>
+//                     <button id="close-usage-detail-modal" class="text-gray-500 hover:text-gray-700 transition-colors">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+//                         </svg>
+//                     </button>
+//                 </div>
+//                 <div class="flex items-center mt-1">
+//                     <span class="text-sm text-gray-600 flex items-center">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+//                         </svg>
+//                         ${relationTypeName} studied from ${itemData.earliestYear} to ${itemData.latestYear} 
+//                     </span>
+//                     <div class="ml-3 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+//                         ${itemData.count} total studies
+//                     </div>
+//                 </div>
+//             </div>
             
-            <div class="overflow-y-auto">
-                <!-- Quick stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b">
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
-                        <div class="text-sm text-blue-600 font-medium flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            First Studied
-                        </div>
-                        <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.earliestYear}</div>
-                        <div class="text-xs text-gray-500 mt-1">${new Date().getFullYear() - itemData.earliestYear} years ago</div>
-                    </div>
+//             <div class="overflow-y-auto">
+//                 <!-- Quick stats -->
+//                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border-b">
+//                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
+//                         <div class="text-sm text-blue-600 font-medium flex items-center">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+//                             </svg>
+//                             First Studied
+//                         </div>
+//                         <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.earliestYear}</div>
+//                         <div class="text-xs text-gray-500 mt-1">${new Date().getFullYear() - itemData.earliestYear} years ago</div>
+//                     </div>
                     
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
-                        <div class="text-sm text-green-600 font-medium flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Total Studies
-                        </div>
-                        <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.count}</div>
-                        <div class="text-xs text-gray-500 mt-1">Across ${years.length} years</div>
-                    </div>
+//                     <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
+//                         <div class="text-sm text-green-600 font-medium flex items-center">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+//                             </svg>
+//                             Total Studies
+//                         </div>
+//                         <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.count}</div>
+//                         <div class="text-xs text-gray-500 mt-1">Across ${years.length} years</div>
+//                     </div>
                     
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
-                        <div class="text-sm text-purple-600 font-medium flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Latest Activity
-                        </div>
-                        <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.latestYear}</div>
-                        <div class="text-xs text-gray-500 mt-1">${itemData.years[itemData.latestYear] || 0} studies in that year</div>
-                    </div>
-                </div>
+//                     <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow-sm hover:shadow transition-shadow">
+//                         <div class="text-sm text-purple-600 font-medium flex items-center">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                             </svg>
+//                             Latest Activity
+//                         </div>
+//                         <div class="text-2xl font-bold text-gray-800 mt-1">${itemData.latestYear}</div>
+//                         <div class="text-xs text-gray-500 mt-1">${itemData.years[itemData.latestYear] || 0} studies in that year</div>
+//                     </div>
+//                 </div>
                 
-                <!-- Clinical Summary (Basis of Approval) -->
-                ${clinicalSummaryHTML}
+//                 <!-- Clinical Summary (Basis of Approval) -->
+//                 ${clinicalSummaryHTML}
                 
-                <!-- Improved Timeline -->
-                <div class="p-6 border-b">
-                    <h4 class="text-lg font-medium mb-2 flex items-center text-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                        Research Activity Timeline
-                    </h4>
-                    <p class="text-sm text-gray-600 mb-4">
-                        Showing all years from ${itemData.earliestYear} to ${itemData.latestYear} 
-                    </p>
+//                 <!-- Improved Timeline -->
+//                 <div class="p-6 border-b">
+//                     <h4 class="text-lg font-medium mb-2 flex items-center text-gray-800">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+//                         </svg>
+//                         Research Activity Timeline
+//                     </h4>
+//                     <p class="text-sm text-gray-600 mb-4">
+//                         Showing all years from ${itemData.earliestYear} to ${itemData.latestYear} 
+//                     </p>
                     
-                    <div class="timeline-container h-64 relative px-4">
-                        <!-- Will be populated by JavaScript -->
-                        <div id="research-timeline" class="h-full"></div>
+//                     <div class="timeline-container h-64 relative px-4">
+//                         <!-- Will be populated by JavaScript -->
+//                         <div id="research-timeline" class="h-full"></div>
                         
-                        <!-- Year labels will be dynamically added -->
-                        <div id="timeline-years" class="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500"></div>
-                    </div>
-                </div>
+//                         <!-- Year labels will be dynamically added -->
+//                         <div id="timeline-years" class="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500"></div>
+//                     </div>
+//                 </div>
                 
-                <!-- Studies breakdown -->
-                <div class="p-6">
-                    <h4 class="text-lg font-medium mb-4 flex items-center text-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        Studies by Phase
-                    </h4>
+//                 <!-- Studies breakdown -->
+//                 <div class="p-6">
+//                     <h4 class="text-lg font-medium mb-4 flex items-center text-gray-800">
+//                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+//                         </svg>
+//                         Studies by Phase
+//                     </h4>
                     
-                    <div class="space-y-5">
-    `;
+//                     <div class="space-y-5">
+//     `;
     
-    // Create phase sections with improved styling
-    sortedPhases.forEach(phase => {
-        const phaseStudies = studiesByPhase[phase];
-        const formattedPhase = formatPhase(phase);
-        const phaseColor = getPhaseColor(phase);
+//     // Create phase sections with improved styling
+//     sortedPhases.forEach(phase => {
+//         const phaseStudies = studiesByPhase[phase];
+//         const formattedPhase = formatPhase(phase);
+//         const phaseColor = getPhaseColor(phase);
         
-        modalContent += `
-            <div class="border rounded-lg overflow-hidden shadow-sm hover:shadow transition-shadow">
-                <div class="bg-gray-50 p-3 flex justify-between items-center" style="border-left: 4px solid ${phaseColor}">
-                    <div class="flex items-center">
-                        <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${phaseColor}"></span>
-                        <h5 class="font-medium text-gray-800">${formattedPhase}</h5>
-                    </div>
-                    <span class="text-sm bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">${phaseStudies.length} studies</span>
-                </div>
+//         modalContent += `
+//             <div class="border rounded-lg overflow-hidden shadow-sm hover:shadow transition-shadow">
+//                 <div class="bg-gray-50 p-3 flex justify-between items-center" style="border-left: 4px solid ${phaseColor}">
+//                     <div class="flex items-center">
+//                         <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: ${phaseColor}"></span>
+//                         <h5 class="font-medium text-gray-800">${formattedPhase}</h5>
+//                     </div>
+//                     <span class="text-sm bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">${phaseStudies.length} studies</span>
+//                 </div>
                 
-                <div class="divide-y divide-gray-100">
-        `;
+//                 <div class="divide-y divide-gray-100">
+//         `;
         
-        // List studies in this phase with improved styling
-        phaseStudies.forEach(study => {
-            modalContent += `
-                <div class="p-4 hover:bg-blue-50 transition-colors">
-                    <div class="flex justify-between items-start mb-2">
-                        <a href="#" class="text-blue-600 hover:text-blue-800 font-medium study-link group" data-nctid="${study.id}">
-                            ${study.title || 'Untitled Study'}
-                            <span class="inline-block transition-transform group-hover:translate-x-1">→</span>
-                        </a>
-                        <div class="flex flex-col items-end">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">${study.year}</span>
-                        </div>
-                    </div>
-                    <div class="flex space-x-3 mt-2">
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800 study-link flex items-center" data-nctid="${study.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            View Details
-                        </a>
-                        <a href="https://clinicaltrials.gov/study/${study.id}" target="_blank" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                            ClinicalTrials.gov
-                        </a>
-                    </div>
-                </div>
-            `;
-        });
+//         // List studies in this phase with improved styling
+//         phaseStudies.forEach(study => {
+//             modalContent += `
+//                 <div class="p-4 hover:bg-blue-50 transition-colors">
+//                     <div class="flex justify-between items-start mb-2">
+//                         <a href="#" class="text-blue-600 hover:text-blue-800 font-medium study-link group" data-nctid="${study.id}">
+//                             ${study.title || 'Untitled Study'}
+//                             <span class="inline-block transition-transform group-hover:translate-x-1">→</span>
+//                         </a>
+//                         <div class="flex flex-col items-end">
+//                             <span class="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-700">${study.year}</span>
+//                         </div>
+//                     </div>
+//                     <div class="flex space-x-3 mt-2">
+//                         <a href="#" class="text-sm text-blue-600 hover:text-blue-800 study-link flex items-center" data-nctid="${study.id}">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+//                             </svg>
+//                             View Details
+//                         </a>
+//                         <a href="https://clinicaltrials.gov/study/${study.id}" target="_blank" class="text-sm text-gray-600 hover:text-gray-800 flex items-center">
+//                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//                             </svg>
+//                             ClinicalTrials.gov
+//                         </a>
+//                     </div>
+//                 </div>
+//             `;
+//         });
         
-        modalContent += `
-                </div>
-            </div>
-        `;
-    });
+//         modalContent += `
+//                 </div>
+//             </div>
+//         `;
+//     });
     
-    modalContent += `
-                    </div>
-                </div>
-            </div>
+//     modalContent += `
+//                     </div>
+//                 </div>
+//             </div>
             
-            <!-- Footer with export options -->
-            <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
-                <button id="export-usage-data" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm flex items-center shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Export Data
-                </button>
+//             <!-- Footer with export options -->
+//             <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
+//                 <button id="export-usage-data" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm flex items-center shadow-sm">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+//                     </svg>
+//                     Export Data
+//                 </button>
                 
-                <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm flex items-center shadow-sm" id="search-all-studies-link" data-item="${itemName}" data-type="${relationType}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    View All Studies
-                </a>
-            </div>
-        </div>
-    `;
+//                 <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors text-sm flex items-center shadow-sm" id="search-all-studies-link" data-item="${itemName}" data-type="${relationType}">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+//                     </svg>
+//                     View All Studies
+//                 </a>
+//             </div>
+//         </div>
+//     `;
     
-    // Insert modal content
-    modal.innerHTML = modalContent;
+//     // Insert modal content
+//     modal.innerHTML = modalContent;
     
-    // Create the timeline visualization
-    createTimelineVisualization(yearData, maxYearCount);
+//     // Create the timeline visualization
+//     createTimelineVisualization(yearData, maxYearCount);
     
-    // Add event listeners
+//     // Add event listeners
     
-    // 1. Close modal button
-    document.getElementById('close-usage-detail-modal').addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
+//     // 1. Close modal button
+//     document.getElementById('close-usage-detail-modal').addEventListener('click', () => {
+//         modal.classList.add('hidden');
+//     });
     
-    // 2. Close when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-        }
-    });
+//     // 2. Close when clicking outside
+//     modal.addEventListener('click', (e) => {
+//         if (e.target === modal) {
+//             modal.classList.add('hidden');
+//         }
+//     });
     
-    // 3. Study links
-    const studyLinks = modal.querySelectorAll('.study-link');
-    studyLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const nctId = e.currentTarget.dataset.nctid;
-            if (nctId) {
-                // Close the modal
-                modal.classList.add('hidden');
-                // View study details
-                viewStudyDetails(nctId);
-            }
-        });
-    });
+//     // 3. Study links
+//     const studyLinks = modal.querySelectorAll('.study-link');
+//     studyLinks.forEach(link => {
+//         link.addEventListener('click', (e) => {
+//             e.preventDefault();
+//             const nctId = e.currentTarget.dataset.nctid;
+//             if (nctId) {
+//                 // Close the modal
+//                 modal.classList.add('hidden');
+//                 // View study details
+//                 viewStudyDetails(nctId);
+//             }
+//         });
+//     });
     
-    // 4. Export data button
-    document.getElementById('export-usage-data').addEventListener('click', () => {
-        exportUsageData(itemData, itemName);
-    });
+//     // 4. Export data button
+//     document.getElementById('export-usage-data').addEventListener('click', () => {
+//         exportUsageData(itemData, itemName);
+//     });
     
-    // 5. Search all studies link
-    document.getElementById('search-all-studies-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        const searchItem = e.currentTarget.dataset.item;
-        const searchType = e.currentTarget.dataset.type;
+//     // 5. Search all studies link
+//     document.getElementById('search-all-studies-link').addEventListener('click', (e) => {
+//         e.preventDefault();
+//         const searchItem = e.currentTarget.dataset.item;
+//         const searchType = e.currentTarget.dataset.type;
         
-        // Close the modal
-        modal.classList.add('hidden');
+//         // Close the modal
+//         modal.classList.add('hidden');
         
-        // Trigger search for all studies
-        if (typeof searchForEntity === 'function') {
-            searchForEntity(searchItem, searchType);
-        } else {
-            alert(`Search for all studies with ${searchType}: ${searchItem}`);
-            console.log(`Search for all studies with ${searchType}: ${searchItem}`);
-        }
-    });
+//         // Trigger search for all studies
+//         if (typeof searchForEntity === 'function') {
+//             searchForEntity(searchItem, searchType);
+//         } else {
+//             alert(`Search for all studies with ${searchType}: ${searchItem}`);
+//             console.log(`Search for all studies with ${searchType}: ${searchItem}`);
+//         }
+//     });
     
-    // 6. PDF download buttons
-    const pdfButtons = modal.querySelectorAll('.download-trial-pdf');
-    pdfButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const nctId = e.currentTarget.dataset.nctid;
-            if (nctId) {
-                downloadTrialPDF(nctId);
-            }
-        });
-    });
-}
+//     // 6. PDF download buttons
+//     const pdfButtons = modal.querySelectorAll('.download-trial-pdf');
+//     pdfButtons.forEach(button => {
+//         button.addEventListener('click', (e) => {
+//             e.preventDefault();
+//             const nctId = e.currentTarget.dataset.nctid;
+//             if (nctId) {
+//                 downloadTrialPDF(nctId);
+//             }
+//         });
+//     });
+// }
 
 // Function to download trial PDF summary
 function downloadTrialPDF(nctId) {
@@ -9723,7 +10692,7 @@ async function createApprovalSummary(studies) {
 
 
 // Function to create a comprehensive clinical summary from trial data
-async function createComprehensiveClinicalSummary(studies) {
+async function OLDcreateComprehensiveClinicalSummary(studies) {
     if (!studies || studies.length === 0) {
         return `
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -10264,38 +11233,38 @@ function getDevelopmentStatus(phases) {
 
 
 // Helper function to generate key findings summary (continuing from previous artifact)
-function getKeyFindingsSummary(studies, phaseEnrollment, adverseEvents, primaryOutcomes) {
-    const phases = Object.keys(phaseEnrollment);
-    const hasLatePhase = phases.some(phase => phase === 'PHASE3' || phase === 'PHASE4');
-    const hasMidPhase = phases.some(phase => phase === 'PHASE2' || phase === 'PHASE2_PHASE3');
-    const totalEnrollment = Object.values(phaseEnrollment).reduce((sum, count) => sum + count, 0);
+// function getKeyFindingsSummary(studies, phaseEnrollment, adverseEvents, primaryOutcomes) {
+//     const phases = Object.keys(phaseEnrollment);
+//     const hasLatePhase = phases.some(phase => phase === 'PHASE3' || phase === 'PHASE4');
+//     const hasMidPhase = phases.some(phase => phase === 'PHASE2' || phase === 'PHASE2_PHASE3');
+//     const totalEnrollment = Object.values(phaseEnrollment).reduce((sum, count) => sum + count, 0);
     
-    let summary = `Based on the analysis of ${studies.length} clinical trials with a total enrollment of ${totalEnrollment} participants, `;
+//     let summary = `Based on the analysis of ${studies.length} clinical trials with a total enrollment of ${totalEnrollment} participants, `;
     
-    if (hasLatePhase) {
-        summary += `this treatment has advanced to late-stage clinical development. `;
-        summary += `The trials include pivotal Phase 3 studies necessary for regulatory approval consideration. `;
-    } else if (hasMidPhase) {
-        summary += `this treatment has progressed to mid-stage clinical development. `;
-        summary += `Phase 2 trials have been conducted to evaluate preliminary efficacy. `;
-    } else {
-        summary += `this treatment is in early-stage clinical development. `;
-        summary += `Current research focuses primarily on safety assessment and dosing. `;
-    }
+//     if (hasLatePhase) {
+//         summary += `this treatment has advanced to late-stage clinical development. `;
+//         summary += `The trials include pivotal Phase 3 studies necessary for regulatory approval consideration. `;
+//     } else if (hasMidPhase) {
+//         summary += `this treatment has progressed to mid-stage clinical development. `;
+//         summary += `Phase 2 trials have been conducted to evaluate preliminary efficacy. `;
+//     } else {
+//         summary += `this treatment is in early-stage clinical development. `;
+//         summary += `Current research focuses primarily on safety assessment and dosing. `;
+//     }
     
-    if (primaryOutcomes.length > 0) {
-        summary += `Key outcome measures include ${primaryOutcomes.slice(0, 3).map(o => o.measure).join(', ')}${primaryOutcomes.length > 3 ? ', and others' : ''}. `;
-    }
+//     if (primaryOutcomes.length > 0) {
+//         summary += `Key outcome measures include ${primaryOutcomes.slice(0, 3).map(o => o.measure).join(', ')}${primaryOutcomes.length > 3 ? ', and others' : ''}. `;
+//     }
     
-    const totalSeriousEvents = adverseEvents.reduce((count, [_, data]) => count + data.serious, 0);
-    if (totalSeriousEvents > 0) {
-        summary += `Safety monitoring has identified ${totalSeriousEvents} serious adverse events across all studies. `;
-    } else if (adverseEvents.length > 0) {
-        summary += `No serious adverse events have been reported, though non-serious events have been documented. `;
-    }
+//     const totalSeriousEvents = adverseEvents.reduce((count, [_, data]) => count + data.serious, 0);
+//     if (totalSeriousEvents > 0) {
+//         summary += `Safety monitoring has identified ${totalSeriousEvents} serious adverse events across all studies. `;
+//     } else if (adverseEvents.length > 0) {
+//         summary += `No serious adverse events have been reported, though non-serious events have been documented. `;
+//     }
     
-    return summary;
-}
+//     return summary;
+// }
 
 // Continuing the showUsageDetailModal function that was cut off
 async function showUsageDetailModal(itemData, itemName, entityType) {
@@ -10372,9 +11341,26 @@ async function showUsageDetailModal(itemData, itemName, entityType) {
     // Check if this item is marked as successful (for condition-drug view)
     const successBadge = itemData.isSuccessful ? 
         `<span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Successful Treatment</span>` : '';
-
+    
+    console.log(itemName, entityType);
+    
     // Generate comprehensive clinical summary
-    const clinicalSummaryHTML = await createComprehensiveClinicalSummary(sortedStudies);
+    let clinicalSummaryHTML = '';
+    try {
+        // For drug entities, use the search term if available
+        const drugName = entityType === 'drug' && typeof SearchTermManager !== 'undefined' ? 
+            SearchTermManager.getSearchTerm() : 
+            itemName;
+            
+        clinicalSummaryHTML = await createComprehensiveClinicalSummary(sortedStudies, drugName);
+    } catch (error) {
+        console.error('Error generating clinical summary:', error);
+        clinicalSummaryHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p class="text-red-700">Error generating clinical summary. Please try again later.</p>
+            </div>
+        `;
+    }
     
     // Create modal content
     let modalContent = `
@@ -37198,6 +38184,17 @@ async function handleSearch() {
     appState.studyDetails = {};
     appState.failedStudyIds.clear(); // Reset failed study IDs
     
+
+    // Example usage:
+    if (drug){
+        SearchTermManager.setSearchTerm(drug);
+    } else {
+        SearchTermManager.setSearchTerm(condition);
+    }
+
+
+
+
     // Reset FDA data
     appState.fdaData = {
         documents: [],
