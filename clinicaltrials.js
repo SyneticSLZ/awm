@@ -71,7 +71,8 @@ const PORT = process.env.PORT || 3000;
 
 
 const allowedOrigins = [
-  'https://syneticx.com', // Replace with your actual frontend domain
+  'https://www.syneticx.com', // Replace with your actual frontend domain
+  'https://syneticx.com',
   'http://localhost:3000', // For local development
 ];
 
