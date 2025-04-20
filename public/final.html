@@ -21764,7 +21764,7 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       
       <div class="mt-4 flex justify-between items-center">
         <div class="flex space-x-3">
-          <button id="analyze-selected-companies" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-3 rounded-md flex items-center transition-colors" disabled>
+          <button id="analyze-selected-companies" class="hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-3 rounded-md flex items-center transition-colors" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
@@ -21812,6 +21812,7 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
   // Add event listeners
   document.querySelectorAll('.company-select-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', updateSelectedCompaniesState);
+    checkbox.classList.add('hidden')
   });
   
   document.getElementById('analyze-selected-companies').addEventListener('click', () => {
