@@ -6839,7 +6839,7 @@ app.get('/api/drugs/compare/:drugName', async (req, res) => {
 
 // Catch-all route to serve the SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'final.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
