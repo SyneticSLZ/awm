@@ -20416,6 +20416,167 @@ function updateForm483CountsFromDisplayedTable() {
 }
   
 // Modified function to create company summary directly from the tracked data in the global state
+// function createCompanySummaryFromTrackedData(companies, warningLetters, inspections) {
+//   console.log("Creating company summary from tracked data for:", companies);
+//   console.log("Current Form 483 counts before creating summary:", window.regulatoryData.form483Counts);
+  
+//   // Create container if it doesn't exist
+//   if (!elements.companySummarySection) {
+//     elements.companySummarySection = document.createElement('div');
+//     elements.companySummarySection.id = 'company-summary-section';
+//     elements.companySummarySection.className = 'mb-6';
+    
+//     // Insert before inspection data section
+//     const inspectionDataSection = document.getElementById('inspection-data');
+//     if (inspectionDataSection && inspectionDataSection.parentNode) {
+//       inspectionDataSection.parentNode.insertBefore(elements.companySummarySection, inspectionDataSection);
+//     } else {
+//       // If inspection data section doesn't exist, append to FDA data section
+//       const fdaDataSection = document.querySelector('.fda-data-section');
+//       if (fdaDataSection) {
+//         fdaDataSection.appendChild(elements.companySummarySection);
+//       }
+//     }
+//   }
+  
+//   // Get stats for each company from the global tracking object
+//   const companyStats = companies.map(company => {
+//     return window.regulatoryData.getCompanyStats(company);
+//   });
+  
+//   // Log the final stats
+//   console.log("Final company statistics from tracked data:", companyStats);
+  
+//   // Create summary HTML
+//   let html = `
+//     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h3 class="text-lg font-medium">Company Regulatory Summary</h3>
+        
+//         <div class="flex space-x-2">
+//           <button id="generate-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+//             </svg>
+//             Generate AI Summary
+//           </button>
+          
+//           <button id="email-summary-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//             </svg>
+//             Email Summary
+//           </button>
+//         </div>
+//       </div>
+      
+//       <div class="overflow-x-auto">
+//         <table class="min-w-full text-sm">
+//           <thead>
+//             <tr class="bg-gray-100">
+//               <th class="px-4 py-2 text-left">Company</th>
+//               <th class="px-4 py-2 text-center">Form 483s</th>
+//               <th class="px-4 py-2 text-center">Warning Letters</th>
+//               <th class="px-4 py-2 text-center">Total Inspections</th>
+//               <th class="px-4 py-2 text-right">Actions</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             ${companyStats.map(stat => `
+//               <tr class="border-b hover:bg-gray-50">
+//                 <td class="px-4 py-3 font-medium">${stat.company}</td>
+//                 <td class="px-4 py-3 text-center" data-form483-count="${stat.form483Count}">
+//                   ${stat.form483Count > 0 
+//                     ? `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">${stat.form483Count}</span>` 
+//                     : '0'}
+//                 </td>
+//                 <td class="px-4 py-3 text-center" data-wl-count="${stat.wlCount}">
+//                   ${stat.wlCount > 0 
+//                     ? `<span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">${stat.wlCount}</span>` 
+//                     : '0'}
+//                 </td>
+//                 <td class="px-4 py-3 text-center" data-total-count="${stat.totalInspections}">
+//                   ${stat.totalInspections > 0 
+//                     ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">${stat.totalInspections}</span>` 
+//                     : '0'}
+//                 </td>
+//                 <td class="px-4 py-3 text-right">
+//                   <div class="flex justify-end space-x-2">
+//                     <button class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded transition-colors view-company-details" 
+//                             data-company="${stat.company}">
+//                       View Details
+//                     </button>
+//                     <label class="inline-flex items-center cursor-pointer">
+//                       <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 company-select-checkbox" 
+//                              value="${stat.company}">
+//                     </label>
+//                   </div>
+//                 </td>
+//               </tr>
+//             `).join('')}
+//           </tbody>
+//         </table>
+//       </div>
+      
+//       <div class="mt-4 flex justify-between items-center">
+//         <div>
+//           <button id="analyze-selected-companies" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-3 rounded-md flex items-center transition-colors" disabled>
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+//             </svg>
+//             Analyze Selected Companies
+//           </button>
+//         </div>
+//         <div class="text-xs text-gray-500">
+//           Select companies to perform detailed analysis or generate AI summary
+//         </div>
+//       </div>
+      
+//       <!-- AI Analysis Results Section -->
+//       <div id="ai-analysis-results" class="mt-6 hidden">
+//         <div class="border-t pt-4">
+//           <h4 class="text-base font-medium mb-3">AI Analysis Results</h4>
+//           <div id="ai-analysis-content" class="bg-gray-50 p-4 rounded-lg">
+//             <!-- AI content will be placed here -->
+//           </div>
+//         </div>
+//       </div>
+      
+//       <!-- Company Details Section -->
+//       <div id="company-detail-view" class="mt-6 hidden">
+//         <div class="border-t pt-4">
+//           <h4 class="text-base font-medium mb-3">Company Details: <span id="company-detail-name"></span></h4>
+//           <div id="company-detail-content" class="bg-gray-50 p-4 rounded-lg">
+//             <!-- Company detail content will be placed here -->
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   // Update the section
+//   elements.companySummarySection.innerHTML = html;
+  
+//   // Add event listeners
+//   document.querySelectorAll('.company-select-checkbox').forEach(checkbox => {
+//     checkbox.addEventListener('change', updateSelectedCompaniesState);
+//   });
+  
+//   document.getElementById('analyze-selected-companies').addEventListener('click', () => {
+//     analyzeSelectedCompanies(warningLetters, inspections);
+//   });
+  
+//   document.getElementById('generate-ai-summary').addEventListener('click', WLgenerateAISummary);
+//   document.getElementById('email-summary-btn').addEventListener('click', WLemailSummary);
+  
+//   document.querySelectorAll('.view-company-details').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const company = this.getAttribute('data-company');
+//       WLshowCompanyDetails(company, warningLetters, inspections);
+//     });
+//   });
+// }
+// Modified function to create company summary with toggle for empty results
 function createCompanySummaryFromTrackedData(companies, warningLetters, inspections) {
   console.log("Creating company summary from tracked data for:", companies);
   console.log("Current Form 483 counts before creating summary:", window.regulatoryData.form483Counts);
@@ -20444,8 +20605,55 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
     return window.regulatoryData.getCompanyStats(company);
   });
   
+  // Separate companies with findings from those without
+  const companiesWithFindings = companyStats.filter(stat => 
+    stat.form483Count > 0 || stat.wlCount > 0 || stat.totalInspections > 0
+  );
+  
+  const companiesWithoutFindings = companyStats.filter(stat => 
+    stat.form483Count === 0 && stat.wlCount === 0 && stat.totalInspections === 0
+  );
+  
+  // Track the visibility state of companies without findings
+  window.showEmptyCompanies = window.showEmptyCompanies || false;
+  
   // Log the final stats
-  console.log("Final company statistics from tracked data:", companyStats);
+  console.log("Companies with findings:", companiesWithFindings);
+  console.log("Companies without findings:", companiesWithoutFindings);
+  
+  // Create company row HTML function
+  const createCompanyRow = (stat) => `
+    <tr class="border-b hover:bg-gray-50" data-has-findings="${stat.form483Count > 0 || stat.wlCount > 0 || stat.totalInspections > 0}">
+      <td class="px-4 py-3 font-medium">${stat.company}</td>
+      <td class="px-4 py-3 text-center" data-form483-count="${stat.form483Count}">
+        ${stat.form483Count > 0 
+          ? `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">${stat.form483Count}</span>` 
+          : '<span class="text-gray-400">0</span>'}
+      </td>
+      <td class="px-4 py-3 text-center" data-wl-count="${stat.wlCount}">
+        ${stat.wlCount > 0 
+          ? `<span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">${stat.wlCount}</span>` 
+          : '<span class="text-gray-400">0</span>'}
+      </td>
+      <td class="px-4 py-3 text-center" data-total-count="${stat.totalInspections}">
+        ${stat.totalInspections > 0 
+          ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">${stat.totalInspections}</span>` 
+          : '<span class="text-gray-400">0</span>'}
+      </td>
+      <td class="px-4 py-3 text-right">
+        <div class="flex justify-end space-x-2">
+          <button class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded transition-colors view-company-details" 
+                  data-company="${stat.company}">
+            View Details
+          </button>
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 company-select-checkbox" 
+                   value="${stat.company}">
+          </label>
+        </div>
+      </td>
+    </tr>
+  `;
   
   // Create summary HTML
   let html = `
@@ -20481,37 +20689,11 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
               <th class="px-4 py-2 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            ${companyStats.map(stat => `
-              <tr class="border-b hover:bg-gray-50">
-                <td class="px-4 py-3 font-medium">${stat.company}</td>
-                <td class="px-4 py-3 text-center" data-form483-count="${stat.form483Count}">
-                  ${stat.form483Count > 0 
-                    ? `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">${stat.form483Count}</span>` 
-                    : '0'}
-                </td>
-                <td class="px-4 py-3 text-center" data-wl-count="${stat.wlCount}">
-                  ${stat.wlCount > 0 
-                    ? `<span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">${stat.wlCount}</span>` 
-                    : '0'}
-                </td>
-                <td class="px-4 py-3 text-center" data-total-count="${stat.totalInspections}">
-                  ${stat.totalInspections > 0 
-                    ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">${stat.totalInspections}</span>` 
-                    : '0'}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <div class="flex justify-end space-x-2">
-                    <button class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded transition-colors view-company-details" 
-                            data-company="${stat.company}">
-                      View Details
-                    </button>
-                    <label class="inline-flex items-center cursor-pointer">
-                      <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 company-select-checkbox" 
-                             value="${stat.company}">
-                    </label>
-                  </div>
-                </td>
+          <tbody id="company-summary-table-body">
+            ${companiesWithFindings.map(createCompanyRow).join('')}
+            ${companiesWithoutFindings.map(stat => `
+              <tr class="border-b hover:bg-gray-50 empty-company-row ${window.showEmptyCompanies ? '' : 'hidden'}" data-has-findings="false">
+                ${createCompanyRow(stat).substring(createCompanyRow(stat).indexOf('>')+1)}
               </tr>
             `).join('')}
           </tbody>
@@ -20519,16 +20701,24 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       </div>
       
       <div class="mt-4 flex justify-between items-center">
-        <div>
+        <div class="flex space-x-3">
           <button id="analyze-selected-companies" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-3 rounded-md flex items-center transition-colors" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             Analyze Selected Companies
           </button>
+          
+          <div class="flex items-center">
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggle-empty-companies" class="form-checkbox h-4 w-4 text-blue-600" ${window.showEmptyCompanies ? 'checked' : ''}>
+              <span class="ml-2 text-xs text-gray-600">Show companies with no findings (${companiesWithoutFindings.length})</span>
+            </label>
+          </div>
         </div>
+        
         <div class="text-xs text-gray-500">
-          Select companies to perform detailed analysis or generate AI summary
+          Showing ${companiesWithFindings.length} companies with findings${window.showEmptyCompanies ? ` and ${companiesWithoutFindings.length} without` : ''}
         </div>
       </div>
       
@@ -20574,6 +20764,24 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       const company = this.getAttribute('data-company');
       WLshowCompanyDetails(company, warningLetters, inspections);
     });
+  });
+  
+  // Add toggle functionality for empty companies
+  document.getElementById('toggle-empty-companies').addEventListener('change', function() {
+    window.showEmptyCompanies = this.checked;
+    document.querySelectorAll('.empty-company-row').forEach(row => {
+      if (window.showEmptyCompanies) {
+        row.classList.remove('hidden');
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+    
+    // Update the counter text
+    const countText = document.querySelector('.text-xs.text-gray-500');
+    if (countText) {
+      countText.textContent = `Showing ${companiesWithFindings.length} companies with findings${window.showEmptyCompanies ? ` and ${companiesWithoutFindings.length} without` : ''}`;
+    }
   });
 }
   
