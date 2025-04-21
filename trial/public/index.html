@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Clinical Trials Aggregator</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f9f9f9;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --text-color: #333;
+            --text-light: #777;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --error: #e74c3c;
+            --phase1: #7ed6df;
+            --phase2: #22a6b3;
+            --phase3: #686de0;
+            --phase4: #4834d4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin: 20px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 15px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 350px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.primary {
+            background-color: var(--primary-color);
+        }
+
+        button.primary:hover {
+            background-color: #1a2530;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--secondary-color);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--error);
+            text-align: center;
+            font-weight: 500;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .step-container {
+            margin-bottom: 40px;
+        }
+
+        .step-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            padding: 20px;
+        }
+
+        .step-content.hidden {
+            display: none;
+        }
+
+        .names-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            margin: 15px 0;
+        }
+
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .name-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #f5f5f5;
+        }
+
+        .name-checkbox {
+            margin-right: 10px;
+        }
+
+        .trial-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            align-items: center;
+        }
+
+        .trial-filter {
+            display: flex;
+            align-items: center;
+        }
+
+        .trial-filter label {
+            margin-right: 10px;
+        }
+
+        .trial-filter select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .trials-list {
+            margin-top: 20px;
+        }
+
+        .trial-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .trial-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .trial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .trial-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            flex: 1;
+        }
+
+        .trial-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .status-recruiting {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-completed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-active {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+
+        .status-terminated {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .status-not-recruiting {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-unknown {
+            background-color: #eeeeee;
+            color: #757575;
+        }
+
+        .trial-phase {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .phase-1 {
+            background-color: var(--phase1);
+            color: #333;
+        }
+
+        .phase-2 {
+            background-color: var(--phase2);
+            color: white;
+        }
+
+        .phase-3 {
+            background-color: var(--phase3);
+            color: white;
+        }
+
+        .phase-4 {
+            background-color: var(--phase4);
+            color: white;
+        }
+
+        .phase-unknown {
+            background-color: #f5f5f5;
+            color: #757575;
+        }
+
+        .trial-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .trial-summary {
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .trial-interventions {
+            margin-top: 15px;
+        }
+
+        .intervention-item {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .intervention-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .intervention-type {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .intervention-description {
+            font-size: 13px;
+        }
+
+        .trial-matches {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .matches-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .match-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .match-tag {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .trial-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .trial-link:hover {
+            text-decoration: underline;
+        }
+
+        .stats-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            user-select: none;
+        }
+
+        .pagination-item {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .pagination-item:hover:not(.active):not(.disabled) {
+            background-color: #f1f1f1;
+        }
+
+        .pagination-item.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .pagination-item.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .filters-toggle {
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filters-toggle::after {
+            content: '▼';
+            margin-left: 8px;
+            font-size: 10px;
+        }
+
+        .filters-toggle.active::after {
+            content: '▲';
+        }
+
+        .filters-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .filters-container.expanded {
+            max-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            button {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .trial-header {
+                flex-direction: column;
+            }
+
+            .trial-status {
+                margin-top: 10px;
+                align-self: flex-start;
+            }
+
+            .trial-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Drug Clinical Trials Aggregator</h1>
+            <p>Search for clinical trials across all alternative names and identifiers for a drug</p>
+        </header>
+
+        <div class="step-container" id="step1Container">
+            <div class="step-header">
+                <h2>Step 1: Search for a drug</h2>
+            </div>
+            <div class="step-content">
+                <p>Enter a drug name, code, or identifier. The system will search for all alternative names from multiple pharmaceutical databases.</p>
+                
+                <div class="search-container">
+                    <input type="text" id="drugNameInput" placeholder="Enter drug name (e.g., metformin, liafensine, BMS-820836)" autofocus>
+                    <button id="searchButton">Find Drug Names</button>
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching pharmaceutical databases...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" id="step2Container">
+            <div class="step-header">
+                <h2>Step 2: Select drug names to include in clinical trial search</h2>
+            </div>
+            <div class="step-content hidden">
+                <div id="namesStats" class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div id="totalNamesCount" class="stat-value">0</div>
+                            <div class="stat-label">Total Names Found</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="selectedNamesCount" class="stat-value">0</div>
+                            <div class="stat-label">Selected Names</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="sourcesCount" class="stat-value">0</div>
+                            <div class="stat-label">Data Sources</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="selectAllButton" class="primary">Select All Names</button>
+                    <button id="deselectAllButton">Deselect All</button>
+                </div>
+
+                <div class="names-container">
+                    <div id="namesGrid" class="names-grid">
+                        <!-- Drug names will be loaded here -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="searchTrialsButton" class="primary" disabled>Search Clinical Trials</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" id="step3Container">
+            <div class="step-header">
+                <h2>Step 3: Explore Clinical Trials</h2>
+            </div>
+            <div class="step-content hidden">
+                <div id="trialStats" class="stats-container">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div id="totalTrialsCount" class="stat-value">0</div>
+                            <div class="stat-label">Total Clinical Trials</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="searchedNamesCount" class="stat-value">0</div>
+                            <div class="stat-label">Drug Names Searched</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="statusDistribution" class="stat-value">-</div>
+                            <div class="stat-label">Most Common Status</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="phaseDistribution" class="stat-value">-</div>
+                            <div class="stat-label">Most Common Phase</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="filters-toggle" id="filtersToggle">Filters</button>
+
+                <div class="filters-container" id="filtersContainer">
+                    <div class="trial-filters">
+                        <div class="trial-filter">
+                            <label for="statusFilter">Status:</label>
+                            <select id="statusFilter">
+                                <option value="all">All Statuses</option>
+                                <option value="RECRUITING">Recruiting</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="ACTIVE_NOT_RECRUITING">Active, not recruiting</option>
+                                <option value="NOT_YET_RECRUITING">Not yet recruiting</option>
+                                <option value="TERMINATED">Terminated</option>
+                                <option value="SUSPENDED">Suspended</option>
+                                <option value="WITHDRAWN">Withdrawn</option>
+                                <option value="UNKNOWN">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="trial-filter">
+                            <label for="phaseFilter">Phase:</label>
+                            <select id="phaseFilter">
+                                <option value="all">All Phases</option>
+                                <option value="Phase 1">Phase 1</option>
+                                <option value="Phase 2">Phase 2</option>
+                                <option value="Phase 3">Phase 3</option>
+                                <option value="Phase 4">Phase 4</option>
+                                <option value="Not Applicable">Not Applicable</option>
+                            </select>
+                        </div>
+                        <div class="trial-filter">
+                            <label for="sortBy">Sort by:</label>
+                            <select id="sortBy">
+                                <option value="relevance">Most Relevant</option>
+                                <option value="status">Status</option>
+                                <option value="phase">Phase</option>
+                                <option value="start_date">Start Date (newest first)</option>
+                                <option value="enrollment">Enrollment (largest first)</option>
+                            </select>
+                        </div>
+                        <div class="trial-filter">
+                            <input type="text" id="trialSearchInput" placeholder="Search within results">
+                            <button id="trialSearchButton">Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trialsLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching for clinical trials across all drug names...</p>
+                </div>
+                
+                <div id="trialsErrorMessage" class="error-message"></div>
+
+                <div id="trialsList" class="trials-list">
+                    <!-- Clinical trials will be loaded here -->
+                </div>
+
+                <div id="pagination" class="pagination">
+                    <!-- Pagination controls will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" id="backToTop" class="back-to-top">↑</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM elements
+            const drugNameInput = document.getElementById('drugNameInput');
+            const searchButton = document.getElementById('searchButton');
+            const loadingIndicator = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            const step1Container = document.getElementById('step1Container');
+            const step2Container = document.getElementById('step2Container');
+            const step3Container = document.getElementById('step3Container');
+            const namesGrid = document.getElementById('namesGrid');
+            const totalNamesCount = document.getElementById('totalNamesCount');
+            const selectedNamesCount = document.getElementById('selectedNamesCount');
+            const sourcesCount = document.getElementById('sourcesCount');
+            const selectAllButton = document.getElementById('selectAllButton');
+            const deselectAllButton = document.getElementById('deselectAllButton');
+            const searchTrialsButton = document.getElementById('searchTrialsButton');
+            const trialsLoading = document.getElementById('trialsLoading');
+            const trialsErrorMessage = document.getElementById('trialsErrorMessage');
+            const trialsList = document.getElementById('trialsList');
+            const totalTrialsCount = document.getElementById('totalTrialsCount');
+            const searchedNamesCount = document.getElementById('searchedNamesCount');
+            const statusDistribution = document.getElementById('statusDistribution');
+            const phaseDistribution = document.getElementById('phaseDistribution');
+            const statusFilter = document.getElementById('statusFilter');
+            const phaseFilter = document.getElementById('phaseFilter');
+            const sortBy = document.getElementById('sortBy');
+            const trialSearchInput = document.getElementById('trialSearchInput');
+            const trialSearchButton = document.getElementById('trialSearchButton');
+            const pagination = document.getElementById('pagination');
+            const backToTop = document.getElementById('backToTop');
+            const filtersToggle = document.getElementById('filtersToggle');
+            const filtersContainer = document.getElementById('filtersContainer');
+
+            // State
+            let drugNames = [];
+            let selectedDrugNames = [];
+            let allTrials = [];
+            let filteredTrials = [];
+            let currentPage = 1;
+            const itemsPerPage = 10;
+
+            // Event listeners
+            searchButton.addEventListener('click', searchDrugNames);
+            drugNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchDrugNames();
+                }
+            });
+            selectAllButton.addEventListener('click', selectAllNames);
+            deselectAllButton.addEventListener('click', deselectAllNames);
+            searchTrialsButton.addEventListener('click', searchAllTrials);
+            statusFilter.addEventListener('change', filterTrials);
+            phaseFilter.addEventListener('change', filterTrials);
+            sortBy.addEventListener('change', filterTrials);
+            trialSearchButton.addEventListener('click', filterTrials);
+            trialSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    filterTrials();
+                }
+            });
+            
+            // Scroll to top button
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            
+            backToTop.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Filters toggle
+            filtersToggle.addEventListener('click', () => {
+                filtersToggle.classList.toggle('active');
+                filtersContainer.classList.toggle('expanded');
+            });
+
+            // Functions
+            async function searchDrugNames() {
+                const drugName = drugNameInput.value.trim();
+                
+                if (!drugName) {
+                    showError('Please enter a drug name to search');
+                    return;
+                }
+                
+                // Clear previous results
+                namesGrid.innerHTML = '';
+                errorMessage.style.display = 'none';
+                loadingIndicator.style.display = 'block';
+                
+                try {
+                    const response = await fetch(`/api/collect-names/${encodeURIComponent(drugName)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'An error occurred while collecting drug names');
+                    }
+                    
+                    displayDrugNames(data.data);
+                } catch (error) {
+                    showError(`Error: ${error.message}`);
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+
+            function displayDrugNames(data) {
+                drugNames = data.uniqueNames;
+                
+                if (drugNames.length === 0) {
+                    showError('No drug names found. Try a different search term.');
+                    return;
+                }
+                
+                // Update statistics
+                totalNamesCount.textContent = drugNames.length;
+                selectedNamesCount.textContent = '0';
+                sourcesCount.textContent = Object.keys(data.namesBySource).length;
+                
+                // Generate name checkboxes
+                drugNames.forEach((name, index) => {
+                    const nameItem = document.createElement('div');
+                    nameItem.className = 'name-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'name-checkbox';
+                    checkbox.dataset.name = name;
+                    checkbox.id = `name-${index}`;
+                    checkbox.addEventListener('change', updateSelectedNames);
+                    
+                    const label = document.createElement('label');
+                    label.textContent = name;
+                    label.htmlFor = `name-${index}`;
+                    
+                    nameItem.appendChild(checkbox);
+                    nameItem.appendChild(label);
+                    namesGrid.appendChild(nameItem);
+                });
+                
+                // Show step 2
+                step2Container.querySelector('.step-content').classList.remove('hidden');
+                window.scrollTo({
+                    top: step2Container.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+            }
+
+            function selectAllNames() {
+                const checkboxes = document.querySelectorAll('.name-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                updateSelectedNames();
+            }
+
+            function deselectAllNames() {
+                const checkboxes = document.querySelectorAll('.name-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateSelectedNames();
+            }
+
+            function updateSelectedNames() {
+                const checkboxes = document.querySelectorAll('.name-checkbox:checked');
+                selectedDrugNames = Array.from(checkboxes).map(checkbox => checkbox.dataset.name);
+                
+                selectedNamesCount.textContent = selectedDrugNames.length;
+                searchTrialsButton.disabled = selectedDrugNames.length === 0;
+            }
+
+            async function searchAllTrials() {
+                if (selectedDrugNames.length === 0) {
+                    return;
+                }
+                
+                // Clear previous results
+                trialsList.innerHTML = '';
+                trialsErrorMessage.style.display = 'none';
+                trialsLoading.style.display = 'block';
+                step3Container.querySelector('.step-content').classList.remove('hidden');
+                
+                window.scrollTo({
+                    top: step3Container.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                try {
+                    const response = await fetch('/api/aggregate-trials', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ drugNames: selectedDrugNames })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'An error occurred while searching for clinical trials');
+                    }
+                    
+                    displayTrials(data.data);
+                } catch (error) {
+                    showTrialsError(`Error: ${error.message}`);
+                } finally {
+                    trialsLoading.style.display = 'none';
+                }
+            }
+
+            function displayTrials(data) {
+                allTrials = data.trials || [];
+                
+                // Update statistics
+                totalTrialsCount.textContent = allTrials.length;
+                searchedNamesCount.textContent = data.stats.totalDrugNamesSearched;
+                
+                if (allTrials.length === 0) {
+                    showTrialsError('No clinical trials found for the selected drug names');
+                    return;
+                }
+                
+                // Calculate distributions
+                const statusCounts = {};
+                const phaseCounts = {};
+                
+                allTrials.forEach(trial => {
+                    statusCounts[trial.status] = (statusCounts[trial.status] || 0) + 1;
+                    phaseCounts[trial.phase] = (phaseCounts[trial.phase] || 0) + 1;
+                });
+                
+                // Find most common status and phase
+                const mostCommonStatus = Object.entries(statusCounts).sort((a, b) => b[1] - a[1])[0];
+                const mostCommonPhase = Object.entries(phaseCounts).sort((a, b) => b[1] - a[1])[0];
+                
+                statusDistribution.textContent = mostCommonStatus ? `${mostCommonStatus[0]} (${mostCommonStatus[1]})` : '-';
+                phaseDistribution.textContent = mostCommonPhase ? `${mostCommonPhase[0]} (${mostCommonPhase[1]})` : '-';
+                
+                // Apply initial filter and display
+                filterTrials();
+            }
+
+            function filterTrials() {
+                const statusValue = statusFilter.value;
+                const phaseValue = phaseFilter.value;
+                const sortValue = sortBy.value;
+                const searchValue = trialSearchInput.value.toLowerCase().trim();
+                
+                // Filter trials
+                filteredTrials = allTrials.filter(trial => {
+                    // Status filter
+                    if (statusValue !== 'all' && trial.status !== statusValue) {
+                        return false;
+                    }
+                    
+                    // Phase filter
+                    if (phaseValue !== 'all' && !trial.phase.includes(phaseValue)) {
+                        return false;
+                    }
+                    
+                    // Search filter
+                    if (searchValue) {
+                        const searchableText = `${trial.title} ${trial.summary} ${trial.sponsor} ${trial.interventions.map(i => i.name).join(' ')}`.toLowerCase();
+                        return searchableText.includes(searchValue);
+                    }
+                    
+                    return true;
+                });
+                
+                // Sort trials
+                sortTrials(sortValue);
+                
+                // Update UI
+                currentPage = 1;
+                renderTrials();
+            }
+
+            function sortTrials(sortValue) {
+                switch (sortValue) {
+                    case 'status':
+                        filteredTrials.sort((a, b) => a.status.localeCompare(b.status));
+                        break;
+                    case 'phase':
+                        filteredTrials.sort((a, b) => {
+                            const phaseA = a.phase.replace('Phase ', '').trim();
+                            const phaseB = b.phase.replace('Phase ', '').trim();
+                            return phaseA.localeCompare(phaseB);
+                        });
+                        break;
+                    case 'start_date':
+                        filteredTrials.sort((a, b) => {
+                            if (a.startDate === 'Not specified') return 1;
+                            if (b.startDate === 'Not specified') return -1;
+                            return new Date(b.startDate) - new Date(a.startDate);
+                        });
+                        break;
+                    case 'enrollment':
+                        filteredTrials.sort((a, b) => {
+                            const enrollA = parseInt(a.enrollment) || 0;
+                            const enrollB = parseInt(b.enrollment) || 0;
+                            return enrollB - enrollA;
+                        });
+                        break;
+                    case 'relevance':
+                    default:
+                        // Sort by number of matched drug names (more matches = higher relevance)
+                        filteredTrials.sort((a, b) => {
+                            return (b.matchedDrugNames?.length || 0) - (a.matchedDrugNames?.length || 0);
+                        });
+                        break;
+                }
+            }
+
+            function renderTrials() {
+                trialsList.innerHTML = '';
+                
+                if (filteredTrials.length === 0) {
+                    trialsList.innerHTML = '<p>No trials match the selected filters</p>';
+                    pagination.innerHTML = '';
+                    return;
+                }
+                
+                // Calculate pagination
+                const totalPages = Math.ceil(filteredTrials.length / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, filteredTrials.length);
+                const currentTrials = filteredTrials.slice(startIndex, endIndex);
+                
+                // Render trials
+                currentTrials.forEach(trial => {
+                    const trialCard = document.createElement('div');
+                    trialCard.className = 'trial-card';
+                    
+                    // Determine status class
+                    let statusClass = 'status-unknown';
+                    switch (trial.status) {
+                        case 'RECRUITING':
+                            statusClass = 'status-recruiting';
+                            break;
+                        case 'COMPLETED':
+                            statusClass = 'status-completed';
+                            break;
+                        case 'ACTIVE_NOT_RECRUITING':
+                            statusClass = 'status-active';
+                            break;
+                        case 'TERMINATED':
+                        case 'WITHDRAWN':
+                        case 'SUSPENDED':
+                            statusClass = 'status-terminated';
+                            break;
+                        case 'NOT_YET_RECRUITING':
+                            statusClass = 'status-not-recruiting';
+                            break;
+                    }
+                    
+                    // Determine phase class
+                    let phaseClass = 'phase-unknown';
+                    if (trial.phase.includes('Phase 1')) {
+                        phaseClass = 'phase-1';
+                    } else if (trial.phase.includes('Phase 2')) {
+                        phaseClass = 'phase-2';
+                    } else if (trial.phase.includes('Phase 3')) {
+                        phaseClass = 'phase-3';
+                    } else if (trial.phase.includes('Phase 4')) {
+                        phaseClass = 'phase-4';
+                    }
+                    
+                    trialCard.innerHTML = `
+                        <div class="trial-header">
+                            <h3 class="trial-title">${trial.title}</h3>
+                            <span class="trial-status ${statusClass}">${trial.status.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div class="trial-info">
+                            <div class="info-item">
+                                <span class="trial-phase ${phaseClass}">${trial.phase}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Start Date:</span>
+                                <span class="info-value">${trial.startDate}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Completion Date:</span>
+                                <span class="info-value">${trial.completionDate}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Sponsor:</span>
+                                <span class="info-value">${trial.sponsor}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Enrollment:</span>
+                                <span class="info-value">${trial.enrollment}</span>
+                            </div>
+                        </div>
+                        <div class="trial-summary">${trial.summary}</div>
+                    `;
+                    
+                    // Add interventions if available
+                    if (trial.interventions && trial.interventions.length > 0) {
+                        const interventionsDiv = document.createElement('div');
+                        interventionsDiv.className = 'trial-interventions';
+                        
+                        const interventionsTitle = document.createElement('h4');
+                        interventionsTitle.textContent = 'Interventions:';
+                        interventionsDiv.appendChild(interventionsTitle);
+                        
+                        trial.interventions.forEach(intervention => {
+                            const interventionItem = document.createElement('div');
+                            interventionItem.className = 'intervention-item';
+                            
+                            const interventionName = document.createElement('div');
+                            interventionName.className = 'intervention-name';
+                            interventionName.textContent = intervention.name;
+                            
+                            const interventionType = document.createElement('div');
+                            interventionType.className = 'intervention-type';
+                            interventionType.textContent = `Type: ${intervention.type || 'Not specified'}`;
+                            
+                            interventionItem.appendChild(interventionName);
+                            interventionItem.appendChild(interventionType);
+                            
+                            if (intervention.description) {
+                                const interventionDesc = document.createElement('div');
+                                interventionDesc.className = 'intervention-description';
+                                interventionDesc.textContent = intervention.description;
+                                interventionItem.appendChild(interventionDesc);
+                            }
+                            
+                            interventionsDiv.appendChild(interventionItem);
+                        });
+                        
+                        trialCard.appendChild(interventionsDiv);
+                    }
+                    
+                    // Add matched drug names
+                    if (trial.matchedDrugNames && trial.matchedDrugNames.length > 0) {
+                        const matchesDiv = document.createElement('div');
+                        matchesDiv.className = 'trial-matches';
+                        
+                        const matchesTitle = document.createElement('div');
+                        matchesTitle.className = 'matches-title';
+                        matchesTitle.textContent = 'Matched Drug Names:';
+                        
+                        const matchesTags = document.createElement('div');
+                        matchesTags.className = 'match-tags';
+                        
+                        trial.matchedDrugNames.forEach(name => {
+                            const matchTag = document.createElement('span');
+                            matchTag.className = 'match-tag';
+                            matchTag.textContent = name;
+                            matchesTags.appendChild(matchTag);
+                        });
+                        
+                        matchesDiv.appendChild(matchesTitle);
+                        matchesDiv.appendChild(matchesTags);
+                        trialCard.appendChild(matchesDiv);
+                    }
+                    
+                    // Add link to ClinicalTrials.gov
+                    const trialLink = document.createElement('a');
+                    trialLink.href = trial.url;
+                    trialLink.className = 'trial-link';
+                    trialLink.textContent = 'View on ClinicalTrials.gov';
+                    trialLink.target = '_blank';
+                    trialLink.rel = 'noopener noreferrer';
+                    
+                    trialCard.appendChild(trialLink);
+                    trialsList.appendChild(trialCard);
+                });
+                
+                // Render pagination
+                renderPagination(totalPages);
+            }
+
+            function renderPagination(totalPages) {
+                pagination.innerHTML = '';
+                
+                if (totalPages <= 1) {
+                    return;
+                }
+                
+                // Previous button
+                const prevItem = document.createElement('div');
+                prevItem.className = `pagination-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevItem.textContent = '←';
+                if (currentPage > 1) {
+                    prevItem.addEventListener('click', () => {
+                        currentPage--;
+                        renderTrials();
+                        window.scrollTo({
+                            top: trialsList.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+                pagination.appendChild(prevItem);
+                
+                // Page numbers
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                // Adjust startPage if we're near the end
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                // First page (if not visible)
+                if (startPage > 1) {
+                    const firstItem = document.createElement('div');
+                    firstItem.className = 'pagination-item';
+                    firstItem.textContent = '1';
+                    firstItem.addEventListener('click', () => {
+                        currentPage = 1;
+                        renderTrials();
+                        window.scrollTo({
+                            top: trialsList.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    });
+                    pagination.appendChild(firstItem);
+                    
+                    if (startPage > 2) {
+                        const ellipsis = document.createElement('div');
+                        ellipsis.className = 'pagination-item disabled';
+                        ellipsis.textContent = '...';
+                        pagination.appendChild(ellipsis);
+                    }
+                }
+                
+                // Page numbers
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageItem = document.createElement('div');
+                    pageItem.className = `pagination-item ${i === currentPage ? 'active' : ''}`;
+                    pageItem.textContent = i;
+                    if (i !== currentPage) {
+                        pageItem.addEventListener('click', () => {
+                            currentPage = i;
+                            renderTrials();
+                            window.scrollTo({
+                                top: trialsList.offsetTop - 100,
+                                behavior: 'smooth'
+                            });
+                        });
+                    }
+                    pagination.appendChild(pageItem);
+                }
+                
+                // Last page (if not visible)
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        const ellipsis = document.createElement('div');
+                        ellipsis.className = 'pagination-item disabled';
+                        ellipsis.textContent = '...';
+                        pagination.appendChild(ellipsis);
+                    }
+                    
+                    const lastItem = document.createElement('div');
+                    lastItem.className = 'pagination-item';
+                    lastItem.textContent = totalPages;
+                    lastItem.addEventListener('click', () => {
+                        currentPage = totalPages;
+                        renderTrials();
+                        window.scrollTo({
+                            top: trialsList.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    });
+                    pagination.appendChild(lastItem);
+                }
+                
+                // Next button
+                const nextItem = document.createElement('div');
+                nextItem.className = `pagination-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextItem.textContent = '→';
+                if (currentPage < totalPages) {
+                    nextItem.addEventListener('click', () => {
+                        currentPage++;
+                        renderTrials();
+                        window.scrollTo({
+                            top: trialsList.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+                pagination.appendChild(nextItem);
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+
+            function showTrialsError(message) {
+                trialsErrorMessage.textContent = message;
+                trialsErrorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
