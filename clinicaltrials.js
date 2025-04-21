@@ -7576,6 +7576,7 @@ async function searchTrialsForName(drugName) {
 
 
 // Function to search for clinical trials using all collected drug names
+// Function to search for clinical trials using all collected drug names
 async function searchAllTrialsForDrugNames(drugNames) {
   // Store all unique trials to avoid duplicates
   const uniqueTrials = new Map();
@@ -7644,6 +7645,8 @@ async function searchAllTrialsForDrugNames(drugNames) {
 }
 
 // Helper function to search clinical trials for a single drug name
+
+// Helper function to search clinical trials for a single drug name
 async function searchTrialsForName(drugName) {
   try {
     if (!drugName || typeof drugName !== 'string' || drugName.trim() === '') {
@@ -7652,31 +7655,140 @@ async function searchTrialsForName(drugName) {
     
     const sanitizedName = drugName.trim();
     
-    // Use the ClinicalTrials.gov API v2
-    const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
-      params: {
-        'query.term': sanitizedName,
-        'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
-        'pageSize': 20,
-        'format': 'json'
-      },
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    // Use multiple search approaches to maximize results
+    let allTrials = [];
+    let errors = [];
     
-    if (!response.data || !response.data.studies || !Array.isArray(response.data.studies)) {
-      return { trials: [], error: 'Invalid response format from ClinicalTrials.gov' };
+    // Approach 1: Standard search by term
+    try {
+      // Use the ClinicalTrials.gov API v2
+      const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+        params: {
+          'query.term': sanitizedName,
+          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 50, // Increased from 20 to 50 to find more results
+          'format': 'json'
+        },
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.data && response.data.studies && Array.isArray(response.data.studies)) {
+        allTrials = allTrials.concat(response.data.studies);
+      }
+    } catch (error) {
+      console.error(`Error in standard search for ${drugName}:`, error.message);
+      errors.push(`Standard search error: ${error.message}`);
     }
     
+    // Approach 2: Try a more specific intervention search
+    try {
+      const interventionResponse = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+        params: {
+          'query.intr': sanitizedName,
+          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 50,
+          'format': 'json'
+        },
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (interventionResponse.data && interventionResponse.data.studies && Array.isArray(interventionResponse.data.studies)) {
+        // Add unique studies from this search
+        for (const study of interventionResponse.data.studies) {
+          if (study.protocolSection && study.protocolSection.identificationModule && study.protocolSection.identificationModule.nctId) {
+            const nctId = study.protocolSection.identificationModule.nctId;
+            if (!allTrials.some(t => t.protocolSection?.identificationModule?.nctId === nctId)) {
+              allTrials.push(study);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error in intervention search for ${drugName}:`, error.message);
+      errors.push(`Intervention search error: ${error.message}`);
+    }
+    
+    // Approach 3: Explicitly search for completed trials
+    try {
+      const completedTrialsResponse = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+        params: {
+          'query.term': sanitizedName,
+          'filter.overallStatus': 'COMPLETED',
+          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 50,
+          'format': 'json'
+        },
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (completedTrialsResponse.data && completedTrialsResponse.data.studies && Array.isArray(completedTrialsResponse.data.studies)) {
+        // Add unique completed studies
+        for (const study of completedTrialsResponse.data.studies) {
+          if (study.protocolSection && study.protocolSection.identificationModule && study.protocolSection.identificationModule.nctId) {
+            const nctId = study.protocolSection.identificationModule.nctId;
+            if (!allTrials.some(t => t.protocolSection?.identificationModule?.nctId === nctId)) {
+              allTrials.push(study);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error in completed trials search for ${drugName}:`, error.message);
+      errors.push(`Completed trials search error: ${error.message}`);
+    }
+    
+    // Approach 4: Search for completed trials with intervention filter
+    try {
+      const completedIntervResponse = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+        params: {
+          'query.intr': sanitizedName,
+          'filter.overallStatus': 'COMPLETED',
+          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 50,
+          'format': 'json'
+        },
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (completedIntervResponse.data && completedIntervResponse.data.studies && Array.isArray(completedIntervResponse.data.studies)) {
+        // Add unique completed studies with intervention match
+        for (const study of completedIntervResponse.data.studies) {
+          if (study.protocolSection && study.protocolSection.identificationModule && study.protocolSection.identificationModule.nctId) {
+            const nctId = study.protocolSection.identificationModule.nctId;
+            if (!allTrials.some(t => t.protocolSection?.identificationModule?.nctId === nctId)) {
+              allTrials.push(study);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error in completed trials with intervention search for ${drugName}:`, error.message);
+      errors.push(`Completed intervention search error: ${error.message}`);
+    }
+    
+    if (allTrials.length === 0 && errors.length > 0) {
+      return { trials: [], error: errors.join('; ') };
+    }
+    
+    console.log(`Found ${allTrials.length} total trials for ${drugName} after all search approaches`);
+    
     // Process and format the trials
-    const trials = response.data.studies.map(study => {
+    const trials = allTrials.map(study => {
       const protocolSection = study.protocolSection || {};
       const identificationModule = protocolSection.identificationModule || {};
       const statusModule = protocolSection.statusModule || {};
       const designModule = protocolSection.designModule || {};
       const sponsorCollaboratorsModule = protocolSection.sponsorCollaboratorsModule || {};
       const armsInterventionsModule = protocolSection.armsInterventionsModule || {};
+      const descriptionModule = protocolSection.descriptionModule || {};
       
       // Get interventions
       const interventions = [];
@@ -7695,9 +7807,11 @@ async function searchTrialsForName(drugName) {
         title: identificationModule.briefTitle || identificationModule.officialTitle || 'No title available',
         status: statusModule.overallStatus || 'UNKNOWN',
         phase: designModule.phases ? designModule.phases.join(', ') : 'Not specified',
-        summary: identificationModule.briefSummary ? 
-                 identificationModule.briefSummary.substring(0, 300) + (identificationModule.briefSummary.length > 300 ? '...' : '') 
-                 : 'No summary available',
+        summary: descriptionModule.briefSummary ? 
+                 descriptionModule.briefSummary.substring(0, 300) + (descriptionModule.briefSummary.length > 300 ? '...' : '') 
+                 : (identificationModule.briefSummary ?
+                    identificationModule.briefSummary.substring(0, 300) + (identificationModule.briefSummary.length > 300 ? '...' : '')
+                    : 'No summary available'),
         startDate: statusModule.startDate || 'Not specified',
         completionDate: statusModule.completionDate || 'Not specified',
         studyType: designModule.studyType || 'Not specified',
@@ -7717,7 +7831,10 @@ async function searchTrialsForName(drugName) {
     console.error(`Error searching trials for ${drugName}:`, error.message);
     return { trials: [], error: error.message };
   }
-}app.get('/api/studies/search', validatePagination, async (req, res) => {
+}
+
+
+app.get('/api/studies/search', validatePagination, async (req, res) => {
   try {
     const {
       query, condition, intervention, status, phase, sponsor,
@@ -8031,45 +8148,45 @@ async function getRelatedDrugs(drugName) {
       name.toLowerCase() !== drugName.toLowerCase()
     );
     
-    // Filter out problematic drug names that are likely to cause errors
-    relatedDrugs = relatedDrugs.filter(name => {
-      // Skip chemical structure identifiers, too complex for search
-      if (name.includes('-') && /\d/.test(name) && name.length > 10) {
-        return false;
-      }
+    // // Filter out problematic drug names that are likely to cause errors
+    // relatedDrugs = relatedDrugs.filter(name => {
+    //   // Skip chemical structure identifiers, too complex for search
+    //   if (name.includes('-') && /\d/.test(name) && name.length > 10) {
+    //     return false;
+    //   }
       
-      // Skip CAS registry numbers and similar identifiers
-      if (/^\d+-\d+-\d+$/.test(name)) {
-        return false;
-      }
+    //   // Skip CAS registry numbers and similar identifiers
+    //   if (/^\d+-\d+-\d+$/.test(name)) {
+    //     return false;
+    //   }
       
-      // Skip SMILES strings or other complex chemical notations
-      if (name.includes('(') && name.includes(')') && name.length > 30) {
-        return false;
-      }
+    //   // Skip SMILES strings or other complex chemical notations
+    //   if (name.includes('(') && name.includes(')') && name.length > 30) {
+    //     return false;
+    //   }
       
-      // Skip chemical formula-like strings with numbers and brackets
-      if (/^[A-Z0-9\(\)\[\]\{\}]+$/.test(name) && /\d/.test(name)) {
-        return false;
-      }
+    //   // Skip chemical formula-like strings with numbers and brackets
+    //   if (/^[A-Z0-9\(\)\[\]\{\}]+$/.test(name) && /\d/.test(name)) {
+    //     return false;
+    //   }
       
-      // Skip database IDs
-      if (/^[A-Z]+\d+$/.test(name) || /^[A-Z]+-\d+$/.test(name)) {
-        return false;
-      }
+    //   // Skip database IDs
+    //   if (/^[A-Z]+\d+$/.test(name) || /^[A-Z]+-\d+$/.test(name)) {
+    //     return false;
+    //   }
       
-      // Skip long, complex names that are likely full IUPAC names
-      if (name.length > 50) {
-        return false;
-      }
+    //   // Skip long, complex names that are likely full IUPAC names
+    //   if (name.length > 50) {
+    //     return false;
+    //   }
       
-      // Skip names with unusual characters that might break URLs
-      if (/[^\w\s\-\(\)]/i.test(name)) {
-        return false;
-      }
+    //   // Skip names with unusual characters that might break URLs
+    //   if (/[^\w\s\-\(\)]/i.test(name)) {
+    //     return false;
+    //   }
       
-      return true;
-    });
+    //   return true;
+    // });
     
     // Prioritize shorter, simpler names (more likely to be common names)
     relatedDrugs.sort((a, b) => a.length - b.length);

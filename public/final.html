@@ -24280,7 +24280,11 @@ For regulatory intelligence purposes only. Not for commercial use.
 
 async function searchWarningLetters(companies) {
   if (!Array.isArray(companies) || companies.length === 0) {
-    WLshowToast('No companies provided for search', 'error');
+    // WLshowToast('No companies provided for search', 'error');
+    elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters "</p>
+      </div>`;
+      
     return;
   }
   
@@ -24290,8 +24294,10 @@ async function searchWarningLetters(companies) {
     .filter(company => company.length > 0);
     
   if (companies.length === 0) {
-    WLshowToast('Please provide at least one valid company name', 'error');
-    return;
+    elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters "</p>
+      </div>`;
+          return;
   }
   
   // Show loading state
@@ -24323,7 +24329,10 @@ async function searchWarningLetters(companies) {
     }
   } catch (error) {
     console.error('Error searching companies:', error);
-    WLshowToast('Error fetching data. Please try again later.', 'error');
+    // WLshowToast('Error fetching data. Please try again later.', 'error');
+    elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters "</p>
+      </div>`;
   }
 }
 
@@ -30366,11 +30375,18 @@ async function displayFdaData(drugName, condition) {
       // Store Orange Book data globally for the summary
       window.orangeBookData = orangeBookData;
       
-      displayOrangeBookData(orangeBookData);
+      let run = displayOrangeBookData(orangeBookData);
       
       // Fetch warning letters for the companies
       // await fetchWarningLetters(companies);
-      await searchWarningLetters(companies)
+      if (run) {
+        await searchWarningLetters(companies)
+      }else {
+elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters found for "${drugName}"</p>
+      </div>`;
+      }
+      
     } else {
       elements.orangeBookData.innerHTML =   `<div class="text-center p-4">
         <p class="text-sm text-gray-700">No Orangebook data found for "${drugName}"</p>
@@ -34409,7 +34425,7 @@ function displayOrangeBookData(data) {
         <p class="text-sm text-gray-700">No Orange Book entries found</p>
       </div>
     `;
-    return;
+    return false;
   }
   
   // Create tab navigation 
