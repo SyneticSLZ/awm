@@ -7665,8 +7665,10 @@ async function searchTrialsForName(drugName) {
       const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
         params: {
           'query.term': sanitizedName,
-          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
-          'pageSize': 50, // Increased from 20 to 50 to find more results
+          'fields': 'protocolSection,resultsSection,hasResults',
+          // 'fetchAll': 'false', // Match backend parameter
+          // 'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 100,
           'format': 'json'
         },
         headers: {
@@ -7687,8 +7689,10 @@ async function searchTrialsForName(drugName) {
       const interventionResponse = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
         params: {
           'query.intr': sanitizedName,
-          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
-          'pageSize': 50,
+          'fields': 'protocolSection,resultsSection,hasResults',
+          // 'fetchAll': 'false', // Match backend parameter
+          // 'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 100,
           'format': 'json'
         },
         headers: {
@@ -7718,8 +7722,10 @@ async function searchTrialsForName(drugName) {
         params: {
           'query.term': sanitizedName,
           'filter.overallStatus': 'COMPLETED',
-          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
-          'pageSize': 50,
+          'fields': 'protocolSection,resultsSection,hasResults',
+          // 'fetchAll': 'false', // Match backend parameter
+          // 'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 100,
           'format': 'json'
         },
         headers: {
@@ -7749,8 +7755,10 @@ async function searchTrialsForName(drugName) {
         params: {
           'query.intr': sanitizedName,
           'filter.overallStatus': 'COMPLETED',
-          'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
-          'pageSize': 50,
+          'fields': 'protocolSection,resultsSection,hasResults',
+          // 'fetchAll': 'false', // Match backend parameter
+          // 'fields': 'NCTId,BriefTitle,OfficialTitle,OverallStatus,BriefSummary,StartDate,CompletionDate,Phase,StudyType,LeadSponsorName,InterventionName,InterventionType,EnrollmentCount',
+          'pageSize': 100,
           'format': 'json'
         },
         headers: {
@@ -7789,18 +7797,22 @@ async function searchTrialsForName(drugName) {
       const sponsorCollaboratorsModule = protocolSection.sponsorCollaboratorsModule || {};
       const armsInterventionsModule = protocolSection.armsInterventionsModule || {};
       const descriptionModule = protocolSection.descriptionModule || {};
+      const conditionsModule = protocolSection.conditionsModule || {};
       
       // Get interventions
       const interventions = [];
       if (armsInterventionsModule.interventions && Array.isArray(armsInterventionsModule.interventions)) {
         armsInterventionsModule.interventions.forEach(intervention => {
           interventions.push({
-            name: intervention.interventionName,
-            type: intervention.interventionType,
-            description: intervention.interventionDescription
+            name: intervention.name,
+            type: intervention.type,
+            description: intervention.description
           });
         });
       }
+      
+      // Extract conditions - IMPORTANT for timeline generation
+      const conditions = conditionsModule.conditions || [];
       
       return {
         nctId: identificationModule.nctId,
@@ -7822,7 +7834,11 @@ async function searchTrialsForName(drugName) {
                    designModule.enrollmentInfo.count || 'Not specified' 
                    : 'Not specified',
         interventions: interventions,
-        url: `https://clinicaltrials.gov/study/${identificationModule.nctId}`
+        url: `https://clinicaltrials.gov/study/${identificationModule.nctId}`,
+        // Add conditions array
+        conditions: conditions,
+        // Preserve hasResults flag
+        hasResults: study.hasResults
       };
     });
     
@@ -7833,6 +7849,8 @@ async function searchTrialsForName(drugName) {
   }
 }
 
+
+// Update the API route to preserve the exact same structure for both paths
 
 app.get('/api/studies/search', validatePagination, async (req, res) => {
   try {
@@ -7859,75 +7877,139 @@ app.get('/api/studies/search', validatePagination, async (req, res) => {
       
       // Use the searchAllTrialsForDrugNames function to handle multiple drug searching
       console.log(`Searching clinical trials for ${allDrugsToQuery.length} drug names...`);
-      const searchResults = await searchAllTrialsForDrugNames(allDrugsToQuery);
+      
+      // IMPORTANT: Instead of using the searchAllTrialsForDrugNames function that returns simplified data,
+      // we'll use the ClinicalTrials.gov API directly to get the full data structure
+
+      // Store all unique trials to avoid duplicates
+      const uniqueTrials = new Map();
+      const errors = [];
+      
+      // Search in batches to avoid overwhelming the API
+      const batchSize = 5;
+      for (let i = 0; i < allDrugsToQuery.length; i += batchSize) {
+        const batch = allDrugsToQuery.slice(i, i + batchSize);
+        
+        // For each drug name, do a full API search to get complete data
+        for (const drugToSearch of batch) {
+          try {
+            console.log(`Searching for ${drugToSearch}...`);
+            
+            // Build parameters for API request - same as standard route
+            const params = new URLSearchParams();
+            
+            // Add drug name as intervention search
+            params.append('query.intr', drugToSearch);
+            
+            // Add fields - get complete data structure just like standard route
+            params.append('fields', 'protocolSection,derivedSection,hasResults');
+            
+            // Get a large number of results per page
+            params.append('pageSize', '100');
+            
+            // Format parameter
+            params.append('format', 'json');
+            
+            // Make the API request
+            const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+              params: params
+            });
+            
+            const studies = response.data.studies || [];
+            console.log(`Found ${studies.length} studies for ${drugToSearch}`);
+            
+            // Add each study to our map, using NCT ID as the key
+            studies.forEach(study => {
+              const nctId = study.protocolSection?.identificationModule?.nctId;
+              if (nctId && !uniqueTrials.has(nctId)) {
+                // Add relevance info to know which drug names matched this trial
+                if (!study.matchedDrugNames) {
+                  study.matchedDrugNames = [];
+                }
+                study.matchedDrugNames.push(drugToSearch);
+                uniqueTrials.set(nctId, study);
+              } else if (nctId) {
+                // Update the existing trial to include this drug name match
+                const existingTrial = uniqueTrials.get(nctId);
+                if (!existingTrial.matchedDrugNames.includes(drugToSearch)) {
+                  existingTrial.matchedDrugNames.push(drugToSearch);
+                }
+              }
+            });
+            
+            // Also try a term search to catch more results
+            params.delete('query.intr');
+            params.append('query.term', drugToSearch);
+            
+            const termResponse = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+              params: params
+            });
+            
+            const termStudies = termResponse.data.studies || [];
+            console.log(`Found ${termStudies.length} additional studies for ${drugToSearch} via term search`);
+            
+            // Add each study from term search
+            termStudies.forEach(study => {
+              const nctId = study.protocolSection?.identificationModule?.nctId;
+              if (nctId && !uniqueTrials.has(nctId)) {
+                // Add relevance info
+                if (!study.matchedDrugNames) {
+                  study.matchedDrugNames = [];
+                }
+                study.matchedDrugNames.push(drugToSearch);
+                uniqueTrials.set(nctId, study);
+              } else if (nctId) {
+                // Update the existing trial
+                const existingTrial = uniqueTrials.get(nctId);
+                if (!existingTrial.matchedDrugNames.includes(drugToSearch)) {
+                  existingTrial.matchedDrugNames.push(drugToSearch);
+                }
+              }
+            });
+            
+          } catch (error) {
+            console.error(`Error searching for ${drugToSearch}:`, error.message);
+            errors.push({ drugName: drugToSearch, error: error.message });
+          }
+          
+          // Add a small delay between requests
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
       
       // Get the trial results
-      const allStudies = searchResults.trials;
+      const allStudies = Array.from(uniqueTrials.values());
       console.log(`Found ${allStudies.length} unique studies for all drug names`);
       
-      // Format trials to match expected structure
-      const formattedStudies = allStudies.map(trial => {
-        // Create a new study object with the expected structure
-        return {
-          protocolSection: {
-            identificationModule: {
-              nctId: trial.nctId,
-              briefTitle: trial.title,
-              officialTitle: trial.title
-            },
-            statusModule: {
-              overallStatus: trial.status,
-              startDate: trial.startDate,
-              completionDate: trial.completionDate
-            },
-            designModule: {
-              studyType: trial.studyType,
-              phases: trial.phase ? [trial.phase] : []
-            },
-            sponsorCollaboratorsModule: {
-              leadSponsor: {
-                name: trial.sponsor
-              }
-            },
-            descriptionModule: {
-              briefSummary: trial.summary
-            },
-            armsInterventionsModule: {
-              interventions: trial.interventions.map(i => ({
-                interventionName: i.name,
-                interventionType: i.type,
-                interventionDescription: i.description
-              }))
-            }
-          },
-          // Add the matched drug names so we know which drugs matched this trial
-          queriedDrugs: trial.matchedDrugNames || []
-        };
+      // Add queriedDrugs to each study (this doesn't change the structure)
+      allStudies.forEach(study => {
+        study.queriedDrugs = study.matchedDrugNames || [];
       });
       
       // Calculate pagination
-      const effectivePageSize = fetchAll === 'true' ? formattedStudies.length : pageSize;
-      const totalPages = Math.ceil(formattedStudies.length / effectivePageSize);
+      const effectivePageSize = fetchAll === 'true' ? allStudies.length : pageSize;
+      const totalPages = Math.ceil(allStudies.length / effectivePageSize);
       
       // If not fetching all, apply manual pagination
-      let paginatedStudies = formattedStudies;
+      let paginatedStudies = allStudies;
       if (fetchAll !== 'true') {
         const startIdx = (page - 1) * pageSize;
         const endIdx = startIdx + pageSize;
-        paginatedStudies = formattedStudies.slice(startIdx, endIdx);
+        paginatedStudies = allStudies.slice(startIdx, endIdx);
       }
       
+      // Return in the same format as the standard route
       return res.json({
         success: true,
         data: {
           studies: paginatedStudies,
-          totalCount: formattedStudies.length,
+          totalCount: allStudies.length,
           queriedDrugs: allDrugsToQuery
         },
         pagination: {
           currentPage: fetchAll === 'true' ? 1 : page,
           pageSize: effectivePageSize,
-          totalCount: formattedStudies.length,
+          totalCount: allStudies.length,
           totalPages: fetchAll === 'true' ? 1 : totalPages,
           hasNextPage: fetchAll === 'true' ? false : (page < totalPages)
         }
