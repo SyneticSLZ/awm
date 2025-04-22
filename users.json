@@ -37,5 +37,18 @@
     "subscriptionStatus": "free-trial",
     "darkModeEnabled": false,
     "createdAt": "2025-04-22T20:59:27.673Z"
+  },
+  {
+    "id": "fe63f280-4a36-4740-8ed2-171577884f25",
+    "username": "mark",
+    "email": "alexrmacgregor@gmail.com",
+    "passwordHash": "fab4254e807c9809782eb3ea4a440d921c3cbd652f3a20241feaeb64d8361b7c75e0608c25347cd0556803f6eb6c66bfc004f21d7899fea0148591a9e6af50c1",
+    "salt": "f03ed0eb0852d40e35e12ea466371fbd",
+    "role": "user",
+    "usage": 0,
+    "billingPeriod": "Apr 1, 2025 - Apr 30, 2025",
+    "subscriptionStatus": "free-trial",
+    "darkModeEnabled": false,
+    "createdAt": "2025-04-22T21:09:06.753Z"
   }
 ]
