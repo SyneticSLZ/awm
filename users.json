@@ -24,7 +24,18 @@
     "subscriptionStatus": "free-trial",
     "darkModeEnabled": false,
     "createdAt": "2025-04-20T11:28:58.564Z"
+  },
+  {
+    "id": "eb6bb75e-f2d7-4630-b586-fc80eb0abd70",
+    "username": "Mark",
+    "email": "syneticslz@gmail.com",
+    "passwordHash": "9f5f552db1bc8515ed82985db7493880721312a088e2e41716d60784132bc58762916e12505190e7cd363ea06d700308b43c5f99c9e865d5e160ef9f17db089c",
+    "salt": "9c5e94219bdded40d9946356d7d8b90d",
+    "role": "user",
+    "usage": 0,
+    "billingPeriod": "Apr 1, 2025 - Apr 30, 2025",
+    "subscriptionStatus": "free-trial",
+    "darkModeEnabled": false,
+    "createdAt": "2025-04-22T20:59:27.673Z"
   }
 ]
-
-
