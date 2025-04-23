@@ -16489,8 +16489,10 @@ function resetAllFilters() {
     displayStudiesPage(1);
     setupPaginationControls(appState.allStudies.length);
 }
+// The key issue is in the pagination buttons handling - when we set up the page buttons,
+// they call displayFilteredStudiesPage() but we also have a displayStudiesPage() function
+// that isn't properly connected. Let's fix the main setupPaginationControls function:
 
-// Function to set up modern pagination controls
 function setupPaginationControls(totalItems) {
     // First add necessary CSS for pagination animations
     if (!document.getElementById('pagination-styles')) {
@@ -16520,6 +16522,7 @@ function setupPaginationControls(totalItems) {
                 transition: all 0.2s ease;
                 position: relative;
                 overflow: hidden;
+                cursor: pointer;
             }
             
             .page-btn:not(:disabled):hover {
@@ -16621,10 +16624,11 @@ function setupPaginationControls(totalItems) {
         </svg>
     `;
     prevButton.title = "Previous Page";
-    prevButton.disabled = true; // Disabled initially on page 1
+    prevButton.disabled = appState.currentPage === 1; // Check current page
     prevButton.addEventListener('click', () => {
         if (appState.currentPage > 1) {
-            displayFilteredStudiesPage(appState.currentPage - 1);
+            const newPage = appState.currentPage - 1;
+            navigateToPage(newPage);
         }
     });
     elements.paginationControls.appendChild(prevButton);
@@ -16632,7 +16636,7 @@ function setupPaginationControls(totalItems) {
     // Current page indicator
     const pageInfo = document.createElement('div');
     pageInfo.className = 'page-info';
-    pageInfo.innerHTML = `Page <span class="font-semibold mx-1">1</span> of ${totalPages}`;
+    pageInfo.innerHTML = `Page <span class="font-semibold mx-1">${appState.currentPage}</span> of ${totalPages}`;
     elements.paginationControls.appendChild(pageInfo);
     
     // Page number buttons
@@ -16687,8 +16691,9 @@ function setupPaginationControls(totalItems) {
             if (page === currentPage) {
                 pageBtn.classList.add('active');
             }
+            // Use the navigateToPage function to handle page navigation
             pageBtn.addEventListener('click', () => {
-                displayFilteredStudiesPage(page);
+                navigateToPage(page);
             });
             elements.paginationControls.appendChild(pageBtn);
         }
@@ -16706,7 +16711,8 @@ function setupPaginationControls(totalItems) {
     nextButton.disabled = currentPage === totalPages;
     nextButton.addEventListener('click', () => {
         if (currentPage < totalPages) {
-            displayFilteredStudiesPage(currentPage + 1);
+            const newPage = appState.currentPage + 1;
+            navigateToPage(newPage);
         }
     });
     elements.paginationControls.appendChild(nextButton);
@@ -16737,7 +16743,7 @@ function setupPaginationControls(totalItems) {
         jumpButton.addEventListener('click', () => {
             const pageNum = parseInt(jumpInput.value);
             if (pageNum && pageNum >= 1 && pageNum <= totalPages) {
-                displayFilteredStudiesPage(pageNum);
+                navigateToPage(pageNum);
             } else {
                 // Visual feedback for invalid page
                 jumpInput.classList.add('border-red-500');
@@ -16759,6 +16765,162 @@ function setupPaginationControls(totalItems) {
         jumpContainer.appendChild(jumpButton);
         
         elements.paginationControls.appendChild(jumpContainer);
+    }
+}
+
+// Add this centralized page navigation function
+function navigateToPage(page) {
+    // Ensure page is a number
+    page = parseInt(page);
+    
+    // Display the appropriate page
+    if (appState.filteredStudies) {
+        displayFilteredStudiesPage(page);
+    } else {
+        displayStudiesPage(page);
+    }
+    
+    // Update the page buttons' active state
+    updateActivePaginationButton(page);
+    
+    // Scroll to top of results if needed
+    if (elements.studiesList) {
+        elements.studiesList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Make sure we have a displayStudiesPage function that works with the filtered studies
+function displayStudiesPage(page) {
+    // If we have filtered studies, use the filtered studies page display
+    if (appState.filteredStudies) {
+        displayFilteredStudiesPage(page);
+        return;
+    }
+    
+    // Otherwise use all studies
+    const studies = appState.allStudies;
+    elements.studiesList.innerHTML = '';
+    
+    // Calculate start and end index for current page
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, studies.length);
+    
+    // Create a container for the grid layout
+    const gridContainer = document.createElement('div');
+    gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+    elements.studiesList.appendChild(gridContainer);
+    
+    // Display the studies for this page
+    for (let i = startIndex; i < endIndex; i++) {
+        const study = studies[i];
+        const delay = (i - startIndex) * 50; // Stagger the animations
+        
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        const title = study.protocolSection?.identificationModule?.briefTitle;
+        const phase = study.protocolSection?.designModule?.phases?.[0] || "N/A";
+        const status = study.protocolSection?.statusModule?.overallStatus;
+        const sponsor = study.protocolSection?.identificationModule?.organization?.fullName;
+        const hasResults = study.hasResults;
+        
+        // Determine if this is a TRD-specific study
+        const briefTitle = study.protocolSection?.identificationModule?.briefTitle?.toLowerCase() || '';
+        const officialTitle = study.protocolSection?.identificationModule?.officialTitle?.toLowerCase() || '';
+        const briefSummary = study.protocolSection?.descriptionModule?.briefSummary?.toLowerCase() || '';
+        
+        const trdTerms = [
+            'treatment-resistant depression', 
+            'treatment resistant depression',
+            'trd',
+            'refractory depression'
+        ];
+        
+        const isTRDSpecific = trdTerms.some(term => 
+            briefTitle.includes(term) || 
+            officialTitle.includes(term) || 
+            briefSummary.includes(term)
+        );
+        
+        // Create a more modern card with hover effects
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300';
+        card.style.animation = `fadeIn 0.3s ease-out ${delay}ms forwards`;
+        
+        card.innerHTML = `
+            <div class="p-4">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <div class="flex items-center">
+                        <span class="inline-block w-3 h-3 rounded-full mr-1" style="background-color: ${getPhaseColor(phase)}"></span>
+                        <span class="text-sm font-medium">${formatPhase(phase)}</span>
+                    </div>
+                    ${getStatusBadge(status)}
+                    ${isTRDSpecific ? '<span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">TRD-Specific</span>' : ''}
+                    ${hasResults ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Has Results</span>' : ''}
+                </div>
+                
+                <h3 class="text-lg font-semibold mb-2 line-clamp-2">${title}</h3>
+                
+                <p class="text-sm text-gray-600 mb-3">
+                    <span class="font-medium">Sponsor:</span> ${sponsor || 'Unknown'}
+                </p>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-500">${nctId}</span>
+                    <button data-nctid="${nctId}" class="view-study-btn text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center group transition-all">
+                        <span class="mr-1">View Details</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        gridContainer.appendChild(card);
+        
+        // Add event listener to the view button
+        card.querySelector('.view-study-btn').addEventListener('click', () => {
+            viewStudyDetails(nctId);
+        });
+    }
+    
+    // Update current page in app state
+    appState.currentPage = page;
+    
+    // Update the results info message
+    const resultsInfo = document.createElement('div');
+    resultsInfo.className = 'text-sm text-gray-600 mt-4 mb-2 flex items-center results-info';
+    
+    if (studies.length > 0) {
+        resultsInfo.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Showing <span class="font-semibold mx-1">${startIndex + 1}</span> to <span class="font-semibold mx-1">${endIndex}</span> of <span class="font-semibold mx-1">${studies.length}</span> results
+        `;
+    } else {
+        resultsInfo.textContent = 'No results found';
+    }
+    
+    // Replace any existing results info
+    const existingInfo = document.querySelector('.results-info');
+    if (existingInfo) {
+        existingInfo.replaceWith(resultsInfo);
+    } else {
+        // Insert before the studies list
+        elements.studiesList.parentNode.insertBefore(resultsInfo, elements.studiesList);
+    }
+    
+    // Check if there's any data to show page controls
+    if (studies.length <= ITEMS_PER_PAGE) {
+        // If we have 1 page or less, hide pagination controls
+        if (elements.paginationControls) {
+            elements.paginationControls.classList.add('hidden');
+        }
+    } else {
+        // Make sure pagination controls are visible
+        if (elements.paginationControls) {
+            elements.paginationControls.classList.remove('hidden');
+        }
     }
 }
 
