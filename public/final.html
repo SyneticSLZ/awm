@@ -2655,7 +2655,9 @@ appState.allTrialOutcomes = [];
             outcomeMetricSelector: document.getElementById('outcomeMetricSelector'),
             outcomeTypeSelector: document.getElementById('outcomeTypeSelector'),
             statisticalSummaryTable: document.getElementById('statisticalSummaryTable'),
-         // Inspection data section
+    dailyMedData: document.getElementById('dailyMedData'),
+    dailyMedCount: document.getElementById('dailyMedCount'),
+    dailyMedPagination: document.getElementById('dailyMedPagination'),
          // Add to your existing elements definition
             companySummarySection : document.getElementById('company-summary-section'),
             inspectionDataSection: document.getElementById('inspection-data') || createInspectionDataSection()
@@ -4808,15 +4810,15 @@ return title.length > 60 ? title.substring(0, 57) + '...' : title;
     // Create container for the timeline
     const timelineContainer = document.createElement('div');
     timelineContainer.className = 'mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
-    timelineContainer.innerHTML = `
-        <h2 class="text-xl font-bold mb-4">Historical Usage Timeline: ${drugName}</h2>
-        <div id="usage-timeline" class="relative">
-            <div class="timeline-loading text-center p-4">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-blue-500"></div>
-                <p class="mt-2 text-gray-600">Analyzing usage patterns...</p>
-            </div>
-        </div>
-    `;
+    // timelineContainer.innerHTML = `
+    //     <h2 class="text-xl font-bold mb-4">Historical Usage Timeline: ${drugName}</h2>
+    //     <div id="usage-timeline" class="relative">
+    //         <div class="timeline-loading text-center p-4">
+    //             <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-blue-500"></div>
+    //             <p class="mt-2 text-gray-600">Analyzing usage patterns...</p>
+    //         </div>
+    //     </div>
+    // `;
 
     // Process the data after rendering the initial container
     setTimeout(() => {
@@ -35863,11 +35865,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * @param {Object} data - The formatted DailyMed data to display
  */
  function displayDailyMedData(data) {
-  const elements = {
-    dailyMedData: document.getElementById('dailyMedData'),
-    dailyMedCount: document.getElementById('dailyMedCount'),
-    dailyMedPagination: document.getElementById('dailyMedPagination')
-  };
+
   
   const labelInfo = data.label_info || [];
   
@@ -35880,9 +35878,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="text-sm text-gray-700">No DailyMed information found</p>
       </div>
     `;
-    if (elements.dailyMedPagination) {
+    // if (elements.dailyMedPagination) {
       elements.dailyMedPagination.innerHTML = '';
-    }
+    // }
     return;
   }
 
