@@ -30539,17 +30539,18 @@ async function displayFdaData(drugName, condition) {
       // Store Orange Book data globally for the summary
       window.orangeBookData = orangeBookData;
       
-      let run = displayOrangeBookData(orangeBookData);
+      displayOrangeBookData(orangeBookData);
       
       // Fetch warning letters for the companies
       // await fetchWarningLetters(companies);
-      if (run) {
-        await searchWarningLetters(companies)
-      }else {
-elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
-        <p class="text-sm text-gray-700">No Warning letters found for "${drugName}"</p>
-      </div>`;
-      }
+//       if (run) {
+//         console.log('run is ativated', run)
+//         await searchWarningLetters(companies)
+//       }else {
+// elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No Warning letters found for "${drugName}"</p>
+//       </div>`;
+//       }
       
     } else {
       elements.orangeBookData.innerHTML =   `<div class="text-center p-4">
@@ -34577,7 +34578,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // }
 
 
-function displayOrangeBookData(data) {
+async function displayOrangeBookData(data) {
   // Count total entries across all categories
   const totalProducts = data.total.products || 0;
   const totalPatents = data.total.patents || 0;
@@ -34598,8 +34599,24 @@ function displayOrangeBookData(data) {
         <p class="text-sm text-gray-700">No Orange Book entries found</p>
       </div>
     `;
+    elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters found for "${drugName}" Due to lack of Orangebok Data</p>
+      </div>`;
     return false;
   }
+
+      
+      // Fetch warning letters for the companies
+      // await fetchWarningLetters(companies);
+      if (orangeBookData.results?.companies) {
+        console.log('run is ativated')
+        await searchWarningLetters(orangeBookData.results?.companies)
+      }else {
+elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
+        <p class="text-sm text-gray-700">No Warning letters found for "${drugName}"</p>
+      </div>`;
+      }
+
   
   // Create tab navigation 
   let html = `
@@ -34971,12 +34988,13 @@ a.text-blue-600:hover {
           
           <!-- Related Data Tabs -->
           <div class="mt-4">
+             <h4 class="font-medium text-gray-700 mb-2">Patents and Exclusivity for this Product ( Specific ) </h4>
             <div class="border-b border-gray-200">
               <ul class="flex flex-wrap -mb-px text-xs font-medium text-center">
-                <li class="mr-2">
+                <li class="mr-2" style="display: none;">
                   <button class="related-tab inline-block p-2 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
                           onclick="switchRelatedTab(this, 'related-info-${product.Appl_No}-${product.Product_No}')">
-                    Product Info
+                    Product Infomnm m m  
                   </button>
                 </li>
                 <li class="mr-2">
@@ -35067,6 +35085,8 @@ a.text-blue-600:hover {
           </div>
         </div>
       </div>
+
+      
     `;
   }
   
@@ -38658,7 +38678,6 @@ async function fetchStudies(drug, condition, hasResults, yearsBack = 5, sinceDat
         condition: condition,
         intervention: drug,
         hasResults: hasResults,
-
         fields: "protocolSection,resultsSection,hasResults",
         pageSize: 100, // Keep page size at 100 for efficiency
         advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}` // Filter by start date and sinceDate
