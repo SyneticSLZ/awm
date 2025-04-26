@@ -38628,123 +38628,50 @@ async function handleSearch() {
 
 
 // Fetch studies from ClinicalTrials.gov API
-// async function fetchStudies(drug, condition, hasResults, yearsBack = 5, sinceDate = null) {
-//   try {
-//     condition = condition || "";
-//     const allStudies = [];
-//     let pageToken = null;
-//     let hasNextPage = true;
-
-//     // Calculate the date from yearsBack
-//     const today = new Date();
-//     const startDate = new Date();
-//     startDate.setFullYear(today.getFullYear() - yearsBack);
-
-//     // Format date as YYYY-MM-DD for the API
-//     const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-
-//     // Format sinceDate if provided
-//     let formattedSinceDate = null;
-//     if (sinceDate) {
-//       const since = new Date(sinceDate);
-//       formattedSinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
-//     }
-
-//     console.log(`Fetching studies from ${formattedStartDate}${sinceDate ? `, updated since ${formattedSinceDate}` : ''}`);
-
-//     // Continue fetching until there are no more pages
-//     while (hasNextPage) {
-//       const params = {
-//         condition: condition,
-//         intervention: drug,
-//         hasResults: hasResults,
-//         fields: "protocolSection,resultsSection,hasResults",
-//         pageSize: 100, // Keep page size at 100 for efficiency
-//         advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}` // Filter by start date and sinceDate
-//       };
-
-//       // Add page token for pagination if we're not on the first page
-//       if (pageToken) {
-//         params.pageToken = pageToken;
-//       }
-
-//       console.log(`Fetching studies page with params:`, params);
-
-//       const response = await axios.get(`${API_BASE_URL}/studies/search`, {
-//         params,
-//         headers: {
-//           'Accept': 'application/json',
-//           'Cache-Control': 'no-cache',
-//           'Pragma': 'no-cache'
-//         }
-//       });
-
-//       console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
-
-//       const studies = response.data.data.studies || [];
-//       allStudies.push(...studies);
-
-//       // Get next page token
-//       pageToken = response.data.pagination?.nextPageToken;
-//       hasNextPage = !!pageToken;
-
-//       // Optional: Add delay to avoid rate limiting
-//       if (hasNextPage) {
-//         await new Promise(resolve => setTimeout(resolve, 300));
-//       }
-//     }
-
-//     console.log(`Total studies fetched: ${allStudies.length}`);
-//     return allStudies;
-//   } catch (error) {
-//     console.error("Error fetching all studies:", error);
-//     return [];
-//   }
-// }
-async function fetchStudies(intervention, condition, hasResults, yearsBack = 5, sinceDate = null) {
+async function fetchStudies(drug, condition, hasResults, yearsBack = 5, sinceDate = null) {
   try {
-    const params = {
-      intervention: intervention, // Match the parameter name expected by backend
-      condition: condition || "",
-      pageSize: 100,
-
-      fields: "protocolSection,resultsSection,hasResults",
-      fetchAll: "false", // Match backend parameter
-      drugName: intervention
-    };
-    
-    // Format date filters using the advanced filter format expected by backend
-    if (yearsBack || sinceDate) {
-      const today = new Date();
-      const startDate = new Date();
-      startDate.setFullYear(today.getFullYear() - yearsBack);
-      
-      const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-      
-      let formattedSinceDate = null;
-      if (sinceDate) {
-        const since = new Date(sinceDate);
-        formattedSinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
-      }
-      
-      params.advanced = `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}`;
-    }
-    
-    // hasResults parameter formatting
-    if (hasResults !== undefined) {
-      params.hasResults = hasResults;
-    }
-    
-    console.log(`Fetching studies with params:`, params);
-    
+    condition = condition || "";
     const allStudies = [];
-    let page = 1;
+    let pageToken = null;
     let hasNextPage = true;
-    
+
+    // Calculate the date from yearsBack
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(today.getFullYear() - yearsBack);
+
+    // Format date as YYYY-MM-DD for the API
+    const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+
+    // Format sinceDate if provided
+    let formattedSinceDate = null;
+    if (sinceDate) {
+      const since = new Date(sinceDate);
+      formattedSinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
+    }
+
+    console.log(`Fetching studies from ${formattedStartDate}${sinceDate ? `, updated since ${formattedSinceDate}` : ''}`);
+
+    // Continue fetching until there are no more pages
     while (hasNextPage) {
-      params.page = page;
-      
-      const response = await axios.get(`${API_BASE_URL}/studies/search` , {
+      const params = {
+        condition: condition,
+        intervention: drug,
+        hasResults: hasResults,
+
+        fields: "protocolSection,resultsSection,hasResults",
+        pageSize: 100, // Keep page size at 100 for efficiency
+        advanced: `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}` // Filter by start date and sinceDate
+      };
+
+      // Add page token for pagination if we're not on the first page
+      if (pageToken) {
+        params.pageToken = pageToken;
+      }
+
+      console.log(`Fetching studies page with params:`, params);
+
+      const response = await axios.get(`${API_BASE_URL}/studies/search`, {
         params,
         headers: {
           'Accept': 'application/json',
@@ -38752,27 +38679,101 @@ async function fetchStudies(intervention, condition, hasResults, yearsBack = 5, 
           'Pragma': 'no-cache'
         }
       });
-      
+
+      console.log(`Studies search response status: ${response.status}, page size: ${response.data.data.studies?.length || 0}`);
+
       const studies = response.data.data.studies || [];
       allStudies.push(...studies);
-      
-      // Update pagination based on backend response format
-      hasNextPage = response.data.pagination?.hasNextPage;
-      page++;
-      
-      // Add delay to avoid rate limiting
+
+      // Get next page token
+      pageToken = response.data.pagination?.nextPageToken;
+      hasNextPage = !!pageToken;
+
+      // Optional: Add delay to avoid rate limiting
       if (hasNextPage) {
         await new Promise(resolve => setTimeout(resolve, 300));
       }
     }
-    
+
     console.log(`Total studies fetched: ${allStudies.length}`);
     return allStudies;
   } catch (error) {
-    console.error("Error fetching studies:", error);
+    console.error("Error fetching all studies:", error);
     return [];
   }
 }
+
+
+// async function fetchStudies(intervention, condition, hasResults, yearsBack = 5, sinceDate = null) {
+//   try {
+//     const params = {
+//       intervention: intervention, // Match the parameter name expected by backend
+//       condition: condition || "",
+//       pageSize: 100,
+
+//       fields: "protocolSection,resultsSection,hasResults",
+//     };
+    
+//     // Format date filters using the advanced filter format expected by backend
+//     if (yearsBack || sinceDate) {
+//       const today = new Date();
+//       const startDate = new Date();
+//       startDate.setFullYear(today.getFullYear() - yearsBack);
+      
+//       const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+      
+//       let formattedSinceDate = null;
+//       if (sinceDate) {
+//         const since = new Date(sinceDate);
+//         formattedSinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
+//       }
+      
+//       params.advanced = `AREA[StartDate]RANGE[${formattedStartDate},MAX]${formattedSinceDate ? ` AND AREA[LastUpdatePostDate]RANGE[${formattedSinceDate},MAX]` : ''}`;
+//     }
+    
+//     // hasResults parameter formatting
+//     if (hasResults !== undefined) {
+//       params.hasResults = hasResults;
+//     }
+    
+//     console.log(`Fetching studies with params:`, params);
+    
+//     const allStudies = [];
+//     let page = 1;
+//     let hasNextPage = true;
+    
+//     while (hasNextPage) {
+//       params.page = page;
+      
+//       const response = await axios.get(`${API_BASE_URL}/studies/search` , {
+//         params,
+//         headers: {
+//           'Accept': 'application/json',
+//           'Cache-Control': 'no-cache',
+//           'Pragma': 'no-cache'
+//         }
+//       });
+      
+//       const studies = response.data.data.studies || [];
+//       allStudies.push(...studies);
+      
+//       // Update pagination based on backend response format
+//       hasNextPage = response.data.pagination?.hasNextPage;
+//       page++;
+      
+//       // Add delay to avoid rate limiting
+//       if (hasNextPage) {
+//         await new Promise(resolve => setTimeout(resolve, 300));
+//       }
+//     }
+    
+//     console.log(`Total studies fetched: ${allStudies.length}`);
+//     return allStudies;
+//   } catch (error) {
+//     console.error("Error fetching studies:", error);
+//     return [];
+//   }
+// }
 // SearchCacheModule.js
 // This module handles caching and retrieving search results for clinical trials
 
