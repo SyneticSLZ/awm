@@ -29510,7 +29510,7 @@ function prepareDataForGrokAPI(allData) {
   
   // Instead of building a large data structure and stringifying it,
   // build the prompt directly with the most critical information
-  let prompt = `Generate a comprehensive analysis of ${drugName} for pharmaceutical development. Focus on regulatory issues, development risks, and market opportunities. Here's the essential data:\n\n`;
+  let prompt = `Generate a comprehensive analysis of ${drugName} for pharmaceutical development. Focus on regulatory issues, development risks, and market opportunities.please make sure everything you give me has working links to verify this data Here's the essential data:\n\n`;
   
   // 1. CORE DRUG INFO - Minimal but essential
   prompt += "DRUG: " + drugName + "\n\n";
@@ -30673,8 +30673,9 @@ async function displayFdaData(drugName, condition) {
                 
 
                                 // Remove markdown code blocks (```html and ```)
-                 cleanedSummary = cleanedSummary.replace(/```(html|javascript|js|css)?([\s\S]*?)```/g, '$2');
-                
+                 cleanedSummary = cleanedSummary.replace(/``(html|javascript|js|css)?([\s\S]*?)``/g, '$2');
+                 cleanedSummary = cleanedSummary.replace(/`(html|javascript|js|css)?([\s\S]*?)`/g, '$2');
+
                 // Remove any leftover single backticks
                 cleanedSummary = cleanedSummary.replace(/`([^`]*)`/g, '$1');
 
