@@ -295,14 +295,31 @@ async function handlePubMedSearch(req, res) {
       journalFilter,
       fullTextOnly: fullTextOnly === 'true' || fullTextOnly === true
     };
-    
+
     // Build sort parameter
     let sortParam = sortBy === 'date' ? 'pub date' : 'relevance';
     
     // First, try the original search
     console.log(`Searching PubMed with original query: ${term}`);
     
-    const originalSearchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(term)}&retmax=${retmax}&retstart=${retstart}&sort=${encodeURIComponent(sortParam)}&usehistory=y${apiKey ? `&api_key=${apiKey}` : ''}`;
+    let searchQuery = term;
+    
+    // Add year filter if provided
+    if (yearFilter) {
+      searchQuery += ` AND ${yearFilter}[pdat]`;
+    }
+    
+    // Add journal filter if provided
+    if (journalFilter) {
+      searchQuery += ` AND "${journalFilter}"[journal]`;
+    }
+    
+    // Add full text filter if requested
+    if (fullTextOnly === 'true' || fullTextOnly === true) {
+      searchQuery += ' AND free full text[filter]';
+    }
+
+    const originalSearchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(searchQuery)}&retmax=${retmax}&retstart=${retstart}&sort=${encodeURIComponent(sortParam)}&usehistory=y${apiKey ? `&api_key=${apiKey}` : ''}`;
     
     const searchResponse = await fetch(originalSearchUrl);
     
