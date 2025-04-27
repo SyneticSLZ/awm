@@ -8681,6 +8681,20 @@ async function fetchClinicalTrialDetails(nctId) {
         return null;
     }
 }
+function generateFdaLink(reportIds) {
+    if (!reportIds || (Array.isArray(reportIds) && reportIds.length === 0)) {
+        return 'https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program';
+    }
+    
+    if (typeof reportIds === 'string') {
+        reportIds = [reportIds];
+    }
+    
+    return reportIds.map(id => 
+        `https://api.fda.gov/drug/event.json?search=safetyreportid:${id}`
+    );
+}
+
 async function createComprehensiveClinicalSummary(studies, drugName) {
     if (!studies || studies.length === 0) {
         return `
@@ -8692,7 +8706,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
     
     let fdaData = null;
     
-    // Attempt to fetch FDA data for the drug
     try {
         const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drugName)}`);
         if (fdaResponse.ok) {
@@ -8705,7 +8718,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         console.error(`Error fetching FDA data for ${drugName}:`, error);
     }
     
-    // Process study details as before
     const studyDetails = [];
     for (const study of studies) {
         try {
@@ -8713,32 +8725,24 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
             if (response.ok) {
                 const responseData = await response.json();
                 
-                // Map the API response data structure as before
                 if (responseData.success && responseData.data) {
                     const protocolSection = responseData.data.protocolSection || {};
                     const derivedSection = responseData.data.derivedSection || {};
                     
                     const details = {
-                        // Basic information (same as before)
                         title: protocolSection.identificationModule?.officialTitle || protocolSection.identificationModule?.briefTitle,
                         status: protocolSection.statusModule?.overallStatus,
                         phase: protocolSection.designModule?.phases?.[0],
-                        
-                        // Study design and enrollment
                         enrollmentCount: protocolSection.designModule?.enrollmentInfo?.count || 0,
                         designInfo: protocolSection.designModel?.designInfo,
                         startDate: protocolSection.statusModule?.startDateStruct?.date,
                         completionDate: protocolSection.statusModule?.completionDateStruct?.date,
-                        
-                        // Conditions and interventions
                         conditions: protocolSection.conditionsModule?.conditions || [],
                         interventions: protocolSection.armsInterventionsModule?.interventions?.map(intervention => ({
                             type: intervention.type,
                             name: intervention.name,
                             description: intervention.description
                         })) || [],
-                        
-                        // Outcomes
                         primaryOutcomes: protocolSection.outcomesModule?.primaryOutcomes?.map(outcome => ({
                             measure: outcome.measure,
                             description: outcome.description,
@@ -8749,11 +8753,7 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                             description: outcome.description,
                             timeFrame: outcome.timeFrame
                         })) || [],
-                        
-                        // Adverse events - using the extract function
                         adverseEvents: extractAdverseEvents(responseData.data),
-                        
-                        // Sponsor information
                         sponsor: protocolSection.sponsorCollaboratorsModule?.leadSponsor?.name
                     };
                     
@@ -8770,7 +8770,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     }
     
-    // Extract and aggregate key information (same as before)
     const totalEnrollment = studyDetails.reduce((total, study) => {
         return total + (study.details?.enrollmentCount || 0);
     }, 0);
@@ -8793,12 +8792,10 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     });
     
-    // Process adverse events from FDA if available
     const fdaAdverseEvents = [];
     if (fdaData && fdaData.raw && fdaData.raw.endpoints && fdaData.raw.endpoints.event && fdaData.raw.endpoints.event.status === "success") {
         const eventData = fdaData.raw.endpoints.event.data;
         
-        // Create a frequency map for adverse events
         const eventFrequency = {};
         
         eventData.forEach(report => {
@@ -8810,14 +8807,16 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                         eventFrequency[term] = {
                             count: 0,
                             serious: 0,
-                            reports: new Set()
+                            reports: new Set(),
+                            reportIds: []
                         };
                     }
                     
                     eventFrequency[term].count++;
                     eventFrequency[term].reports.add(report.safetyreportid || 'unknown');
-                    
-                    // Check if the report is marked as serious
+                    if (report.safetyreportid && eventFrequency[term].reportIds.length < 3) {
+                        eventFrequency[term].reportIds.push(report.safetyreportid);
+                    }
                     if (report.serious === '1' || report.seriousnessdeath === '1' || 
                         report.seriousnesshospitalization === '1' || report.seriousnesslifethreatening === '1') {
                         eventFrequency[term].serious++;
@@ -8826,28 +8825,26 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
             }
         });
         
-        // Convert to array and sort by frequency
         for (const [term, data] of Object.entries(eventFrequency)) {
             fdaAdverseEvents.push({
                 term,
                 count: data.count,
                 serious: data.serious,
-                reportCount: data.reports.size
+                reportCount: data.reports.size,
+                reportIds: data.reportIds
             });
         }
         
-        // Sort by count (most frequent first)
         fdaAdverseEvents.sort((a, b) => b.count - a.count);
     }
     
-    // Extract FDA approval information
     let fdaApprovalInfo = null;
     if (fdaData && fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
         const categorizedDrugs = fdaData.categorized;
-        const drugKey = Object.keys(categorizedDrugs)[0]; // Get the first drug entry
+        const drugKey = Object.keys(categorizedDrugs)[0];
         
         if (drugKey && categorizedDrugs[drugKey]) {
-            const strengthKey = Object.keys(categorizedDrugs[drugKey])[0]; // Get the first strength
+            const strengthKey = Object.keys(categorizedDrugs[drugKey])[0];
             
             if (strengthKey && categorizedDrugs[drugKey][strengthKey] && categorizedDrugs[drugKey][strengthKey].length > 0) {
                 const drugInfo = categorizedDrugs[drugKey][strengthKey][0];
@@ -8867,10 +8864,9 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     }
     
-    // Process FDA label information for indications, warnings, etc.
     let fdaLabelInfo = null;
     if (fdaData && fdaData.raw && fdaData.raw.endpoints && fdaData.raw.endpoints.label && fdaData.raw.endpoints.label.status === "success") {
-        const labelData = fdaData.raw.endpoints.label.data[0]; // Get the first label
+        const labelData = fdaData.raw.endpoints.label.data[0];
         
         if (labelData) {
             fdaLabelInfo = {
@@ -8883,7 +8879,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     }
     
-    // Process study adverse events as before
     const adverseEvents = [];
     studyDetails.forEach(study => {
         if (study.details?.adverseEvents) {
@@ -8898,7 +8893,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     });
     
-    // Organize adverse events by frequency
     const eventCounts = {};
     adverseEvents.forEach(event => {
         if (!eventCounts[event.term]) {
@@ -8913,12 +8907,10 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         eventCounts[event.term].studies.add(event.studyId);
     });
     
-    // Sort adverse events by frequency
     const sortedEvents = Object.entries(eventCounts)
         .sort((a, b) => b[1].total - a[1].total)
-        .slice(0, 10); // Top 10 most common events
+        .slice(0, 10);
     
-    // Analyze primary outcomes
     const primaryOutcomes = [];
     studyDetails.forEach(study => {
         if (study.details?.primaryOutcomes) {
@@ -8934,7 +8926,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         }
     });
     
-    // Categorize studies by phase
     const phaseEnrollment = {};
     studyDetails.forEach(study => {
         const phase = study.phase || study.details?.phase || 'Unknown';
@@ -8944,7 +8935,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         phaseEnrollment[phase] += (study.details?.enrollmentCount || 0);
     });
     
-    // Study status summary
     const statusCounts = {};
     studyDetails.forEach(study => {
         const status = study.details?.status || 'Unknown';
@@ -8954,8 +8944,7 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
         statusCounts[status]++;
     });
     
-    // Create the clinical summary section with FDA data
-    return `
+    const htmlContent = `
         <div class="bg-white border rounded-lg shadow-sm overflow-hidden mb-6">
             <div class="bg-gradient-to-r from-blue-50 to-white p-4 border-b">
                 <h4 class="text-lg font-medium flex items-center text-gray-800">
@@ -8967,7 +8956,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
             </div>
             
             <div class="p-4 bg-white">
-                <!-- FDA Approval Information (if available) -->
                 ${fdaApprovalInfo ? `
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
@@ -9014,7 +9002,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                 </div>
                 ` : ''}
                 
-                <!-- Enrollment & Study Scope -->
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Study Population & Scope</h5>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -9043,7 +9030,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     </div>
                 </div>
                 
-                <!-- Conditions & Interventions -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-gray-50 rounded-lg p-4 border">
                         <h5 class="font-medium text-gray-700 mb-3">Conditions Studied</h5>
@@ -9076,7 +9062,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     </div>
                 </div>
                 
-                <!-- FDA Label Information (if available) -->
                 ${fdaLabelInfo ? `
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
@@ -9087,7 +9072,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     </h5>
                     
                     <div class="space-y-4">
-                        <!-- Indications -->
                         ${fdaLabelInfo.indications && fdaLabelInfo.indications.length > 0 ? `
                         <div class="bg-white border rounded-lg p-4">
                             <h6 class="font-medium text-gray-700 mb-2">Indications and Usage</h6>
@@ -9097,7 +9081,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                         </div>
                         ` : ''}
                         
-                        <!-- Warnings -->
                         ${fdaLabelInfo.warnings && fdaLabelInfo.warnings.length > 0 ? `
                         <div class="bg-red-50 border border-red-100 rounded-lg p-4">
                             <h6 class="font-medium text-red-700 mb-2 flex items-center">
@@ -9112,7 +9095,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                         </div>
                         ` : ''}
                         
-                        <!-- Contraindications -->
                         ${fdaLabelInfo.contraindications && fdaLabelInfo.contraindications.length > 0 ? `
                         <div class="bg-orange-50 border border-orange-100 rounded-lg p-4">
                             <h6 class="font-medium text-orange-700 mb-2">Contraindications</h6>
@@ -9125,7 +9107,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                 </div>
                 ` : ''}
                 
-                <!-- Phase Distribution & Enrollment -->
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Clinical Trial Phases</h5>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -9167,7 +9148,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     </div>
                 </div>
                 
-                <!-- Primary Outcomes -->
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Key Primary Outcomes</h5>
                     ${primaryOutcomes.length > 0 ? 
@@ -9196,7 +9176,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     }
                 </div>
                 
-                <!-- FDA Adverse Events (if available) -->
                 ${fdaAdverseEvents.length > 0 ? `
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2 flex items-center">
@@ -9214,7 +9193,7 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Adverse Event
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -9225,6 +9204,9 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Reports
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            FDA Links
                                         </th>
                                     </tr>
                                 </thead>
@@ -9245,26 +9227,126 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 ${event.reportCount} reports
                                             </td>
+                                            <td class="px-6 py-4 text-sm text-blue-600">
+                                                ${event.reportIds.length > 0 ? 
+                                                    generateFdaLink(event.reportIds).map((link, index) => 
+                                                        `<a href="${link}" target="_blank" class="hover:text-blue-800 flex items-center ${index > 0 ? 'mt-2' : ''}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                            </svg>
+                                                            View Report #${event.reportIds[index]}
+                                                        </a>`
+                                                    ).join('') : 
+                                                    'No report IDs available'}
+                                            </td>
                                         </tr>`
                                     ).join('')}
                                 </tbody>
                             </table>
                         </div>
-                        <div class="p-3 text-sm text-gray-500 italic">
-                            Showing top 10 of ${fdaAdverseEvents.length} reported adverse events. FDA adverse event reports are voluntarily submitted and may not reflect the total incidence.
+                        <div class="p-3 flex justify-between items-center">
+                            <span class="text-sm text-gray-500 italic">
+                                Showing top 10 of ${fdaAdverseEvents.length} reported adverse events.
+                            </span>
+                            <button id="view-all-adverse-events" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors duration-200">
+                                View All Events
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="adverse-events-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300" role="dialog" aria-modal="true" aria-label="Adverse Events Modal">
+                        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-4 sm:mx-6 transform transition-all duration-300 scale-95 opacity-0">
+                            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                                <h3 class="text-xl font-semibold text-gray-800">Adverse Events (${fdaAdverseEvents.length})</h3>
+                                <button id="close-modal" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1 transition-colors duration-200" aria-label="Close modal">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="px-6 py-4">
+                                <div class="relative mb-4">
+                                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" id="modal-search" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder-gray-400" placeholder="Search adverse events..." aria-label="Search adverse events">
+                                </div>
+                                
+                                <div class="max-h-[60vh] overflow-y-auto rounded-lg border border-gray-100">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Adverse Event
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Frequency
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Serious Events
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Reports
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    FDA Links
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-100" id="modal-events-body">
+                                            ${fdaAdverseEvents.map(event => 
+                                                `<tr class="hover:bg-gray-50 modal-event-row transition-colors duration-100">
+                                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                                                        ${event.term}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm text-gray-600">
+                                                        ${event.count} occurrences
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm">
+                                                        ${event.serious > 0 ? 
+                                                            `<span class="text-red-600 font-medium">${event.serious} serious</span>` : 
+                                                            '<span class="text-gray-600">None reported</span>'}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm text-gray-600">
+                                                        ${event.reportCount} reports
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm">
+                                                        ${event.reportIds.length > 0 ? 
+                                                            generateFdaLink(event.reportIds).map((link, index) => 
+                                                                `<a href="${link}" target="_blank" class="text-blue-600 hover:text-blue-800 flex items-center ${index > 0 ? 'mt-2' : ''} transition-colors duration-200">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                    </svg>
+                                                                    Report #${event.reportIds[index]}
+                                                                </a>`
+                                                            ).join('') : 
+                                                            '<span class="text-gray-500">No report IDs</span>'}
+                                                    </td>
+                                                </tr>`
+                                            ).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-xl flex justify-end">
+                                <button id="close-modal-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
                 ` : ''}
                 
-                <!-- Study Adverse Events (if available) -->
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Clinical Trial Safety Profile</h5>
                     ${sortedEvents.length > 0 ? 
                         `<div class="bg-white p-0">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead class=" SCRIPT_ ClinicalSummary.js _ fix modal 3 _ 2025-04-27 _ Grok3.md bg-gray-50">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Adverse Event
@@ -9327,7 +9409,6 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
                     }
                 </div>
                 
-                <!-- Key Findings -->
                 <div class="mb-6">
                     <h5 class="font-medium text-gray-700 mb-3 border-b pb-2">Summary of Key Findings</h5>
                     <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
@@ -9375,8 +9456,135 @@ async function createComprehensiveClinicalSummary(studies, drugName) {
             </div>
         </div>
     `;
+    
+    setTimeout(() => {
+        initializeAdverseEventsModal();
+    }, 0);
+    
+    return htmlContent;
 }
 
+function initializeAdverseEventsModal() {
+    console.log('Initializing adverse events modal...');
+    
+    const viewAllButton = document.getElementById('view-all-adverse-events');
+    const modal = document.getElementById('adverse-events-modal');
+    const closeModalButton = document.getElementById('close-modal-btn');
+    const closeModalIcon = document.getElementById('close-modal');
+    const searchInput = document.getElementById('modal-search');
+    const modalEventsBody = document.getElementById('modal-events-body');
+
+    console.log('View All Button:', viewAllButton);
+    console.log('Modal:', modal);
+    console.log('Close Modal Button:', closeModalButton);
+    console.log('Close Modal Icon:', closeModalIcon);
+    console.log('Search Input:', searchInput);
+    console.log('Modal Events Body:', modalEventsBody);
+
+    if (!viewAllButton || !modal || !modalEventsBody || !closeModalButton || !closeModalIcon) {
+        console.error('Required modal elements not found. Modal will not function.');
+        return;
+    }
+
+    const originalRows = modalEventsBody.innerHTML;
+
+    // Show modal
+    viewAllButton.addEventListener('click', () => {
+        console.log('View All Events button clicked');
+        modal.classList.remove('hidden');
+        modal.querySelector('.scale-95').classList.add('scale-100', 'opacity-100');
+        modal.classList.add('opacity-100');
+        searchInput.focus();
+        trapFocus(modal);
+        if (searchInput) {
+            searchInput.value = '';
+            modalEventsBody.innerHTML = originalRows;
+        }
+    });
+
+    // Close modal
+    const closeModal = () => {
+        console.log('Closing modal');
+        modal.querySelector('.scale-100').classList.remove('scale-100', 'opacity-100');
+        modal.querySelector('.scale-95').classList.add('scale-95', 'opacity-0');
+        modal.classList.remove('opacity-100');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+        releaseFocus();
+    };
+
+    closeModalButton.addEventListener('click', closeModal);
+    closeModalIcon.addEventListener('click', closeModal);
+
+    // Close with ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // Search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            console.log('Search input changed:', searchInput.value);
+            const searchTerm = searchInput.value.toLowerCase();
+            const rows = modalEventsBody.querySelectorAll('.modal-event-row');
+
+            rows.forEach(row => {
+                const eventTerm = row.querySelector('td:first-child').textContent.toLowerCase();
+                row.style.display = eventTerm.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Focus trapping
+    function trapFocus(element) {
+        const focusableElements = element.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        element.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        e.preventDefault();
+                        lastFocusable.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+            }
+        });
+    }
+
+    function releaseFocus() {
+        document.removeEventListener('keydown', trapFocus);
+    }
+
+    // Event delegation for dynamically added buttons
+    document.addEventListener('click', (event) => {
+        if (event.target.matches('#view-all-adverse-events')) {
+            console.log('Delegated click on View All Events button');
+            modal.classList.remove('hidden');
+            modal.querySelector('.scale-95').classList.add('scale-100', 'opacity-100');
+            modal.classList.add('opacity-100');
+            searchInput.focus();
+            trapFocus(modal);
+            if (searchInput && modalEventsBody) {
+                searchInput.value = '';
+                modalEventsBody.innerHTML = originalRows;
+            }
+        }
+    });
+}
+
+window.initializeAdverseEventsModal = initializeAdverseEventsModal;
 // Helper function to format FDA text content (handles list formatting, etc.)
 function formatFdaText(text) {
     if (!text) return '';
@@ -38433,7 +38641,7 @@ async function handleSearch() {
         if (existingTimeline) {
             existingTimeline.innerHTML = ``;
         } 
-        
+
     // Hide any other sections that might be visible
     document.querySelectorAll('.results-section').forEach(section => {
         section.style.display = 'none';

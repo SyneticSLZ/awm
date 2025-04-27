@@ -1388,6 +1388,107 @@ app.post('/api/generate-warning-letter-summary', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+async function searchDrugsForConditionfromdrug(condition) {
+  try {
+    // Step 1: Normalize condition name for search
+    const normalizedCondition = encodeURIComponent(condition.trim().toLowerCase());
+
+    // Step 2: Use RxNorm API to find drugs (we'll search for drugs by condition indirectly)
+    // RxNorm doesn't directly map conditions, so we'll use a web search to find drug names first
+    const searchUrl = `https://www.drugs.com/search.php?searchterm=${normalizedCondition}`;
+    const searchResponse = await axios.get(searchUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+
+    // Parse HTML with Cheerio to extract drug names
+    const $ = cheerio.load(searchResponse.data);
+    const drugs = [];
+    $('.ddc-search-results .ddc-media').each((i, element) => {
+      const drugName = $(element).find('.ddc-media-content a').text().trim();
+      const drugLink = 'https://www.drugs.com' + $(element).find('.ddc-media-content a').attr('href');
+      if (drugName) {
+        drugs.push({ name: drugName, source: drugLink });
+      }
+    });
+
+    // Step 3: Enrich drug data with RxNorm API
+    const enrichedDrugs = [];
+    for (const drug of drugs) {
+      try {
+        const rxnormUrl = `https://rxnav.nlm.nih.gov/REST/rxcui.json?name=${encodeURIComponent(drug.name)}`;
+        const rxnormResponse = await axios.get(rxnormUrl);
+        const rxcui = rxnormResponse.data.idGroup.rxnormId ? rxnormResponse.data.idGroup.rxnormId[0] : null;
+
+        if (rxcui) {
+          // Fetch additional details (e.g., drug class)
+          const drugInfoUrl = `https://rxnav.nlm.nih.gov/REST/rxcui/${rxcui}/allProperties.json`;
+          const drugInfoResponse = await axios.get(drugInfoUrl);
+          const properties = drugInfoResponse.data.propConceptGroup?.propConcept || [];
+          const drugClass = properties.find(prop => prop.propName === 'RxClass')?.propValue || 'Unknown';
+
+          enrichedDrugs.push({
+            name: drug.name,
+            rxcui: rxcui,
+            drugClass: drugClass,
+            condition: condition,
+            source: drug.source,
+            retrievedAt: new Date().toISOString()
+          });
+        } else {
+          enrichedDrugs.push({
+            name: drug.name,
+            rxcui: null,
+            drugClass: 'Unknown',
+            condition: condition,
+            source: drug.source,
+            retrievedAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error(`Error fetching RxNorm data for ${drug.name}:`, error.message);
+        enrichedDrugs.push({
+          name: drug.name,
+          rxcui: null,
+          drugClass: 'Unknown',
+          condition: condition,
+          source: drug.source,
+          retrievedAt: new Date().toISOString()
+        });
+      }
+    }
+
+    console.log("drugs : ", enrichedDrugs)
+    return enrichedDrugs;
+  } catch (error) {
+    console.error('Error searching drugs:', error.message);
+    throw new Error('Failed to fetch drug data');
+  }
+}
+
+
+// Express route to handle condition-to-drugs query
+app.post('/api/conditions/drugs', async (req, res) => {
+  const { condition } = req.body;
+
+  if (!condition || typeof condition !== 'string') {
+    return res.status(400).json({ error: 'Condition name is required and must be a string' });
+  }
+
+  try {
+    const drugs = await searchDrugsForConditionfromdrug(condition);
+    res.json({
+      condition,
+      drugs,
+      total: drugs.length,
+      requestId: uuidv4(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch drugs', details: error.message });
+  }
+});
+
 /**
  * Generate FDA summary using OpenAI
  * POST /api/generate-summary
@@ -9017,6 +9118,7 @@ app.listen(PORT, () => {
           return;
       }
   });
+  // searchDrugsForConditionfromdrug("hypertension")
   // getRelatedDrugs('Liafensine')
 });
 
