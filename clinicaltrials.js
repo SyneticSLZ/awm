@@ -268,7 +268,7 @@ function verifyPassword(password, hash, salt) {
 
 
 // Login endpoint
-router.post('/api/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -298,7 +298,7 @@ router.post('/api/login', async (req, res) => {
 });
 
 // Signup endpoint
-router.post('/api/signup', async (req, res) => {
+app.post('/api/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
     
