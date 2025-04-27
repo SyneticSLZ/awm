@@ -268,7 +268,7 @@ function verifyPassword(password, hash, salt) {
 
 
 // Login endpoint
-app.post('/api/login', async (req, res) => {
+router.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -298,7 +298,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Signup endpoint
-app.post('/api/signup', async (req, res) => {
+router.post('/api/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
     
@@ -345,7 +345,6 @@ app.post('/api/signup', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 
 
