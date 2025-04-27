@@ -15049,9 +15049,21 @@ function markSuccessfulTreatments(usageData, studies) {
  */
  function generateUsageTimeline(studies, entityName, entityType) {
     // Create container for the timeline
-    const timelineContainer = document.createElement('div');
-    timelineContainer.className = 'mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
+    // const timelineContainer = document.createElement('div');
+
+
+
+
+        // Check if a timeline with this ID already exists and remove it if so
+        const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
+    if (existingTimeline) {
+        existingTimeline.remove();
+    }
     
+    // Create container for the timeline with the unique ID
+    const timelineContainer = document.createElement('div');
+    timelineContainer.id = 'containerId2342USAETIMELINE';
+    timelineContainer.className = 'mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
     // Use the correct title based on entity type
     const titleText = entityType === 'drug' 
         ? `Historical Usage Timeline: ${entityName}`
