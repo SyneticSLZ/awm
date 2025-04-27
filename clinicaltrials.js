@@ -28,6 +28,8 @@ const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const { OpenAI } = require('openai');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
+const { connectDB } = require('./db');
+const { User } = require('./db');
 
 const { 
   DrugClassification, 
@@ -68,7 +70,7 @@ const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live 
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+connectDB();
 
 const allowedOrigins = [
   'https://www.syneticx.com', // Replace with your actual frontend domain
@@ -181,87 +183,169 @@ function verifyPassword(password, hash, salt) {
   return hash === verifyHash;
 }
 
-// Login endpoint
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
+// // Login endpoint
+// app.post('/api/login', (req, res) => {
+//   const { username, password } = req.body;
   
-  getUsers((err, users) => {
-    if (err) {
-      console.error('Login error:', err);
-      return res.status(500).json({ message: 'Server error' });
-    }
+//   getUsers((err, users) => {
+//     if (err) {
+//       console.error('Login error:', err);
+//       return res.status(500).json({ message: 'Server error' });
+//     }
     
-    const user = users.find(u => u.username === username);
+//     const user = users.find(u => u.username === username);
+    
+//     if (!user) {
+//       return res.status(401).json({ message: 'Invalid username or password' });
+//     }
+    
+//     const isPasswordValid = verifyPassword(password, user.passwordHash, user.salt);
+    
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ message: 'Invalid username or password' });
+//     }
+    
+//     // Remove password data from response
+//     const { passwordHash, salt, ...safeUser } = user;
+    
+//     res.json({ user: safeUser });
+//   });
+// });
+
+// // Signup endpoint
+// app.post('/api/signup', (req, res) => {
+//   const { username, email, password } = req.body;
+  
+//   getUsers(async (err, users) => {
+//     if (err) {
+//       console.error('Signup error:', err);
+//       return res.status(500).json({ message: 'Server error' });
+//     }
+    
+//     // Check if username or email already exists
+//     if (users.find(u => u.username === username)) {
+//       return res.status(400).json({ message: 'Username already exists' });
+//     }
+//     if (users.find(u => u.email === email)) {
+//       return res.status(400).json({ message: 'Email already exists' });
+//     }
+    
+//     // Hash password
+//     const { hash: passwordHash, salt } = hashPassword(password);
+    
+//     // Create new user
+//     const newUser = {
+//       id: uuidv4(),
+//       username,
+//       email,
+//       passwordHash,
+//       salt,
+//       role: 'user',
+//       usage: 0,
+//       billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
+//       subscriptionStatus: 'free-trial',
+//       darkModeEnabled: false,
+//       createdAt: new Date().toISOString()
+//     };
+    
+//     users.push(newUser);
+    
+//     saveUsers(users, async (saveErr) => {
+//       if (saveErr) {
+//         console.error('Signup error:', saveErr);
+//         return res.status(500).json({ message: 'Server error' });
+//       }
+      
+//       // Remove password data from response
+//       const { passwordHash, salt, ...safeUser } = newUser;
+
+//       const emailSent = await sendWelcomeEmail(safeUser)
+//       res.json({ user: safeUser });
+//     });
+//   });
+// });
+
+
+
+// Login endpoint
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Find user by username
+    const user = await User.findOne({ username });
     
     if (!user) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
     
-    const isPasswordValid = verifyPassword(password, user.passwordHash, user.salt);
+    // Verify password
+    const isPasswordValid = User.verifyPassword(password, user.passwordHash, user.salt);
     
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
     
-    // Remove password data from response
-    const { passwordHash, salt, ...safeUser } = user;
+    // Convert to plain object and remove sensitive data
+    const userObj = user.toObject();
+    const { passwordHash, salt, ...safeUser } = userObj;
     
     res.json({ user: safeUser });
-  });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Signup endpoint
-app.post('/api/signup', (req, res) => {
-  const { username, email, password } = req.body;
-  
-  getUsers(async (err, users) => {
-    if (err) {
-      console.error('Signup error:', err);
-      return res.status(500).json({ message: 'Server error' });
-    }
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
     
     // Check if username or email already exists
-    if (users.find(u => u.username === username)) {
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
       return res.status(400).json({ message: 'Username already exists' });
     }
-    if (users.find(u => u.email === email)) {
+    
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       return res.status(400).json({ message: 'Email already exists' });
     }
     
     // Hash password
-    const { hash: passwordHash, salt } = hashPassword(password);
+    const { hash: passwordHash, salt } = User.hashPassword(password);
     
     // Create new user
-    const newUser = {
-      id: uuidv4(),
+    const newUser = new User({
       username,
       email,
       passwordHash,
       salt,
       role: 'user',
       usage: 0,
-      billingPeriod: 'Apr 1, 2025 - Apr 30, 2025',
+      billingPeriod: `${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
       subscriptionStatus: 'free-trial',
-      darkModeEnabled: false,
-      createdAt: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    
-    saveUsers(users, async (saveErr) => {
-      if (saveErr) {
-        console.error('Signup error:', saveErr);
-        return res.status(500).json({ message: 'Server error' });
-      }
-      
-      // Remove password data from response
-      const { passwordHash, salt, ...safeUser } = newUser;
-
-      const emailSent = await sendWelcomeEmail(safeUser)
-      res.json({ user: safeUser });
+      darkModeEnabled: false
     });
-  });
+    
+    // Save user to database
+    await newUser.save();
+    
+    // Send welcome email
+    const emailSent = await sendWelcomeEmail(newUser);
+    
+    // Convert to plain object and remove sensitive data
+    const userObj = newUser.toObject();
+    const { passwordHash: ph, salt: s, ...safeUser } = userObj;
+    
+    res.json({ user: safeUser });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
+
 
 
 
