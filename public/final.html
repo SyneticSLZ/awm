@@ -38429,6 +38429,11 @@ async function handleSearch() {
     showSection(elements.studyDetailSection, false);
     showSection(elements.fdaDataSection, false);
     showSection(elements.placeholderMessage, false);
+    const existingTimeline = document.getElementById('entity-usage-timeline');
+        if (existingTimeline) {
+            existingTimeline.innerHTML = ``;
+        } 
+        
     // Hide any other sections that might be visible
     document.querySelectorAll('.results-section').forEach(section => {
         section.style.display = 'none';
