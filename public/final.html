@@ -2630,7 +2630,7 @@ const SearchTermManager = (function () {
 appState.allTrialOutcomes = [];
         // DOM elements
         const elements = {
-            companySummarySection: null,
+            // companySummarySection: null,
             ema: document.getElementById('emaDataSection'),
             ctSummary : document.getElementById('clinical-trials-dashboard'),
             drugSearch: document.getElementById('drugSearch'),
@@ -2657,11 +2657,12 @@ appState.allTrialOutcomes = [];
             statisticalSummaryTable: document.getElementById('statisticalSummaryTable'),
     dailyMedData: document.getElementById('dailyMedData'),
     dailyMedCount: document.getElementById('dailyMedCount'),
-    dailyMedPagination: document.getElementById('dailyMedPagination'),
+    dailyMedPagination: document.getElementById('dailyMedPagination')
          // Add to your existing elements definition
-            companySummarySection : document.getElementById('company-summary-section'),
-            inspectionDataSection: document.getElementById('inspection-data') || createInspectionDataSection()
+
         };
+        elements.companySummarySection = document.getElementById('company-summary-section');
+        elements.inspectionDataSection = document.getElementById('inspection-data') || createInspectionDataSection();
         elements.fdaDataSection = document.getElementById('fdaDataSection');
 elements.fdaDocuments = document.getElementById('fdaDocuments');
 elements.orangeBookData = document.getElementById('orangeBookData');
@@ -22040,9 +22041,9 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       inspectionDataSection.parentNode.insertBefore(elements.companySummarySection, inspectionDataSection);
     } else {
       // If inspection data section doesn't exist, append to FDA data section
-      const fdaDataSection = document.querySelector('.fda-data-section');
-      if (fdaDataSection) {
-        fdaDataSection.appendChild(elements.companySummarySection);
+    //   const fdaDataSection = document.querySelector('.fda-data-section');
+      if (elements.fdaDataSection) {
+        elements.fdaDataSection.appendChild(elements.companySummarySection);
       }
     }
   }
@@ -24688,9 +24689,9 @@ async function searchWarningLetters(companies) {
   }
   
   // Show loading state
-  if (elements.fdaDataSection) {
-    elements.fdaDataSection.style.display = 'block';
-  }
+//   if (elements.fdaDataSection) {
+//     elements.fdaDataSection.style.display = 'block';
+//   }
   
   try {
     // Reset all company counts
@@ -24749,9 +24750,9 @@ async function searchCompanies() {
   }
   
   // Show loading state
-  if (elements.fdaDataSection) {
-    elements.fdaDataSection.style.display = 'block';
-  }
+//   if (elements.fdaDataSection) {
+//     elements.fdaDataSection.style.display = 'block';
+//   }
   
   try {
     // Reset all company counts
