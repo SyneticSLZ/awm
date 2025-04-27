@@ -1,11 +1,11 @@
 // db.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const crypto = require('crypto'); // Node.js built-in module
 
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest');
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -69,15 +69,16 @@ const WideoakUserSchema = new mongoose.Schema({
   }
 });
 
-// Methods for password hashing and verification
+// Methods for password hashing and verification using crypto
 WideoakUserSchema.statics.hashPassword = function(password) {
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync(password, salt);
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
   return { hash, salt };
 };
 
 WideoakUserSchema.statics.verifyPassword = function(password, hash, salt) {
-  return bcrypt.compareSync(password, hash);
+  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === verifyHash;
 };
 
 const User = mongoose.model('WideoakUser', WideoakUserSchema);
