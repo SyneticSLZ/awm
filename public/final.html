@@ -24659,6 +24659,9 @@ async function searchWarningLetters(companies) {
       
     return;
   }
+
+  showSection(elements.companySummarySection, true)
+  showSection(elements.inspectionDataSection, true)
   
   // Filter out any empty strings
   companies = companies
@@ -34820,6 +34823,7 @@ async function displayOrangeBookData(data) {
       if (orangeBookData.results?.companies) {
         console.log('run is ativated')
         await searchWarningLetters(orangeBookData.results?.companies)
+
       }else {
 elements.warningLettersData.innerHTML =   `<div class="text-center p-4">
         <p class="text-sm text-gray-700">No Warning letters found for "${drugName}"</p>
@@ -38628,6 +38632,10 @@ async function handleSearch() {
     document.querySelector('.phase-filter[data-phase="all"]').classList.remove('bg-gray-200', 'hover:bg-gray-300');
     document.querySelector('.phase-filter[data-phase="all"]').classList.add('bg-primary', 'text-white');
     
+
+    showSection(elements.companySummarySection, false)
+    showSection(elements.inspectionDataSection, false)
+ 
     // 1. HIDE ABSOLUTELY EVERYTHING FIRST
     showSection(elements.ctSummary, false)
   showSection(elements.ema, false)
