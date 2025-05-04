@@ -1,0 +1,321 @@
+/**
+ * EMA Data Field Normalizer
+ * 
+ * This module improves the field normalization and extraction for the EMA data processor.
+ * It addresses the issues with inconsistent field names and ensures proper extraction
+ * of values from CSV data.
+ */
+
+/**
+ * Normalize field names and values for EMA data entries
+ * @param {Array} results - Raw search results from CSV processing
+ * @returns {Array} - Normalized data entries
+ */
+function normalizeEmaData(results) {
+  if (!results || !Array.isArray(results)) {
+    console.warn('Invalid results data provided for normalization');
+    return [];
+  }
+  
+  console.log(`Normalizing ${results.length} result entries`);
+  
+  return results.map(item => {
+    // Create a new object with normalized field names
+    const normalized = {
+      // Keep track of match information
+      _similarity: item._similarity || 0,
+      _matchField: item._matchField || '',
+      _directMatch: item._directMatch || false
+    };
+    
+    // Map and extract common fields correctly
+    extractCommonFields(item, normalized);
+    
+    // Keep original data fields for reference, but improve field names
+    extractOriginalFields(item, normalized);
+    
+    return normalized;
+  });
+}
+
+/**
+ * Extract and normalize common fields from an EMA data entry
+ * @param {Object} item - Raw data entry
+ * @param {Object} normalized - Target normalized object
+ */
+function extractCommonFields(item, normalized) {
+  // Standard fields to extract
+  const fieldMap = {
+    // Basic information
+    name: ['name', 'Name of medicine', 'Medicine name', 'Orphan designation', '_1', 'title', 'medicine', 'substance'],
+    status: ['status', 'Medicine status', 'Status', 'Supply shortage status', 'Current status', '_3', '_6', '_7'],
+    category: ['Category', '_0'],
+    
+    // Substance information
+    active_substance: ['active_substance', 'Active substance', 'International non-proprietary name (INN) / common name', '_6', '_7', '_2'],
+    
+    // Classification and therapeutic info
+    therapeutic_area: ['therapeutic_area', 'Therapeutic area (MeSH)', '_8', '_13'],
+    therapeutic_indication: ['therapeutic_indication', 'Therapeutic indication', '_15', '_11'],
+    atc_code: ['atc_code', 'ATC code (human)', '_12'],
+    
+    // Regulatory information
+    ema_number: ['ema_number', 'EMA product number', '_2', 'eu_number', 'EU designation number', '_9'],
+    procedure_number: ['Procedure number', '_4'],
+    
+    // Dates
+    authorisation_date: ['authorisation_date', 'Marketing authorisation date', 'European Commission decision date', '_29', '_31', '_36', '_22'],
+    decision_date: ['decision_date', 'Date of designation / refusal', '_6', '_7'],
+    publication_date: ['date', 'Dissemination date', 'First published date', 'Publication date', '_5', '_6'],
+    
+    // Special designations
+    orphan_status: ['orphan', 'Orphan medicine', '_23'],
+    additional_monitoring: ['Additional monitoring', '_16'],
+    biosimilar: ['Biosimilar', '_18'],
+    generic_hybrid: ['Generic or hybrid', '_22'],
+    
+    // Orphan specific
+    intended_use: ['intended_use', '_enhancedIntendedUse', 'Intended use', '_3'],
+    
+    // Shortage specific
+    expected_resolution: ['expected_resolution', 'Expected resolution', 'Expected resolution date', '_10'],
+    reason: ['reason', 'Reason for shortage', 'DHPC type', 'Regulatory outcome', '_7', '_8', '_4', '_5'],
+    
+    // Safety specific
+    dhpc_type: ['DHPC type', '_4'],
+    
+    // Various URLs
+    url: ['url', 'Medicine URL', 'DHPC URL', 'PSUSA URL', 'Referral URL', 'Shortage URL', 'Orphan designation URL', '_38', '_34']
+  };
+  
+  // Extract standard fields
+  for (const [normalizedField, possibleKeyNames] of Object.entries(fieldMap)) {
+    extractField(item, normalized, normalizedField, possibleKeyNames);
+  }
+  
+  // Special handling for specific field types
+  handleSpecialFields(item, normalized);
+}
+
+/**
+ * Extract a field using a list of possible source field names
+ * @param {Object} item - Source data object
+ * @param {Object} target - Target normalized object
+ * @param {string} targetField - Name for the normalized field
+ * @param {Array<string>} sourceFields - Possible source field names
+ */
+function extractField(item, target, targetField, sourceFields) {
+  // First check if the value already exists in the original data
+  for (const field of sourceFields) {
+    if (item[field] !== undefined && item[field] !== null && item[field] !== '') {
+      target[targetField] = item[field];
+      return;
+    }
+  }
+  
+  // Check in _original_ prefixed fields
+  for (const key in item) {
+    if (key.startsWith('_original_')) {
+      const fieldName = key.substring(10); // Remove '_original_' prefix
+      
+      // Check if this original field matches any of our target source fields
+      for (const sourceField of sourceFields) {
+        // Exact match
+        if (fieldName === sourceField) {
+          target[targetField] = item[key];
+          return;
+        }
+        
+        // Partial match - source field is contained in original field name
+        if (fieldName.toLowerCase().includes(sourceField.toLowerCase())) {
+          target[targetField] = item[key];
+          return;
+        }
+        
+        // Partial match - original field name is contained in source field
+        if (sourceField.toLowerCase().includes(fieldName.toLowerCase())) {
+          target[targetField] = item[key];
+          return;
+        }
+      }
+    }
+  }
+  
+  // For numbered fields (_1, _2, etc.), check if they're in the sourceFields
+  for (const key in item) {
+    if (/^_\d+$/.test(key)) {
+      const value = item[key];
+      if (value !== undefined && value !== null && value !== '') {
+        // For specific fields like name that might be in first positions
+        if (targetField === 'name' && key === '_1') {
+          target[targetField] = value;
+          return;
+        }
+        
+        // For active substance which might be in position _2 or _3
+        if (targetField === 'active_substance' && (key === '_2' || key === '_3')) {
+          target[targetField] = value;
+          return;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Handle special case fields that need additional processing
+ * @param {Object} item - Source data object
+ * @param {Object} normalized - Target normalized object
+ */
+function handleSpecialFields(item, normalized) {
+  // Handle URLs - ensure they are properly formatted
+  if (normalized.url) {
+    normalized.url = ensureUrl(normalized.url);
+  } else {
+    // Try to find any URL-like field
+    for (const key in item) {
+      if (item[key] && typeof item[key] === 'string' && 
+          (item[key].includes('http') || item[key].includes('www.ema.europa.eu'))) {
+        normalized.url = ensureUrl(item[key]);
+        break;
+      }
+    }
+  }
+  
+  // Handle date fields - normalize date formats
+  const dateFields = ['authorisation_date', 'decision_date', 'publication_date'];
+  for (const field of dateFields) {
+    if (normalized[field]) {
+      try {
+        const date = new Date(normalized[field]);
+        if (!isNaN(date.getTime())) {
+          normalized[field] = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        }
+      } catch (error) {
+        // Keep original value if date parsing fails
+      }
+    }
+  }
+  
+  // Handle therapeutic area - split entries if needed
+  if (normalized.therapeutic_area && normalized.therapeutic_area.includes(';')) {
+    normalized.therapeutic_areas = normalized.therapeutic_area
+      .split(/[;,]/)
+      .map(area => area.trim())
+      .filter(area => area);
+  }
+  
+  // Special handling for different EMA number patterns
+  if (!normalized.ema_number) {
+    // Look for EMA number patterns in original fields
+    for (const key in item) {
+      const value = item[key];
+      if (value && typeof value === 'string' && 
+          (value.includes('EMEA/H/C/') || value.includes('EU/3/'))) {
+        normalized.ema_number = value;
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Ensure a URL is properly formatted
+ * @param {string} url - URL to format
+ * @returns {string} - Properly formatted URL
+ */
+function ensureUrl(url) {
+  if (!url) return '';
+  
+  // If URL doesn't have protocol, add https://
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return 'https://' + url.replace(/^\/\//, '');
+  }
+  
+  return url;
+}
+
+/**
+ * Extract and normalize original field data
+ * @param {Object} item - Source data object
+ * @param {Object} normalized - Target normalized object
+ */
+function extractOriginalFields(item, normalized) {
+  // Process _original_ fields and improve their naming
+  for (const key in item) {
+    if (key.startsWith('_original_')) {
+      const fieldName = key.substring(10); // Remove '_original_' prefix
+      const value = item[key];
+      
+      if (value !== undefined && value !== null && value !== '') {
+        // Skip duplicate fields we've already normalized
+        if (Object.values(normalized).includes(value)) {
+          continue;
+        }
+        
+        // Clean up field name
+        let cleanFieldName = fieldName.trim();
+        
+        // Handle numeric fields and dates in field names
+        if (/^\d+$/.test(cleanFieldName)) {
+          cleanFieldName = `field_${cleanFieldName}`;
+        } else if (/^\d{2}\/\d{2}\/\d{4}/.test(cleanFieldName)) {
+          cleanFieldName = 'generation_date';
+        } else if (/^\d{2}.\d{2}.\d{4}/.test(cleanFieldName)) {
+          cleanFieldName = 'generation_date';
+        }
+        
+        // Remove special characters and spaces from field names
+        cleanFieldName = cleanFieldName
+          .replace(/:/g, '')
+          .replace(/\s+/g, '_')
+          .toLowerCase();
+        
+        // Add to normalized object
+        normalized[cleanFieldName] = value;
+      }
+    }
+  }
+  
+  // Process numbered fields (_1, _2, etc.) and give them meaningful names
+  const knownNumberedFields = {
+    _0: 'category',
+    _1: 'name',
+    _2: 'ema_number',
+    _3: 'status',
+    _6: 'active_substance',
+    _7: 'active_substance_alt',
+    _8: 'therapeutic_area',
+    _11: 'atc_code',
+    _15: 'therapeutic_indication',
+    _16: 'additional_monitoring',
+    _18: 'biosimilar',
+    _22: 'generic_hybrid',
+    _23: 'orphan_medicine',
+    _29: 'authorisation_date',
+    _34: 'url',
+    _38: 'url_alt'
+  };
+  
+  for (const key in item) {
+    if (/^_\d+$/.test(key)) {
+      const value = item[key];
+      
+      if (value !== undefined && value !== null && value !== '') {
+        // Skip duplicate fields we've already normalized
+        if (Object.values(normalized).includes(value)) {
+          continue;
+        }
+        
+        // Use known field name if available, otherwise use original key
+        if (knownNumberedFields[key]) {
+          normalized[knownNumberedFields[key]] = value;
+        } else {
+          normalized[key] = value;
+        }
+      }
+    }
+  }
+}
+
+module.exports = { normalizeEmaData };

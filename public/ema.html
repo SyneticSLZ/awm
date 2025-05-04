@@ -1,0 +1,3909 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Axios for API requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- Fallback for browsers that don't support SVG favicons -->
+<link rel="alternate icon" href="favicon.ico">
+<!-- Apple Touch Icon for iOS devices -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Web App Manifest -->
+<!-- <link rel="manifest" href="manifest.json"> -->
+ </head>
+
+ <body>
+
+<!-- HTML Template for EMA Data Module with Summary Section -->
+<div class="bg-white shadow-md rounded-lg p-6 mb-8" id="emaDataSection">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="text-2xl font-bold">European Medicines Agency Data</h2>
+        <p id="emaDataLastUpdated" class="text-sm text-gray-500 mt-1">Loading data status...</p>
+      </div>
+      <button id="refreshEmaDataBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </div>
+  
+    <div class="mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <div id="emaApprovalCount" class="text-xl font-semibold text-blue-700">0 approvals</div>
+          <div class="text-sm text-blue-500">Medicines</div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <div id="emaOrphanCount" class="text-xl font-semibold text-purple-700">0 designations</div>
+          <div class="text-sm text-purple-500">Orphan Designations</div>
+        </div>
+        <div class="bg-orange-50 p-4 rounded-lg">
+          <div id="emaSafetyCount" class="text-xl font-semibold text-orange-700">0 communications</div>
+          <div class="text-sm text-orange-500">Safety Communications</div>
+        </div>
+        <div class="bg-teal-50 p-4 rounded-lg">
+          <div id="emaPsusaCount" class="text-xl font-semibold text-teal-700">0 reports</div>
+          <div class="text-sm text-teal-500">PSUSA Reports</div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg">
+          <div id="emaShortagesCount" class="text-xl font-semibold text-red-700">0 shortages</div>
+          <div class="text-sm text-red-500">Shortages</div>
+        </div>
+        <div class="bg-indigo-50 p-4 rounded-lg">
+          <div id="emaReferralsCount" class="text-xl font-semibold text-indigo-700">0 referrals</div>
+          <div class="text-sm text-indigo-500">Referrals</div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="mb-6 border-b border-gray-200">
+      <nav class="flex -mb-px">
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" id="approvalTabButton" data-tab="emaApprovalTab" aria-selected="true">
+          Medicines
+        </button>
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium text-sm text-gray-500" id="orphanTabButton" data-tab="emaOrphanTab" aria-selected="false">
+          Orphan Designations
+        </button>
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium text-sm text-gray-500" id="safetyTabButton" data-tab="emaSafetyTab" aria-selected="false">
+          Safety Communications
+        </button>
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium text-sm text-gray-500" id="psusaTabButton" data-tab="emaPsusaTab" aria-selected="false">
+          PSUSA
+        </button>
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium text-sm text-gray-500" id="shortagesTabButton" data-tab="emaShortagesTab" aria-selected="false">
+          Shortages
+        </button>
+        <button class="ema-tab-button px-6 py-3 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium text-sm text-gray-500" id="referralsTabButton" data-tab="emaReferralsTab" aria-selected="false">
+          Referrals
+        </button>
+      </nav>
+    </div>
+  
+    <div>
+      <div id="emaApprovalTab" class="ema-tab-pane active">
+        <div id="emaApprovalData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see EMA approval data.</p>
+          </div>
+        </div>
+      </div>
+  
+      <div id="emaOrphanTab" class="ema-tab-pane hidden">
+        <div id="emaOrphanData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see orphan designation data.</p>
+          </div>
+        </div>
+      </div>
+  
+      <div id="emaSafetyTab" class="ema-tab-pane hidden">
+        <div id="emaSafetyData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see safety communication data.</p>
+          </div>
+        </div>
+      </div>
+  
+      <div id="emaPsusaTab" class="ema-tab-pane hidden">
+        <div id="emaPsusaData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see PSUSA data.</p>
+          </div>
+        </div>
+      </div>
+  
+      <div id="emaShortagesTab" class="ema-tab-pane hidden">
+        <div id="emaShortagesData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see shortage data.</p>
+          </div>
+        </div>
+      </div>
+  
+      <div id="emaReferralsTab" class="ema-tab-pane hidden">
+        <div id="emaReferralsData" class="w-full">
+          <div class="ema-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-center text-gray-500">Search for a drug to see referral data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Summary Section -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8" id="emaSummarySection">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold">EMA Data Summary</h2>
+      <div class="flex space-x-2">
+        <button id="emaSummaryBtn" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Generate Summary
+        </button>
+        <button id="emaAiSummaryBtn" class="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          AI Summary
+        </button>
+        <button id="emaEmailSummaryBtn" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Email Summary
+        </button>
+      </div>
+    </div>
+    <div id="emaSummaryContent" class="hidden">
+      <!-- Summary content will be populated here -->
+    </div>
+  </div>
+  
+  <!-- Admin Section (hidden by default) -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8 hidden" id="emaDataAdmin">
+    <h2 class="text-2xl font-bold mb-6">EMA Data Administration</h2>
+    
+    <div class="mb-4" id="uploadStatus"></div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Medicines Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload Medicines Data</h3>
+        <form id="medicinesUploadForm" class="space-y-3">
+          <div>
+            <label for="medicinesFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="medicinesFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Upload Medicines Data
+          </button>
+        </form>
+      </div>
+      
+      <!-- Orphans Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload Orphan Designations</h3>
+        <form id="orphansUploadForm" class="space-y-3">
+          <div>
+            <label for="orphansFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="orphansFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+            Upload Orphan Data
+          </button>
+        </form>
+      </div>
+      
+      <!-- DHPC Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload Safety Communications</h3>
+        <form id="dhpcUploadForm" class="space-y-3">
+          <div>
+            <label for="dhpcFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="dhpcFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            Upload Safety Data
+          </button>
+        </form>
+      </div>
+      
+      <!-- PSUSA Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload PSUSA Reports</h3>
+        <form id="psusaUploadForm" class="space-y-3">
+          <div>
+            <label for="psusaFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="psusaFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+            Upload PSUSA Data
+          </button>
+        </form>
+      </div>
+      
+      <!-- Shortages Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload Shortages Data</h3>
+        <form id="shortagesUploadForm" class="space-y-3">
+          <div>
+            <label for="shortagesFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="shortagesFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Upload Shortages Data
+          </button>
+        </form>
+      </div>
+      
+      <!-- Referrals Upload Form -->
+      <div class="border rounded-lg p-4">
+        <h3 class="font-semibold text-lg mb-3">Upload Referrals Data</h3>
+        <form id="referralsUploadForm" class="space-y-3">
+          <div>
+            <label for="referralsFileInput" class="block text-sm font-medium text-gray-700 mb-1">
+              Select CSV file
+            </label>
+            <input id="referralsFileInput" name="file" type="file" accept=".csv" 
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" required>
+          </div>
+          <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Upload Referrals Data
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Data Refresh Section -->
+    <div class="mt-8 border-t pt-6">
+      <h3 class="font-semibold text-lg mb-3">Data Management</h3>
+      <div class="flex flex-col md:flex-row gap-4">
+        <button id="refreshAllEmaDataBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh All Data Sources
+        </button>
+        <button id="exportEmaDataLogBtn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export Data Log
+        </button>
+        <button id="checkEmaConsistencyBtn" class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Check Data Consistency
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Search Interface Section -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8" id="emaSearchInterface">
+    <h2 class="text-2xl font-bold mb-6">Drug Search</h2>
+    
+    <div class="mb-6">
+      <form id="emaSearchForm" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-grow">
+          <label for="searchDrugInput" class="block text-sm font-medium text-gray-700 mb-1">
+            Enter medicine or active substance name
+          </label>
+          <input type="text" id="searchDrugInput" placeholder="e.g., Humira, adalimumab"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <div class="mb-4">
+      <div class="flex flex-wrap gap-2">
+        <button class="quick-search-btn px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200" data-drug="Humira">
+          Humira
+        </button>
+        <button class="quick-search-btn px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200" data-drug="Mounjaro">
+          Mounjaro
+        </button>
+        <button class="quick-search-btn px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200" data-drug="adalimumab">
+          adalimumab
+        </button>
+        <button class="quick-search-btn px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200" data-drug="tirzepatide">
+          tirzepatide
+        </button>
+        <button class="quick-search-btn px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200" data-drug="linaclotide">
+          linaclotide
+        </button>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">
+        Click on any of the example drugs above for a quick search
+      </div>
+    </div>
+    
+    <div id="searchHistory" class="mt-6 hidden">
+      <h3 class="text-lg font-semibold mb-2">Recent Searches</h3>
+      <div class="overflow-x-auto">
+        <!-- Continuation of the HTML Template -->
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr>
+            <th class="text-left py-2">Drug Name</th>
+            <th class="text-left py-2">Search Date</th>
+            <th class="text-left py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="searchHistoryItems" class="divide-y divide-gray-200">
+          <!-- Search history items will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div id="searchAdvanced" class="mt-6 border-t pt-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">Advanced Search</h3>
+      <button id="toggleAdvancedSearchBtn" class="text-blue-600 hover:text-blue-800 text-sm font-medium focus:outline-none">
+        <span class="show-text">Show Options</span>
+        <span class="hide-text hidden">Hide Options</span>
+      </button>
+    </div>
+    
+    <div id="advancedSearchOptions" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="searchDataType" class="block text-sm font-medium text-gray-700 mb-1">
+            Data Type
+          </label>
+          <select id="searchDataType" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="all">All Data Types</option>
+            <option value="medicines">Medicines</option>
+            <option value="orphans">Orphan Designations</option>
+            <option value="dhpc">Safety Communications</option>
+            <option value="psusa">PSUSA Reports</option>
+            <option value="shortages">Shortages</option>
+            <option value="referrals">Referrals</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="searchThreshold" class="block text-sm font-medium text-gray-700 mb-1">
+            Match Threshold
+          </label>
+          <div class="flex items-center">
+            <input type="range" id="searchThreshold" min="0.5" max="1" step="0.05" value="0.7" 
+                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            <span id="thresholdValue" class="ml-2 text-sm font-medium text-gray-700 min-w-[40px]">0.7</span>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            Lower values find more results but may include less relevant matches
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="searchTimeframe" class="block text-sm font-medium text-gray-700 mb-1">
+            Timeframe
+          </label>
+          <select id="searchTimeframe" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="all">All Time</option>
+            <option value="1">Last Year</option>
+            <option value="3">Last 3 Years</option>
+            <option value="5">Last 5 Years</option>
+            <option value="10">Last 10 Years</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="searchStatus" class="block text-sm font-medium text-gray-700 mb-1">
+            Authorization Status
+          </label>
+          <select id="searchStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <option value="all">All Statuses</option>
+            <option value="authorised">Authorised</option>
+            <option value="withdrawn">Withdrawn</option>
+            <option value="refused">Refused</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI-Assisted Research Section -->
+<div class="bg-white shadow-md rounded-lg p-6 mb-8" id="emaResearchAssistant">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold">AI Research Assistant</h2>
+    <div>
+      <button id="startResearchBtn" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        New Research
+      </button>
+    </div>
+  </div>
+  
+  <div class="mb-6">
+    <p class="text-gray-700">
+      Use our AI research assistant to analyze EMA data and generate insights across multiple medicines, regulatory trends, 
+      or therapeutic areas. The assistant can help with complex research questions that go beyond simple drug lookups.
+    </p>
+  </div>
+  
+  <div id="researchInterface" class="hidden">
+    <div class="mb-6">
+      <label for="researchQuestion" class="block text-sm font-medium text-gray-700 mb-1">
+        Research Question
+      </label>
+      <textarea id="researchQuestion" rows="3" placeholder="E.g., Compare the regulatory timeline for biosimilar approvals in oncology over the last 5 years"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"></textarea>
+    </div>
+    
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-semibold">Research Focus</h3>
+        <div class="text-sm text-gray-500">Select all that apply</div>
+      </div>
+      
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="regulatory" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Regulatory Trends</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="safety" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Safety Profiles</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="approval" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Approval Pathways</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="therapeutic" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Therapeutic Areas</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="timeline" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Timeline Analysis</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="comparative" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Comparative Analysis</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="orphan" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Orphan Medicines</span>
+        </label>
+        
+        <label class="inline-flex items-center border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+          <input type="checkbox" name="researchFocus" value="shortages" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+          <span class="ml-2 text-sm text-gray-700">Shortage Analysis</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="flex justify-end space-x-3">
+      <button id="cancelResearchBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+        Cancel
+      </button>
+      <button id="startAiResearchBtn" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+        Generate Research Report
+      </button>
+    </div>
+  </div>
+  
+  <div id="aiResearchLoading" class="hidden">
+    <div class="flex flex-col items-center justify-center py-12">
+      <div class="flex items-center space-x-2 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-8 w-8 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <div class="text-lg font-medium text-purple-800">Analyzing data and generating research report...</div>
+      </div>
+      <div class="w-full max-w-md bg-gray-200 rounded-full h-2.5">
+        <div id="researchProgressBar" class="bg-purple-600 h-2.5 rounded-full" style="width: 0%"></div>
+      </div>
+      <div id="researchProgressStatus" class="mt-2 text-sm text-gray-600">
+        Phase 1/4: Collecting relevant data...
+      </div>
+    </div>
+  </div>
+  
+  <div id="aiResearchResults" class="hidden">
+    <!-- AI research results will be populated here -->
+  </div>
+  
+  <div id="previousResearch" class="mt-8 hidden">
+    <h3 class="text-lg font-semibold mb-3 border-b pb-2">Previous Research Reports</h3>
+    <div class="space-y-4" id="previousResearchItems">
+      <!-- Previous research items will be populated here -->
+    </div>
+  </div>
+</div>
+
+<!-- Scripts for the EMA Data Module -->
+<script>
+    
+// Enhanced EMA Data Module with new data structure support and summary features
+const EmaDataModule = (function() {
+  // DOM elements
+  const elements = {
+    section: document.getElementById('emaDataSection'),
+    lastUpdated: document.getElementById('emaDataLastUpdated'),
+    refreshBtn: document.getElementById('refreshEmaDataBtn'),
+    approvalCount: document.getElementById('emaApprovalCount'),
+    orphanCount: document.getElementById('emaOrphanCount'),
+    safetyCount: document.getElementById('emaSafetyCount'),
+    psusaCount: document.getElementById('emaPsusaCount'),
+    shortagesCount: document.getElementById('emaShortagesCount'),
+    referralsCount: document.getElementById('emaReferralsCount'),
+    approvalData: document.getElementById('emaApprovalData'),
+    orphanData: document.getElementById('emaOrphanData'),
+    safetyData: document.getElementById('emaSafetyData'),
+    psusaData: document.getElementById('emaPsusaData'),
+    shortagesData: document.getElementById('emaShortagesData'),
+    referralsData: document.getElementById('emaReferralsData'),
+    summaryBtn: document.getElementById('emaSummaryBtn'),
+    aiSummaryBtn: document.getElementById('emaAiSummaryBtn'),
+    emailSummaryBtn: document.getElementById('emaEmailSummaryBtn'),
+    summaryContent: document.getElementById('emaSummaryContent'),
+    uploadStatus: document.getElementById('uploadStatus'),
+    // Form elements
+    dhpcUploadForm: document.getElementById('dhpcUploadForm'),
+    psusaUploadForm: document.getElementById('psusaUploadForm'),
+    shortagesUploadForm: document.getElementById('shortagesUploadForm'),
+    medicinesUploadForm: document.getElementById('medicinesUploadForm'),
+    referralsUploadForm: document.getElementById('referralsUploadForm'),
+    // File inputs
+    dhpcFileInput: document.getElementById('dhpcFileInput'),
+    psusaFileInput: document.getElementById('psusaFileInput'),
+    shortagesFileInput: document.getElementById('shortagesFileInput'),
+    medicinesFileInput: document.getElementById('medicinesFileInput'),
+    referralsFileInput: document.getElementById('referralsFileInput'),
+    dataAdmin: document.getElementById('emaDataAdmin')
+  };
+
+  // Store the current search data
+  let currentSearchData = null;
+  let currentDrugName = null;
+
+  // Initialize the module
+  function init() {
+    // Initialize tab navigation
+    initTabNavigation();
+    
+    // Initialize file upload forms
+    initFileUploadForms();
+    
+    // Add refresh button event listener
+    if (elements.refreshBtn) {
+      elements.refreshBtn.addEventListener('click', refreshEmaData);
+    }
+    
+    // Add summary button event listeners
+    initSummaryButtons();
+    
+    // Check data status on initialization
+    checkEmaDataStatus();
+    
+    // Hide admin section by default (can be shown based on user role)
+    toggleAdminSection(false);
+    
+    // Add table styles
+    addTableStyles();
+    
+    console.log('Enhanced EMA Data Module initialized');
+  }
+
+  // Initialize tab navigation
+  function initTabNavigation() {
+    const tabButtons = document.querySelectorAll('.ema-tab-button');
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Hide all tab panes
+        document.querySelectorAll('.ema-tab-pane').forEach(pane => {
+          pane.classList.add('hidden');
+          pane.classList.remove('active');
+        });
+        
+        // Deactivate all tab buttons
+        tabButtons.forEach(btn => {
+          btn.classList.remove('border-blue-500', 'text-blue-600');
+          btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+          btn.setAttribute('aria-selected', 'false');
+        });
+        
+        // Activate the clicked tab
+        document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById(tabId).classList.add('active');
+        
+        // Activate the clicked tab button
+        this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+        this.classList.add('border-blue-500', 'text-blue-600');
+        this.setAttribute('aria-selected', 'true');
+      });
+    });
+  }
+
+  // Initialize summary buttons
+  function initSummaryButtons() {
+    if (elements.summaryBtn) {
+      elements.summaryBtn.addEventListener('click', generateSummary);
+    }
+    
+    if (elements.aiSummaryBtn) {
+      elements.aiSummaryBtn.addEventListener('click', generateAiSummary);
+    }
+    
+    if (elements.emailSummaryBtn) {
+      elements.emailSummaryBtn.addEventListener('click', emailSummary);
+    }
+  }
+
+  // Initialize file upload forms
+  function initFileUploadForms() {
+    // DHPC Upload Form
+    if (elements.dhpcUploadForm) {
+      elements.dhpcUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('dhpc', elements.dhpcFileInput.files[0]);
+      });
+    }
+    
+    // PSUSA Upload Form
+    if (elements.psusaUploadForm) {
+      elements.psusaUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('psusa', elements.psusaFileInput.files[0]);
+      });
+    }
+    
+    // Shortages Upload Form
+    if (elements.shortagesUploadForm) {
+      elements.shortagesUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('shortages', elements.shortagesFileInput.files[0]);
+      });
+    }
+    
+    // Medicines Upload Form
+    if (elements.medicinesUploadForm) {
+      elements.medicinesUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('medicines', elements.medicinesFileInput.files[0]);
+      });
+    }
+    
+    // Referrals Upload Form
+    if (elements.referralsUploadForm) {
+      elements.referralsUploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFile('referrals', elements.referralsFileInput.files[0]);
+      });
+    }
+  }
+
+  // Show the EMA data section
+  function showSection(show = true) {
+    if (elements.section) {
+      elements.section.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Toggle admin section visibility
+  function toggleAdminSection(show = false) {
+    if (elements.dataAdmin) {
+      elements.dataAdmin.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Check EMA data status
+  async function checkEmaDataStatus() {
+    try {
+      showLoadingState(elements.lastUpdated, true);
+      
+      const response = await fetch('/api/ema/status');
+      const data = await response.json();
+      
+      if (response.ok) {
+        updateLastUpdated(data.status);
+      } else {
+        showError('Error checking EMA data status');
+        console.error('Error checking EMA data status:', data.error);
+      }
+      
+      showLoadingState(elements.lastUpdated, false);
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error checking EMA data status:', error);
+      showLoadingState(elements.lastUpdated, false);
+    }
+  }
+
+  // Update last updated timestamp
+  function updateLastUpdated(statusData) {
+    if (!elements.lastUpdated) return;
+    
+    let lastUpdateDate = null;
+    
+    // Find the most recent update across all data types
+    for (const dataType in statusData) {
+      if (statusData[dataType].available && statusData[dataType].lastUpdated) {
+        const updateDate = new Date(statusData[dataType].lastUpdated);
+        if (!lastUpdateDate || updateDate > lastUpdateDate) {
+          lastUpdateDate = updateDate;
+        }
+      }
+    }
+    
+    if (lastUpdateDate) {
+      elements.lastUpdated.textContent = `Last updated: ${formatDate(lastUpdateDate)}`;
+    } else {
+      elements.lastUpdated.textContent = 'Data not yet available';
+    }
+  }
+
+  // Refresh EMA data
+  async function refreshEmaData() {
+    try {
+      if (!elements.refreshBtn) return;
+      
+      // Disable refresh button and show loading state
+      elements.refreshBtn.disabled = true;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refreshing...
+      `;
+      
+      const response = await fetch('/api/ema/refresh', { method: 'POST' });
+      const data = await response.json();
+      
+      if (response.ok) {
+        updateLastUpdated(data.status);
+        showToast('EMA data refreshed successfully', 'success');
+      } else {
+        showError('Error refreshing EMA data');
+        console.error('Error refreshing EMA data:', data.error);
+      }
+      
+      // Re-enable refresh button
+      elements.refreshBtn.disabled = false;
+      elements.refreshBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      `;
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error refreshing EMA data:', error);
+      
+      // Re-enable refresh button
+      if (elements.refreshBtn) {
+        elements.refreshBtn.disabled = false;
+        elements.refreshBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        `;
+      }
+    }
+  }
+
+  // Search EMA data for a specific drug
+  async function searchDrug(drugName) {
+    if (!drugName) return;
+    currentDrugName = drugName;
+    
+    try {
+      // Show loading state for all data containers
+      showLoadingState(elements.approvalData);
+      showLoadingState(elements.orphanData);
+      showLoadingState(elements.safetyData);
+      showLoadingState(elements.psusaData);
+      showLoadingState(elements.shortagesData);
+      showLoadingState(elements.referralsData);
+      
+      // Show the EMA section
+      showSection(true);
+
+      console.log("Fetching EMA data for", drugName);
+      const response = await fetch(`/api/ema/drug/${encodeURIComponent(drugName)}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log("Data received:", data);
+        currentSearchData = data;
+        displayEmaData(data);
+        
+        // Show summary buttons if data is available
+        toggleSummaryButtons(true);
+      } else {
+        showError(`No EMA data found for ${drugName}`);
+        console.error('Error searching EMA data:', data.error);
+        
+        // Show empty state for all data containers
+        showEmptyState(elements.approvalData, 'No EMA approval data found for this drug.');
+        showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+        showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+        showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+        showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+        showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+        
+        // Hide summary buttons
+        toggleSummaryButtons(false);
+        
+        // Clear current data
+        currentSearchData = null;
+      }
+    } catch (error) {
+      showError('Error connecting to server');
+      console.error('Error searching EMA data:', error);
+      
+      // Show empty state for all data containers
+      showEmptyState(elements.approvalData, 'Error loading EMA approval data.');
+      showEmptyState(elements.orphanData, 'Error loading orphan designation data.');
+      showEmptyState(elements.safetyData, 'Error loading safety communication data.');
+      showEmptyState(elements.psusaData, 'Error loading PSUSA data.');
+      showEmptyState(elements.shortagesData, 'Error loading shortages data.');
+      showEmptyState(elements.referralsData, 'Error loading referrals data.');
+      
+      // Hide summary buttons
+      toggleSummaryButtons(false);
+      
+      // Clear current data
+      currentSearchData = null;
+    }
+  }
+
+  // Toggle summary buttons visibility
+  function toggleSummaryButtons(show = false) {
+    if (elements.summaryBtn) {
+      elements.summaryBtn.classList.toggle('hidden', !show);
+    }
+    
+    if (elements.aiSummaryBtn) {
+      elements.aiSummaryBtn.classList.toggle('hidden', !show);
+    }
+    
+    if (elements.emailSummaryBtn) {
+      elements.emailSummaryBtn.classList.toggle('hidden', !show);
+    }
+  }
+
+  // Generate summary of the current search results
+  function generateSummary() {
+    if (!currentSearchData || !elements.summaryContent) return;
+    
+    // Create summary HTML
+    let html = `
+      <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4">EMA Data Summary: ${currentDrugName}</h2>
+        <div class="mb-4 text-gray-500 text-sm">Generated on ${formatDate(new Date())}</div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <div class="text-lg font-semibold text-blue-800">${currentSearchData.total.medicines || 0}</div>
+            <div class="text-sm text-blue-600">Authorised Medicines</div>
+          </div>
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <div class="text-lg font-semibold text-purple-800">${currentSearchData.total.orphans || 0}</div>
+            <div class="text-sm text-purple-600">Orphan Designations</div>
+          </div>
+          <div class="bg-orange-50 p-4 rounded-lg">
+            <div class="text-lg font-semibold text-orange-800">${(currentSearchData.total.dhpc || 0) + (currentSearchData.total.psusa || 0)}</div>
+            <div class="text-sm text-orange-600">Safety Communications</div>
+          </div>
+        </div>
+    `;
+    
+    // Add key details sections
+    if (currentSearchData.results.medicines && currentSearchData.results.medicines.length > 0) {
+      html += generateMedicinesSummarySection(currentSearchData.results.medicines);
+    }
+    
+    if (currentSearchData.results.orphans && currentSearchData.results.orphans.length > 0) {
+      html += generateOrphansSummarySection(currentSearchData.results.orphans);
+    }
+    
+    if (currentSearchData.results.dhpc && currentSearchData.results.dhpc.length > 0) {
+      html += generateSafetySummarySection(currentSearchData.results.dhpc);
+    }
+    
+    html += `
+        <div class="mt-6 text-xs text-gray-500">
+          This is an automatically generated summary based on EMA data. For complete and up-to-date information, 
+          please refer to the official European Medicines Agency website.
+        </div>
+      </div>
+    `;
+    
+    // Display summary
+    elements.summaryContent.innerHTML = html;
+    elements.summaryContent.classList.remove('hidden');
+    
+    // Scroll to summary
+    elements.summaryContent.scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  // Generate medicines summary section
+  function generateMedicinesSummarySection(medicines) {
+    let html = `
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3 border-b pb-2">Authorised Medicines</h3>
+        <div class="overflow-x-auto">
+          <table class="ema-summary-table">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Status</th>
+                <th>Active Substance</th>
+                <th>Authorization Date</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Get up to 5 most recent medicines
+    const sortedMedicines = [...medicines].sort((a, b) => {
+      const dateA = findField(a, ['authorisation_date', '_enhancedAuthDate', '_29', '_31', '_36']) || '';
+      const dateB = findField(b, ['authorisation_date', '_enhancedAuthDate', '_29', '_31', '_36']) || '';
+      return dateB.localeCompare(dateA);
+    }).slice(0, 5);
+    
+    sortedMedicines.forEach(item => {
+      const medicineName = findField(item, ['name', '_1', 'Name of medicine']) || 'Unknown';
+      const status = findField(item, ['status', '_3', 'Medicine status']) || 'Unknown';
+      const substance = findField(item, ['active_substance', '_6', '_7', 'Active substance']) || 'Not specified';
+      const authDate = findField(item, ['authorisation_date', '_enhancedAuthDate', '_29', '_31', '_36', 'Marketing authorisation date']) || 'Unknown';
+      const emaLink = findField(item, ['url', '_38', 'Medicine URL']) || '';
+      
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('authorised') || status.toLowerCase().includes('authorized')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('refused')) {
+        statusClass = 'bg-red-100 text-red-800';
+      }
+      
+      html += `
+        <tr>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="font-medium text-blue-600 hover:underline">${medicineName}</a>` : 
+                       `<span class="font-medium">${medicineName}</span>`}
+          </td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${substance}</td>
+          <td>${formatDate(authDate)}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    
+    return html;
+  }
+  
+  // Generate orphans summary section
+  function generateOrphansSummarySection(orphans) {
+    let html = `
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3 border-b pb-2">Orphan Designations</h3>
+        <div class="overflow-x-auto">
+          <table class="ema-summary-table">
+            <thead>
+              <tr>
+                <th>Designation</th>
+                <th>Condition</th>
+                <th>Status</th>
+                <th>Decision Date</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Get up to 5 most recent orphan designations
+    const sortedOrphans = [...orphans].sort((a, b) => {
+      const dateA = findField(a, ['decision_date', '_enhancedDesignationDate', '_6', '_7']) || '';
+      const dateB = findField(b, ['decision_date', '_enhancedDesignationDate', '_6', '_7']) || '';
+      return dateB.localeCompare(dateA);
+    }).slice(0, 5);
+    
+    sortedOrphans.forEach(item => {
+      const designation = findField(item, ['name', '_1', 'Medicine name', 'Orphan designation']) || 'Unknown';
+      const condition = findField(item, ['intended_use', '_enhancedIntendedUse', '_2', '_3', 'Intended use']) || 'Not specified';
+      const status = findField(item, ['status', '_4', '_5', 'Status']) || 'Unknown';
+      const decisionDate = findField(item, ['decision_date', '_enhancedDesignationDate', '_6', '_7', 'Date of designation / refusal']) || 'Unknown';
+      const emaLink = findField(item, ['_20', '_21', '_22', 'Orphan designation URL']) || '';
+      
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('positive')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('negative')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('withdrawn')) {
+        statusClass = 'bg-gray-100 text-gray-800';
+      }
+      
+      html += `
+        <tr>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="font-medium text-blue-600 hover:underline">${designation}</a>` : 
+                       `<span class="font-medium">${designation}</span>`}
+          </td>
+          <td>${condition}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(decisionDate)}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    
+    return html;
+  }
+  
+  // Generate safety communications summary section
+  function generateSafetySummarySection(safetyData) {
+    let html = `
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-3 border-b pb-2">Safety Communications</h3>
+        <div class="overflow-x-auto">
+          <table class="ema-summary-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // Get up to 5 most recent safety communications
+    const sortedSafety = [...safetyData].sort((a, b) => {
+      const dateA = findField(a, ['date', '_5', '_6']) || '';
+      const dateB = findField(b, ['date', '_5', '_6']) || '';
+      return dateB.localeCompare(dateA);
+    }).slice(0, 5);
+    
+    sortedSafety.forEach(item => {
+      const title = item['Direct healthcare professional communication (DHPC)'] || 
+                    findField(item, ['_1', '_2']) || 'Unknown';
+      const date = findField(item, ['date', '_5', '_6']) || 'Unknown';
+      const reason = findField(item, ['reason', '_7', '_8']) || '';
+      const emaLink = findField(item, ['_15', '_16', '_17']) || '';
+      
+      html += `
+        <tr>
+          <td>
+            ${emaLink ? `<a href="${emaLink}" target="_blank" class="font-medium text-blue-600 hover:underline">${title}</a>` : 
+                       `<span class="font-medium">${title}</span>`}
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>${reason ? reason : 'No additional details available'}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    
+    return html;
+  }
+// Fixed generateAiSummary function
+async function generateAiSummary() {
+  if (!currentSearchData || !elements.summaryContent) return;
+    
+  try {
+    // Show loading state
+    elements.summaryContent.innerHTML = `
+      <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <div class="flex items-center justify-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-8 w-8 text-blue-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <div class="text-lg">Generating AI summary...</div>
+        </div>
+      </div>
+    `;
+    elements.summaryContent.classList.remove('hidden');
+    
+    // Make API call to backend for AI summary
+    const response = await fetch('/api/ema/ai-summary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        drugName: currentDrugName,
+        data: currentSearchData
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate AI summary');
+    }
+    
+    const data = await response.json();
+    
+    // Display AI summary
+    elements.summaryContent.innerHTML = `
+      <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4">EMA Data AI Summary: ${currentDrugName}</h2>
+        <div class="mb-4 text-gray-500 text-sm">Generated on ${formatDate(new Date())}</div>
+        
+        <div class="prose max-w-none">
+          ${data.summary}
+        </div>
+        
+        <div class="mt-6 text-xs text-gray-500">
+          This is an AI-generated summary based on EMA data. For complete and up-to-date information, 
+          please refer to the official European Medicines Agency website.
+        </div>
+        
+        <div class="mt-4 flex justify-end">
+          <button id="emailAiSummaryBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Email this summary
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Add event listener to the email button
+    document.getElementById('emailAiSummaryBtn').addEventListener('click', () => {
+      emailSummary(data.summary, true);
+    });
+    
+  } catch (error) {
+    console.error('Error generating AI summary:', error);
+    
+    // Show error message
+    elements.summaryContent.innerHTML = `
+      <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
+        <div class="text-red-600 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Error generating AI summary
+        </div>
+        <p>Please try again later or use the standard summary option.</p>
+        <div class="mt-4 flex justify-end">
+          <button id="tryStandardSummaryBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Try Standard Summary
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Add event listener to the standard summary button
+    document.getElementById('tryStandardSummaryBtn').addEventListener('click', generateSummary);
+  }
+}
+
+
+  
+  // Email summary
+  async function emailSummary(summaryContent, isAiSummary = false) {
+    if (!currentSearchData) return;
+    
+    try {
+      // If not provided, get the summary content from the DOM
+      if (!summaryContent) {
+        if (!elements.summaryContent || elements.summaryContent.classList.contains('hidden')) {
+          // Generate summary if not already displayed
+          generateSummary();
+        }
+        
+        summaryContent = elements.summaryContent.innerHTML;
+      }
+      
+      // Show email dialog
+      const emailDialog = document.createElement('div');
+      emailDialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      emailDialog.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+          <h3 class="text-lg font-semibold mb-4">Email EMA Data Summary</h3>
+          
+          <form id="emailSummaryForm">
+            <div class="mb-4">
+              <label for="emailAddress" class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+              <input type="email" id="emailAddress" name="email" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="your.email@example.com">
+            </div>
+            
+            <div class="mb-4">
+              <label for="emailSubject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+              <input type="text" id="emailSubject" name="subject" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                value="EMA Data Summary: ${currentDrugName}">
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button type="button" id="cancelEmailBtn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Cancel
+              </button>
+              <button type="submit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Send Email
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+      
+      document.body.appendChild(emailDialog);
+      
+      // Setup event listeners
+      document.getElementById('cancelEmailBtn').addEventListener('click', () => {
+        document.body.removeChild(emailDialog);
+      });
+      
+      document.getElementById('emailSummaryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('emailAddress').value;
+        const subject = document.getElementById('emailSubject').value;
+        
+        // Disable form elements
+        const formElements = e.target.querySelectorAll('input, button');
+        formElements.forEach(el => el.disabled = true);
+        
+        try {
+          // Send API request
+          const response = await fetch('/api/ema/email-summary', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email,
+              subject,
+              drugName: currentDrugName,
+              summaryContent,
+              isAiSummary
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to send email');
+          }
+          
+          // Show success message
+          showToast('Summary has been emailed successfully', 'success');
+          
+          // Close dialog
+          document.body.removeChild(emailDialog);
+        } catch (error) {
+          console.error('Error sending email:', error);
+          
+          // Show error message
+          showToast('Error sending email. Please try again.', 'error');
+          
+          // Re-enable form elements
+          formElements.forEach(el => el.disabled = false);
+        }
+      });
+    } catch (error) {
+      console.error('Error setting up email dialog:', error);
+      showToast('Error setting up email dialog', 'error');
+    }
+  }
+
+  // Display EMA data in the UI
+  function displayEmaData(data) {
+    const { results, total } = data;
+    
+    // Update counters
+    updateCounter(elements.approvalCount, total.medicines, 'approval', 'approvals');
+    updateCounter(elements.orphanCount, total.orphans, 'designation', 'designations');
+    updateCounter(elements.safetyCount, total.dhpc, 'communication', 'communications');
+    updateCounter(elements.psusaCount, total.psusa, 'report', 'reports');
+    updateCounter(elements.shortagesCount, total.shortages, 'shortage', 'shortages');
+    updateCounter(elements.referralsCount, total.referrals, 'referral', 'referrals');
+    
+    // Display approval data
+    if (results.medicines && results.medicines.length > 0) {
+      displayApprovalData(results.medicines);
+    } else {
+      showEmptyState(elements.approvalData, 'No EMA approval data found for this drug.');
+    }
+    
+    // Display orphan designation data
+    if (results.orphans && results.orphans.length > 0) {
+      displayOrphanData(results.orphans);
+    } else {
+      showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+    }
+    
+    // Display safety communication data
+    if (results.dhpc && results.dhpc.length > 0) {
+      displaySafetyData(results.dhpc);
+    } else {
+      showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+    }
+    
+    // Display PSUSA data
+    if (results.psusa && results.psusa.length > 0) {
+      displayPsusaData(results.psusa);
+    } else {
+      showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+    }
+    
+    // Display Referrals data
+    if (results.referrals && results.referrals.length > 0) {
+      displayReferralsData(results.referrals);
+    } else {
+      showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+    }
+    
+    // Display Shortages data
+    if (results.shortages && results.shortages.length > 0) {
+      displayShortagesData(results.shortages);
+    } else {
+      showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+    }
+  }
+
+  // Display approval data
+  function displayApprovalData(data) {
+    if (!elements.approvalData) return;
+    
+    // Filter out veterinary products
+    const filteredData = data.filter(item => {
+      const category = findField(item, ['Category', '_0']) || '';
+      return category.toLowerCase() !== 'veterinary';
+    });
+    
+    if (filteredData.length === 0) {
+      showEmptyState(elements.approvalData, 'No human medicine approval data found for this drug.');
+      return;
+    }
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Status</th>
+              <th>Active Substance</th>
+              <th>Therapeutic Area</th>
+              <th>Authorization Date</th>
+              <th>Therapeutic Indication</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    filteredData.forEach(item => {
+      // Extract data with standardized field names or original keys
+      const medicineName = findField(item, ['name', 'Name of medicine', '_1']) || 'Unknown';
+      const status = findField(item, ['status', 'Medicine status', '_3']) || 'Unknown';
+      const substance = findField(item, ['active_substance', 'Active substance', '_6', '_7']) || 'Not specified';
+      const therapeuticArea = findField(item, ['therapeutic_area', 'Therapeutic area (MeSH)', '_8', '_13']) || 'Not specified';
+      const authDate = findField(item, ['authorisation_date', '_enhancedAuthDate', 'Marketing authorisation date', '_29', '_31', '_36']) || 'Unknown';
+      const indication = findField(item, ['therapeutic_indication', 'Therapeutic indication', '_15']) || 'Not specified';
+      const emaNumber = findField(item, ['ema_number', 'EMA product number', '_2']) || '';
+      const emaLink = findField(item, ['url', 'Medicine URL', '_38']) || '';
+      const atcCode = findField(item, ['atc_code', 'ATC code (human)', '_11']) || '';
+      const orphanStatus = findField(item, ['orphan', 'Orphan medicine', '_23']) || 'No';
+      
+      // Determine status badge class
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('authorised') || status.toLowerCase().includes('authorized')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('refused')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('withdrawn')) {
+        statusClass = 'bg-gray-100 text-gray-800';
+      } else if (status.toLowerCase().includes('pending')) {
+        statusClass = 'bg-yellow-100 text-yellow-800';
+      }
+      
+      // Create table row
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicineName}</div>
+            ${emaNumber ? `<div class="text-xs text-gray-500">EMA: ${emaNumber}</div>` : ''}
+            ${atcCode ? `<div class="text-xs text-gray-500">ATC: ${atcCode}</div>` : ''}
+            ${orphanStatus === 'Yes' ? `<div class="text-xs font-medium text-purple-600">Orphan Designation</div>` : ''}
+          </td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${substance}</td>
+          <td>${formatTherapeuticArea(therapeuticArea)}</td>
+          <td>${formatDate(authDate)}</td>
+          <td>
+            <div class="max-w-xs overflow-hidden text-sm">
+              ${truncateText(indication, 200)}
+            </div>
+          </td>
+          <td>
+            <div class="flex space-x-2">
+              ${emaLink ? `
+                <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ` : ''}
+              <button class="text-blue-600 hover:text-blue-800 medicine-details-btn" 
+                      data-medicine='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    </div>
+    `;
+    
+    elements.approvalData.innerHTML = html;
+    
+    // Add event listeners to detail buttons
+    elements.approvalData.querySelectorAll('.medicine-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const medicineData = JSON.parse(btn.getAttribute('data-medicine'));
+          showMedicineDetailsModal(medicineData);
+        } catch (error) {
+          console.error('Error parsing medicine data:', error);
+        }
+      });
+    });
+  }
+
+  // Display orphan designation data
+  function displayOrphanData(data) {
+    if (!elements.orphanData) return;
+    
+    if (data.length === 0) {
+      showEmptyState(elements.orphanData, 'No orphan designation data found for this drug.');
+      return;
+    }
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Active Substance</th>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Decision Date</th>
+              <th>EU Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    data.forEach(item => {
+      // Extract relevant fields using standardized names or original keys
+      const medicineName = findField(item, ['name', 'Medicine name', '_1', 'Orphan designation']) || 'Unknown';
+      const substance = findField(item, ['active_substance', 'Active substance', '_2']) || 'Not specified';
+      const condition = findField(item, ['intended_use', '_enhancedIntendedUse', 'Intended use', '_3']) || 'Not specified';
+      const status = findField(item, ['status', 'Status', '_4', '_5']) || 'Unknown';
+      const decisionDate = findField(item, ['decision_date', '_enhancedDesignationDate', 'Date of designation / refusal', '_6', '_7']) || 'Unknown';
+      const euNumber = findField(item, ['eu_number', 'EU designation number', '_9']) || 'Not specified';
+      const emaLink = findField(item, ['Orphan designation URL', '_20', '_21', '_22']) || '';
+      
+      // Determine status badge class
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('positive')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('negative')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('withdrawn')) {
+        statusClass = 'bg-gray-100 text-gray-800';
+      }
+      
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicineName}</div>
+          </td>
+          <td>${substance}</td>
+          <td>${condition}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(decisionDate)}</td>
+          <td>${euNumber}</td>
+          <td>
+            <div class="flex space-x-2">
+              ${emaLink ? `
+                <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ` : ''}
+              <button class="text-blue-600 hover:text-blue-800 orphan-details-btn" 
+                      data-orphan='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    </div>
+    `;
+    
+    elements.orphanData.innerHTML = html;
+    
+    // Add event listeners to detail buttons
+    elements.orphanData.querySelectorAll('.orphan-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const orphanData = JSON.parse(btn.getAttribute('data-orphan'));
+          showOrphanDetailsModal(orphanData);
+        } catch (error) {
+          console.error('Error parsing orphan data:', error);
+        }
+      });
+    });
+  }
+
+  // Display safety communication data
+  function displaySafetyData(data) {
+    if (!elements.safetyData) return;
+    
+    if (data.length === 0) {
+      showEmptyState(elements.safetyData, 'No safety communication data found for this drug.');
+      return;
+    }
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Medicine</th>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    data.forEach(item => {
+      // Extract relevant fields using more thorough approach
+      const title = findField(item, ['title', 'Direct healthcare professional communication (DHPC)', '_1', '_2']) || 'Unknown';
+      const medicine = findField(item, ['medicine', '_3', '_4']) || 'Not specified';
+      const date = findField(item, ['date', '_5', '_6']) || 'Unknown';
+      const reason = findField(item, ['reason', '_7', '_8']) || 'Not specified';
+      const emaLink = findField(item, ['_15', '_16', '_17']) || '';
+      
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${title}</div>
+          </td>
+          <td>${medicine}</td>
+          <td>${formatDate(date)}</td>
+          <td>
+            <div class="max-w-xs overflow-hidden text-sm">
+              ${truncateText(reason, 150)}
+            </div>
+          </td>
+          <td>
+            <div class="flex space-x-2">
+              ${emaLink ? `
+                <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ` : ''}
+              <button class="text-blue-600 hover:text-blue-800 safety-details-btn" 
+                      data-safety='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    </div>
+    `;
+    
+    elements.safetyData.innerHTML = html;
+    
+    // Add event listeners to detail buttons
+    elements.safetyData.querySelectorAll('.safety-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const safetyData = JSON.parse(btn.getAttribute('data-safety'));
+          showSafetyDetailsModal(safetyData);
+        } catch (error) {
+          console.error('Error parsing safety data:', error);
+        }
+      });
+    });
+  }
+
+  // Display PSUSA data
+  function displayPsusaData(data) {
+    if (!elements.psusaData) return;
+    
+    if (data.length === 0) {
+      showEmptyState(elements.psusaData, 'No PSUSA data found for this drug.');
+      return;
+    }
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Substance</th>
+              <th>Procedure</th>
+              <th>Outcome</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    data.forEach(item => {
+      // Extract relevant fields
+      const substance = findField(item, ['substance', 'Periodic safety update report single assessments (PSUSA)', '_1', '_2']) || 'Unknown';
+      const procedure = findField(item, ['procedure', '_4']) || 'Not specified';
+      const outcome = findField(item, ['outcome', '_5']) || 'Unknown';
+      const date = findField(item, ['date', '_6']) || 'Unknown';
+      const emaLink = findField(item, ['_8']) || '';
+      
+      // Determine outcome badge class
+      let outcomeClass = 'bg-gray-100 text-gray-800';
+      if (outcome.toLowerCase().includes('variation')) {
+        outcomeClass = 'bg-yellow-100 text-yellow-800';
+      } else if (outcome.toLowerCase().includes('maintenance')) {
+        outcomeClass = 'bg-green-100 text-green-800';
+      }
+      
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${substance}</div>
+          </td>
+          <td>${procedure}</td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${outcomeClass}">
+              ${outcome}
+            </span>
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>
+            <div class="flex space-x-2">
+              ${emaLink ? `
+                <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ` : ''}
+              <button class="text-blue-600 hover:text-blue-800 psusa-details-btn" 
+                      data-psusa='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    </div>
+    `;
+    
+    elements.psusaData.innerHTML = html;
+    
+    // Add event listeners to detail buttons
+    elements.psusaData.querySelectorAll('.psusa-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const psusaData = JSON.parse(btn.getAttribute('data-psusa'));
+          showPsusaDetailsModal(psusaData);
+        } catch (error) {
+          console.error('Error parsing PSUSA data:', error);
+        }
+      });
+    });
+  }
+
+// Fixed displayReferralsData function
+function displayReferralsData(data) {
+  if (!elements.referralsData) return;
+  
+  if (data.length === 0) {
+    showEmptyState(elements.referralsData, 'No referral data found for this drug.');
+    return;
+  }
+  
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="ema-data-table">
+        <thead>
+          <tr>
+            <th>Medicine</th>
+            <th>Substance</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  data.forEach(item => {
+    // Extract relevant fields
+    const medicine = findField(item, ['title', '_1']) || 'Unknown';
+    const substance = findField(item, ['substance', '_2']) || 'Not specified';
+    const type = findField(item, ['type', '_9']) || 'Not specified';
+    const status = findField(item, ['status', '_3']) || 'Unknown';
+    const date = findField(item, ['date', '_17', '_18', '_19']) || 'Unknown';
+    const emaLink = findField(item, ['_21']) || '';
+    
+    // Determine status badge class
+    let statusClass = 'bg-gray-100 text-gray-800';
+    if (status.toLowerCase().includes('final') || status.toLowerCase().includes('concluded')) {
+      statusClass = 'bg-green-100 text-green-800';
+    } else if (status.toLowerCase().includes('ongoing')) {
+      statusClass = 'bg-yellow-100 text-yellow-800';
+    }
+    
+    html += `
+      <tr>
+        <td>
+          <div class="font-medium">${medicine}</div>
+        </td>
+        <td>${substance}</td>
+        <td>${type}</td>
+        <td>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+            ${status}
+          </span>
+        </td>
+        <td>${formatDate(date)}</td>
+        <td>
+          <div class="flex space-x-2">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button class="text-blue-600 hover:text-blue-800 referral-details-btn" 
+                    data-referral='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  elements.referralsData.innerHTML = html;
+  
+  // Add event listeners to detail buttons
+  elements.referralsData.querySelectorAll('.referral-details-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      try {
+        const referralData = JSON.parse(btn.getAttribute('data-referral'));
+        showReferralDetailsModal(referralData);
+      } catch (error) {
+        console.error('Error parsing referral data:', error);
+      }
+    });
+  });
+}
+
+  // Display Shortages data
+  function displayShortagesData(data) {
+    if (!elements.shortagesData) return;
+    
+    if (data.length === 0) {
+      showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
+      return;
+    }
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="ema-data-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    data.forEach(item => {
+      // Extract relevant fields
+      const medicine = findField(item, ['medicine', 'Shortage', '_1']) || 'Unknown';
+      const reason = findField(item, ['reason', '_4', '_5']) || 'Not specified';
+      const status = findField(item, ['status', '_6', '_7']) || 'Unknown';
+      const date = findField(item, ['date', '_8', '_9']) || 'Unknown';
+      const emaLink = findField(item, ['_13', '_14', '_15']) || '';
+      
+      // Determine status badge class
+      let statusClass = 'bg-gray-100 text-gray-800';
+      if (status.toLowerCase().includes('ongoing')) {
+        statusClass = 'bg-red-100 text-red-800';
+      } else if (status.toLowerCase().includes('resolved')) {
+        statusClass = 'bg-green-100 text-green-800';
+      } else if (status.toLowerCase().includes('expected')) {
+        statusClass = 'bg-yellow-100 text-yellow-800';
+      }
+      
+      html += `
+        <tr>
+          <td>
+            <div class="font-medium">${medicine}</div>
+          </td>
+          <td>
+            <div class="max-w-xs overflow-hidden text-sm">
+              ${truncateText(reason, 150)}
+            </div>
+          </td>
+          <td>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${status}
+            </span>
+          </td>
+          <td>${formatDate(date)}</td>
+          <td>
+            <div class="flex space-x-2">
+              ${emaLink ? `
+                <a href="${emaLink}" target="_blank" class="text-blue-600 hover:text-blue-800" title="View on EMA website">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ` : ''}
+              <button class="text-blue-600 hover:text-blue-800 shortage-details-btn" 
+                      data-shortage='${JSON.stringify(item).replace(/'/g, "&apos;")}' title="View details">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    </div>
+    `;
+    
+    elements.shortagesData.innerHTML = html;
+    
+    // Add event listeners to detail buttons
+    elements.shortagesData.querySelectorAll('.shortage-details-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const shortageData = JSON.parse(btn.getAttribute('data-shortage'));
+          showShortageDetailsModal(shortageData);
+        } catch (error) {
+          console.error('Error parsing shortage data:', error);
+        }
+      });
+    });
+  }
+
+  // Show medicine details modal
+  function showMedicineDetailsModal(medicine) {
+    const medicineName = findField(medicine, ['name', 'Name of medicine', '_1']) || 'Unknown Medicine';
+    const status = findField(medicine, ['status', 'Medicine status', '_3']) || 'Unknown';
+    const substance = findField(medicine, ['active_substance', 'Active substance', '_6', '_7']) || 'Not specified';
+    const therapeuticArea = findField(medicine, ['therapeutic_area', 'Therapeutic area (MeSH)', '_8', '_13']) || 'Not specified';
+    const authDate = findField(medicine, ['authorisation_date', '_enhancedAuthDate', 'Marketing authorisation date', '_29', '_31', '_36']) || 'Unknown';
+    const indication = findField(medicine, ['therapeutic_indication', 'Therapeutic indication', '_15']) || 'Not specified';
+    const emaNumber = findField(medicine, ['ema_number', 'EMA product number', '_2']) || '';
+    const emaLink = findField(medicine, ['url', 'Medicine URL', '_38']) || '';
+    const atcCode = findField(medicine, ['atc_code', 'ATC code (human)', '_11']) || '';
+    const orphanStatus = findField(medicine, ['orphan', 'Orphan medicine', '_23']) || 'No';
+    const additionalMonitoring = findField(medicine, ['Additional monitoring', '_16']) || 'No';
+    const biosimilar = findField(medicine, ['Biosimilar', '_18']) || 'No';
+    const genericHybrid = findField(medicine, ['Generic or hybrid', '_22']) || 'No';
+    const developer = findField(medicine, ['Marketing authorisation developer / applicant / holder', '_24']) || 'Not specified';
+
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">${medicineName}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-blue-700">Basic Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Status</div>
+                  <div class="mt-1">${status}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Active Substance</div>
+                  <div class="mt-1">${substance}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">EMA Product Number</div>
+                  <div class="mt-1">${emaNumber || 'Not available'}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">ATC Code</div>
+                  <div class="mt-1">${atcCode || 'Not available'}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Marketing Authorisation Holder</div>
+                  <div class="mt-1">${developer || 'Not available'}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Marketing Authorisation Date</div>
+                  <div class="mt-1">${formatDate(authDate)}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-blue-700">Regulatory Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Therapeutic Area</div>
+                  <div class="mt-1">${formatTherapeuticArea(therapeuticArea)}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Orphan Medicine</div>
+                  <div class="mt-1">${orphanStatus}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Additional Monitoring</div>
+                  <div class="mt-1">${additionalMonitoring}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Biosimilar</div>
+                  <div class="mt-1">${biosimilar}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Generic/Hybrid</div>
+                  <div class="mt-1">${genericHybrid}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-blue-700">Therapeutic Indication</h3>
+            <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+              ${indication || 'No indication information available'}
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-blue-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(medicine)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Show orphan details modal
+  function showOrphanDetailsModal(orphan) {
+    const medicineName = findField(orphan, ['name', 'Medicine name', '_1', 'Orphan designation']) || 'Unknown';
+    const substance = findField(orphan, ['active_substance', 'Active substance', '_2']) || 'Not specified';
+    const condition = findField(orphan, ['intended_use', '_enhancedIntendedUse', 'Intended use', '_3']) || 'Not specified';
+    const status = findField(orphan, ['status', 'Status', '_4', '_5']) || 'Unknown';
+    const decisionDate = findField(orphan, ['decision_date', '_enhancedDesignationDate', 'Date of designation / refusal', '_6', '_7']) || 'Unknown';
+    const euNumber = findField(orphan, ['eu_number', 'EU designation number', '_9']) || 'Not specified';
+    const emaLink = findField(orphan, ['Orphan designation URL', '_20', '_21', '_22']) || '';
+    
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">${medicineName}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-purple-700">Designation Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Active Substance</div>
+                  <div class="mt-1">${substance}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Condition/Treatment</div>
+                  <div class="mt-1">${condition}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">EU Designation Number</div>
+                  <div class="mt-1">${euNumber}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-purple-700">Regulatory Status</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Status</div>
+                  <div class="mt-1">${status}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Decision Date</div>
+                  <div class="mt-1">${formatDate(decisionDate)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-purple-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(orphan)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Show safety details modal
+  function showSafetyDetailsModal(safety) {
+    const title = findField(safety, ['title', 'Direct healthcare professional communication (DHPC)', '_1', '_2']) || 'Unknown';
+    const medicine = findField(safety, ['medicine', '_3', '_4']) || 'Not specified';
+    const date = findField(safety, ['date', '_5', '_6']) || 'Unknown';
+    const reason = findField(safety, ['reason', '_7', '_8']) || 'Not specified';
+    const emaLink = findField(safety, ['_15', '_16', '_17']) || '';
+    
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">${title}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-orange-700">Communication Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Medicine</div>
+                  <div class="mt-1">${medicine}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Publication Date</div>
+                  <div class="mt-1">${formatDate(date)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-700">Reason for Communication</h3>
+            <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+              ${reason || 'No reason specified'}
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(safety)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Show PSUSA details modal
+  function showPsusaDetailsModal(psusa) {
+    const substance = findField(psusa, ['substance', 'Periodic safety update report single assessments (PSUSA)', '_1', '_2']) || 'Unknown';
+    const procedure = findField(psusa, ['procedure', '_4']) || 'Not specified';
+    const outcome = findField(psusa, ['outcome', '_5']) || 'Unknown';
+    const date = findField(psusa, ['date', '_6']) || 'Unknown';
+    const emaLink = findField(psusa, ['_8']) || '';
+    
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">PSUSA: ${substance}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-teal-700">Report Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Procedure</div>
+                  <div class="mt-1">${procedure}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Outcome</div>
+                  <div class="mt-1">${outcome}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Date</div>
+                  <div class="mt-1">${formatDate(date)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-teal-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(psusa)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Show shortage details modal
+  function showShortageDetailsModal(shortage) {
+    const medicine = findField(shortage, ['medicine', 'Shortage', '_1']) || 'Unknown';
+    const reason = findField(shortage, ['reason', '_4', '_5']) || 'Not specified';
+    const status = findField(shortage, ['status', '_6', '_7']) || 'Unknown';
+    const date = findField(shortage, ['date', '_8', '_9']) || 'Unknown';
+    const emaLink = findField(shortage, ['_13', '_14', '_15']) || '';
+    
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">Shortage: ${medicine}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-red-700">Shortage Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Status</div>
+                  <div class="mt-1">${status}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Date</div>
+                  <div class="mt-1">${formatDate(date)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-red-700">Reason for Shortage</h3>
+            <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+              ${reason || 'No reason specified'}
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-red-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(shortage)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Generate data table from an object (for modals)
+  function generateDataTable(data) {
+    let html = '';
+    
+    // Skip internal properties or empty values
+    const skipKeys = ['_similarity', '_matchField', '_directMatch', '_enhanced'];
+    
+    // Get all keys and sort them alphabetically
+    const keys = Object.keys(data).filter(key => {
+      // Skip empty values and internal properties
+      return (
+        data[key] !== null && 
+        data[key] !== undefined && 
+        data[key] !== '' &&
+        !skipKeys.some(skipKey => key.startsWith(skipKey))
+      );
+    }).sort();
+    
+    // Generate rows
+    keys.forEach(key => {
+      const value = data[key];
+      const displayValue = typeof value === 'object' ? JSON.stringify(value) : value;
+      
+      html += `
+        <tr>
+          <td class="py-2 pr-4 font-medium">${key}</td>
+          <td class="py-2">${displayValue}</td>
+        </tr>
+      `;
+    });
+    
+    return html;
+  }
+
+  // Show referral details modal
+  function showReferralDetailsModal(referral) {
+    const medicine = findField(referral, ['title', '_1']) || 'Unknown';
+    const substance = findField(referral, ['substance', '_2']) || 'Not specified';
+    const type = findField(referral, ['type', '_9']) || 'Not specified';
+    const status = findField(referral, ['status', '_3']) || 'Unknown';
+    const date = findField(referral, ['date', '_17', '_18', '_19']) || 'Unknown';
+    const emaLink = findField(referral, ['_21']) || '';
+    
+    // Create modal element
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h2 class="text-2xl font-bold text-gray-800">Referral: ${medicine}</h2>
+            <button type="button" class="close-modal-btn text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-lg font-semibold mb-3 text-indigo-700">Referral Information</h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Active Substance</div>
+                  <div class="mt-1">${substance}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Referral Type</div>
+                  <div class="mt-1">${type}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Status</div>
+                  <div class="mt-1">${status}</div>
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-gray-500">Date</div>
+                  <div class="mt-1">${formatDate(date)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-indigo-700">All Available Data</h3>
+            <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th class="text-left font-medium text-gray-500 py-2">Field</th>
+                    <th class="text-left font-medium text-gray-500 py-2">Value</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  ${generateDataTable(referral)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between">
+            ${emaLink ? `
+              <a href="${emaLink}" target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                View on EMA Website
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ` : ''}
+            <button type="button" class="close-modal-btn inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    modal.querySelectorAll('.close-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+    });
+    
+    // Allow closing with ESC key
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Allow closing by clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscKey);
+      }
+    });
+  }
+
+  // Upload a file to the server
+  async function uploadFile(fileType, file) {
+    if (!file) {
+      showUploadStatus('Please select a file', 'error');
+      return;
+    }
+    
+    try {
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Show loading state
+      showUploadStatus('Uploading file...', 'loading');
+      
+      // Send request
+      const response = await fetch(`/api/ema/upload/${fileType}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        showUploadStatus(`File uploaded successfully. Processed ${data.records} records.`, 'success');
+        
+        // Clear file input
+        if (fileType === 'dhpc' && elements.dhpcFileInput) {
+          elements.dhpcFileInput.value = '';
+        } else if (fileType === 'psusa' && elements.psusaFileInput) {
+          elements.psusaFileInput.value = '';
+        } else if (fileType === 'shortages' && elements.shortagesFileInput) {
+          elements.shortagesFileInput.value = '';
+        } else if (fileType === 'medicines' && elements.medicinesFileInput) {
+          elements.medicinesFileInput.value = '';
+        } else if (fileType === 'referrals' && elements.referralsFileInput) {
+          elements.referralsFileInput.value = '';
+        }
+        
+        // Refresh EMA data status
+        checkEmaDataStatus();
+      } else {
+        showUploadStatus(`Error: ${data.error}`, 'error');
+        console.error('Error uploading file:', data.error);
+      }
+    } catch (error) {
+      showUploadStatus('Error connecting to server', 'error');
+      console.error('Error uploading file:', error);
+    }
+  }
+
+  // Show upload status message
+  function showUploadStatus(message, type = 'info') {
+    if (!elements.uploadStatus) return;
+    
+    let bgColor = 'bg-blue-50';
+    let textColor = 'text-blue-800';
+    let icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    
+    if (type === 'success') {
+      bgColor = 'bg-green-50';
+      textColor = 'text-green-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-50';
+      textColor = 'text-red-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    } else if (type === 'loading') {
+      bgColor = 'bg-blue-50';
+      textColor = 'text-blue-800';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      `;
+    }
+    
+    elements.uploadStatus.innerHTML = `
+      <div class="flex items-center p-4 ${bgColor} ${textColor} rounded-lg">
+        ${icon}
+        <span>${message}</span>
+      </div>
+    `;
+    
+    elements.uploadStatus.classList.remove('hidden');
+    
+    // Hide the status message after 5 seconds if it's a success message
+    if (type === 'success') {
+      setTimeout(() => {
+        elements.uploadStatus.classList.add('hidden');
+      }, 5000);
+    }
+  }
+
+  // Update counter
+  function updateCounter(element, count, singular, plural) {
+    if (!element) return;
+    
+    element.textContent = `${count} ${count === 1 ? singular : plural}`;
+  }
+
+  // Show loading state
+  function showLoadingState(element, isText = false) {
+    if (!element) return;
+    
+    if (isText) {
+      element.innerHTML = `
+        <span class="animate-pulse">Loading...</span>
+      `;
+    } else {
+      element.innerHTML = `
+        <div class="ema-loading-state">
+          <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <p class="text-center text-gray-500">Loading data...</p>
+        </div>
+      `;
+    }
+  }
+
+  // Show empty state
+  function showEmptyState(element, message) {
+    if (!element) return;
+    
+    element.innerHTML = `
+      <div class="ema-empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p class="text-center text-gray-500">${message}</p>
+      </div>
+    `;
+  }
+
+  // Format date
+  function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Return the original string if it's not a valid date
+      }
+      
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  // Format therapeutic area
+  function formatTherapeuticArea(area) {
+    if (!area) return 'Not specified';
+    
+    // Split by commas and semicolons
+    const areas = area.split(/[,;]/).map(a => a.trim()).filter(a => a);
+    
+    if (areas.length === 0) return 'Not specified';
+    
+    return areas.map(a => `
+      <span class="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full mb-1 mr-1">
+        ${a}
+      </span>
+    `).join('');
+  }
+
+  // Truncate text with ellipsis
+  function truncateText(text, maxLength) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    
+    return text.substring(0, maxLength) + '...';
+  }
+
+  // Helper function to find a field value in an object
+  function findField(obj, possibleKeys) {
+    if (!obj) return null;
+    
+    // First try direct match
+    for (const key of possibleKeys) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+        return obj[key];
+      }
+    }
+    
+    // Try case-insensitive match
+    for (const key of possibleKeys) {
+      const lowerKey = key.toLowerCase();
+      for (const objKey in obj) {
+        if (objKey.toLowerCase() === lowerKey && obj[objKey] !== undefined && obj[objKey] !== null && obj[objKey] !== '') {
+          return obj[objKey];
+        }
+      }
+    }
+    
+    // Try partial match
+    for (const key of possibleKeys) {
+      const lowerKey = key.toLowerCase();
+      for (const objKey in obj) {
+        if (objKey.toLowerCase().includes(lowerKey) && obj[objKey] !== undefined && obj[objKey] !== null && obj[objKey] !== '') {
+          return obj[objKey];
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  // Show error toast
+  function showError(message) {
+    showToast(message, 'error');
+  }
+
+  // Show toast message
+  function showToast(message, type = 'info') {
+    // Check if toast container exists, if not create it
+    let toastContainer = document.getElementById('toast-container');
+    
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col space-y-2';
+      document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    
+    let bgColor = 'bg-blue-500';
+    let icon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    `;
+    
+    if (type === 'success') {
+      bgColor = 'bg-green-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      `;
+    } else if (type === 'error') {
+      bgColor = 'bg-red-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
+    } else if (type === 'warning') {
+      bgColor = 'bg-yellow-500';
+      icon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      `;
+    }
+    
+    toast.className = `flex items-center p-3 rounded-lg text-white ${bgColor} shadow-lg transition-opacity duration-500`;
+    toast.innerHTML = `
+      ${icon}
+      <span>${message}</span>
+      <button class="ml-4 text-white focus:outline-none hover:text-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    `;
+    
+    // Add click event to close button
+    const closeButton = toast.querySelector('button');
+    closeButton.addEventListener('click', () => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode === toastContainer) {
+          toastContainer.removeChild(toast);
+        }
+      }, 500);
+    });
+    
+    // Add toast to container
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (toast.parentNode === toastContainer) {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (toast.parentNode === toastContainer) {
+            toastContainer.removeChild(toast);
+          }
+        }, 500);
+      }
+    }, 5000);
+  }
+
+  // Set user role (admin or regular user)
+  function setUserRole(role) {
+    const isAdmin = role === 'admin';
+    toggleAdminSection(isAdmin);
+  }
+
+  // Check if user is
+  // Continued from previous artifact
+  
+  // Check if user is authenticated and has the correct role
+  async function checkUserPermissions() {
+    try {
+      const response = await fetch('/api/auth/user');
+      const data = await response.json();
+      
+      if (response.ok && data.authenticated) {
+        // Check if user has admin role for EMA data
+        const hasEmaAdminRole = data.roles && data.roles.includes('ema_admin');
+        setUserRole(hasEmaAdminRole ? 'admin' : 'user');
+        
+        return hasEmaAdminRole;
+      } else {
+        setUserRole('user');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking user permissions:', error);
+      setUserRole('user');
+      return false;
+    }
+  }
+
+  // Add CSS styles for EMA data tables
+  function addTableStyles() {
+    const styleId = 'ema-data-table-styles';
+    
+    // Check if styles already exist
+    if (document.getElementById(styleId)) {
+      return;
+    }
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = styleId;
+    styleElement.textContent = `
+      .ema-data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      
+      .ema-data-table th {
+        background-color: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      
+      .ema-data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+      
+      .ema-data-table tbody tr:hover {
+        background-color: #f9fafb;
+      }
+      
+      .ema-empty-state, .ema-loading-state {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+      }
+      
+      .ema-summary-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      
+      .ema-summary-table th {
+        background-color: #f1f5f9;
+        padding: 0.5rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .ema-summary-table td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+      }
+      
+      .ema-tab-pane {
+        max-height: 600px;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 0 0 0.5rem 0.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
+  }
+  
+  // Add HTML for the summary section
+  function addSummarySection() {
+    if (!document.getElementById('emaSummarySection')) {
+      const summarySection = document.createElement('div');
+      summarySection.id = 'emaSummarySection';
+      summarySection.className = 'mt-8';
+      summarySection.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">EMA Data Summary</h2>
+          <div class="flex space-x-2">
+            <button id="emaSummaryBtn" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Generate Summary
+            </button>
+            <button id="emaAiSummaryBtn" class="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              AI Summary
+            </button>
+            <button id="emaEmailSummaryBtn" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Summary
+            </button>
+          </div>
+        </div>
+        <div id="emaSummaryContent" class="hidden"></div>
+      `;
+      
+      // Append after the EMA data section
+      const emaDataSection = document.getElementById('emaDataSection');
+      if (emaDataSection && emaDataSection.parentNode) {
+        emaDataSection.parentNode.insertBefore(summarySection, emaDataSection.nextSibling);
+        
+        // Update elements object
+        elements.summaryBtn = document.getElementById('emaSummaryBtn');
+        elements.aiSummaryBtn = document.getElementById('emaAiSummaryBtn');
+        elements.emailSummaryBtn = document.getElementById('emaEmailSummaryBtn');
+        elements.summaryContent = document.getElementById('emaSummaryContent');
+        
+        // Initialize summary buttons
+        initSummaryButtons();
+      }
+    }
+  }
+
+  // Initialize the module (extended version)
+  function init() {
+    // Initialize tab navigation
+    initTabNavigation();
+    
+    // Initialize file upload forms
+    initFileUploadForms();
+    
+    // Add refresh button event listener
+    if (elements.refreshBtn) {
+      elements.refreshBtn.addEventListener('click', refreshEmaData);
+    }
+    
+    // Add summary section if not already present
+    addSummarySection();
+    
+    // Check data status on initialization
+    checkEmaDataStatus();
+    
+    // Check user permissions
+    checkUserPermissions();
+    
+    // Add table styles
+    addTableStyles();
+    
+    console.log('Enhanced EMA Data Module initialized');
+  }
+
+  // Export functions for external use
+  return {
+    init,
+    searchDrug,
+    showSection,
+    toggleAdminSection,
+    refreshEmaData,
+    checkEmaDataStatus,
+    checkUserPermissions,
+    generateSummary,
+    generateAiSummary,
+    emailSummary
+  };
+})();
+
+
+
+  // Initialize the EMA Data Module when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize module
+    EmaDataModule.init();
+    
+    // Set up search form
+    const searchForm = document.getElementById('emaSearchForm');
+    if (searchForm) {
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const drugName = document.getElementById('searchDrugInput').value.trim();
+        if (drugName) {
+          EmaDataModule.searchDrug(drugName);
+          addToSearchHistory(drugName);
+        }
+      });
+    }
+    
+    // Set up quick search buttons
+    const quickSearchButtons = document.querySelectorAll('.quick-search-btn');
+    quickSearchButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const drugName = this.getAttribute('data-drug');
+        document.getElementById('searchDrugInput').value = drugName;
+        EmaDataModule.searchDrug(drugName);
+        addToSearchHistory(drugName);
+      });
+    });
+    
+    // Set up advanced search toggle
+    const toggleAdvancedBtn = document.getElementById('toggleAdvancedSearchBtn');
+    if (toggleAdvancedBtn) {
+      toggleAdvancedBtn.addEventListener('click', function() {
+        const options = document.getElementById('advancedSearchOptions');
+        const showText = this.querySelector('.show-text');
+        const hideText = this.querySelector('.hide-text');
+        
+        if (options.classList.contains('hidden')) {
+          options.classList.remove('hidden');
+          showText.classList.add('hidden');
+          hideText.classList.remove('hidden');
+        } else {
+          options.classList.add('hidden');
+          showText.classList.remove('hidden');
+          hideText.classList.add('hidden');
+        }
+      });
+    }
+    
+    // Set up threshold slider
+    const thresholdSlider = document.getElementById('searchThreshold');
+    const thresholdValue = document.getElementById('thresholdValue');
+    if (thresholdSlider && thresholdValue) {
+      thresholdSlider.addEventListener('input', function() {
+        thresholdValue.textContent = this.value;
+      });
+    }
+    
+    // Set up research buttons
+    const startResearchBtn = document.getElementById('startResearchBtn');
+    const cancelResearchBtn = document.getElementById('cancelResearchBtn');
+    const startAiResearchBtn = document.getElementById('startAiResearchBtn');
+    
+    if (startResearchBtn) {
+      startResearchBtn.addEventListener('click', function() {
+        document.getElementById('researchInterface').classList.remove('hidden');
+        document.getElementById('aiResearchResults').classList.add('hidden');
+        document.getElementById('aiResearchLoading').classList.add('hidden');
+      });
+    }
+    
+    if (cancelResearchBtn) {
+      cancelResearchBtn.addEventListener('click', function() {
+        document.getElementById('researchInterface').classList.add('hidden');
+        document.getElementById('researchQuestion').value = '';
+        // Uncheck all checkboxes
+        document.querySelectorAll('input[name="researchFocus"]').forEach(checkbox => {
+          checkbox.checked = false;
+        });
+      });
+    }
+    
+    if (startAiResearchBtn) {
+      startAiResearchBtn.addEventListener('click', function() {
+        const question = document.getElementById('researchQuestion').value.trim();
+        if (!question) {
+          alert('Please enter a research question');
+          return;
+        }
+        
+        // Get selected focus areas
+        const focusAreas = [];
+        document.querySelectorAll('input[name="researchFocus"]:checked').forEach(checkbox => {
+          focusAreas.push(checkbox.value);
+        });
+        
+        // Hide interface and show loading
+        document.getElementById('researchInterface').classList.add('hidden');
+        document.getElementById('aiResearchLoading').classList.remove('hidden');
+        
+        // Simulate progress
+        simulateResearchProgress();
+        
+        // Call the API to generate research (would be implemented in the actual app)
+        setTimeout(() => {
+          generateAiResearch(question, focusAreas);
+        }, 3000);
+      });
+    }
+    
+    // Load search history
+    loadSearchHistory();
+  });
+  
+  // Add search to history
+  function addToSearchHistory(drugName) {
+    // Get existing history from localStorage
+    let history = JSON.parse(localStorage.getItem('emaSearchHistory') || '[]');
+    
+    // Add new search
+    history.unshift({
+      drug: drugName,
+      date: new Date().toISOString()
+    });
+    
+    // Keep only the latest 10 searches
+    history = history.slice(0, 10);
+    
+    // Save back to localStorage
+    localStorage.setItem('emaSearchHistory', JSON.stringify(history));
+    
+    // Update the UI
+    loadSearchHistory();
+  }
+  
+  // Load search history from localStorage
+  function loadSearchHistory() {
+    const history = JSON.parse(localStorage.getItem('emaSearchHistory') || '[]');
+    const historyContainer = document.getElementById('searchHistoryItems');
+    const historySection = document.getElementById('searchHistory');
+    
+    if (!historyContainer || !historySection) return;
+    
+    if (history.length === 0) {
+      historySection.classList.add('hidden');
+      return;
+    }
+    
+    historySection.classList.remove('hidden');
+    historyContainer.innerHTML = '';
+    
+    history.forEach(item => {
+      const row = document.createElement('tr');
+      
+      // Format the date
+      const date = new Date(item.date);
+      const formattedDate = date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      
+      row.innerHTML = `
+        <td class="py-2 font-medium">${item.drug}</td>
+        <td class="py-2 text-gray-500">${formattedDate}</td>
+        <td class="py-2">
+          <button class="text-blue-600 hover:text-blue-800 repeat-search-btn" data-drug="${item.drug}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </td>
+      `;
+      
+      historyContainer.appendChild(row);
+    });
+    
+    // Add event listeners to search buttons
+    document.querySelectorAll('.repeat-search-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const drugName = this.getAttribute('data-drug');
+        document.getElementById('searchDrugInput').value = drugName;
+        EmaDataModule.searchDrug(drugName);
+      });
+    });
+  }
+  
+  // Simulate research progress
+  function simulateResearchProgress() {
+    const progressBar = document.getElementById('researchProgressBar');
+    const progressStatus = document.getElementById('researchProgressStatus');
+    let progress = 0;
+    
+    const phases = [
+      'Phase 1/4: Collecting relevant data...',
+      'Phase 2/4: Analyzing regulatory patterns...',
+      'Phase 3/4: Generating insights...',
+      'Phase 4/4: Preparing final report...'
+    ];
+    
+    let currentPhase = 0;
+    
+    const interval = setInterval(() => {
+      progress += 1;
+      progressBar.style.width = `${progress}%`;
+      
+      if (progress === 25) {
+        currentPhase = 1;
+        progressStatus.textContent = phases[currentPhase];
+      } else if (progress === 50) {
+        currentPhase = 2;
+        progressStatus.textContent = phases[currentPhase];
+      } else if (progress === 75) {
+        currentPhase = 3;
+        progressStatus.textContent = phases[currentPhase];
+      }
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+      }
+    }, 50);
+  }
+  
+  // Generate AI research report
+  function generateAiResearch(question, focusAreas) {
+    const resultsContainer = document.getElementById('aiResearchResults');
+    
+    // In a real implementation, this would call the backend API
+    // For the demo, we'll just simulate a response
+    
+    const researchReport = `
+      <div class="bg-white rounded-lg border border-purple-200 overflow-hidden">
+        <div class="bg-purple-50 p-4 border-b border-purple-200">
+          <h3 class="text-xl font-bold text-purple-800">Research Report</h3>
+          <div class="text-sm text-purple-600 mt-1">Generated on ${new Date().toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}</div>
+          <div class="text-sm text-gray-700 mt-1">Based on question: "${question}"</div>
+        </div>
+        
+        <div class="p-6">
+          <div class="prose max-w-none">
+            <h4>Executive Summary</h4>
+            <p>
+              This analysis examined ${focusAreas.join(', ')} across the EMA database to provide insights on ${question}. 
+              The findings reveal notable trends in regulatory approvals and safety monitoring that can inform strategic 
+              decision-making for pharmaceutical development.
+            </p>
+            
+            <h4>Key Findings</h4>
+            <ul>
+              <li>Identified 8 relevant medicines with comprehensive regulatory histories</li>
+              <li>Average approval timeline shows a 14% reduction over the past 3 years</li>
+              <li>Safety communications have increased by 23% for selected therapeutic areas</li>
+              ${focusAreas.includes('orphan') ? '<li>Orphan drug designations show accelerated pathways in 62% of cases</li>' : ''}
+              ${focusAreas.includes('shortages') ? '<li>Supply chain resilience concerns documented in 37% of medicines analyzed</li>' : ''}
+            </ul>
+            
+            <h4>Detailed Analysis</h4>
+            <p>
+              The comprehensive examination of EMA data revealed several significant patterns. Authorization timelines 
+              have decreased steadily, while post-marketing surveillance activities have intensified. The data suggests 
+              a correlation between therapeutic innovation and regulatory scrutiny, particularly for novel mechanisms of action.
+            </p>
+            
+            ${focusAreas.length > 2 ? `
+              <h4>Focus Area: ${focusAreas[0].charAt(0).toUpperCase() + focusAreas[0].slice(1)}</h4>
+              <p>
+                Analysis of ${focusAreas[0]} shows distinctive patterns that merit attention. The data indicates evolving 
+                regulatory standards are reshaping development timelines and post-approval requirements. Strategic planning 
+                should account for these shifting dynamics.
+              </p>
+              
+              <h4>Focus Area: ${focusAreas[1].charAt(0).toUpperCase() + focusAreas[1].slice(1)}</h4>
+              <p>
+                Examination of ${focusAreas[1]} reveals noteworthy trends that impact product lifecycle management. 
+                Historical data suggests proactive engagement with regulatory authorities yields measurable benefits for 
+                authorization pathways and maintenance of marketing approvals.
+              </p>
+            ` : ''}
+            
+            <h4>Recommendations</h4>
+            <p>
+              Based on the analysis, consider the following strategic approaches:
+            </p>
+            <ol>
+              <li>Enhance early engagement with regulatory authorities</li>
+              <li>Strengthen post-marketing surveillance capabilities</li>
+              <li>Develop robust supply chain contingency planning</li>
+              <li>Prioritize therapeutic areas with favorable regulatory trends</li>
+            </ol>
+            
+            <h4>Conclusion</h4>
+            <p>
+              The EMA data provides valuable insights for strategic planning and risk management. Regular monitoring of 
+              regulatory trends and proactive adaptation to emerging patterns can significantly enhance development 
+              efficiency and commercial success.
+            </p>
+          </div>
+          
+          <!-- Visualization Charts -->
+          <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border rounded-lg p-4">
+              <h5 class="font-medium mb-2 text-gray-700">Authorization Timeline Trends</h5>
+              <div class="h-64 bg-gray-100 rounded flex items-center justify-center">
+                <!-- Chart would be rendered here in the actual implementation -->
+                <div class="text-gray-400">Visualization: Timeline Analysis</div>
+              </div>
+            </div>
+            
+            <div class="border rounded-lg p-4">
+              <h5 class="font-medium mb-2 text-gray-700">Safety Communications by Year</h5>
+              <div class="h-64 bg-gray-100 rounded flex items-center justify-center">
+                <!-- Chart would be rendered here in the actual implementation -->
+                <div class="text-gray-400">Visualization: Safety Trend Analysis</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-end space-x-3">
+            <button class="px-4 py-2 border border-purple-300 text-purple-700 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 print-research-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print Report
+            </button>
+            <button class="px-4 py-2 border border-purple-300 text-purple-700 rounded-md hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 export-research-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export PDF
+            </button>
+            <button class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 email-research-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Report
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Display the research results
+    document.getElementById('aiResearchLoading').classList.add('hidden');
+    resultsContainer.innerHTML = researchReport;
+    resultsContainer.classList.remove('hidden');
+    
+    // Save to previous research
+    saveResearch(question, focusAreas);
+    
+    // Add event listeners to buttons
+    document.querySelector('.print-research-btn').addEventListener('click', function() {
+      window.print();
+    });
+    
+    document.querySelector('.export-research-btn').addEventListener('click', function() {
+      // In a real implementation, this would call an API to convert to PDF
+      alert('PDF export functionality would be implemented here');
+    });
+    
+    document.querySelector('.email-research-btn').addEventListener('click', function() {
+      // In a real implementation, this would open an email dialog
+      showEmailDialog(question, 'research');
+    });
+  }
+  
+  // Save research to history
+  function saveResearch(question, focusAreas) {
+    // Get existing research from localStorage
+    let research = JSON.parse(localStorage.getItem('emaResearchHistory') || '[]');
+    
+    // Add new research
+    research.unshift({
+      question: question,
+      focusAreas: focusAreas,
+      date: new Date().toISOString()
+    });
+    
+    // Keep only the latest 5 researches
+    research = research.slice(0, 5);
+    
+    // Save back to localStorage
+    localStorage.setItem('emaResearchHistory', JSON.stringify(research));
+    
+    // Update the UI
+    loadResearchHistory();
+  }
+  
+  // Load research history from localStorage
+  function loadResearchHistory() {
+    const research = JSON.parse(localStorage.getItem('emaResearchHistory') || '[]');
+    const researchContainer = document.getElementById('previousResearchItems');
+    const researchSection = document.getElementById('previousResearch');
+    
+    if (!researchContainer || !researchSection) return;
+    
+    if (research.length === 0) {
+      researchSection.classList.add('hidden');
+      return;
+    }
+    
+    researchSection.classList.remove('hidden');
+    researchContainer.innerHTML = '';
+    
+    research.forEach(item => {
+      // Format the date
+      const date = new Date(item.date);
+      const formattedDate = date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+      
+      const card = document.createElement('div');
+      card.className = 'border rounded-lg p-4 hover:bg-gray-50';
+      
+      card.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="font-medium text-purple-800">${item.question}</div>
+            <div class="text-sm text-gray-500 mt-1">${formattedDate}</div>
+          </div>
+          <button class="text-purple-600 hover:text-purple-800 load-research-btn" data-question="${item.question}" data-focus="${item.focusAreas.join(',')}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-2">
+          <div class="text-xs text-gray-500">Focus areas:</div>
+          <div class="flex flex-wrap gap-1 mt-1">
+            ${item.focusAreas.map(area => `
+              <span class="px-2 py-0.5 text-xs bg-purple-100 text-purple-800 rounded-full">
+                ${area.charAt(0).toUpperCase() + area.slice(1)}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      researchContainer.appendChild(card);
+    });
+    
+    // Add event listeners to load research buttons
+    document.querySelectorAll('.load-research-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const question = this.getAttribute('data-question');
+        const focusAreas = this.getAttribute('data-focus').split(',');
+        
+        // Set form values
+        document.getElementById('researchQuestion').value = question;
+        
+        // Check appropriate focus checkboxes
+        document.querySelectorAll('input[name="researchFocus"]').forEach(checkbox => {
+          checkbox.checked = focusAreas.includes(checkbox.value);
+        });
+        
+        // Generate the research
+        document.getElementById('researchInterface').classList.add('hidden');
+        document.getElementById('aiResearchLoading').classList.remove('hidden');
+        
+        // Simulate progress
+        simulateResearchProgress();
+        
+        // Call the API to generate research
+        setTimeout(() => {
+          generateAiResearch(question, focusAreas);
+        }, 3000);
+      });
+    });
+  }
+  
+  // Show email dialog
+  function showEmailDialog(content, type) {
+    // Create the dialog element
+    const dialog = document.createElement('div');
+    dialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    dialog.id = 'emailDialog';
+    
+    dialog.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4">Email ${type === 'research' ? 'Research Report' : 'Summary'}</h3>
+        
+        <form id="emailForm">
+          <div class="mb-4">
+            <label for="emailAddress" class="block text-sm font-medium text-gray-700 mb-1">
+              Email address
+            </label>
+            <input type="email" id="emailAddress" name="email" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="your.email@example.com">
+          </div>
+          
+          <div class="mb-4">
+            <label for="emailSubject" class="block text-sm font-medium text-gray-700 mb-1">
+              Subject
+            </label>
+            <input type="text" id="emailSubject" name="subject" 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                   value="${type === 'research' ? 'EMA Research Report' : 'EMA Data Summary'}">
+          </div>
+          
+          <div class="mb-4">
+            <label for="emailMessage" class="block text-sm font-medium text-gray-700 mb-1">
+              Additional message (optional)
+            </label>
+            <textarea id="emailMessage" name="message" rows="3"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Add a personal message here"></textarea>
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancelEmailBtn"
+                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              Cancel
+            </button>
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              Send Email
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    
+    // Add to document
+    document.body.appendChild(dialog);
+    
+    // Add event listeners
+    document.getElementById('cancelEmailBtn').addEventListener('click', () => {
+      document.body.removeChild(dialog);
+    });
+    
+    document.getElementById('emailForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('emailAddress').value;
+      const subject = document.getElementById('emailSubject').value;
+      const message = document.getElementById('emailMessage').value;
+      
+      // In a real implementation, this would send an API request
+      alert(`Email would be sent to ${email} with subject "${subject}"`);
+      
+      // Remove dialog
+      document.body.removeChild(dialog);
+    });
+    
+    // Allow closing with ESC key
+    document.addEventListener('keydown', function escHandler(e) {
+      if (e.key === 'Escape') {
+        document.body.removeChild(dialog);
+        document.removeEventListener('keydown', escHandler);
+      }
+    });
+    
+    // Allow closing by clicking outside the dialog
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) {
+        document.body.removeChild(dialog);
+      }
+    });
+  }
+</script>
+
+<!-- Implementation Notes Section -->
+<div class="mt-12 bg-blue-50 p-6 rounded-lg border border-blue-200">
+  <h2 class="text-xl font-bold text-blue-800 mb-4">Implementation Notes</h2>
+  <p class="text-blue-700 mb-2">
+    This template provides a comprehensive UI for the EMA Data Module with the following features:
+  </p>
+  <ul class="list-disc pl-6 text-blue-700 space-y-1 mb-4">
+    <li>Search for medicines by name or active substance</li>
+    <li>View detailed regulatory information across multiple EMA data sources</li>
+    <li>Generate summaries with export and email options</li>
+    <li>AI-assisted research capabilities for complex questions</li>
+    <li>Data administration interface for authorized users</li>
+  </ul>
+  <p class="text-blue-700 mb-2">
+    To fully implement this module, the following backend services are required:
+  </p>
+  <ul class="list-disc pl-6 text-blue-700 space-y-1">
+    <li>API endpoints for searching and retrieving EMA data</li>
+    <li>Data processing services for analyzing and summarizing results</li>
+    <li>AI services for generating research reports</li>
+    <li>Email service for sharing summaries and reports</li>
+    <li>Authentication and authorization for admin features</li>
+  </ul>
+  <p class="text-blue-700 mt-4">
+    The module integrates with the updated EMA data processing functions for improved data extraction and matching capabilities.
+  </p>
+</div>
+    </body>
+    
+</html>
