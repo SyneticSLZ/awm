@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wideoak Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* For the loading spinner */
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 5px solid #3498db;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+  <!-- Main Container -->
+  <div class="flex h-screen overflow-hidden">
+    
+    <!-- Sidebar -->
+    <div class="hidden lg:flex lg:flex-shrink-0">
+      <div class="flex flex-col w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
+          <div class="flex items-center flex-shrink-0 px-4">
+            <h1 class="text-xl font-bold">Wideoak Admin</h1>
+          </div>
+          <div class="mt-5 flex-grow flex flex-col">
+            <nav class="flex-1 px-2 space-y-1 bg-white dark:bg-gray-800">
+              <a href="#" id="dashboard-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
+                <i class="far fa-chart-bar mr-3 text-gray-500 dark:text-gray-400"></i>
+                Dashboard
+              </a>
+              <a href="#" id="users-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="far fa-user mr-3 text-gray-500 dark:text-gray-400"></i>
+                Users
+              </a>
+              <a href="#" id="settings-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="fas fa-cog mr-3 text-gray-500 dark:text-gray-400"></i>
+                Settings
+              </a>
+            </nav>
+          </div>
+          <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center">
+              <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-200">Admin User</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Logged in</p>
+              </div>
+              <button id="theme-toggle" class="ml-auto bg-gray-200 dark:bg-gray-700 rounded-full p-2">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile header -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 z-10 flex items-center justify-between h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4">
+      <h1 class="text-xl font-bold">Wideoak Admin</h1>
+      <div class="flex items-center">
+        <button id="mobile-menu-button" class="p-2">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile sidebar -->
+    <div id="mobile-sidebar" class="lg:hidden fixed inset-0 z-20 bg-gray-900 bg-opacity-50 hidden">
+      <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 overflow-y-auto">
+        <div class="flex flex-col flex-grow pt-5 pb-4">
+          <div class="flex items-center justify-between px-4">
+            <h1 class="text-xl font-bold">Wideoak Admin</h1>
+            <button id="close-sidebar" class="p-2">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="mt-5 flex-grow flex flex-col">
+            <nav class="flex-1 px-2 space-y-1 bg-white dark:bg-gray-800">
+              <a href="#" id="mobile-dashboard-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
+                <i class="far fa-chart-bar mr-3 text-gray-500 dark:text-gray-400"></i>
+                Dashboard
+              </a>
+              <a href="#" id="mobile-users-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="far fa-user mr-3 text-gray-500 dark:text-gray-400"></i>
+                Users
+              </a>
+              <a href="#" id="mobile-settings-link" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <i class="fas fa-cog mr-3 text-gray-500 dark:text-gray-400"></i>
+                Settings
+              </a>
+            </nav>
+          </div>
+          <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center">
+              <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-200">Admin User</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Logged in</p>
+              </div>
+              <button id="mobile-theme-toggle" class="ml-auto bg-gray-200 dark:bg-gray-700 rounded-full p-2">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex flex-col w-0 flex-1 overflow-hidden bg-gray-100 dark:bg-gray-900">
+      <main class="flex-1 relative overflow-y-auto focus:outline-none">
+        <div class="py-6 lg:py-6">
+          <!-- Dashboard Header -->
+          <div class="px-4 sm:px-6 lg:px-8 mb-8">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+          </div>
+          
+          <!-- Loading spinner -->
+          <div id="loading" class="flex justify-center items-center h-64">
+            <div class="loader"></div>
+          </div>
+          
+          <!-- Content sections -->
+          <div id="dashboard-content" class="hidden">
+            <!-- Dashboard Content -->
+            <div class="px-4 sm:px-6 lg:px-8">
+              <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Users Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                        <i class="fas fa-users text-white"></i>
+                      </div>
+                      <div class="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Users</dt>
+                          <dd>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white" id="total-users">-</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- New Users Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                        <i class="fas fa-user-plus text-white"></i>
+                      </div>
+                      <div class="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">New Users (30 days)</dt>
+                          <dd>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white" id="new-users">-</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Active Users Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                        <i class="fas fa-user-check text-white"></i>
+                      </div>
+                      <div class="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Active Users (7 days)</dt>
+                          <dd>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white" id="active-users">-</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Total Usage Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                        <i class="fas fa-tachometer-alt text-white"></i>
+                      </div>
+                      <div class="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Usage</dt>
+                          <dd>
+                            <div class="text-lg font-medium text-gray-900 dark:text-white" id="total-usage">-</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Charts -->
+              <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <!-- User Activity Chart -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">User Activity</h3>
+                    <div class="mt-2">
+                      <canvas id="user-activity-chart" height="300"></canvas>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Subscription Status Chart -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Subscription Status</h3>
+                    <div class="mt-2">
+                      <canvas id="subscription-status-chart" height="300"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Top Users -->
+              <div class="mt-8">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                  <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Top Users by Usage</h3>
+                    <div class="mt-4">
+                      <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                          <thead class="bg-gray-50 dark:bg-gray-900">
+                            <tr>
+                              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Username</th>
+                              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usage</th>
+                              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subscription</th>
+                            </tr>
+                          </thead>
+                          <tbody id="top-users-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Table rows will be populated by JavaScript -->
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="users-content" class="hidden">
+            <!-- Users Content -->
+            <div class="px-4 sm:px-6 lg:px-8">
+              <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                  <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                    <div class="shadow overflow-hidden border-b border-gray-200 dark:border-gray-700 sm:rounded-lg">
+                      <div class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between">
+                        <div class="w-full max-w-lg">
+                          <label for="search" class="sr-only">Search</label>
+                          <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input id="user-search" class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md leading-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Search users..." type="search">
+                          </div>
+                        </div>
+                      </div>
+                      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-900">
+                          <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usage</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Login</th>
+                            <th scope="col" class="relative px-6 py-3">
+                              <span class="sr-only">Edit</span>
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody id="users-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                          <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                      </table>
+                      <div class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                          <button id="mobile-previous-page" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            Previous
+                          </button>
+                          <button id="mobile-next-page" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            Next
+                          </button>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                          <div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300">
+                              Showing
+                              <span class="font-medium" id="pagination-start">1</span>
+                              to
+                              <span class="font-medium" id="pagination-end">10</span>
+                              of
+                              <span class="font-medium" id="pagination-total">-</span>
+                              results
+                            </p>
+                          </div>
+                          <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                              <button id="previous-page" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <span class="sr-only">Previous</span>
+                                <i class="fas fa-chevron-left h-5 w-5"></i>
+                              </button>
+                              <!-- Page numbers will be dynamically inserted here -->
+                              <div id="pagination-numbers" class="flex">
+                                <!-- Pagination numbers will be inserted here by JavaScript -->
+                              </div>
+                              <button id="next-page" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <span class="sr-only">Next</span>
+                                <i class="fas fa-chevron-right h-5 w-5"></i>
+                              </button>
+                            </nav>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="settings-content" class="hidden">
+            <!-- Settings Content -->
+            <div class="px-4 sm:px-6 lg:px-8">
+              <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">App Settings</h3>
+                  <div class="mt-5">
+                    <div class="rounded-md bg-gray-50 dark:bg-gray-700 p-4">
+                      <div class="flex">
+                        <div class="flex-shrink-0">
+                          <i class="fas fa-info-circle text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                          <p class="text-sm text-gray-700 dark:text-gray-300">
+                            Settings panel is currently in development. More options will be available soon.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <div class="mt-6">
+                      <div class="flex items-center">
+                        <div class="flex-grow">
+                          <label for="dark-mode" class="font-medium text-gray-700 dark:text-gray-300">
+                            Dark Mode
+                          </label>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Toggle between light and dark interface.
+                          </p>
+                        </div>
+                        <div>
+                          <label class="flex items-center cursor-pointer">
+                            <div class="relative">
+                              <input id="dark-mode-setting" type="checkbox" class="sr-only" />
+                              <div class="block w-14 h-8 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                              <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Items Per Page -->
+                    <div class="mt-6">
+                      <label for="items-per-page" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Users Per Page
+                      </label>
+                      <select id="items-per-page" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- User Edit Modal -->
+  <div id="user-modal" class="fixed inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+                Edit User
+              </h3>
+              <div class="mt-4">
+                <form id="user-form">
+                  <input type="hidden" id="user-id">
+                  
+                  <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+                    <input type="text" name="username" id="username" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md">
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                    <input type="email" name="email" id="email" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md">
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+                    <select id="role" name="role" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label for="subscription" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Subscription</label>
+                    <select id="subscription" name="subscriptionStatus" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                      <option value="free-trial">Free Trial</option>
+                      <option value="basic">Basic</option>
+                      <option value="premium">Premium</option>
+                      <option value="canceled">Canceled</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label for="usage" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usage</label>
+                    <input type="number" name="usage" id="usage" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="save-user" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Save
+          </button>
+          <button type="button" id="close-modal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Cancel
+          </button>
+          <button type="button" id="delete-user" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:w-auto sm:text-sm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- User Detail Modal -->
+  <div id="user-detail-modal" class="fixed inset-0 overflow-y-auto hidden" aria-labelledby="detail-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="detail-modal-title">
+                User Details
+              </h3>
+              <div class="mt-4 space-y-4">
+                <div id="user-detail-content">
+                  <!-- Content will be populated by JavaScript -->
+                </div>
+                
+                <div>
+                  <h4 class="text-md font-medium text-gray-900 dark:text-white">Activity Log</h4>
+                  <div class="mt-2 max-h-60 overflow-y-auto">
+                    <ul id="activity-log-list" class="divide-y divide-gray-200 dark:divide-gray-700">
+                      <!-- Activity logs will be populated by JavaScript -->
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="edit-user-from-detail" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Edit User
+          </button>
+          <button type="button" id="close-detail-modal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-500 opacity-0 hidden">
+    Operation completed successfully
+  </div>
+  // This code should be added to your admin.html file, replacing the existing JavaScript
+
+  <script>
+    // Dark mode toggle
+    function initDarkMode() {
+      // Check for system preference
+      const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
+                        (localStorage.getItem('darkMode') === null && darkModeMediaQuery.matches);
+      
+      // Set initial state
+      document.documentElement.classList.toggle('dark', isDarkMode);
+      document.getElementById('dark-mode-setting').checked = isDarkMode;
+      
+      // Toggle function
+      function toggleDarkMode() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('darkMode', isDark);
+        document.getElementById('dark-mode-setting').checked = isDark;
+      }
+      
+      // Add event listeners
+      document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+      document.getElementById('mobile-theme-toggle').addEventListener('click', toggleDarkMode);
+      document.getElementById('dark-mode-setting').addEventListener('change', function() {
+        const isDark = this.checked;
+        document.documentElement.classList.toggle('dark', isDark);
+        localStorage.setItem('darkMode', isDark);
+      });
+    }
+    
+    // Mobile sidebar toggle
+    function initMobileSidebar() {
+      const mobileSidebar = document.getElementById('mobile-sidebar');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const closeSidebarButton = document.getElementById('close-sidebar');
+      
+      mobileMenuButton.addEventListener('click', () => {
+        mobileSidebar.classList.toggle('hidden');
+      });
+      
+      closeSidebarButton.addEventListener('click', () => {
+        mobileSidebar.classList.add('hidden');
+      });
+    }
+    
+    // Navigation
+    function initNavigation() {
+      const dashboardContent = document.getElementById('dashboard-content');
+      const usersContent = document.getElementById('users-content');
+      const settingsContent = document.getElementById('settings-content');
+      
+      const dashboardLink = document.getElementById('dashboard-link');
+      const usersLink = document.getElementById('users-link');
+      const settingsLink = document.getElementById('settings-link');
+      
+      const mobileDashboardLink = document.getElementById('mobile-dashboard-link');
+      const mobileUsersLink = document.getElementById('mobile-users-link');
+      const mobileSettingsLink = document.getElementById('mobile-settings-link');
+      
+      const mobileSidebar = document.getElementById('mobile-sidebar');
+      
+      function showDashboard() {
+        dashboardContent.classList.remove('hidden');
+        usersContent.classList.add('hidden');
+        settingsContent.classList.add('hidden');
+        
+        dashboardLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        dashboardLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        usersLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        usersLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        settingsLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        settingsLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        
+        mobileDashboardLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileDashboardLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        mobileUsersLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileUsersLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        mobileSettingsLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileSettingsLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        
+        mobileSidebar.classList.add('hidden');
+        
+        loadDashboardData();
+      }
+      
+      function showUsers() {
+        dashboardContent.classList.add('hidden');
+        usersContent.classList.remove('hidden');
+        settingsContent.classList.add('hidden');
+        
+        dashboardLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        dashboardLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        usersLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        usersLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        settingsLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        settingsLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        
+        mobileDashboardLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileDashboardLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        mobileUsersLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileUsersLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        mobileSettingsLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileSettingsLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        
+        mobileSidebar.classList.add('hidden');
+        
+        loadUsersData();
+      }
+      
+      function showSettings() {
+        dashboardContent.classList.add('hidden');
+        usersContent.classList.add('hidden');
+        settingsContent.classList.remove('hidden');
+        
+        dashboardLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        dashboardLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        usersLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        usersLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        settingsLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        settingsLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        
+        mobileDashboardLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileDashboardLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        mobileUsersLink.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileUsersLink.classList.add('text-gray-600', 'dark:text-gray-300');
+        mobileSettingsLink.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
+        mobileSettingsLink.classList.remove('text-gray-600', 'dark:text-gray-300');
+        
+        mobileSidebar.classList.add('hidden');
+      }
+      
+      dashboardLink.addEventListener('click', showDashboard);
+      usersLink.addEventListener('click', showUsers);
+      settingsLink.addEventListener('click', showSettings);
+      
+      mobileDashboardLink.addEventListener('click', showDashboard);
+      mobileUsersLink.addEventListener('click', showUsers);
+      mobileSettingsLink.addEventListener('click', showSettings);
+      
+      // Initialize with dashboard view
+      showDashboard();
+    }
+    
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      
+      // Set color based on type
+      if (type === 'success') {
+        toast.classList.remove('bg-red-500');
+        toast.classList.add('bg-green-500');
+      } else if (type === 'error') {
+        toast.classList.remove('bg-green-500');
+        toast.classList.add('bg-red-500');
+      }
+      
+      // Show the toast
+      setTimeout(() => {
+        toast.classList.remove('opacity-0');
+      }, 100);
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 500);
+      }, 3000);
+    }
+    
+    // API Functions
+    async function fetchData(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        showToast(`Error: ${error.message}`, 'error');
+        throw error;
+      }
+    }
+    
+    async function putData(url, data) {
+      try {
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Put error:', error);
+        showToast(`Error: ${error.message}`, 'error');
+        throw error;
+      }
+    }
+    
+    async function deleteData(url) {
+      try {
+        const response = await fetch(url, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Delete error:', error);
+        showToast(`Error: ${error.message}`, 'error');
+        throw error;
+      }
+    }
+    
+    // Dashboard Charts
+    let userActivityChart = null;
+    let subscriptionStatusChart = null;
+    
+    function createUserActivityChart(data) {
+      const ctx = document.getElementById('user-activity-chart').getContext('2d');
+      
+      // Destroy existing chart if it exists
+      if (userActivityChart) {
+        userActivityChart.destroy();
+      }
+      
+      // Extract month labels and counts
+      const labels = data.map(item => item.month);
+      const counts = data.map(item => item.count);
+      
+      // Create new chart
+      userActivityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'User Logins',
+            data: counts,
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              },
+              ticks: {
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+              },
+              ticks: {
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    function createSubscriptionStatusChart(data) {
+      const ctx = document.getElementById('subscription-status-chart').getContext('2d');
+      
+      // Destroy existing chart if it exists
+      if (subscriptionStatusChart) {
+        subscriptionStatusChart.destroy();
+      }
+      
+      // Map the subscription status to more readable labels
+      const statusLabels = {
+        'free-trial': 'Free Trial',
+        'basic': 'Basic',
+        'premium': 'Premium',
+        'canceled': 'Canceled'
+      };
+      
+      // Extract labels and counts
+      const labels = data.map(item => statusLabels[item._id] || item._id);
+      const counts = data.map(item => item.count);
+      
+      // Define colors for each subscription type
+      const backgroundColors = [
+        'rgba(255, 159, 64, 0.7)', // Free Trial - Orange
+        'rgba(54, 162, 235, 0.7)',  // Basic - Blue
+        'rgba(153, 102, 255, 0.7)', // Premium - Purple
+        'rgba(201, 203, 207, 0.7)'  // Canceled - Gray
+      ];
+      
+      // Create new chart
+      subscriptionStatusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: backgroundColors,
+            borderColor: 'white',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw;
+                  const total = counts.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Dashboard Data
+    async function loadDashboardData() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('dashboard-content').classList.add('hidden');
+      
+      try {
+        const metrics = await fetchData('/api/admin/metrics');
+        
+        // Update metric cards
+        document.getElementById('total-users').textContent = metrics.totalUsers;
+        document.getElementById('new-users').textContent = metrics.newUsers;
+        document.getElementById('active-users').textContent = metrics.activeUsers;
+        document.getElementById('total-usage').textContent = metrics.totalUsage.toLocaleString();
+        
+        // Create charts
+        createUserActivityChart(metrics.monthlyLoginData);
+        createSubscriptionStatusChart(metrics.usersBySubscription);
+        
+        // Populate top users table
+        const topUsersTable = document.getElementById('top-users-table');
+        topUsersTable.innerHTML = '';
+        
+        if (metrics.topUsers && metrics.topUsers.length > 0) {
+          metrics.topUsers.forEach(user => {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">${user.username}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500 dark:text-gray-400">${user.email}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900 dark:text-white">${user.usage.toLocaleString()}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSubscriptionBadgeClass(user.subscriptionStatus)}">
+                  ${formatSubscriptionStatus(user.subscriptionStatus)}
+                </span>
+              </td>
+            `;
+            
+            topUsersTable.appendChild(row);
+          });
+        } else {
+          topUsersTable.innerHTML = `
+            <tr>
+              <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                No data available
+              </td>
+            </tr>
+          `;
+        }
+        
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('dashboard-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        document.getElementById('loading').classList.add('hidden');
+        showToast('Failed to load dashboard data', 'error');
+      }
+    }
+    
+    // Users table
+    let usersData = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let totalPages = 1;
+    let searchTerm = '';
+    
+    function formatDate(dateString) {
+      if (!dateString) return 'Never';
+      
+      const date = new Date(dateString);
+      return date.toLocaleDateString() + ' ' + date.toLocaleString('en-US', { 
+        hour: 'numeric', 
+        minute: 'numeric',
+        hour12: true 
+      });
+    }
+    
+    function formatSubscriptionStatus(status) {
+      switch (status) {
+        case 'free-trial':
+          return 'Free Trial';
+        case 'basic':
+          return 'Basic';
+        case 'premium':
+          return 'Premium';
+        case 'canceled':
+          return 'Canceled';
+        default:
+          return status;
+      }
+    }
+    
+    function getSubscriptionBadgeClass(status) {
+      switch (status) {
+        case 'free-trial':
+          return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
+        case 'basic':
+          return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
+        case 'premium':
+          return 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100';
+        case 'canceled':
+          return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
+        default:
+          return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
+      }
+    }
+    
+    function calculateTimeLeft(user) {
+      // Get billing period dates
+      if (!user.billingPeriod) return 'N/A';
+      
+      const periodDates = user.billingPeriod.split(' - ');
+      if (periodDates.length !== 2) return 'N/A';
+      
+      const endDate = new Date(periodDates[1]);
+      const now = new Date();
+      
+      const diffTime = endDate - now;
+      if (diffTime <= 0) return 'Expired';
+      
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return `${diffDays} days`;
+    }
+    
+    function displayUsers() {
+      const filteredUsers = searchTerm
+        ? usersData.filter(user =>
+            user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.subscriptionStatus.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : usersData;
+      
+      totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+      
+      // Adjust current page if it's beyond the new total
+      if (currentPage > totalPages) {
+        currentPage = Math.max(1, totalPages);
+      }
+      
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, filteredUsers.length);
+      const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+      
+      const tableBody = document.getElementById('users-table');
+      tableBody.innerHTML = '';
+      
+      if (paginatedUsers.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              No users found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      paginatedUsers.forEach(user => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div>
+                <div class="text-sm font-medium text-gray-900 dark:text-white">${user.username}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">${user.email}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSubscriptionBadgeClass(user.subscriptionStatus)}">
+              ${formatSubscriptionStatus(user.subscriptionStatus)}
+            </span>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Time left: ${calculateTimeLeft(user)}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${user.role}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${user.usage.toLocaleString()}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${formatDate(user.lastLogin)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button data-id="${user._id}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3 view-user-btn">
+              View
+            </button>
+            <button data-id="${user._id}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 edit-user-btn">
+              Edit
+            </button>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+      
+      // Update pagination display
+      document.getElementById('pagination-start').textContent = filteredUsers.length > 0 ? startIndex + 1 : 0;
+      document.getElementById('pagination-end').textContent = endIndex;
+      document.getElementById('pagination-total').textContent = filteredUsers.length;
+      
+      // Create pagination numbers
+      const paginationNumbers = document.getElementById('pagination-numbers');
+      paginationNumbers.innerHTML = '';
+      
+      // Only show pagination if we have more than 1 page
+      if (totalPages > 1) {
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // Adjust if we're near the end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // First page
+        if (startPage > 1) {
+          const pageButton = document.createElement('button');
+          pageButton.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800', 'text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
+          pageButton.textContent = '1';
+          pageButton.addEventListener('click', () => goToPage(1));
+          paginationNumbers.appendChild(pageButton);
+          
+          // Ellipsis
+          if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800', 'text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300');
+            ellipsis.textContent = '...';
+            paginationNumbers.appendChild(ellipsis);
+          }
+        }
+        
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+          const pageButton = document.createElement('button');
+          
+          if (i === currentPage) {
+            pageButton.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-blue-500', 'bg-blue-50', 'dark:bg-blue-900', 'text-sm', 'font-medium', 'text-blue-600', 'dark:text-blue-300');
+          } else {
+            pageButton.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800', 'text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
+          }
+          
+          pageButton.textContent = i;
+          pageButton.addEventListener('click', () => goToPage(i));
+          paginationNumbers.appendChild(pageButton);
+        }
+        
+        // Last page
+        if (endPage < totalPages) {
+          // Ellipsis
+          if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800', 'text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300');
+            ellipsis.textContent = '...';
+            paginationNumbers.appendChild(ellipsis);
+          }
+          
+          const pageButton = document.createElement('button');
+          pageButton.classList.add('relative', 'inline-flex', 'items-center', 'px-4', 'py-2', 'border', 'border-gray-300', 'dark:border-gray-700', 'bg-white', 'dark:bg-gray-800', 'text-sm', 'font-medium', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-50', 'dark:hover:bg-gray-700');
+          pageButton.textContent = totalPages;
+          pageButton.addEventListener('click', () => goToPage(totalPages));
+          paginationNumbers.appendChild(pageButton);
+        }
+      }
+      
+      // Update previous/next buttons state
+      document.getElementById('previous-page').disabled = currentPage === 1;
+      document.getElementById('next-page').disabled = currentPage === totalPages;
+      document.getElementById('mobile-previous-page').disabled = currentPage === 1;
+      document.getElementById('mobile-next-page').disabled = currentPage === totalPages;
+      
+      // Add event listeners to the view and edit buttons
+      document.querySelectorAll('.view-user-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          viewUserDetails(button.dataset.id);
+        });
+      });
+      
+      document.querySelectorAll('.edit-user-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          editUser(button.dataset.id);
+        });
+      });
+    }
+    
+    function goToPage(page) {
+      currentPage = page;
+      displayUsers();
+    }
+    
+    async function loadUsersData() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('users-content').classList.add('hidden');
+      
+      try {
+        usersData = await fetchData('/api/admin/users');
+        
+        displayUsers();
+        
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('users-content').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading users data:', error);
+        document.getElementById('loading').classList.add('hidden');
+        showToast('Failed to load users data', 'error');
+      }
+    }
+    
+    // User modal functions
+    async function viewUserDetails(userId) {
+      try {
+        const user = await fetchData(`/api/admin/users/${userId}`);
+        
+        const detailContent = document.getElementById('user-detail-content');
+        detailContent.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Username</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.username}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Email</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.email}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Role</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.role}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Subscription Status</h4>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSubscriptionBadgeClass(user.subscriptionStatus)}">
+                ${formatSubscriptionStatus(user.subscriptionStatus)}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Usage</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.usage.toLocaleString()}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Billing Period</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.billingPeriod || 'N/A'}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Time Left</h4>
+              <span class="text-gray-600 dark:text-gray-300">${calculateTimeLeft(user)}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Last Login</h4>
+              <span class="text-gray-600 dark:text-gray-300">${formatDate(user.lastLogin)}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Created At</h4>
+              <span class="text-gray-600 dark:text-gray-300">${formatDate(user.createdAt)}</span>
+            </div>
+            <div class="flex justify-between">
+              <h4 class="font-medium text-gray-900 dark:text-white">Dark Mode</h4>
+              <span class="text-gray-600 dark:text-gray-300">${user.darkModeEnabled ? 'Enabled' : 'Disabled'}</span>
+            </div>
+          </div>
+        `;
+        
+        // Populate activity log
+        const activityLogList = document.getElementById('activity-log-list');
+        activityLogList.innerHTML = '';
+        
+        if (user.activityLog && user.activityLog.length > 0) {
+          user.activityLog.forEach(activity => {
+            const activityItem = document.createElement('li');
+            activityItem.classList.add('py-3');
+            
+            activityItem.innerHTML = `
+              <div class="flex space-x-3">
+                <div class="flex-1 space-y-1">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">${activity.activity}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">${formatDate(activity.timestamp)}</p>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    ${JSON.stringify(activity.details || {})}
+                  </p>
+                </div>
+              </div>
+            `;
+            
+            activityLogList.appendChild(activityItem);
+          });
+        } else {
+          activityLogList.innerHTML = `
+            <li class="py-3">
+              <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
+                No activity logged
+              </p>
+            </li>
+          `;
+        }
+        
+        // Set edit button to use this user's ID
+        document.getElementById('edit-user-from-detail').dataset.id = userId;
+        
+        // Show modal
+        document.getElementById('user-detail-modal').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading user details:', error);
+        showToast('Failed to load user details', 'error');
+      }
+    }
+    
+    async function editUser(userId) {
+      try {
+        const user = await fetchData(`/api/admin/users/${userId}`);
+        
+        // Fill form
+        document.getElementById('user-id').value = user._id;
+        document.getElementById('username').value = user.username;
+        document.getElementById('email').value = user.email;
+        document.getElementById('role').value = user.role;
+        document.getElementById('subscription').value = user.subscriptionStatus;
+        document.getElementById('usage').value = user.usage;
+        
+        // Hide detail modal if it's open
+        document.getElementById('user-detail-modal').classList.add('hidden');
+        
+        // Show edit modal
+        document.getElementById('user-modal').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading user for edit:', error);
+        showToast('Failed to load user data', 'error');
+      }
+    }
+    
+    async function saveUser() {
+      const userId = document.getElementById('user-id').value;
+      
+      // Get form data
+      const formData = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        role: document.getElementById('role').value,
+        subscriptionStatus: document.getElementById('subscription').value,
+        usage: parseInt(document.getElementById('usage').value, 10)
+      };
+      
+      try {
+        await putData(`/api/admin/users/${userId}`, formData);
+        
+        // Close modal
+        document.getElementById('user-modal').classList.add('hidden');
+        
+        // Reload data
+        loadUsersData();
+        
+        // Show success message
+        showToast('User updated successfully');
+      } catch (error) {
+        console.error('Error saving user:', error);
+        showToast('Failed to update user', 'error');
+      }
+    }
+    
+    async function deleteUser() {
+      if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        return;
+      }
+      
+      const userId = document.getElementById('user-id').value;
+      
+      try {
+        await deleteData(`/api/admin/users/${userId}`);
+        
+        // Close modal
+        document.getElementById('user-modal').classList.add('hidden');
+        
+        // Reload data
+        loadUsersData();
+        
+        // Show success message
+        showToast('User deleted successfully');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        showToast('Failed to delete user', 'error');
+      }
+    }
+    
+    // Initialize the dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dark mode
+      initDarkMode();
+      
+      // Initialize mobile sidebar
+      initMobileSidebar();
+      
+      // Initialize navigation
+      initNavigation();
+      
+      // User search functionality
+      const searchInput = document.getElementById('user-search');
+      searchInput.addEventListener('input', function() {
+        searchTerm = this.value;
+        currentPage = 1; // Reset to first page
+        displayUsers();
+      });
+      
+      // Items per page selection
+      const itemsPerPageSelect = document.getElementById('items-per-page');
+      itemsPerPageSelect.addEventListener('change', function() {
+        itemsPerPage = parseInt(this.value, 10);
+        currentPage = 1; // Reset to first page
+        displayUsers();
+      });
+      
+      // Pagination buttons
+      document.getElementById('previous-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          displayUsers();
+        }
+      });
+      
+      document.getElementById('next-page').addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          displayUsers();
+        }
+      });
+      
+      document.getElementById('mobile-previous-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          displayUsers();
+        }
+      });
+      
+      document.getElementById('mobile-next-page').addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          displayUsers();
+        }
+      });
+      
+      // Modal buttons
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('user-modal').classList.add('hidden');
+      });
+      
+      document.getElementById('save-user').addEventListener('click', saveUser);
+      document.getElementById('delete-user').addEventListener('click', deleteUser);
+      
+      document.getElementById('close-detail-modal').addEventListener('click', () => {
+        document.getElementById('user-detail-modal').classList.add('hidden');
+      });
+      
+      document.getElementById('edit-user-from-detail').addEventListener('click', () => {
+        const userId = document.getElementById('edit-user-from-detail').dataset.id;
+        editUser(userId);
+      });
+      
+      // Dark mode toggle styling
+      const darkModeCheckbox = document.getElementById('dark-mode-setting');
+      darkModeCheckbox.addEventListener('change', function() {
+        // Update the toggle dot position
+        const dot = document.querySelector('.dot');
+        if (this.checked) {
+          dot.style.transform = 'translateX(100%)';
+        } else {
+          dot.style.transform = 'translateX(0)';
+        }
+      });
+      
+      // Set initial dot position based on dark mode
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      const dot = document.querySelector('.dot');
+      if (isDarkMode) {
+        dot.style.transform = 'translateX(100%)';
+      }
+    });
+  </script>
+</body>
+</html>

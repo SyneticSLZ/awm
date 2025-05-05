@@ -1,3 +1,278 @@
+{/* <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">PubMed Articles</h2>
+<!-- Loading state -->
+<div id="pubmedLoading" class="flex justify-center items-center py-12 hidden">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+</div>
+
+<!-- Error state -->
+<div id="pubmedError" class="bg-red-50 p-6 rounded-lg text-center hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-red-800 font-medium text-lg">An error occurred</div>
+    <div id="pubmedErrorMessage" class="text-red-700 mt-1"></div>
+    <button onclick="window.location.reload()" class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-150">
+        Try Again
+    </button>
+</div>
+
+<!-- Empty state -->
+<div id="pubmedEmpty" class="bg-gray-50 p-8 rounded-lg text-center hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div class="text-gray-700 font-medium text-lg">No articles found</div>
+    <div class="text-gray-600 mt-1">Try adjusting your search terms or filters</div>
+</div>
+
+<!-- Treatments section (replaces the summary) -->
+<div id="pubmedTreatments" class="mb-8 hidden">
+    <div id="pubmedTreatmentsLoading" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+    </div>
+    
+    <div id="pubmedTreatmentsContent" class="hidden"></div>
+</div>
+
+<!-- Drug information section -->
+<div id="pubmedDrugInfo" class="mb-8 hidden">
+    <div id="pubmedDrugInfoLoading" class="flex justify-center items-center py-6 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+    </div>
+    
+    <div id="pubmedDrugInfoContent" class="hidden"></div>
+</div>
+
+<!-- Articles section -->
+<div id="pubmedArticles" class="hidden">
+    <div class="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+        <div id="pubmedResultCount" class="text-gray-600 font-medium"></div>
+        
+        <div class="flex items-center space-x-2">
+            <!-- We're keeping sorting/filtering in the advanced options now -->
+        </div>
+    </div>
+    
+    <div id="pubmedArticlesList" class="space-y-4 optimize-render"></div>
+    
+    <div id="pubmedPagination" class="mt-6 flex justify-center hidden">
+        <button id="pubmedLoadMore" class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition-colors duration-200 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            Load More Results
+        </button>
+    </div>
+</div>
+</div>
+     <!-- Filter bar that appears when conditions are detected
+     <div id="pubmedFilterBar" class="flex flex-wrap gap-2 mb-4 hidden">
+        <span class="text-sm font-medium text-gray-700">Filter by condition:</span>
+      
+      </div>
+      
+    
+      <div id="pubmedLoading" class="flex justify-center items-center py-12 hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+      
+   
+      <div id="pubmedError" class="bg-red-50 p-4 rounded-lg text-center hidden">
+        <div class="text-red-600 font-medium">An error occurred</div>
+        <div id="pubmedErrorMessage" class="text-red-500 text-sm mt-1"></div>
+      </div>
+
+      <div id="pubmedEmpty" class="bg-gray-50 p-8 rounded-lg text-center hidden">
+        <div class="text-gray-600 font-medium">No articles found</div>
+        <div class="text-gray-500 text-sm mt-1">Try adjusting your search terms or filters</div>
+      </div>
+     
+      <div class="flex justify-end mb-4">
+        <button id="pubmedToggleSummary" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition">
+          Hide Summary
+        </button>
+      </div>
+      
+   
+      <div id="pubmedSummary" class="mb-8 hidden">
+        <div id="pubmedSummaryLoading" class="flex justify-center items-center py-6 hidden">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        </div>
+        
+        <div id="pubmedSummaryContent" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h3 class="text-md font-semibold text-gray-800 mb-3">Publication Timeline</h3>
+            <div id="pubmedTimeline" class="h-64"></div>
+          </div>
+          
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h3 class="text-md font-semibold text-gray-800 mb-3">Top Journals</h3>
+            <div id="pubmedJournals"></div>
+          </div>
+          
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h3 class="text-md font-semibold text-gray-800 mb-3">Research Focus Areas</h3>
+            <div id="pubmedKeyAreas"></div>
+          </div>
+          
+          <div class="bg-white rounded-lg p-4 shadow-sm">
+            <h3 class="text-md font-semibold text-gray-800 mb-3">Common Topics</h3>
+            <div id="pubmedTopics">
+              <div id="pubmedTopicsCloud" class="mt-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+     
+      <div id="pubmedTreatments" class="mb-8 hidden">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Treatments by Condition</h2>
+        
+        <div id="pubmedTreatmentsLoading" class="flex justify-center items-center py-6 hidden">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        </div>
+        
+        <div id="pubmedTreatmentsContent" class="hidden"></div>
+      </div>
+      
+      <div id="pubmedArticles" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <div id="pubmedResultCount" class="text-gray-600 font-medium"></div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+              <input type="checkbox" id="pubmedFullTextOnly" class="mr-2">
+              <label for="pubmedFullTextOnly" class="text-sm text-gray-600">Full text only</label>
+            </div>
+            
+            <select id="pubmedSort" class="border border-gray-300 rounded px-2 py-1 text-sm">
+              <option value="relevance">Relevance</option>
+              <option value="date">Most Recent</option>
+              <option value="citations">Most Cited</option>
+            </select>
+          </div>
+        </div>
+        
+        <div id="pubmedArticlesList" class="space-y-4"></div>
+        
+        <div id="pubmedPagination" class="mt-6 flex justify-center hidden">
+          <button id="pubmedLoadMore" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition">
+            Load More
+          </button>
+        </div>
+      </div> -->
+
+    <!-- <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-gray-800">PubMed Articles</h2>
+      <div class="text-sm text-gray-500" id="pubmedResultCount" ></div>
+    </div>
+    
+ 
+    <div id="pubmedLoading" class="hidden">
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+      <p class="text-center text-gray-500">Searching PubMed database...</p>
+    </div>
+
+    <div id="pubmedError" class="hidden">
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-lg">Error fetching PubMed articles</p>
+        <p class="mt-2 text-sm" id="pubmedErrorMessage">Please try again later.</p>
+      </div>
+    </div>
+
+    <div id="pubmedEmpty" class="hidden">
+      <div class="text-center py-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <p class="text-lg">No PubMed articles found</p>
+        <p class="mt-2 text-sm">Try a different search term or broaden your search criteria.</p>
+      </div>
+    </div>
+    
+   
+<div id="pubmedSummary" class="hidden mb-6 bg-white rounded-lg shadow-md p-4">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Research Summary</h3>
+    
+   
+    <div id="pubmedSummaryLoading" class="py-3">
+      <div class="flex items-center space-x-2">
+        <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
+        <p class="text-sm text-gray-500">Analyzing research trends...</p>
+      </div>
+    </div>
+    
+
+    <div id="pubmedSummaryContent" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Key Research Areas</h4>
+          <div id="pubmedKeyAreas" class="text-sm"></div>
+        </div>
+        
+       
+        <div class="bg-gray-50 p-3 rounded-md">
+            <h4 class="font-medium text-gray-700 mb-2">Publication Timeline</h4>
+            <div id="pubmedTimeline" class="text-sm">
+              <table class="w-full text-xs">
+                <tbody id="pubmedTimelineTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+        
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Common Topics</h4>
+          <div id="pubmedTopics" class="text-sm">
+            <div id="pubmedTopicsCloud" class="flex flex-wrap gap-1 mt-1"></div>
+          </div>
+        </div>
+        
+       
+        <div class="bg-gray-50 p-3 rounded-md">
+          <h4 class="font-medium text-gray-700 mb-2">Notable Journals</h4>
+          <div id="pubmedJournals" class="text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div id="pubmedArticles" class="hidden">
+      <div class="mb-4 flex justify-between items-center">
+        <div>
+          <select id="pubmedSort" class="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm">
+            <option value="relevance">Sort by Relevance</option>
+            <option value="date">Sort by Date (Newest)</option>
+            <option value="citationCount">Sort by Citation Count</option>
+          </select>
+        </div>
+        <div>
+          <label class="inline-flex items-center text-sm">
+            <input type="checkbox" id="pubmedFullTextOnly" class="rounded border-gray-300 text-primary focus:ring-primary">
+            <span class="ml-2">Full text only</span>
+          </label>
+        </div>
+      </div>
+      
+      <div id="pubmedArticlesList" class="space-y-4">
+     
+      </div>
+      
+      <div class="mt-6 text-center" id="pubmedPagination">
+        <button id="pubmedLoadMore" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out">
+          Load More Articles
+        </button>
+      </div>
+    </div> -->
+  </section> */}
+
 // pubmed.js - Backend API handler for PubMed search requests
 const fetch = require('node-fetch');
 const xml2js = require('xml2js');

@@ -30,6 +30,8 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const { connectDB } = require('./db');
 const { User } = require('./db');
+const pubmedRoutes = require('./pubmed-routes.js');
+
 
 const { 
   DrugClassification, 
@@ -263,6 +265,11 @@ function verifyPassword(password, hash, salt) {
 //     res.status(500).json({ message: 'Server error' });
 //   }
 // });
+
+
+app.use(pubmedRoutes);
+
+
 
 
 // Login endpoint with tracking
@@ -6661,7 +6668,7 @@ app.get('/api/fda/warnings/:searchTerm', async (req, res) => {
 //     handleApiError(error, res);
 //   }
 // });
-app.get('/api/pubmed', handlePubMedSearch);
+// app.get('/api/pubmed', handlePubMedSearch);
 /**
  * Endpoint to calculate treatment effect and variability
  */
