@@ -3,373 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Your Regulatory AI Dashboard</title>
+    <title>SyneticX Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-color: #8b5cf6;
+            --text-color: #4b5563;
+            --heading-color: #111827;
+            --light-bg: #f9fafb;
+            --white: #ffffff;
+            --border-color: #e5e7eb;
+        }
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: #4b5563;
-            margin: 0;
-            padding: 0;
-            background-color: #f9fafb;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            scroll-behavior: smooth;
+            overflow-x: hidden;
         }
         
-        .email-container {
-            max-width: 600px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 0 1rem;
         }
         
-        .email-header {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
-            color: white;
-            padding: 32px 24px;
-            text-align: center;
+        /* Navbar styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+        }
+        
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            height: 2rem;
+            width: 2rem;
+            color: var(--primary-color);
         }
         
         .logo-text {
-            font-size: 24px;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin: 0;
-            color: white;
-        }
-        
-        .email-body {
-            padding: 32px 24px;
-        }
-        
-        .greeting {
-            font-size: 20px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 16px;
-        }
-        
-        .message {
-            margin-bottom: 24px;
-        }
-        
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-align: center;
-            margin: 16px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .cta-button:hover {
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        
-        .feature-section {
-            margin: 32px 0;
-        }
-        
-        .feature-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 12px;
-        }
-        
-        .feature-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        .feature-item {
-            background-color: #f9fafb;
-            border-radius: 6px;
-            padding: 16px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        
-        .feature-icon {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-        }
-        
-        .feature-icon svg {
-            width: 18px;
-            height: 18px;
-            fill: white;
-        }
-        
-        .feature-content h4 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-            margin: 0 0 4px 0;
-        }
-        
-        .feature-content p {
-            font-size: 14px;
-            margin: 0;
-        }
-        
-        .divider {
-            height: 1px;
-            background-color: #e5e7eb;
-            margin: 24px 0;
-        }
-        
-        .help-section {
-            background-color: #f9fafb;
-            border-radius: 6px;
-            padding: 16px;
-            margin-top: 24px;
-        }
-        
-        .help-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 8px;
-        }
-        
-        .resource-links {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        
-        .resource-link {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .resource-link:hover {
-            text-decoration: underline;
-        }
-        
-        .email-footer {
-            background-color: #f9fafb;
-            padding: 24px;
-            text-align: center;
-            font-size: 14px;
-            color: #6b7280;
-        }
-        
-        .footer-links {
-            margin-bottom: 16px;
-        }
-        
-        .footer-link {
-            color: #6b7280;
-            text-decoration: none;
-            margin: 0 8px;
-        }
-        
-        .footer-link:hover {
-            text-decoration: underline;
-        }
-        
-        .social-links {
-            margin-bottom: 16px;
-        }
-        
-        .social-icon {
-            display: inline-block;
-            margin: 0 8px;
-        }
-        
-        .company-info {
-            margin-top: 16px;
-            font-size: 12px;
-        }
-        
-        .powered-by {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 12px;
-            gap: 4px;
-        }
-        
-        .powered-by span {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 600;
+            background-clip: text;
         }
         
-        @media (max-width: 600px) {
-            .feature-grid {
-                grid-template-columns: 1fr;
+        .navbar-links {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .navbar-links {
+                display: flex;
+                margin-left: 1.5rem;
+                gap: 2rem;
             }
-            
-            .email-header, .email-body, .email-footer {
-                padding: 24px 16px;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .navbar-buttons {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .navbar-buttons {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
             }
+        }
+        
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--white);
+            background-color: var(--primary-color);
+            border-radius: 0.5rem;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+            transition: all 0.15s ease;
+            position: relative;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .mobile-menu-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            color: var(--text-color);
+            background-color: transparent;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-menu-button {
+                display: none;
+            }
+        }
+        
+        .mobile-menu {
+            display: none;
+            padding: 1rem 0;
+            background-color: var(--white);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0 1rem;
+        }
+        
+        .mobile-nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: all 0.15s ease;
+        }
+        
+        .mobile-nav-link:hover {
+            color: var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .mobile-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding: 0 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+        
+        .mobile-btn {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 0.375rem;
+            text-decoration: none;
+        }
+        
+        .mobile-btn-outline {
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .mobile-btn-primary {
+            color: var(--white);
+            background-color: var(--primary-color);
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <div class="email-header">
-            <h1 class="logo-text">Regulatory AI Dashboard</h1>
-        </div>
-        
-        <div class="email-body">
-            <h2 class="greeting">Welcome, {{username}}!</h2>
-            
-            <p class="message">
-                Thank you for creating an account with the Regulatory AI Dashboard. You now have access to advanced tools for FDA compliance, clinical trial analysis, and product approval tracking.
-            </p>
-            
-            <p class="message">
-                Your 30-day trial begins today. Get started by exploring our key features:
-            </p>
-            
-            <div style="text-align: center;">
-                <a href="https://dashboard.example.com/login" class="cta-button">
-                    Access Your Dashboard
-                </a>
-            </div>
-            
-            <div class="feature-section">
-                <h3 class="feature-title">Powerful AI-Driven Tools</h3>
-                
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <h4>Regulatory Compliance</h4>
-                            <p>Stay updated with regulatory requirements and changes</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <h4>Trial Analytics</h4>
-                            <p>Real-time analysis of clinical trial data</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <h4>Secure Data</h4>
-                            <p>HIPAA-compliant data storage and processing</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <h4>Approval Tracking</h4>
-                            <p>Monitor and visualize your FDA approval process</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="divider"></div>
-            
-            <p class="message">
-                Your account details:
-            </p>
-            
-            <ul>
-                <li><strong>Username:</strong> {{username}}</li>
-                <li><strong>Email:</strong> {{email}}</li>
-                <li><strong>Trial Expiration:</strong> {{trialEndDate}}</li>
-            </ul>
-            
-            <div class="help-section">
-                <h4 class="help-title">Need Help Getting Started?</h4>
-                <p>We've prepared resources to help you make the most of your trial:</p>
-                
-                <div class="resource-links">
-                    <a href="#" class="resource-link">Quick Start Guide</a>
-                    <a href="#" class="resource-link">Video Tutorials</a>
-                    <a href="#" class="resource-link">Documentation</a>
-                    <a href="#" class="resource-link">Schedule a Demo</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="email-footer">
-            <div class="footer-links">
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Service</a>
-                <a href="#" class="footer-link">Contact Support</a>
-                <a href="#" class="footer-link">Unsubscribe</a>
-            </div>
-            
-            <div class="social-links">
-                <a href="#" class="social-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#6b7280">
-                        <path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497-3.753C20.18 7.773 21.692 5.25 22 4.009z" />
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <!-- Logo -->
+            <div class="navbar-brand">
+                <a href="#" class="navbar-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                </a>
-                <a href="#" class="social-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#6b7280">
-                        <path d="M16.6 5.82c.88.5 1.58 1.19 2.09 2.06A5.5 5.5 0 0120 11.15v.68c-.15 2.36-1.64 4.62-3.88 5.23a5.5 5.5 0 01-5.08-.27 4.99 4.99 0 01-2.11-2.07 6.6 6.6 0 01-2.53.49c-1.79 0-3.24-1.43-3.24-3.2V8.4c0-1.76 1.45-3.19 3.24-3.19.7 0 1.35.22 1.88.59a9.23 9.23 0 013.9-.99c1.3-.05 2.5.18 3.42.63L16.6 5.82zm-1.2 8.42c.5-.14.9-.5 1.12-1.06a2 2 0 00-.27-1.93c-.29-.35-.7-.57-1.18-.64a2.1 2.1 0 00-1.34.22c-.42.22-.75.56-.92 1.02-.17.54-.1 1.07.2 1.5.35.5.94.77 1.63.77.27 0 .52-.03.76-.09v.02z" />
-                    </svg>
-                </a>
-                <a href="#" class="social-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#6b7280">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
+                    <span class="logo-text">SyneticX</span>
                 </a>
             </div>
             
-            <div class="company-info">
-                © 2025 Regulatory AI Dashboard. All rights reserved.<br>
-                123 Medical Innovation Way, Suite 400, San Francisco, CA 94107
+            <!-- Desktop navigation links -->
+            <div class="navbar-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#solutions" class="nav-link">Solutions</a>
+                <a href="#industries" class="nav-link">Industries</a>
+                <a href="#data-sources" class="nav-link">Data Sources</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
             </div>
             
-            <div class="powered-by">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#3b82f6" />
-                            <stop offset="100%" style="stop-color:#8b5cf6" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <!-- Desktop buttons -->
+            <div class="navbar-buttons">
+                <a href="#contact" class="btn-outline">Request Demo</a>
+                <a href="./final.html" class="btn-primary">Get Started</a>
+            </div>
+            
+            <!-- Mobile menu button -->
+            <button class="mobile-menu-button" id="menuButton" aria-label="Toggle menu">
+                <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <span>Powered by SyneticX</span>
+                <svg id="closeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-nav-links">
+                <a href="#features" class="mobile-nav-link">Features</a>
+                <a href="#solutions" class="mobile-nav-link">Solutions</a>
+                <a href="#industries" class="mobile-nav-link">Industries</a>
+                <a href="#data-sources" class="mobile-nav-link">Data Sources</a>
+                <a href="#pricing" class="mobile-nav-link">Pricing</a>
+            </div>
+            <div class="mobile-buttons">
+                <a href="#contact" class="mobile-btn mobile-btn-outline">Request Demo</a>
+                <a href="./final.html" class="mobile-btn mobile-btn-primary">Get Started</a>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <script>
+        // Simple toggle for mobile menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuIcon = document.getElementById('menuIcon');
+            const closeIcon = document.getElementById('closeIcon');
+            
+            menuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+                menuIcon.style.display = menuIcon.style.display === 'none' ? 'block' : 'none';
+                closeIcon.style.display = closeIcon.style.display === 'none' ? 'block' : 'none';
+            });
+        });
+    </script>
 </body>
 </html>

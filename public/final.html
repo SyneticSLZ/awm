@@ -50305,7 +50305,1658 @@ document.addEventListener('DOMContentLoaded', function() {
   
 });
 
+// // Enhanced PubMed Module
+// const PubMedModule = (function() {
+//   // Elements map for DOM references
+//   const elements = {
+//     // Main containers
+//     pubmedSection: safeGetElement('pubmedSection'),
+//     pubmedLoading: safeGetElement('pubmedLoading'),
+//     pubmedError: safeGetElement('pubmedError'),
+//     pubmedErrorMessage: safeGetElement('pubmedErrorMessage'),
+//     pubmedEmpty: safeGetElement('pubmedEmpty'),
+    
+//     // Search related elements
+//     pubmedSearchBox: safeGetElement('pubmedSearchBox'),
+//     pubmedLocalSearchBox: safeGetElement('pubmedLocalSearchBox'),
+//     pubmedLocalSearchButton: safeGetElement('pubmedLocalSearchButton'),
+//     pubmedSearchType: safeGetElement('pubmedSearchType'),
+//     pubmedAdvancedToggle: safeGetElement('pubmedAdvancedToggle'),
+//     pubmedAdvancedOptions: safeGetElement('pubmedAdvancedOptions'),
+    
+//     // Filter and sorting elements
+//     pubmedSort: safeGetElement('pubmedSort'),
+//     pubmedFullTextOnly: safeGetElement('pubmedFullTextOnly'),
+//     pubmedYearFilter: safeGetElement('pubmedYearFilter'),
+//     pubmedYearRange: safeGetElement('pubmedYearRange'),
+//     pubmedJournalFilter: safeGetElement('pubmedJournalFilter'),
+    
+//     // Results elements
+//     pubmedArticles: safeGetElement('pubmedArticles'),
+//     pubmedArticlesList: safeGetElement('pubmedArticlesList'),
+//     pubmedResultCount: safeGetElement('pubmedResultCount'),
+//     pubmedPagination: safeGetElement('pubmedPagination'),
+    
+//     // Treatment results
+//     pubmedTreatments: safeGetElement('pubmedTreatments'),
+//     pubmedTreatmentsLoading: safeGetElement('pubmedTreatmentsLoading'),
+//     pubmedTreatmentsContent: safeGetElement('pubmedTreatmentsContent'),
+    
+//     // Drug information results
+//     pubmedDrugInfo: safeGetElement('pubmedDrugInfo'),
+//     pubmedDrugInfoLoading: safeGetElement('pubmedDrugInfoLoading'),
+//     pubmedDrugInfoContent: safeGetElement('pubmedDrugInfoContent'),
+    
+//     // Selection and summary elements (new)
+//     pubmedSelectedArticles: safeGetElement('pubmedSelectedArticles'),
+//     pubmedSelectedCount: safeGetElement('pubmedSelectedCount'),
+//     pubmedSummaryButton: safeGetElement('pubmedSummaryButton'),
+//     pubmedAISummarySection: safeGetElement('pubmedAISummarySection'),
+//     pubmedAISummaryLoading: safeGetElement('pubmedAISummaryLoading'),
+//     pubmedAISummaryContent: safeGetElement('pubmedAISummaryContent'),
+//     pubmedExpandedInfo: safeGetElement('pubmedExpandedInfo')
+//   };
+
+//   // State management
+//   let state = {
+//     term: '',
+//     searchType: 'auto', // 'auto', 'drug', 'condition', or 'both'
+//     articles: [],         // All articles from API
+//     displayedArticles: [], // Articles currently shown in the UI
+//     filteredArticles: [], // Articles filtered by local search
+//     selectedArticles: new Set(), // Set of PMIDs of selected articles
+//     currentPage: 1,
+//     pageSize: 10,          // Number of articles to show per page
+//     totalResults: 0,
+//     isLoading: false,  
+//     sortBy: 'relevance',
+//     fullTextOnly: false,
+//     yearFilter: '',
+//     yearRange: 5,         // Default to last 5 years
+//     journalFilter: '',
+//     localSearchTerm: '',  // For searching within retrieved articles
+//     maxPageButtons: 5,    // Maximum number of page buttons to show
+//     expandedSearch: false, // Whether search was expanded to similar drugs
+//     expandedWithDrugs: [], // Drugs used in expanded search
+//     drugResultCounts: {},  // Count of results per drug in expanded search
+//     drugData: null,        // Data about related drugs
+//     abstractViews: new Set(), // Set of PMIDs with visible abstracts
+//     aiSummary: null,       // Current AI summary
+//     aiSummaryLoading: false // Whether AI summary is loading
+//   };
+
+//   // Common drug classes for classification (from original code)
+//   const drugClasses = {
+//     "Antibiotics": ["penicillin", "amoxicillin", "azithromycin", "ciprofloxacin", "doxycycline", "vancomycin"],
+//     "Antidepressants": ["fluoxetine", "sertraline", "escitalopram", "bupropion", "venlafaxine", "trazodone"],
+//     "Antihypertensives": ["lisinopril", "losartan", "amlodipine", "hydrochlorothiazide", "metoprolol", "valsartan"],
+//     "Anti-inflammatories": ["ibuprofen", "naproxen", "celecoxib", "prednisone", "dexamethasone", "methylprednisolone"],
+//     "Antidiabetics": ["metformin", "insulin", "glipizide", "sitagliptin", "empagliflozin", "liraglutide"],
+//     "Anticoagulants": ["warfarin", "apixaban", "rivaroxaban", "dabigatran", "heparin", "enoxaparin"],
+//     "Antipsychotics": ["risperidone", "olanzapine", "quetiapine", "aripiprazole", "haloperidol", "clozapine"],
+//     "Anticonvulsants": ["levetiracetam", "lamotrigine", "valproic acid", "carbamazepine", "phenytoin", "gabapentin"],
+//     "Biologics": ["adalimumab", "etanercept", "infliximab", "ustekinumab", "secukinumab", "rituximab"],
+//     "Statins": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin", "lovastatin", "fluvastatin"],
+//     "Bronchodilators": ["albuterol", "salmeterol", "formoterol", "tiotropium", "ipratropium", "theophylline"],
+//     "Antihistamines": ["loratadine", "cetirizine", "fexofenadine", "diphenhydramine", "hydroxyzine", "desloratadine"],
+//     "Proton Pump Inhibitors": ["omeprazole", "esomeprazole", "pantoprazole", "lansoprazole", "rabeprazole", "dexlansoprazole"],
+//     "Opioid Analgesics": ["morphine", "oxycodone", "hydrocodone", "tramadol", "fentanyl", "codeine"],
+//     "Immunosuppressants": ["cyclosporine", "tacrolimus", "mycophenolate", "azathioprine", "sirolimus", "methotrexate"],
+//     "Chemotherapy": ["cisplatin", "carboplatin", "doxorubicin", "paclitaxel", "fluorouracil", "gemcitabine"],
+//     "Psychedelics": ["psilocybin", "ketamine", "esketamine", "MDMA", "LSD", "DMT", "ayahuasca"]
+//   };
+
+//   // Known medical conditions to improve detection accuracy
+//   const knownMedicalConditions = [
+//     "Diabetes", "Hypertension", "Asthma", "COPD", "Alzheimer's", "Parkinson's", 
+//     "Multiple Sclerosis", "HIV/AIDS", "Rheumatoid Arthritis", "Osteoarthritis",
+//     "Depression", "Major Depressive Disorder", "Treatment-Resistant Depression",
+//     "Anxiety", "Bipolar Disorder", "Schizophrenia", "Cancer", 
+//     "Leukemia", "Lymphoma", "Heart Disease", "Stroke", "Epilepsy", "Migraine",
+//     "Psoriasis", "Eczema", "Crohn's Disease", "Ulcerative Colitis", "Celiac Disease",
+//     "Hypothyroidism", "Hyperthyroidism", "Lupus", "Fibromyalgia", "Chronic Fatigue Syndrome",
+//     "Irritable Bowel Syndrome", "Osteoporosis", "Gout", "Hepatitis", "Cirrhosis",
+//     "Kidney Disease", "Anemia", "Glaucoma", "Macular Degeneration", "Influenza",
+//     "Pneumonia", "Tuberculosis", "Malaria", "COVID-19"
+//   ];
+
+//   // Common medications with standardized naming
+//   const knownMedications = [
+//     "Psilocybin", "Ketamine", "Esketamine", "MDMA", "LSD", "DMT", "Ayahuasca",
+//     "Fluoxetine", "Sertraline", "Escitalopram", "Venlafaxine", "Bupropion",
+//     "Lithium", "Lamotrigine", "Valproate", "Carbamazepine", "Aripiprazole",
+//     "Olanzapine", "Quetiapine", "Risperidone", "Metformin", "Insulin",
+//     "Aspirin", "Ibuprofen", "Naproxen", "Acetaminophen", "Prednisone",
+//     "Lisinopril", "Losartan", "Amlodipine", "Hydrochlorothiazide", "Metoprolol",
+//     "Atorvastatin", "Simvastatin", "Rosuvastatin", "Levothyroxine",
+//     "Albuterol", "Fluticasone", "Montelukast", "Omeprazole", "Pantoprazole",
+//     "Warfarin", "Apixaban", "Rivaroxaban", "Clopidogrel", "Methotrexate",
+//     "Adalimumab", "Infliximab", "Rituximab", "Trastuzumab", "Pembrolizumab"
+//   ];
+
+//   // Words that should be excluded from treatment detection (common false positives)
+//   const treatmentExclusionWords = [
+//     "the", "and", "with", "for", "treatment", "therapy", "patient", "patients",
+//     "study", "studies", "clinical", "trials", "trial", "participants", "group",
+//     "groups", "analysis", "results", "baseline", "outcome", "outcomes", "data",
+//     "weeks", "days", "months", "years", "following", "after", "before", "during",
+//     "approach", "approaches", "intervention", "interventions", "method", "methods",
+//     "significant", "significantly", "effective", "effectiveness", "efficacy",
+//     "response", "responses", "compared", "comparison", "versus", "vs", "control",
+//     "placebo", "improvement", "improvements", "reduction", "increase", "decrease",
+//     "assessment", "assessments", "measure", "measures", "score", "scores",
+//     "symptom", "symptoms", "disorder", "disorders", "disease", "diseases",
+//     "syndrome", "syndromes", "subsequent", "subsequent", "protocol", "protocols",
+//     "moderate", "severe", "mild", "acute", "chronic", "food", "drug", "active",
+//     "sham", "determine", "worldwide", "standard", "based", "health", "medicine",
+//     "care", "medical", "those", "these", "they", "were", "have", "has", "had",
+//     "this", "that", "which", "what", "when", "where", "who", "whom", "whose",
+//     "how", "why", "because", "since", "although", "though", "despite", "however",
+//     "therefore", "hence", "thus", "consequently", "accordingly", "so", "then",
+//     "research", "review", "meta-analysis", "report", "article", "paper", "evidence"
+//   ];
+
+//   // Utility function to safely get DOM elements
+//   function safeGetElement(id) {
+//     const element = document.getElementById(id);
+//     if (!element) {
+//       console.warn(`PubMed Module: Element with ID "${id}" not found`);
+//     }
+//     return element;
+//   }
+
+//   // Utility function to show/hide components
+//   function showComponent(component, isVisible) {
+//     if (!component) return;
+    
+//     if (isVisible) {
+//       component.classList.remove('hidden');
+//     } else {
+//       component.classList.add('hidden');
+//     }
+//   }
+  
+//   // Utility function to format date
+//   function formatDate(dateString) {
+//     if (!dateString) return 'N/A';
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+//   }
+
+//   // Improved function to detect conditions from text using medical terminology
+//   function extractConditions(article) {
+//     const text = (article.title + ' ' + article.abstract).toLowerCase();
+//     let extractedConditions = [];
+    
+//     // First check for known medical conditions
+//     knownMedicalConditions.forEach(condition => {
+//       const conditionLower = condition.toLowerCase();
+//       if (text.includes(conditionLower)) {
+//         if (!extractedConditions.includes(condition)) {
+//           extractedConditions.push(condition);
+//         }
+//       }
+//     });
+    
+//     // MeSH terms (if present) are very reliable for conditions
+//     if (article.meshTerms && Array.isArray(article.meshTerms)) {
+//       article.meshTerms.forEach(term => {
+//         if (
+//           term.includes('Disease') || 
+//           term.includes('Syndrome') || 
+//           term.includes('Disorder') || 
+//           term.includes('Condition') ||
+//           term.includes('Infection')
+//         ) {
+//           if (!extractedConditions.includes(term)) {
+//             extractedConditions.push(term);
+//           }
+//         }
+//       });
+//     }
+    
+//     // Keywords are often a good source of conditions
+//     if (article.keywords && Array.isArray(article.keywords)) {
+//       article.keywords.forEach(keyword => {
+//         const keywordLower = keyword.toLowerCase();
+        
+//         // Keywords with these terms are likely conditions
+//         if (
+//           keywordLower.includes('disease') || 
+//           keywordLower.includes('syndrome') || 
+//           keywordLower.includes('disorder') || 
+//           keywordLower.includes('condition') ||
+//           keywordLower.includes('deficiency') ||
+//           keywordLower.includes('cancer') ||
+//           keywordLower.includes('infection')
+//         ) {
+//           // Don't add if it's just a single word (like "syndrome" or "disease" alone)
+//           if (keyword.split(' ').length > 1 && !extractedConditions.includes(keyword)) {
+//             const formattedKeyword = keyword.replace(/\b\w/g, c => c.toUpperCase());
+//             extractedConditions.push(formattedKeyword);
+//           }
+//         }
+//       });
+//     }
+    
+//     // Filter out conditions that are too short or contain treatment exclusion words
+//     extractedConditions = extractedConditions.filter(condition => {
+//       // Must be at least 4 characters 
+//       if (condition.length < 4) return false;
+      
+//       // Check for exclusion words (if the condition is ONLY an exclusion word)
+//       const conditionLower = condition.toLowerCase();
+//       if (treatmentExclusionWords.includes(conditionLower)) return false;
+      
+//       return true;
+//     });
+    
+//     return [...new Set(extractedConditions)]; // Remove duplicates
+//   }
+
+//   // Improved function to extract drugs/treatments from text
+//   function extractDrugs(article) {
+//     const text = (article.title + ' ' + article.abstract).toLowerCase();
+//     let extractedDrugs = [];
+    
+//     // First check for known medications
+//     knownMedications.forEach(medication => {
+//       const medicationLower = medication.toLowerCase();
+//       // Use word boundary to avoid partial matches
+//       const regex = new RegExp(`\\b${medicationLower}\\b`, 'i');
+//       if (regex.test(text)) {
+//         if (!extractedDrugs.includes(medication)) {
+//           extractedDrugs.push(medication);
+//         }
+//       }
+//     });
+    
+//     // Check for specific drug class mentions
+//     Object.entries(drugClasses).forEach(([className, drugs]) => {
+//       // Check for the class name itself (only if it's a proper class name)
+//       if (/^[A-Z]/.test(className) && text.includes(className.toLowerCase())) {
+//         if (!extractedDrugs.includes(className)) {
+//           extractedDrugs.push(className);
+//         }
+//       }
+      
+//       // Check for specific drugs in this class
+//       drugs.forEach(drug => {
+//         if (new RegExp(`\\b${drug}\\b`, 'i').test(text)) {
+//           // Format: capitalize first letter
+//           const formattedDrug = drug.charAt(0).toUpperCase() + drug.slice(1);
+//           if (!extractedDrugs.includes(formattedDrug)) {
+//             extractedDrugs.push(formattedDrug);
+//           }
+//         }
+//       });
+//     });
+    
+//     // Check keywords for drug mentions
+//     if (article.keywords && Array.isArray(article.keywords)) {
+//       article.keywords.forEach(keyword => {
+//         const keywordLower = keyword.toLowerCase();
+        
+//         // Keywords with these terms are likely treatments
+//         if (
+//           keywordLower.includes('therapy') || 
+//           keywordLower.includes('treatment') || 
+//           keywordLower.includes('medication') || 
+//           keywordLower.includes('drug') ||
+//           keywordLower.includes('inhibitor') ||
+//           keywordLower.includes('antagonist')
+//         ) {
+//           // Don't add if it's just a single word that's in the exclusion list
+//           if (
+//             keyword.split(' ').length > 1 &&
+//             !treatmentExclusionWords.includes(keywordLower) &&
+//             !extractedDrugs.includes(keyword)
+//           ) {
+//             const formattedKeyword = keyword.replace(/\b\w/g, c => c.toUpperCase());
+//             extractedDrugs.push(formattedKeyword);
+//           }
+//         }
+//       });
+//     }
+    
+//     // Filter out drugs that are too short or contain treatment exclusion words
+//     extractedDrugs = extractedDrugs.filter(drug => {
+//       // Must be at least 3 characters 
+//       if (drug.length < 3) return false;
+      
+//       // Check for exclusion words (if the drug is ONLY an exclusion word)
+//       const drugLower = drug.toLowerCase();
+//       if (treatmentExclusionWords.includes(drugLower)) return false;
+      
+//       return true;
+//     });
+    
+//     return [...new Set(extractedDrugs)]; // Remove duplicates
+//   }
+
+//   // Create article element for display with selection, abstract viewing, etc.
+//   function createArticleElement(article) {
+//     const articleElement = document.createElement('div');
+//     articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
+//     articleElement.dataset.pmid = article.pmid;
+    
+//     const isSelected = state.selectedArticles.has(article.pmid);
+//     const isAbstractVisible = state.abstractViews.has(article.pmid);
+    
+//     const hasDOI = article.doi && article.doi.trim() !== '';
+//     const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
+    
+//     // Extract medical information
+//     const conditions = extractConditions(article);
+//     const drugs = extractDrugs(article);
+    
+//     // Only show relevant medical findings based on search type
+//     let medicalFindings = '';
+//     if (conditions.length > 0 || drugs.length > 0) {
+//       medicalFindings = `
+//         <div class="border-t border-gray-100 mt-3 pt-3">
+//           ${conditions.length > 0 ? 
+//             `<div class="mb-2">
+//               <span class="text-xs font-medium text-gray-700">Conditions: </span>
+//               <div class="flex flex-wrap gap-1 mt-1">
+//                 ${conditions.slice(0, 6).map(condition => 
+//                   `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
+//                 ).join('')}
+//                 ${conditions.length > 6 ? `<span class="text-xs text-gray-500">+${conditions.length - 6} more</span>` : ''}
+//               </div>
+//             </div>` : ''
+//           }
+//           ${drugs.length > 0 ? 
+//             `<div>
+//               <span class="text-xs font-medium text-gray-700">Treatments: </span>
+//               <div class="flex flex-wrap gap-1 mt-1">
+//                 ${drugs.slice(0, 6).map(drug => 
+//                   `<span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
+//                 ).join('')}
+//                 ${drugs.length > 6 ? `<span class="text-xs text-gray-500">+${drugs.length - 6} more</span>` : ''}
+//               </div>
+//             </div>` : ''
+//           }
+//         </div>
+//       `;
+//     }
+    
+//     // Determine if the article was from an expanded search
+//     let expandedBadge = '';
+//     if (article.foundWith && article.foundWith !== state.term && state.expandedSearch) {
+//       expandedBadge = `<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full ml-2">Found with: ${article.foundWith}</span>`;
+//     }
+    
+//     articleElement.innerHTML = `
+//       <div class="flex items-start">
+//         <label class="flex items-center mr-3 mt-1">
+//           <input type="checkbox" class="article-select-checkbox h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" ${isSelected ? 'checked' : ''}>
+//         </label>
+//         <div class="flex-grow">
+//           <div class="flex justify-between">
+//             <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+//           </div>
+//           <div class="text-sm text-gray-600 mb-2">
+//             ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
+//           </div>
+//           <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
+//             <span class="font-medium">${article.journal || 'Journal not specified'}</span>
+//             <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+//             <span>${formatDate(article.pubDate)}</span>
+//             <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+//             <span>PMID: ${article.pmid}</span>
+//             ${expandedBadge}
+//           </div>
+          
+//           <!-- Abstract toggle -->
+//           <button class="toggle-abstract-btn text-primary hover:text-primary-dark text-sm flex items-center mb-3">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 ${isAbstractVisible ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//             </svg>
+//             ${isAbstractVisible ? 'Hide Abstract' : 'Show Abstract'}
+//           </button>
+          
+//           <!-- Abstract (initially hidden) -->
+//           <div class="abstract-container ${isAbstractVisible ? '' : 'hidden'}">
+//             <div class="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm mb-3">
+//               <p><strong>Abstract:</strong> ${article.abstract}</p>
+//             </div>
+//           </div>
+          
+//           ${article.keywords && article.keywords.length > 0 ? 
+//             `<div class="flex flex-wrap gap-1 mb-3">
+//               ${article.keywords.slice(0, 5).map(keyword => 
+//                 `<span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
+//               ).join('')}
+//               ${article.keywords.length > 5 ? `<span class="text-xs text-gray-500">+${article.keywords.length - 5} more</span>` : ''}
+//             </div>` : ''
+//           }
+          
+//           ${medicalFindings}
+          
+//           <div class="flex flex-wrap gap-2 mt-3">
+//             <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
+//                class="text-primary hover:text-primary-dark text-sm flex items-center">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//               </svg>
+//               View on PubMed
+//             </a>
+//             ${hasDOI ? 
+//               `<a href="https://doi.org/${article.doi}" target="_blank" 
+//                   class="text-primary hover:text-primary-dark text-sm flex items-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
+//                 </svg>
+//                 DOI
+//               </a>` : ''
+//             }
+//             ${hasFullText ? 
+//               `<a href="${article.fullTextUrl}" target="_blank" 
+//                   class="text-primary hover:text-primary-dark text-sm flex items-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//                 </svg>
+//                 Full Text
+//               </a>` : ''
+//             }
+//           </div>
+//         </div>
+//       </div>
+//     `;
+    
+//     // Add event listeners to the article element
+//     const checkboxEl = articleElement.querySelector('.article-select-checkbox');
+//     const abstractToggleBtn = articleElement.querySelector('.toggle-abstract-btn');
+    
+//     if (checkboxEl) {
+//       checkboxEl.addEventListener('change', (e) => {
+//         if (e.target.checked) {
+//           state.selectedArticles.add(article.pmid);
+//         } else {
+//           state.selectedArticles.delete(article.pmid);
+//         }
+//         updateSelectedCount();
+//       });
+//     }
+    
+//     if (abstractToggleBtn) {
+//       abstractToggleBtn.addEventListener('click', () => {
+//         const abstractContainer = articleElement.querySelector('.abstract-container');
+//         const chevronIcon = abstractToggleBtn.querySelector('svg');
+        
+//         if (abstractContainer) {
+//           const isHidden = abstractContainer.classList.contains('hidden');
+          
+//           if (isHidden) {
+//             abstractContainer.classList.remove('hidden');
+//             abstractToggleBtn.innerHTML = `
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//               </svg>
+//               Hide Abstract
+//             `;
+//             state.abstractViews.add(article.pmid);
+//           } else {
+//             abstractContainer.classList.add('hidden');
+//             abstractToggleBtn.innerHTML = `
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//               </svg>
+//               Show Abstract
+//             `;
+//             state.abstractViews.delete(article.pmid);
+//           }
+//         }
+//       });
+//     }
+    
+//     return articleElement;
+//   }
+
+//   // Filter articles by local search term
+//   function filterArticlesByLocalSearch(term) {
+//     if (!term || term.trim() === '') {
+//       state.filteredArticles = [...state.articles];
+//       state.localSearchTerm = '';
+//       renderArticles();
+//       return;
+//     }
+    
+//     const searchTerm = term.toLowerCase().trim();
+//     state.localSearchTerm = searchTerm;
+    
+//     state.filteredArticles = state.articles.filter(article => {
+//       // Search in title, abstract, and keywords
+//       const title = article.title ? article.title.toLowerCase() : '';
+//       const abstract = article.abstract ? article.abstract.toLowerCase() : '';
+//       const keywords = article.keywords ? article.keywords.join(' ').toLowerCase() : '';
+//       const authors = article.authors ? article.authors.join(' ').toLowerCase() : '';
+//       const pmid = article.pmid ? article.pmid.toLowerCase() : '';
+      
+//       return (
+//         title.includes(searchTerm) || 
+//         abstract.includes(searchTerm) || 
+//         keywords.includes(searchTerm) ||
+//         authors.includes(searchTerm) ||
+//         pmid.includes(searchTerm)
+//       );
+//     });
+    
+//     // Reset to first page and update displayed articles
+//     state.currentPage = 1;
+//     state.displayedArticles = state.filteredArticles.slice(0, state.pageSize);
+    
+//     // Render the filtered articles
+//     renderArticles();
+//   }
+
+//   // Render articles in the list with pagination
+//   function renderArticles() {
+//     if (!elements.pubmedArticlesList) return;
+    
+//     elements.pubmedArticlesList.innerHTML = '';
+    
+//     // Calculate start and end indices for the current page
+//     const startIndex = (state.currentPage - 1) * state.pageSize;
+//     const endIndex = Math.min(startIndex + state.pageSize, state.filteredArticles.length);
+    
+//     // Get current page articles
+//     state.displayedArticles = state.filteredArticles.slice(startIndex, endIndex);
+    
+//     // Render current page articles
+//     state.displayedArticles.forEach(article => {
+//       const articleElement = createArticleElement(article);
+//       elements.pubmedArticlesList.appendChild(articleElement);
+//     });
+    
+//     // Update result count display
+//     if (elements.pubmedResultCount) {
+//       if (state.localSearchTerm && state.localSearchTerm.trim() !== '') {
+//         elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing ${state.filteredArticles.length} matching "${state.localSearchTerm}")`;
+//       } else {
+//         elements.pubmedResultCount.textContent = `${state.totalResults} articles found (showing page ${state.currentPage} of ${Math.ceil(state.filteredArticles.length / state.pageSize)})`;
+//       }
+//     }
+    
+//     // Only show pagination if we have more than one page
+//     const totalPages = Math.ceil(state.filteredArticles.length / state.pageSize);
+//     const showPagination = totalPages > 1;
+    
+//     showComponent(elements.pubmedPagination, showPagination);
+    
+//     // If pagination is visible, update the pagination controls
+//     if (showPagination && elements.pubmedPagination) {
+//       renderPagination(totalPages);
+//     }
+    
+//     // Show expanded search info if applicable
+//     updateExpandedSearchInfo();
+    
+//     // Update selected count
+//     updateSelectedCount();
+//   }
+
+//   // Render pagination controls
+//   function renderPagination(totalPages) {
+//     if (!elements.pubmedPagination) return;
+    
+//     // Create pagination HTML
+//     let paginationHTML = '<div class="flex flex-wrap justify-center items-center gap-2">';
+    
+//     // Previous button
+//     paginationHTML += `
+//       <button class="page-btn previous-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center ${state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+//               ${state.currentPage === 1 ? 'disabled' : 'data-page="' + (state.currentPage - 1) + '"'}>
+//         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+//         </svg>
+//         Previous
+//       </button>
+//     `;
+    
+//     // Determine which page buttons to show
+//     let startPage = Math.max(1, state.currentPage - Math.floor(state.maxPageButtons / 2));
+//     let endPage = Math.min(totalPages, startPage + state.maxPageButtons - 1);
+    
+//     // Adjust if we're near the end
+//     if (endPage === totalPages) {
+//       startPage = Math.max(1, endPage - state.maxPageButtons + 1);
+//     }
+    
+//     // First page button (if not in the current range)
+//     if (startPage > 1) {
+//       paginationHTML += `
+//         <button class="page-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+//                 data-page="1">1</button>
+//       `;
+      
+//       if (startPage > 2) {
+//         paginationHTML += `
+//           <span class="px-2 text-gray-500">...</span>
+//         `;
+//       }
+//     }
+    
+//     // Page buttons
+//     for (let i = startPage; i <= endPage; i++) {
+//       const isCurrentPage = i === state.currentPage;
+//       paginationHTML += `
+//         <button class="page-btn px-3 py-1 ${isCurrentPage ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'} rounded-lg transition-colors"
+//                 ${isCurrentPage ? 'disabled' : 'data-page="' + i + '"'}>
+//           ${i}
+//         </button>
+//       `;
+//     }
+    
+//     // Last page button (if not in the current range)
+//     if (endPage < totalPages) {
+//       if (endPage < totalPages - 1) {
+//         paginationHTML += `
+//           <span class="px-2 text-gray-500">...</span>
+//         `;
+//       }
+      
+//       paginationHTML += `
+//         <button class="page-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
+//                 data-page="${totalPages}">${totalPages}</button>
+//       `;
+//     }
+    
+//     // Next button
+//     paginationHTML += `
+//       <button class="page-btn next-btn px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors flex items-center ${state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+//               ${state.currentPage === totalPages ? 'disabled' : 'data-page="' + (state.currentPage + 1) + '"'}>
+//         Next
+//         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+//         </svg>
+//       </button>
+//     `;
+    
+//     paginationHTML += '</div>';
+    
+//     // Update the pagination element
+//     elements.pubmedPagination.innerHTML = paginationHTML;
+    
+//     // Add event listeners to page buttons
+//     document.querySelectorAll('.page-btn').forEach(button => {
+//       if (!button.disabled && button.dataset.page) {
+//         button.addEventListener('click', () => {
+//           goToPage(parseInt(button.dataset.page, 10));
+//         });
+//       }
+//     });
+//   }
+
+//   // Go to specific page
+//   function goToPage(pageNumber) {
+//     if (state.isLoading || pageNumber === state.currentPage) return;
+    
+//     // Calculate start index for the requested page
+//     const startIndex = (pageNumber - 1) * state.pageSize;
+    
+//     // Check if we already have the articles for this page in filteredArticles
+//     if (startIndex < state.filteredArticles.length) {
+//       // We have the articles for this page, just update the display
+//       state.currentPage = pageNumber;
+//       renderArticles();
+//     } else {
+//       // We need to fetch more articles from the API
+//       const options = {
+//         page: pageNumber,
+//         sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+//         fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+//         yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+//         journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+//         yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//         searchType: getSearchTypeFromUI()
+//       };
+      
+//       performPubMedSearch(state.term, options);
+//     }
+//   }
+
+//   // Build year filter string based on year range
+//   function buildYearFilterString(yearRange) {
+//     if (!yearRange || yearRange === '') return '';
+    
+//     const currentYear = new Date().getFullYear();
+//     const startYear = currentYear - parseInt(yearRange, 10);
+    
+//     return `${startYear}:${currentYear}[pdat]`;
+//   }
+
+//   // Get search type from UI
+//   function getSearchTypeFromUI() {
+//     if (elements.pubmedSearchType && elements.pubmedSearchType.value) {
+//       return elements.pubmedSearchType.value;
+//     }
+//     return 'auto';
+//   }
+
+//   // Update expanded search info
+//   function updateExpandedSearchInfo() {
+//     if (!elements.pubmedExpandedInfo) return;
+    
+//     if (state.expandedSearch && state.expandedWithDrugs && state.expandedWithDrugs.length > 0) {
+//       let expandedHTML = `
+//         <div class="bg-purple-50 p-4 rounded-lg mb-4 border border-purple-100">
+//           <h3 class="text-purple-800 font-medium mb-2">Expanded Search Results</h3>
+//           <p class="text-purple-700 text-sm mb-3">
+//             Initial search for "${state.term}" was expanded to include similar drugs and found ${state.totalResults} articles.
+//           </p>
+//           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+//       `;
+      
+//       // Add drug result counts
+//       state.expandedWithDrugs.forEach(drug => {
+//         const count = state.drugResultCounts[drug] || 0;
+//         if (count > 0) {
+//           expandedHTML += `
+//             <div class="bg-white p-2 rounded border border-purple-100 shadow-sm">
+//               <div class="flex justify-between items-center">
+//                 <span class="font-medium text-gray-800">${drug}</span>
+//                 <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">${count} articles</span>
+//               </div>
+//             </div>
+//           `;
+//         }
+//       });
+      
+//       expandedHTML += `
+//           </div>
+//         </div>
+//       `;
+      
+//       elements.pubmedExpandedInfo.innerHTML = expandedHTML;
+//       showComponent(elements.pubmedExpandedInfo, true);
+//     } else {
+//       showComponent(elements.pubmedExpandedInfo, false);
+//     }
+//   }
+
+//   // Update selected articles count and controls
+//   function updateSelectedCount() {
+//     if (!elements.pubmedSelectedCount) return;
+    
+//     const count = state.selectedArticles.size;
+//     elements.pubmedSelectedCount.textContent = `${count} article${count !== 1 ? 's' : ''} selected`;
+    
+//     // Show/hide summary button based on selection
+//     if (elements.pubmedSummaryButton) {
+//       if (count > 0) {
+//         elements.pubmedSummaryButton.classList.remove('opacity-50', 'cursor-not-allowed');
+//         elements.pubmedSummaryButton.disabled = false;
+//       } else {
+//         elements.pubmedSummaryButton.classList.add('opacity-50', 'cursor-not-allowed');
+//         elements.pubmedSummaryButton.disabled = true;
+//       }
+//     }
+    
+//     // Show/hide selected articles section
+//     showComponent(elements.pubmedSelectedArticles, count > 0);
+//   }
+
+//   // Perform AI summary of selected articles
+//   async function generateAISummary() {
+//     if (state.selectedArticles.size === 0 || state.aiSummaryLoading) {
+//       return;
+//     }
+    
+//     // Set loading state
+//     state.aiSummaryLoading = true;
+//     showComponent(elements.pubmedAISummarySection, true);
+//     showComponent(elements.pubmedAISummaryLoading, true);
+//     showComponent(elements.pubmedAISummaryContent, false);
+    
+//     try {
+//       // Get selected articles
+//       const selectedArticles = state.articles.filter(article => 
+//         state.selectedArticles.has(article.pmid)
+//       );
+      
+//       // Create request options
+//       const requestOptions = {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//           articles: selectedArticles,
+//           prompt: `Provide a comprehensive summary of these ${selectedArticles.length} PubMed articles${selectedArticles.length > 0 ? ' about ' + selectedArticles[0].title.split(' ').slice(0, 3).join(' ') + '...' : ''}.`
+//         })
+//       };
+      
+//       // Make API call to get summary
+//       const response = await fetch('/api/pubmed/summary', requestOptions);
+//       if (!response.ok) {
+//         throw new Error(`Server responded with status ${response.status}`);
+//       }
+      
+//       const data = await response.json();
+      
+//       // Check if we got a successful summary
+//       if (!data.success || !data.summary) {
+//         throw new Error('Failed to generate summary');
+//       }
+      
+//       // Store summary in state
+//       state.aiSummary = data.summary;
+      
+//       // Render summary
+//       renderAISummary();
+      
+//     } catch (error) {
+//       console.error('Error generating AI summary:', error);
+//       elements.pubmedAISummaryContent.innerHTML = `
+//         <div class="bg-red-50 p-4 rounded-lg">
+//           <h3 class="text-red-800 font-medium mb-2">Error Generating Summary</h3>
+//           <p class="text-red-700">${error.message || 'Failed to generate summary. Please try again.'}</p>
+//         </div>
+//       `;
+//       showComponent(elements.pubmedAISummaryLoading, false);
+//       showComponent(elements.pubmedAISummaryContent, true);
+//     }
+    
+//     state.aiSummaryLoading = false;
+//   }
+
+//   // Render AI summary
+//   function renderAISummary() {
+//     if (!elements.pubmedAISummaryContent) return;
+    
+//     // Hide loading
+//     showComponent(elements.pubmedAISummaryLoading, false);
+    
+//     // Add summary content
+//     elements.pubmedAISummaryContent.innerHTML = state.aiSummary || 'No summary available';
+    
+//     // Add email button
+//     const emailButton = document.createElement('button');
+//     emailButton.className = 'mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center';
+//     emailButton.innerHTML = `
+//       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//       </svg>
+//       Email Summary
+//     `;
+//     emailButton.addEventListener('click', () => {
+//       emailSummary();
+//     });
+    
+//     elements.pubmedAISummaryContent.appendChild(emailButton);
+    
+//     // Show summary
+//     showComponent(elements.pubmedAISummaryContent, true);
+//   }
+
+//   // Email summary function
+//   function emailSummary() {
+//     // Get selected articles PMIDs
+//     const pmids = Array.from(state.selectedArticles);
+    
+//     // Create email content
+//     const subject = `PubMed Summary: ${state.term}`;
+//     const body = `
+// PubMed Summary for "${state.term}"
+
+// ${state.aiSummary.replace(/<[^>]*>/g, '')}
+
+// Articles included in this summary:
+// ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
+//     `;
+    
+//     // Open email client
+//     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+//   }
+
+//   // Select or deselect all displayed articles
+//   function toggleSelectAllArticles(selectAll = true) {
+//     const currentArticles = state.displayedArticles;
+    
+//     currentArticles.forEach(article => {
+//       if (selectAll) {
+//         state.selectedArticles.add(article.pmid);
+//       } else {
+//         state.selectedArticles.delete(article.pmid);
+//       }
+//     });
+    
+//     // Update checkboxes in the UI
+//     document.querySelectorAll('.article-select-checkbox').forEach(checkbox => {
+//       const articleElement = checkbox.closest('[data-pmid]');
+//       if (articleElement) {
+//         const pmid = articleElement.dataset.pmid;
+//         checkbox.checked = state.selectedArticles.has(pmid);
+//       }
+//     });
+    
+//     updateSelectedCount();
+//   }
+
+//   // Perform PubMed search
+//   async function performPubMedSearch(term, options = {}) {
+//     state.isLoading = true;
+//     state.term = term;
+//     state.currentPage = options.page || 1;
+//     state.sortBy = options.sortBy || state.sortBy;
+//     state.fullTextOnly = options.fullTextOnly !== undefined ? options.fullTextOnly : state.fullTextOnly;
+//     state.yearFilter = options.yearFilter || state.yearFilter;
+//     state.yearRange = options.yearRange || state.yearRange;
+//     state.journalFilter = options.journalFilter || state.journalFilter;
+//     state.searchType = options.searchType || state.searchType;
+    
+//     // Clear existing selections and abstracts
+//     if (state.currentPage === 1) {
+//       state.selectedArticles.clear();
+//       state.abstractViews.clear();
+//       state.localSearchTerm = '';
+//       if (elements.pubmedLocalSearchBox) {
+//         elements.pubmedLocalSearchBox.value = '';
+//       }
+//     }
+    
+//     // Show the pubmed section and loading state
+//     showComponent(elements.pubmedSection, true);
+//     showComponent(elements.pubmedLoading, true);
+//     showComponent(elements.pubmedError, false);
+//     showComponent(elements.pubmedEmpty, false);
+//     showComponent(elements.pubmedArticles, false);
+//     showComponent(elements.pubmedTreatments, false);
+//     showComponent(elements.pubmedDrugInfo, false);
+//     showComponent(elements.pubmedAISummarySection, false);
+    
+//     try {
+//       // Apply year filter based on year range if provided
+//       let yearFilterParam = '';
+//       if (state.yearRange && state.yearRange !== '') {
+//         yearFilterParam = buildYearFilterString(state.yearRange);
+//       } else if (state.yearFilter && state.yearFilter !== '') {
+//         yearFilterParam = state.yearFilter;
+//       }
+      
+//       const params = new URLSearchParams({
+//         term: term,
+//         page: state.currentPage,
+//         sortBy: state.sortBy,
+//         fullTextOnly: state.fullTextOnly,
+//         yearFilter: yearFilterParam,
+//         journalFilter: state.journalFilter,
+//         searchType: state.searchType
+//       });
+      
+//       const response = await fetch(`/api/pubmed?${params}`);
+//       console.log(`PubMed API Request: /api/pubmed?${params}`);
+
+//       if (!response.ok) {
+//         throw new Error(`Server responded with status ${response.status}`);
+//       }
+      
+//       const data = await response.json();
+//       console.log('PubMed API Response:', data);
+      
+//       // Store expanded search info
+//       state.expandedSearch = data.searchExpanded || false;
+//       state.expandedWithDrugs = data.expandedWithDrugs || [];
+//       state.drugResultCounts = data.drugResultCounts || {};
+//       state.drugData = data.drugData || null;
+      
+//       // Update state with fetched data
+//       if (state.currentPage === 1) {
+//         state.articles = data.articles;
+//         state.filteredArticles = [...data.articles];
+//       } else {
+//         state.articles = [...state.articles, ...data.articles];
+//         state.filteredArticles = [...state.filteredArticles, ...data.articles];
+//       }
+      
+//       state.totalResults = data.totalResults;
+      
+//       // Hide loading state
+//       showComponent(elements.pubmedLoading, false);
+      
+//       if (state.articles.length === 0) {
+//         showComponent(elements.pubmedEmpty, true);
+//       } else {
+//         showComponent(elements.pubmedArticles, true);
+//         renderArticles();
+//       }
+      
+//       // Update journal filter if on first page
+//       if (state.currentPage === 1) {
+//         updateJournalFilter();
+//       }
+      
+//     } catch (error) {
+//       console.error('Error fetching PubMed data:', error);
+//       showComponent(elements.pubmedLoading, false);
+//       showComponent(elements.pubmedError, true);
+//       if (elements.pubmedErrorMessage) {
+//         elements.pubmedErrorMessage.textContent = error.message || 'Failed to fetch articles. Please try again later.';
+//       }
+//     }
+    
+//     state.isLoading = false;
+//   }
+
+//   // Update journal filter based on fetched articles
+//   function updateJournalFilter() {
+//     if (!elements.pubmedJournalFilter) return;
+    
+//     // Extract unique journals from articles
+//     const journals = new Set();
+//     state.articles.forEach(article => {
+//       if (article.journal && article.journal.trim() !== '') {
+//         journals.add(article.journal);
+//       }
+//     });
+    
+//     // Convert to array and sort alphabetically
+//     const sortedJournals = [...journals].sort();
+    
+//     // Create options HTML
+//     let journalOptions = '<option value="">All Journals</option>';
+//     sortedJournals.forEach(journal => {
+//       journalOptions += `<option value="${journal}">${journal}</option>`;
+//     });
+    
+//     // Set the options
+//     elements.pubmedJournalFilter.innerHTML = journalOptions;
+    
+//     // If there was a previous selection, try to restore it
+//     if (state.journalFilter) {
+//       elements.pubmedJournalFilter.value = state.journalFilter;
+//     }
+//   }
+
+//   // Function to populate filter options based on data
+//   function populateFilters() {
+//     // Populate search type dropdown if it exists
+//     if (elements.pubmedSearchType) {
+//       let searchTypeOptions = `
+//         <option value="auto" selected>Auto-detect</option>
+//         <option value="drug">Drug</option>
+//         <option value="condition">Medical Condition</option>
+//         <option value="both">Drug AND Condition</option>
+//       `;
+      
+//       elements.pubmedSearchType.innerHTML = searchTypeOptions;
+//     }
+    
+//     // Populate year range filter
+//     if (elements.pubmedYearRange) {
+//       let yearRangeOptions = `
+//         <option value="3">Last 3 years</option>
+//         <option value="5" selected>Last 5 years</option>
+//         <option value="10">Last 10 years</option>
+//         <option value="15">Last 15 years</option>
+//         <option value="20">Last 20 years</option>
+//         <option value="">All Years</option>
+//       `;
+      
+//       elements.pubmedYearRange.innerHTML = yearRangeOptions;
+//     }
+    
+//     // Journal filter will be populated after we have data
+//   }
+
+//   // Create required elements if they don't exist
+//   function ensureRequiredElements() {
+//     // Create main container if needed
+//     if (!document.getElementById('pubmedSection')) {
+//       console.log("PubMed Module: Creating missing pubmedSection element");
+//       const section = document.createElement('div');
+//       section.id = 'pubmedSection';
+//       section.className = 'hidden';
+      
+//       // Try to find a suitable parent element
+//       const parent = document.querySelector('.main-content') || 
+//                     document.querySelector('main') || 
+//                     document.querySelector('body');
+//       if (parent) {
+//         parent.appendChild(section);
+//         // Update the elements reference
+//         elements.pubmedSection = section;
+//       } else {
+//         console.error("PubMed Module: Could not find parent element to append pubmedSection");
+//       }
+//     }
+    
+//     // Create other essential elements
+//     const requiredElements = [
+//       { id: 'pubmedLoading', parent: 'pubmedSection', className: 'flex justify-center items-center py-12 hidden' },
+//       { id: 'pubmedError', parent: 'pubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
+//       { id: 'pubmedEmpty', parent: 'pubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
+//       { id: 'pubmedArticles', parent: 'pubmedSection', className: 'hidden' },
+//       { id: 'pubmedArticlesList', parent: 'pubmedArticles', className: 'space-y-4' },
+//       { id: 'pubmedTreatments', parent: 'pubmedSection', className: 'mb-8 hidden' },
+//       { id: 'pubmedTreatmentsContent', parent: 'pubmedTreatments', className: 'hidden' },
+//       { id: 'pubmedDrugInfo', parent: 'pubmedSection', className: 'mb-8 hidden' },
+//       { id: 'pubmedDrugInfoContent', parent: 'pubmedDrugInfo', className: 'hidden' },
+//       { id: 'pubmedExpandedInfo', parent: 'pubmedSection', className: 'hidden' },
+//       { id: 'pubmedSelectedArticles', parent: 'pubmedSection', className: 'mb-4 hidden' },
+//       { id: 'pubmedAISummarySection', parent: 'pubmedSection', className: 'mb-8 hidden' },
+//       { id: 'pubmedAISummaryLoading', parent: 'pubmedAISummarySection', className: 'flex justify-center items-center py-6 hidden' },
+//       { id: 'pubmedAISummaryContent', parent: 'pubmedAISummarySection', className: 'bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden' }
+//     ];
+    
+//     requiredElements.forEach(elem => {
+//       if (!document.getElementById(elem.id) && document.getElementById(elem.parent)) {
+//         console.log(`PubMed Module: Creating missing ${elem.id} element`);
+//         const newElement = document.createElement('div');
+//         newElement.id = elem.id;
+//         newElement.className = elem.className;
+//         document.getElementById(elem.parent).appendChild(newElement);
+        
+//         // Update the elements reference
+//         elements[elem.id] = newElement;
+//       }
+//     });
+    
+//     // Create search interface if needed
+//     if (!document.getElementById('pubmedSearchInterface') && elements.pubmedSection) {
+//       console.log(`PubMed Module: Creating search interface`);
+      
+//       const searchInterface = document.createElement('div');
+//       searchInterface.id = 'pubmedSearchInterface';
+//       searchInterface.className = 'mb-6';
+//       searchInterface.innerHTML = `
+//         <div class="flex flex-col md:flex-row gap-2 mb-4">
+//           <div class="flex-grow">
+//             <input type="text" id="pubmedSearchBox" placeholder="Search PubMed..." 
+//                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+//           </div>
+//           <div>
+//             <select id="pubmedSearchType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+//               <option value="auto" selected>Auto-detect</option>
+//               <option value="drug">Drug</option>
+//               <option value="condition">Medical Condition</option>
+//               <option value="both">Drug AND Condition</option>
+//             </select>
+//           </div>
+//           <div>
+//             <button id="pubmedSearchButton" 
+//                     class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+//               </svg>
+//               Search
+//             </button>
+//           </div>
+//         </div>
+        
+//         <div class="flex items-center">
+//           <button id="pubmedAdvancedToggle" class="text-sm text-gray-600 flex items-center">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//             </svg>
+//             Advanced Options
+//           </button>
+//         </div>
+        
+//         <div id="pubmedAdvancedOptions" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+//           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+//             <div>
+//               <label for="pubmedSort" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+//               <select id="pubmedSort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+//                 <option value="relevance">Relevance</option>
+//                 <option value="date">Most Recent</option>
+//                 <option value="citations">Most Cited</option>
+//               </select>
+//             </div>
+            
+//             <div>
+//               <label for="pubmedYearRange" class="block text-sm font-medium text-gray-700 mb-1">Time Period</label>
+//               <select id="pubmedYearRange" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+//                 <option value="5" selected>Last 5 years</option>
+//               </select>
+//             </div>
+            
+//             <div>
+//               <label for="pubmedJournalFilter" class="block text-sm font-medium text-gray-700 mb-1">Journal</label>
+//               <select id="pubmedJournalFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+//                 <option value="">All Journals</option>
+//               </select>
+//             </div>
+//           </div>
+          
+//           <div class="mt-4">
+//             <label class="flex items-center">
+//               <input type="checkbox" id="pubmedFullTextOnly" class="rounded text-primary focus:ring-primary h-4 w-4">
+//               <span class="ml-2 text-sm text-gray-700">Full Text Available Only</span>
+//             </label>
+//           </div>
+//         </div>
+//       `;
+      
+//       elements.pubmedSection.insertBefore(searchInterface, elements.pubmedSection.firstChild);
+      
+//       // Update element references
+//       elements.pubmedSearchBox = document.getElementById('pubmedSearchBox');
+//       elements.pubmedSearchType = document.getElementById('pubmedSearchType');
+//       elements.pubmedSearchButton = document.getElementById('pubmedSearchButton');
+//       elements.pubmedAdvancedToggle = document.getElementById('pubmedAdvancedToggle');
+//       elements.pubmedAdvancedOptions = document.getElementById('pubmedAdvancedOptions');
+//       elements.pubmedSort = document.getElementById('pubmedSort');
+//       elements.pubmedFullTextOnly = document.getElementById('pubmedFullTextOnly');
+//       elements.pubmedYearRange = document.getElementById('pubmedYearRange');
+//       elements.pubmedJournalFilter = document.getElementById('pubmedJournalFilter');
+//     }
+    
+//     // Create local search functionality if needed
+//     if (!document.getElementById('pubmedLocalSearch') && elements.pubmedArticles) {
+//       console.log(`PubMed Module: Creating local search elements`);
+      
+//       const localSearch = document.createElement('div');
+//       localSearch.id = 'pubmedLocalSearch';
+//       localSearch.className = 'mb-4 mt-2';
+//       localSearch.innerHTML = `
+//         <div class="flex gap-2">
+//           <input type="text" id="pubmedLocalSearchBox" placeholder="Search within results..." 
+//                  class="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary">
+//           <button id="pubmedLocalSearchButton" 
+//                   class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+//             Search
+//           </button>
+//         </div>
+//       `;
+      
+//       elements.pubmedArticles.insertBefore(localSearch, elements.pubmedArticles.firstChild);
+      
+//       // Update element references
+//       elements.pubmedLocalSearchBox = document.getElementById('pubmedLocalSearchBox');
+//       elements.pubmedLocalSearchButton = document.getElementById('pubmedLocalSearchButton');
+//     }
+    
+//     // Create pagination elements if needed
+//     if (!document.getElementById('pubmedPagination') && elements.pubmedArticles) {
+//       console.log(`PubMed Module: Creating pagination elements`);
+      
+//       const pagination = document.createElement('div');
+//       pagination.id = 'pubmedPagination';
+//       pagination.className = 'mt-6 hidden';
+//       pagination.innerHTML = ''; // Will be populated by renderPagination
+      
+//       elements.pubmedArticles.appendChild(pagination);
+      
+//       // Update element references 
+//       elements.pubmedPagination = document.getElementById('pubmedPagination');
+//     }
+    
+//     // Create result count element if needed
+//     if (!document.getElementById('pubmedResultCount') && elements.pubmedArticles) {
+//       console.log(`PubMed Module: Creating result count element`);
+      
+//       const resultCount = document.createElement('div');
+//       resultCount.id = 'pubmedResultCount';
+//       resultCount.className = 'text-sm text-gray-600 mb-4';
+//       resultCount.textContent = '0 articles found';
+      
+//       // Insert after local search if it exists, otherwise at the beginning
+//       const localSearch = document.getElementById('pubmedLocalSearch');
+//       if (localSearch) {
+//         localSearch.after(resultCount);
+//       } else {
+//         elements.pubmedArticles.insertBefore(resultCount, elements.pubmedArticles.firstChild);
+//       }
+      
+//       // Update element references
+//       elements.pubmedResultCount = document.getElementById('pubmedResultCount');
+//     }
+    
+//     // Create selected articles section if needed
+//     if (!document.getElementById('pubmedSelectedArticles') && elements.pubmedSection) {
+//       console.log(`PubMed Module: Creating selected articles elements`);
+      
+//       const selectedArticles = document.createElement('div');
+//       selectedArticles.id = 'pubmedSelectedArticles';
+//       selectedArticles.className = 'mb-4 hidden';
+//       selectedArticles.innerHTML = `
+//         <div class="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100">
+//           <div class="flex justify-between items-center mb-2">
+//             <div class="flex items-center">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+//               </svg>
+//               <h3 class="text-blue-800 font-medium"><span id="pubmedSelectedCount">0 articles selected</span></h3>
+//             </div>
+//             <div class="flex gap-2">
+//               <button id="pubmedSelectAllBtn" class="text-sm text-blue-700 hover:text-blue-800">
+//                 Select All on Page
+//               </button>
+//               <button id="pubmedDeselectAllBtn" class="text-sm text-blue-700 hover:text-blue-800">
+//                 Deselect All
+//               </button>
+//             </div>
+//           </div>
+//           <button id="pubmedSummaryButton" class="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed flex items-center justify-center">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//             </svg>
+//             Generate AI Summary
+//           </button>
+//         </div>
+//       `;
+      
+//       // Insert after search interface
+//       const searchInterface = document.getElementById('pubmedSearchInterface');
+//       if (searchInterface) {
+//         searchInterface.after(selectedArticles);
+//       } else {
+//         elements.pubmedSection.insertBefore(selectedArticles, elements.pubmedSection.firstChild);
+//       }
+      
+//       // Update element references
+//       elements.pubmedSelectedArticles = document.getElementById('pubmedSelectedArticles');
+//       elements.pubmedSelectedCount = document.getElementById('pubmedSelectedCount');
+//       elements.pubmedSummaryButton = document.getElementById('pubmedSummaryButton');
+//       elements.pubmedSelectAllBtn = document.getElementById('pubmedSelectAllBtn');
+//       elements.pubmedDeselectAllBtn = document.getElementById('pubmedDeselectAllBtn');
+//     }
+    
+//     // Create AI summary section if needed
+//     if (!document.getElementById('pubmedAISummarySection') && elements.pubmedSection) {
+//       console.log(`PubMed Module: Creating AI summary elements`);
+      
+//       const summarySection = document.createElement('div');
+//       summarySection.id = 'pubmedAISummarySection';
+//       summarySection.className = 'mb-8 hidden';
+//       summarySection.innerHTML = `
+//         <h2 class="text-xl font-bold text-gray-800 mb-4">AI Summary</h2>
+        
+//         <div id="pubmedAISummaryLoading" class="flex justify-center items-center py-6 hidden">
+//           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+//         </div>
+        
+//         <div id="pubmedAISummaryContent" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden">
+//           <!-- Summary will be placed here -->
+//         </div>
+//       `;
+      
+//       // Find a good place to insert the summary section
+//       const targetElement = document.getElementById('pubmedArticles');
+//       if (targetElement) {
+//         elements.pubmedSection.insertBefore(summarySection, targetElement);
+//       } else {
+//         elements.pubmedSection.appendChild(summarySection);
+//       }
+      
+//       // Update element references
+//       elements.pubmedAISummarySection = document.getElementById('pubmedAISummarySection');
+//       elements.pubmedAISummaryLoading = document.getElementById('pubmedAISummaryLoading');
+//       elements.pubmedAISummaryContent = document.getElementById('pubmedAISummaryContent');
+//     }
+    
+//     // Create expanded info section if needed
+//     if (!document.getElementById('pubmedExpandedInfo') && elements.pubmedSection) {
+//       console.log(`PubMed Module: Creating expanded info element`);
+      
+//       const expandedInfo = document.createElement('div');
+//       expandedInfo.id = 'pubmedExpandedInfo';
+//       expandedInfo.className = 'mb-4 hidden';
+      
+//       // Find a good place to insert
+//       const targetElement = document.getElementById('pubmedArticles');
+//       if (targetElement) {
+//         elements.pubmedSection.insertBefore(expandedInfo, targetElement);
+//       } else {
+//         elements.pubmedSection.appendChild(expandedInfo);
+//       }
+      
+//       // Update element references
+//       elements.pubmedExpandedInfo = document.getElementById('pubmedExpandedInfo');
+//     }
+    
+//     // Create empty state content if needed
+//     if (elements.pubmedEmpty && elements.pubmedEmpty.innerHTML === '') {
+//       elements.pubmedEmpty.innerHTML = `
+//         <div class="text-center py-8">
+//           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//           </svg>
+//           <h3 class="text-lg font-medium text-gray-700 mb-2">No articles found</h3>
+//           <p class="text-gray-500">Try adjusting your search terms or filters.</p>
+//         </div>
+//       `;
+//     }
+    
+//     // Create loading indicator if needed
+//     if (elements.pubmedLoading && elements.pubmedLoading.innerHTML === '') {
+//       elements.pubmedLoading.innerHTML = `
+//         <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+//       `;
+//     }
+    
+//     // Create AI summary loading indicator if needed
+//     if (elements.pubmedAISummaryLoading && elements.pubmedAISummaryLoading.innerHTML === '') {
+//       elements.pubmedAISummaryLoading.innerHTML = `
+//         <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+//       `;
+//     }
+//   }
+
+//   // Initialize event listeners
+//   function initEventListeners() {
+//     // Main search
+//     if (elements.pubmedSearchBox && elements.pubmedSearchButton) {
+//       // Search button click
+//       elements.pubmedSearchButton.addEventListener('click', () => {
+//         const searchTerm = elements.pubmedSearchBox.value.trim();
+//         if (searchTerm) {
+//           const options = {
+//             yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//             searchType: getSearchTypeFromUI()
+//           };
+          
+//           performPubMedSearch(searchTerm, options);
+//         }
+//       });
+      
+//       // Enter key press in search box
+//       elements.pubmedSearchBox.addEventListener('keypress', (e) => {
+//         if (e.key === 'Enter') {
+//           const searchTerm = elements.pubmedSearchBox.value.trim();
+//           if (searchTerm) {
+//             const options = {
+//               yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//               searchType: getSearchTypeFromUI()
+//             };
+            
+//             performPubMedSearch(searchTerm, options);
+//           }
+//         }
+//       });
+//     }
+    
+//     // Local search functionality
+//     if (elements.pubmedLocalSearchBox && elements.pubmedLocalSearchButton) {
+//       // Local search button click
+//       elements.pubmedLocalSearchButton.addEventListener('click', () => {
+//         const searchTerm = elements.pubmedLocalSearchBox.value.trim();
+//         filterArticlesByLocalSearch(searchTerm);
+//       });
+      
+//       // Enter key press in local search box
+//       elements.pubmedLocalSearchBox.addEventListener('keypress', (e) => {
+//         if (e.key === 'Enter') {
+//           const searchTerm = elements.pubmedLocalSearchBox.value.trim();
+//           filterArticlesByLocalSearch(searchTerm);
+//         }
+//       });
+//     }
+    
+//     // Advanced options toggle
+//     if (elements.pubmedAdvancedToggle && elements.pubmedAdvancedOptions) {
+//       elements.pubmedAdvancedToggle.addEventListener('click', () => {
+//         elements.pubmedAdvancedOptions.classList.toggle('hidden');
+        
+//         // Update text/icon
+//         if (elements.pubmedAdvancedOptions.classList.contains('hidden')) {
+//           elements.pubmedAdvancedToggle.innerHTML = `
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//             </svg>
+//             Advanced Options
+//           `;
+//         } else {
+//           elements.pubmedAdvancedToggle.innerHTML = `
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+//             </svg>
+//             Hide Advanced Options
+//           `;
+//         }
+//       });
+//     }
+    
+//     // Sort dropdown
+//     if (elements.pubmedSort) {
+//       elements.pubmedSort.addEventListener('change', () => {
+//         if (state.isLoading || !state.term) return;
+        
+//         const options = {
+//           page: 1,
+//           sortBy: elements.pubmedSort.value,
+//           fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+//           yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+//           yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//           journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+//           searchType: getSearchTypeFromUI()
+//         };
+        
+//         performPubMedSearch(state.term, options);
+//       });
+//     }
+    
+//     // Full text only checkbox
+//     if (elements.pubmedFullTextOnly) {
+//       elements.pubmedFullTextOnly.addEventListener('change', () => {
+//         if (state.isLoading || !state.term) return;
+        
+//         const options = {
+//           page: 1,
+//           sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+//           fullTextOnly: elements.pubmedFullTextOnly.checked,
+//           yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+//           yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//           journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+//           searchType: getSearchTypeFromUI()
+//         };
+        
+//         performPubMedSearch(state.term, options);
+//       });
+//     }
+    
+//     // Year range dropdown
+//     if (elements.pubmedYearRange) {
+//       elements.pubmedYearRange.addEventListener('change', () => {
+//         if (state.isLoading || !state.term) return;
+        
+//         const options = {
+//           page: 1,
+//           sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+//           fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+//           yearRange: elements.pubmedYearRange.value,
+//           journalFilter: elements.pubmedJournalFilter ? elements.pubmedJournalFilter.value : '',
+//           searchType: getSearchTypeFromUI()
+//         };
+        
+//         performPubMedSearch(state.term, options);
+//       });
+//     }
+    
+//     // Journal filter
+//     if (elements.pubmedJournalFilter) {
+//       elements.pubmedJournalFilter.addEventListener('change', () => {
+//         if (state.isLoading || !state.term) return;
+        
+//         const options = {
+//           page: 1,
+//           sortBy: elements.pubmedSort ? elements.pubmedSort.value : 'relevance',
+//           fullTextOnly: elements.pubmedFullTextOnly ? elements.pubmedFullTextOnly.checked : false,
+//           yearFilter: elements.pubmedYearFilter ? elements.pubmedYearFilter.value : '',
+//           yearRange: elements.pubmedYearRange ? elements.pubmedYearRange.value : state.yearRange,
+//           journalFilter: elements.pubmedJournalFilter.value,
+//           searchType: getSearchTypeFromUI()
+//         };
+        
+//         performPubMedSearch(state.term, options);
+//       });
+//     }
+    
+//     // Select/deselect all buttons
+//     if (elements.pubmedSelectAllBtn) {
+//       elements.pubmedSelectAllBtn.addEventListener('click', () => {
+//         toggleSelectAllArticles(true);
+//       });
+//     }
+    
+//     if (elements.pubmedDeselectAllBtn) {
+//       elements.pubmedDeselectAllBtn.addEventListener('click', () => {
+//         toggleSelectAllArticles(false);
+//       });
+//     }
+    
+//     // AI Summary button
+//     if (elements.pubmedSummaryButton) {
+//       elements.pubmedSummaryButton.addEventListener('click', () => {
+//         if (!elements.pubmedSummaryButton.disabled) {
+//           generateAISummary();
+//         }
+//       });
+//     }
+//   }
+
+//   // Initialize the module
+//   function init() {
+//     console.log("PubMed Module: Initializing...");
+    
+//     // First ensure all required elements exist
+//     ensureRequiredElements();
+    
+//     // Re-check if we have the main container
+//     if (!elements.pubmedSection) {
+//       console.error('PubMed Module: Required elements could not be created');
+//       return;
+//     }
+    
+//     // Initialize event listeners
+//     try {
+//       initEventListeners();
+//     } catch (error) {
+//       console.error('PubMed Module: Error initializing event listeners', error);
+//     }
+    
+//     // Populate filter options
+//     try {
+//       populateFilters();
+//     } catch (error) {
+//       console.error('PubMed Module: Error populating filters', error);
+//     }
+    
+//     console.log("PubMed Module: Initialization complete");
+//   }
+  
+//   // Return public methods
+//   return {
+//     init,
+//     performPubMedSearch,
+//     filterArticlesByLocalSearch,
+//     generateAISummary
+//   };
+// })();
+
+// // Initialize the module when the document is ready
+// document.addEventListener('DOMContentLoaded', function() {
+//   PubMedModule.init();
+// });
+
+
+
 // Enhanced PubMed Module
+// Includes: Grok AI integration, abstract annotation, summarization, and thematic analysis
 const PubMedModule = (function() {
   // Elements map for DOM references
   const elements = {
@@ -50330,6 +51981,7 @@ const PubMedModule = (function() {
     pubmedYearFilter: safeGetElement('pubmedYearFilter'),
     pubmedYearRange: safeGetElement('pubmedYearRange'),
     pubmedJournalFilter: safeGetElement('pubmedJournalFilter'),
+    pubmedFilterStatus: safeGetElement('pubmedFilterStatus'),
     
     // Results elements
     pubmedArticles: safeGetElement('pubmedArticles'),
@@ -50347,14 +51999,19 @@ const PubMedModule = (function() {
     pubmedDrugInfoLoading: safeGetElement('pubmedDrugInfoLoading'),
     pubmedDrugInfoContent: safeGetElement('pubmedDrugInfoContent'),
     
-    // Selection and summary elements (new)
+    // Selection and summary elements
     pubmedSelectedArticles: safeGetElement('pubmedSelectedArticles'),
     pubmedSelectedCount: safeGetElement('pubmedSelectedCount'),
     pubmedSummaryButton: safeGetElement('pubmedSummaryButton'),
     pubmedAISummarySection: safeGetElement('pubmedAISummarySection'),
     pubmedAISummaryLoading: safeGetElement('pubmedAISummaryLoading'),
     pubmedAISummaryContent: safeGetElement('pubmedAISummaryContent'),
-    pubmedExpandedInfo: safeGetElement('pubmedExpandedInfo')
+    pubmedExpandedInfo: safeGetElement('pubmedExpandedInfo'),
+    
+    // New elements for annotation, summarization and thematic analysis
+    pubmedCollectionSummary: safeGetElement('pubmedCollectionSummary'),
+    pubmedThematicAnalysis: safeGetElement('pubmedThematicAnalysis'),
+    pubmedAnnotationToggle: safeGetElement('pubmedAnnotationToggle')
   };
 
   // State management
@@ -50382,7 +52039,101 @@ const PubMedModule = (function() {
     drugData: null,        // Data about related drugs
     abstractViews: new Set(), // Set of PMIDs with visible abstracts
     aiSummary: null,       // Current AI summary
-    aiSummaryLoading: false // Whether AI summary is loading
+    aiSummaryLoading: false, // Whether AI summary is loading
+    annotationsEnabled: true, // Whether abstract annotations are enabled
+    entityColors: {        // Colors for different entity types
+      drug: 'bg-green-100 text-green-800',
+      condition: 'bg-blue-100 text-blue-800',
+      outcome: 'bg-purple-100 text-purple-800',
+      studyType: 'bg-yellow-100 text-yellow-800'
+    },
+    abstractSummaries: {}, // Individual article abstract summaries (pmid: summary)
+    collectionSummary: null, // Summary of all current articles
+    thematicAnalysis: null // Thematic analysis of all current articles
+  };
+
+  // Entity dictionaries for annotation
+  const entities = {
+    drugs: [
+      // Common medications and drug classes
+      "acetaminophen", "ibuprofen", "naproxen", "aspirin", "paracetamol",
+      "lisinopril", "atorvastatin", "simvastatin", "metformin", "glipizide",
+      "amlodipine", "metoprolol", "carvedilol", "warfarin", "clopidogrel",
+      "apixaban", "rivaroxaban", "dabigatran", "heparin", "insulin",
+      "levothyroxine", "prednisone", "hydrocortisone", "fluticasone", "albuterol",
+      "fluoxetine", "sertraline", "escitalopram", "venlafaxine", "duloxetine",
+      "citalopram", "paroxetine", "bupropion", "olanzapine", "quetiapine",
+      "risperidone", "lithium", "valproate", "lamotrigine", "gabapentin",
+      "pregabalin", "carbamazepine", "phenytoin", "levetiracetam", "topiramate",
+      "ondansetron", "promethazine", "diphenhydramine", "cetirizine", "loratadine",
+      "omeprazole", "pantoprazole", "esomeprazole", "ranitidine", "famotidine",
+      "amoxicillin", "azithromycin", "doxycycline", "ciprofloxacin", "ceftriaxone",
+      "vancomycin", "metronidazole", "clindamycin", "acyclovir", "oseltamivir",
+      "ketamine", "psilocybin", "esketamine", "MDMA", "LSD", "ayahuasca", "DMT",
+      "monoclonal antibody", "antibiotic", "antipsychotic", "antidepressant", 
+      "benzodiazepine", "opioid", "anti-inflammatory", "statin", "beta-blocker",
+      "ACE inhibitor", "ARB", "SSRI", "SNRI", "TCA", "MAOI", "anticonvulsant",
+      "antiepileptic", "anticoagulant", "antiplatelet", "antihypertensive",
+      "antidiabetic", "bronchodilator", "corticosteroid", "analgesic", "NSAID",
+      "immunosuppressant", "immunomodulator", "antiviral", "antifungal",
+      "stimulant", "sedative", "hypnotic", "anxiolytic", "mood stabilizer"
+    ],
+    conditions: [
+      // Common diseases and conditions
+      "hypertension", "hyperlipidemia", "diabetes", "asthma", "COPD",
+      "depression", "anxiety", "bipolar disorder", "schizophrenia", "psychosis",
+      "insomnia", "migraine", "epilepsy", "Alzheimer's", "Parkinson's",
+      "multiple sclerosis", "rheumatoid arthritis", "osteoarthritis", "gout",
+      "osteoporosis", "hypothyroidism", "hyperthyroidism", "heart failure",
+      "coronary artery disease", "atrial fibrillation", "stroke", "TIA",
+      "pulmonary embolism", "DVT", "GERD", "peptic ulcer", "ulcerative colitis",
+      "Crohn's disease", "irritable bowel syndrome", "hepatitis", "cirrhosis",
+      "kidney disease", "nephropathy", "UTI", "pneumonia", "bronchitis",
+      "influenza", "COVID-19", "cancer", "leukemia", "lymphoma", "carcinoma",
+      "melanoma", "anemia", "thrombocytopenia", "neutropenia", "psoriasis",
+      "eczema", "urticaria", "HIV", "AIDS", "tuberculosis", "malaria",
+      "treatment-resistant depression", "TRD", "major depressive disorder", "MDD",
+      "post-traumatic stress disorder", "PTSD", "obsessive-compulsive disorder", "OCD",
+      "attention deficit hyperactivity disorder", "ADHD", "autism spectrum disorder",
+      "eating disorder", "anorexia", "bulimia", "substance use disorder", "addiction",
+      "hypertriglyceridemia", "hypercholesterolemia", "hyperglycemia", "hypoglycemia",
+      "obesity", "malnutrition", "dehydration", "syndrome", "disease", "disorder",
+      "injury", "infection", "inflammation", "deficiency", "toxicity"
+    ],
+    outcomes: [
+      // Common outcome measures and result indicators
+      "efficacy", "effectiveness", "safety", "tolerability", "remission", "response",
+      "relapse", "recurrence", "reduction", "improvement", "worsening", "exacerbation",
+      "mortality", "morbidity", "survival", "adverse event", "side effect", "complication",
+      "toxicity", "quality of life", "functional status", "disability", "impairment",
+      "hospitalization", "readmission", "emergency room visit", "cost", "resource utilization",
+      "patient satisfaction", "adherence", "compliance", "discontinuation", "withdrawal",
+      "treatment failure", "treatment success", "cure", "recovery", "healing", "progression",
+      "regression", "stabilization", "biomarker", "surrogate marker", "clinical endpoint",
+      "primary outcome", "secondary outcome", "composite outcome", "hazard ratio", "odds ratio",
+      "risk ratio", "relative risk", "absolute risk", "number needed to treat", "NNT",
+      "p-value", "statistical significance", "clinical significance", "effect size",
+      "mean difference", "standardized mean difference", "confidence interval", "interquartile range",
+      "MADRS", "HAM-D", "QIDS", "BDI", "CGI", "PHQ-9"
+    ],
+    studyTypes: [
+      // Common study designs and methodologies
+      "randomized controlled trial", "RCT", "double-blind", "single-blind", "placebo-controlled",
+      "case-control", "cohort", "cross-sectional", "longitudinal", "prospective", "retrospective",
+      "observational", "interventional", "experimental", "quasi-experimental", "non-randomized",
+      "open-label", "crossover", "parallel group", "factorial", "cluster", "pragmatic",
+      "pilot", "feasibility", "phase 1", "phase 2", "phase 3", "phase 4", "dose-finding",
+      "dose-response", "single-arm", "multi-arm", "multi-center", "single-center",
+      "systematic review", "meta-analysis", "network meta-analysis", "pooled analysis",
+      "individual patient data", "IPD", "post-hoc analysis", "subgroup analysis",
+      "intention-to-treat", "ITT", "per-protocol", "PP", "as-treated", "case report",
+      "case series", "survey", "qualitative", "mixed methods", "economic evaluation",
+      "cost-effectiveness", "cost-utility", "cost-benefit", "decision analysis",
+      "Markov model", "discrete event simulation", "registries", "real-world evidence",
+      "comparative effectiveness", "non-inferiority", "superiority", "equivalence",
+      "adaptive design", "sequential design", "group sequential", "n-of-1", "basket trial",
+      "umbrella trial", "platform trial", "SMART design"
+    ]
   };
 
   // Common drug classes for classification (from original code)
@@ -50483,6 +52234,45 @@ const PubMedModule = (function() {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
+  // Function to annotate text with entity highlighting
+  function annotateText(text) {
+    if (!state.annotationsEnabled) return text;
+    
+    let annotatedText = text;
+    
+    // Create a dictionary of terms to highlight
+    const allTerms = {};
+    
+    // Add all entity terms to the dictionary with their types
+    Object.keys(entities).forEach(entityType => {
+      entities[entityType].forEach(term => {
+        // Use word boundaries to avoid partial matches
+        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        // Skip terms that are less than 4 characters (to avoid common words)
+        if (term.length >= 4) {
+          allTerms[term.toLowerCase()] = entityType;
+        }
+      });
+    });
+    
+    // Sort terms by length (descending) to prioritize longer matches
+    const sortedTerms = Object.keys(allTerms).sort((a, b) => b.length - a.length);
+    
+    // Replace each term with a highlighted version
+    sortedTerms.forEach(term => {
+      const entityType = allTerms[term];
+      const colorClass = state.entityColors[entityType === 'drugs' ? 'drug' : 
+                                        entityType === 'conditions' ? 'condition' : 
+                                        entityType === 'outcomes' ? 'outcome' : 'studyType'];
+      
+      // Use word boundaries and case-insensitive matching
+      const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+      annotatedText = annotatedText.replace(regex, `<span class="entity-highlight ${colorClass} px-1 rounded" data-entity-type="${entityType}">$1</span>`);
+    });
+    
+    return annotatedText;
+  }
+
   // Improved function to detect conditions from text using medical terminology
   function extractConditions(article) {
     const text = (article.title + ' ' + article.abstract).toLowerCase();
@@ -50494,6 +52284,22 @@ const PubMedModule = (function() {
       if (text.includes(conditionLower)) {
         if (!extractedConditions.includes(condition)) {
           extractedConditions.push(condition);
+        }
+      }
+    });
+    
+    // Check against entities.conditions list
+    entities.conditions.forEach(condition => {
+      if (condition.length >= 4) { // Skip very short terms
+        const conditionLower = condition.toLowerCase();
+        // Use word boundary to avoid partial matches
+        const regex = new RegExp(`\\b${conditionLower}\\b`, 'i');
+        if (regex.test(text)) {
+          // Format: capitalize first letter
+          const formattedCondition = condition.charAt(0).toUpperCase() + condition.slice(1);
+          if (!extractedConditions.includes(formattedCondition)) {
+            extractedConditions.push(formattedCondition);
+          }
         }
       }
     });
@@ -50571,6 +52377,22 @@ const PubMedModule = (function() {
       }
     });
     
+    // Check against entities.drugs list
+    entities.drugs.forEach(drug => {
+      if (drug.length >= 4) { // Skip very short terms
+        const drugLower = drug.toLowerCase();
+        // Use word boundary to avoid partial matches
+        const regex = new RegExp(`\\b${drugLower}\\b`, 'i');
+        if (regex.test(text)) {
+          // Format: capitalize first letter
+          const formattedDrug = drug.charAt(0).toUpperCase() + drug.slice(1);
+          if (!extractedDrugs.includes(formattedDrug)) {
+            extractedDrugs.push(formattedDrug);
+          }
+        }
+      }
+    });
+    
     // Check for specific drug class mentions
     Object.entries(drugClasses).forEach(([className, drugs]) => {
       // Check for the class name itself (only if it's a proper class name)
@@ -50634,193 +52456,957 @@ const PubMedModule = (function() {
     return [...new Set(extractedDrugs)]; // Remove duplicates
   }
 
-  // Create article element for display with selection, abstract viewing, etc.
-  function createArticleElement(article) {
-    const articleElement = document.createElement('div');
-    articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
-    articleElement.dataset.pmid = article.pmid;
+  // Function to extract study types from article
+  function extractStudyTypes(article) {
+    const text = (article.title + ' ' + article.abstract).toLowerCase();
+    let extractedStudyTypes = [];
     
-    const isSelected = state.selectedArticles.has(article.pmid);
-    const isAbstractVisible = state.abstractViews.has(article.pmid);
-    
-    const hasDOI = article.doi && article.doi.trim() !== '';
-    const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
-    
-    // Extract medical information
-    const conditions = extractConditions(article);
-    const drugs = extractDrugs(article);
-    
-    // Only show relevant medical findings based on search type
-    let medicalFindings = '';
-    if (conditions.length > 0 || drugs.length > 0) {
-      medicalFindings = `
-        <div class="border-t border-gray-100 mt-3 pt-3">
-          ${conditions.length > 0 ? 
-            `<div class="mb-2">
-              <span class="text-xs font-medium text-gray-700">Conditions: </span>
-              <div class="flex flex-wrap gap-1 mt-1">
-                ${conditions.slice(0, 6).map(condition => 
-                  `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
-                ).join('')}
-                ${conditions.length > 6 ? `<span class="text-xs text-gray-500">+${conditions.length - 6} more</span>` : ''}
-              </div>
-            </div>` : ''
+    // Check against entities.studyTypes list
+    entities.studyTypes.forEach(studyType => {
+      if (studyType.length >= 3) { // Skip very short terms
+        const studyTypeLower = studyType.toLowerCase();
+        // Use word boundary to avoid partial matches
+        const regex = new RegExp(`\\b${studyTypeLower}\\b`, 'i');
+        if (regex.test(text)) {
+            // Format: capitalize first letter of each word
+            const formattedStudyType = studyType.replace(/\b\w/g, c => c.toUpperCase());
+            if (!extractedStudyTypes.includes(formattedStudyType)) {
+              extractedStudyTypes.push(formattedStudyType);
+            }
           }
-          ${drugs.length > 0 ? 
-            `<div>
-              <span class="text-xs font-medium text-gray-700">Treatments: </span>
-              <div class="flex flex-wrap gap-1 mt-1">
-                ${drugs.slice(0, 6).map(drug => 
-                  `<span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
-                ).join('')}
-                ${drugs.length > 6 ? `<span class="text-xs text-gray-500">+${drugs.length - 6} more</span>` : ''}
-              </div>
-            </div>` : ''
+        }
+      });
+      
+      // Check MeSH terms and keywords for study design information
+      if (article.meshTerms && Array.isArray(article.meshTerms)) {
+        article.meshTerms.forEach(term => {
+          if (
+            term.includes('Study') || 
+            term.includes('Trial') || 
+            term.includes('Analysis') ||
+            term.includes('Design')
+          ) {
+            if (!extractedStudyTypes.includes(term)) {
+              extractedStudyTypes.push(term);
+            }
           }
-        </div>
-      `;
-    }
-    
-    // Determine if the article was from an expanded search
-    let expandedBadge = '';
-    if (article.foundWith && article.foundWith !== state.term && state.expandedSearch) {
-      expandedBadge = `<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full ml-2">Found with: ${article.foundWith}</span>`;
-    }
-    
-    articleElement.innerHTML = `
-      <div class="flex items-start">
-        <label class="flex items-center mr-3 mt-1">
-          <input type="checkbox" class="article-select-checkbox h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" ${isSelected ? 'checked' : ''}>
-        </label>
-        <div class="flex-grow">
-          <div class="flex justify-between">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
-          </div>
-          <div class="text-sm text-gray-600 mb-2">
-            ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
-          </div>
-          <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
-            <span class="font-medium">${article.journal || 'Journal not specified'}</span>
-            <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
-            <span>${formatDate(article.pubDate)}</span>
-            <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
-            <span>PMID: ${article.pmid}</span>
-            ${expandedBadge}
-          </div>
+        });
+      }
+      
+      if (article.keywords && Array.isArray(article.keywords)) {
+        article.keywords.forEach(keyword => {
+          const keywordLower = keyword.toLowerCase();
           
-          <!-- Abstract toggle -->
-          <button class="toggle-abstract-btn text-primary hover:text-primary-dark text-sm flex items-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 ${isAbstractVisible ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-            ${isAbstractVisible ? 'Hide Abstract' : 'Show Abstract'}
-          </button>
+          if (
+            keywordLower.includes('trial') || 
+            keywordLower.includes('study') || 
+            keywordLower.includes('analysis') ||
+            keywordLower.includes('design') ||
+            keywordLower.includes('method')
+          ) {
+            if (keyword.split(' ').length > 1 && !extractedStudyTypes.includes(keyword)) {
+              const formattedKeyword = keyword.replace(/\b\w/g, c => c.toUpperCase());
+              extractedStudyTypes.push(formattedKeyword);
+            }
+          }
+        });
+      }
+      
+      return [...new Set(extractedStudyTypes)]; // Remove duplicates
+    }
+  
+    // Function to extract outcome measures from article
+    function extractOutcomes(article) {
+      const text = (article.title + ' ' + article.abstract).toLowerCase();
+      let extractedOutcomes = [];
+      
+      // Check against entities.outcomes list
+      entities.outcomes.forEach(outcome => {
+        if (outcome.length >= 4) { // Skip very short terms
+          const outcomeLower = outcome.toLowerCase();
+          // Use word boundary to avoid partial matches
+          const regex = new RegExp(`\\b${outcomeLower}\\b`, 'i');
+          if (regex.test(text)) {
+            // Format: capitalize first letter of each word
+            const formattedOutcome = outcome.replace(/\b\w/g, c => c.toUpperCase());
+            if (!extractedOutcomes.includes(formattedOutcome)) {
+              extractedOutcomes.push(formattedOutcome);
+            }
+          }
+        }
+      });
+      
+      // Look for patterns that suggest outcome measures
+      const outcomePatterns = [
+        /primary (?:outcome|endpoint)/i,
+        /secondary (?:outcome|endpoint)/i,
+        /measured (?:using|with|by) the ([^.]+)/i,
+        /scores on the ([^.]+)/i,
+        /reduction in ([^.]+) score/i,
+        /improvement in ([^.]+)/i
+      ];
+      
+      outcomePatterns.forEach(pattern => {
+        const matches = text.match(pattern);
+        if (matches && matches[1]) {
+          const outcome = matches[1].trim();
+          if (outcome.length > 3 && !treatmentExclusionWords.includes(outcome.toLowerCase())) {
+            const formattedOutcome = outcome.charAt(0).toUpperCase() + outcome.slice(1);
+            if (!extractedOutcomes.includes(formattedOutcome)) {
+              extractedOutcomes.push(formattedOutcome);
+            }
+          }
+        }
+      });
+      
+      return [...new Set(extractedOutcomes)]; // Remove duplicates
+    }
+  
+    // Function to generate individual abstract summary
+    async function generateAbstractSummary(article) {
+      // If we already have a summary for this article, return it
+      if (state.abstractSummaries[article.pmid]) {
+        return state.abstractSummaries[article.pmid];
+      }
+      
+      // Simple summary using rule-based extraction
+      try {
+        // Extract key information
+        const drugs = extractDrugs(article);
+        const conditions = extractConditions(article);
+        const studyTypes = extractStudyTypes(article);
+        const outcomes = extractOutcomes(article);
+        
+        // Check for key sentences in the abstract
+        const sentences = article.abstract.split(/(?<=[.!?])\s+/);
+        
+        let methodSentence = '';
+        let resultSentence = '';
+        let conclusionSentence = '';
+        
+        // Look for specific indicators of methods, results, and conclusions
+        sentences.forEach(sentence => {
+          const lowerSentence = sentence.toLowerCase();
           
-          <!-- Abstract (initially hidden) -->
-          <div class="abstract-container ${isAbstractVisible ? '' : 'hidden'}">
-            <div class="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm mb-3">
-              <p><strong>Abstract:</strong> ${article.abstract}</p>
+          if (lowerSentence.includes('method') || 
+              lowerSentence.includes('design') || 
+              lowerSentence.includes('procedure') ||
+              lowerSentence.includes('participant') || 
+              lowerSentence.includes('subject')) {
+            methodSentence = sentence;
+          }
+          
+          if (lowerSentence.includes('result') || 
+              lowerSentence.includes('found') || 
+              lowerSentence.includes('show') || 
+              lowerSentence.includes('demonstrate') ||
+              lowerSentence.includes('observe')) {
+            resultSentence = sentence;
+          }
+          
+          if (lowerSentence.includes('conclu') || 
+              lowerSentence.includes('suggest') || 
+              lowerSentence.includes('support') || 
+              lowerSentence.includes('demonstrate') ||
+              lowerSentence.includes('indicate')) {
+            conclusionSentence = sentence;
+          }
+        });
+        
+        // Use the last sentence as conclusion if no conclusion sentence was found
+        if (!conclusionSentence && sentences.length > 0) {
+          conclusionSentence = sentences[sentences.length - 1];
+        }
+        
+        // Use the first sentence if no method sentence was found
+        if (!methodSentence && sentences.length > 0) {
+          methodSentence = sentences[0];
+        }
+        
+        // Use middle sentence for results if no result sentence was found
+        if (!resultSentence && sentences.length > 2) {
+          resultSentence = sentences[Math.floor(sentences.length / 2)];
+        }
+        
+        // Create a summary
+        let summary = '';
+        
+        // Study type and design
+        if (studyTypes.length > 0) {
+          summary += `<span class="font-medium">Design:</span> ${studyTypes.slice(0, 2).join(', ')}. `;
+        }
+        
+        // Interventions
+        if (drugs.length > 0) {
+          summary += `<span class="font-medium">Treatment:</span> ${drugs.slice(0, 3).join(', ')}. `;
+        }
+        
+        // Conditions
+        if (conditions.length > 0) {
+          summary += `<span class="font-medium">Condition:</span> ${conditions.slice(0, 2).join(', ')}. `;
+        }
+        
+        // Key findings
+        if (resultSentence) {
+          summary += `<span class="font-medium">Finding:</span> ${resultSentence} `;
+        }
+        
+        // Conclusion
+        if (conclusionSentence && conclusionSentence !== resultSentence) {
+          summary += `<span class="font-medium">Conclusion:</span> ${conclusionSentence}`;
+        }
+        
+        // Store the summary in state
+        state.abstractSummaries[article.pmid] = summary;
+        
+        return summary;
+      } catch (error) {
+        console.error('Error generating abstract summary:', error);
+        return 'Summary not available';
+      }
+    }
+  
+    // Function to generate collection summary
+    async function generateCollectionSummary(articles) {
+      // If we already have a collection summary and articles haven't changed, return it
+      if (state.collectionSummary && state.collectionSummary.articleCount === articles.length) {
+        return state.collectionSummary;
+      }
+      
+      try {
+        // Extract publication years
+        const years = articles.map(article => {
+          const pubDate = article.pubDate;
+          if (!pubDate) return null;
+          
+          if (typeof pubDate === 'string') {
+            const yearMatch = pubDate.match(/\b\d{4}\b/);
+            return yearMatch ? parseInt(yearMatch[0]) : null;
+          }
+          
+          return null;
+        }).filter(year => year !== null);
+        
+        // Get years range
+        let yearRange = 'Unknown time period';
+        if (years.length > 0) {
+          const minYear = Math.min(...years);
+          const maxYear = Math.max(...years);
+          
+          if (minYear === maxYear) {
+            yearRange = `Published in ${minYear}`;
+          } else {
+            yearRange = `Published between ${minYear} and ${maxYear}`;
+          }
+        }
+        
+        // Count journals
+        const journalCounts = {};
+        articles.forEach(article => {
+          if (article.journal) {
+            journalCounts[article.journal] = (journalCounts[article.journal] || 0) + 1;
+          }
+        });
+        
+        // Get top journals
+        const topJournals = Object.entries(journalCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([journal, count]) => ({ journal, count }));
+        
+        // Count full text availability
+        const fullTextCount = articles.filter(article => 
+          article.fullTextUrl && article.fullTextUrl.trim() !== ''
+        ).length;
+        
+        // Extract all conditions, drugs, and study types
+        const allConditions = new Set();
+        const allDrugs = new Set();
+        const allStudyTypes = new Set();
+        
+        articles.forEach(article => {
+          extractConditions(article).forEach(condition => allConditions.add(condition));
+          extractDrugs(article).forEach(drug => allDrugs.add(drug));
+          extractStudyTypes(article).forEach(studyType => allStudyTypes.add(studyType));
+        });
+        
+        // Create collection summary
+        const summary = {
+          articleCount: articles.length,
+          yearRange,
+          topJournals,
+          fullTextAvailable: fullTextCount,
+          fullTextPercentage: Math.round((fullTextCount / articles.length) * 100),
+          topConditions: Array.from(allConditions).slice(0, 5),
+          topDrugs: Array.from(allDrugs).slice(0, 5),
+          studyTypes: Array.from(allStudyTypes),
+          hasRCTs: Array.from(allStudyTypes).some(type => 
+            type.toLowerCase().includes('rct') || 
+            type.toLowerCase().includes('randomized') || 
+            type.toLowerCase().includes('randomised')
+          ),
+          hasMetaAnalyses: Array.from(allStudyTypes).some(type => 
+            type.toLowerCase().includes('meta-analysis') || 
+            type.toLowerCase().includes('systematic review')
+          )
+        };
+        
+        // Store the summary in state
+        state.collectionSummary = summary;
+        
+        return summary;
+      } catch (error) {
+        console.error('Error generating collection summary:', error);
+        return null;
+      }
+    }
+  
+    // Function to perform thematic analysis
+    async function performThematicAnalysis(articles) {
+      // If we already have a thematic analysis and articles haven't changed, return it
+      if (state.thematicAnalysis && state.thematicAnalysis.articleCount === articles.length) {
+        return state.thematicAnalysis;
+      }
+      
+      try {
+        // Count study types
+        const studyTypeCount = {};
+        
+        articles.forEach(article => {
+          const types = extractStudyTypes(article);
+          types.forEach(type => {
+            studyTypeCount[type] = (studyTypeCount[type] || 0) + 1;
+          });
+        });
+        
+        // Get top study types
+        const topStudyTypes = Object.entries(studyTypeCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([type, count]) => ({ type, count }));
+        
+        // Extract demographic information
+        let hasPediatric = false;
+        let hasGeriatric = false;
+        let hasPregnancy = false;
+        let mentionsGender = false;
+        let mentionsEthnicity = false;
+        
+        // Demographic patterns
+        const demographicPatterns = [
+          { pattern: /\b(?:child|children|pediatric|paediatric|adolescent)\b/i, flag: 'hasPediatric' },
+          { pattern: /\b(?:elder|elderly|geriatric|older adult|seniors?)\b/i, flag: 'hasGeriatric' },
+          { pattern: /\b(?:pregnan|maternal|gestational)\b/i, flag: 'hasPregnancy' },
+          { pattern: /\b(?:gender|sex|males?|females?|men|women)\b/i, flag: 'mentionsGender' },
+          { pattern: /\b(?:ethnicity|ethnicities|racial|race|caucasian|asian|african|hispanic|latino)\b/i, flag: 'mentionsEthnicity' }
+        ];
+        
+        articles.forEach(article => {
+          const text = (article.title + ' ' + article.abstract).toLowerCase();
+          
+          demographicPatterns.forEach(({ pattern, flag }) => {
+            if (pattern.test(text)) {
+              if (flag === 'hasPediatric') hasPediatric = true;
+              if (flag === 'hasGeriatric') hasGeriatric = true;
+              if (flag === 'hasPregnancy') hasPregnancy = true;
+              if (flag === 'mentionsGender') mentionsGender = true;
+              if (flag === 'mentionsEthnicity') mentionsEthnicity = true;
+            }
+          });
+        });
+        
+        // Extract outcome measures
+        const outcomeCount = {};
+        
+        articles.forEach(article => {
+          const outcomes = extractOutcomes(article);
+          outcomes.forEach(outcome => {
+            outcomeCount[outcome] = (outcomeCount[outcome] || 0) + 1;
+          });
+        });
+        
+        // Get top outcomes
+        const topOutcomes = Object.entries(outcomeCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([outcome, count]) => ({ outcome, count }));
+        
+        // Extract common abstract terms (excluding stop words)
+        const wordFrequencies = {};
+        const stopWords = new Set([
+          'a', 'an', 'the', 'and', 'or', 'but', 'of', 'to', 'in', 'on', 'with', 'by', 'for', 'at',
+          'from', 'as', 'this', 'that', 'these', 'those', 'it', 'its', 'is', 'are', 'was', 'were',
+          'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'not', 'can', 'will',
+          'should', 'would', 'could', 'may', 'might', 'must', 'we', 'us', 'our', 'ours', 'they',
+          'them', 'their', 'theirs', 'he', 'him', 'his', 'she', 'her', 'hers', 'study', 'studies',
+          'patient', 'patients', 'result', 'results', 'method', 'methods', 'clinical', 'data'
+        ]);
+        
+        articles.forEach(article => {
+          const text = (article.title + ' ' + article.abstract).toLowerCase();
+          const words = text.match(/\b\w+\b/g) || [];
+          
+          words.forEach(word => {
+            if (word.length > 3 && !stopWords.has(word)) {
+              wordFrequencies[word] = (wordFrequencies[word] || 0) + 1;
+            }
+          });
+        });
+        
+        // Get top words
+        const topWords = Object.entries(wordFrequencies)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 50)
+          .map(([word, count]) => ({ word, count }));
+        
+        // Create thematic analysis
+        const analysis = {
+          articleCount: articles.length,
+          topStudyTypes,
+          demographics: {
+            hasPediatric,
+            hasGeriatric,
+            hasPregnancy,
+            mentionsGender,
+            mentionsEthnicity
+          },
+          topOutcomes,
+          topWords
+        };
+        
+        // Store the analysis in state
+        state.thematicAnalysis = analysis;
+        
+        return analysis;
+      } catch (error) {
+        console.error('Error performing thematic analysis:', error);
+        return null;
+      }
+    }
+  
+    // Create article element for display with entity annotation and summary
+    function createArticleElement(article) {
+      const articleElement = document.createElement('div');
+      articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
+      articleElement.dataset.pmid = article.pmid;
+      
+      const isSelected = state.selectedArticles.has(article.pmid);
+      const isAbstractVisible = state.abstractViews.has(article.pmid);
+      
+      const hasDOI = article.doi && article.doi.trim() !== '';
+      const hasFullText = article.fullTextUrl && article.fullTextUrl.trim() !== '';
+      
+      // Extract medical information
+      const conditions = extractConditions(article);
+      const drugs = extractDrugs(article);
+      const studyTypes = extractStudyTypes(article);
+      const outcomes = extractOutcomes(article);
+      
+      // Get abstract summary
+      let abstractSummary = state.abstractSummaries[article.pmid] || '';
+      if (!abstractSummary) {
+        // We'll generate it asynchronously and update later
+        generateAbstractSummary(article).then(summary => {
+          const summaryElement = articleElement.querySelector('.abstract-summary');
+          if (summaryElement) {
+            summaryElement.innerHTML = summary;
+          }
+        });
+      }
+      
+      // Annotate abstract if annotations are enabled
+      const annotatedAbstract = state.annotationsEnabled ? 
+        annotateText(article.abstract) : article.abstract;
+      
+      // Only show relevant medical findings based on search type
+      let medicalFindings = '';
+      if (conditions.length > 0 || drugs.length > 0 || outcomes.length > 0 || studyTypes.length > 0) {
+        medicalFindings = `
+          <div class="border-t border-gray-100 mt-3 pt-3">
+            ${conditions.length > 0 ? 
+              `<div class="mb-2">
+                <span class="text-xs font-medium text-gray-700">Conditions: </span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${conditions.slice(0, 6).map(condition => 
+                    `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
+                  ).join('')}
+                  ${conditions.length > 6 ? `<span class="text-xs text-gray-500">+${conditions.length - 6} more</span>` : ''}
+                </div>
+              </div>` : ''
+            }
+            ${drugs.length > 0 ? 
+              `<div class="mb-2">
+                <span class="text-xs font-medium text-gray-700">Treatments: </span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${drugs.slice(0, 6).map(drug => 
+                    `<span class="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
+                  ).join('')}
+                  ${drugs.length > 6 ? `<span class="text-xs text-gray-500">+${drugs.length - 6} more</span>` : ''}
+                </div>
+              </div>` : ''
+            }
+            ${outcomes.length > 0 ? 
+              `<div class="mb-2">
+                <span class="text-xs font-medium text-gray-700">Outcomes: </span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${outcomes.slice(0, 6).map(outcome => 
+                    `<span class="bg-purple-50 text-purple-800 text-xs px-2 py-1 rounded-full">${outcome}</span>`
+                  ).join('')}
+                  ${outcomes.length > 6 ? `<span class="text-xs text-gray-500">+${outcomes.length - 6} more</span>` : ''}
+                </div>
+              </div>` : ''
+            }
+            ${studyTypes.length > 0 ? 
+              `<div class="mb-2">
+                <span class="text-xs font-medium text-gray-700">Study Type: </span>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${studyTypes.slice(0, 3).map(studyType => 
+                    `<span class="bg-yellow-50 text-yellow-800 text-xs px-2 py-1 rounded-full">${studyType}</span>`
+                  ).join('')}
+                  ${studyTypes.length > 3 ? `<span class="text-xs text-gray-500">+${studyTypes.length - 3} more</span>` : ''}
+                </div>
+              </div>` : ''
+            }
+          </div>
+        `;
+      }
+      
+      // Determine if the article was from an expanded search
+      let expandedBadge = '';
+      if (article.foundWith && article.foundWith !== state.term && state.expandedSearch) {
+        expandedBadge = `<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full ml-2">Found with: ${article.foundWith}</span>`;
+      }
+      
+      articleElement.innerHTML = `
+        <div class="flex items-start">
+          <label class="flex items-center mr-3 mt-1">
+            <input type="checkbox" class="article-select-checkbox h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" ${isSelected ? 'checked' : ''}>
+          </label>
+          <div class="flex-grow">
+            <div class="flex justify-between">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+            </div>
+            <div class="text-sm text-gray-600 mb-2">
+              ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ', et al.' : ''}
+            </div>
+            <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
+              <span class="font-medium">${article.journal || 'Journal not specified'}</span>
+              <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+              <span>${formatDate(article.pubDate)}</span>
+              <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+              <span>PMID: ${article.pmid}</span>
+              ${expandedBadge}
+            </div>
+            
+            <!-- Abstract Summary -->
+            <div class="abstract-summary bg-gray-50 p-3 rounded-lg text-sm text-gray-700 mb-3">
+              ${abstractSummary || 'Generating summary...'}
+            </div>
+            
+            <!-- Abstract toggle -->
+            <div class="flex justify-between items-center mb-3">
+              <button class="toggle-abstract-btn text-primary hover:text-primary-dark text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 ${isAbstractVisible ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                ${isAbstractVisible ? 'Hide Full Abstract' : 'Show Full Abstract'}
+              </button>
+              
+              <button class="toggle-annotation-btn text-gray-500 hover:text-gray-700 text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${state.annotationsEnabled ? 'Hide Annotations' : 'Show Annotations'}
+              </button>
+            </div>
+            
+            <!-- Abstract (initially hidden) -->
+            <div class="abstract-container ${isAbstractVisible ? '' : 'hidden'}">
+              <div class="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm mb-3">
+                <p>${annotatedAbstract}</p>
+              </div>
+            </div>
+            
+            ${article.keywords && article.keywords.length > 0 ? 
+              `<div class="flex flex-wrap gap-1 mb-3">
+                ${article.keywords.slice(0, 5).map(keyword => 
+                  `<span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
+                ).join('')}
+                ${article.keywords.length > 5 ? `<span class="text-xs text-gray-500">+${article.keywords.length - 5} more</span>` : ''}
+              </div>` : ''
+            }
+            
+            ${medicalFindings}
+            
+            <div class="flex flex-wrap gap-2 mt-3">
+              <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
+                 class="text-primary hover:text-primary-dark text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                View on PubMed
+              </a>
+              ${hasDOI ? 
+                `<a href="https://doi.org/${article.doi}" target="_blank" 
+                    class="text-primary hover:text-primary-dark text-sm flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
+                  </svg>
+                  DOI
+                </a>` : ''
+              }
+              ${hasFullText ? 
+                `<a href="${article.fullTextUrl}" target="_blank" 
+                    class="text-primary hover:text-primary-dark text-sm flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Full Text
+                </a>` : ''
+              }
             </div>
           </div>
+        </div>
+      `;
+      
+      // Add event listeners to the article element
+      const checkboxEl = articleElement.querySelector('.article-select-checkbox');
+      const abstractToggleBtn = articleElement.querySelector('.toggle-abstract-btn');
+      const annotationToggleBtn = articleElement.querySelector('.toggle-annotation-btn');
+      
+      if (checkboxEl) {
+        checkboxEl.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            state.selectedArticles.add(article.pmid);
+          } else {
+            state.selectedArticles.delete(article.pmid);
+          }
+          updateSelectedCount();
+        });
+      }
+      
+      if (abstractToggleBtn) {
+        abstractToggleBtn.addEventListener('click', () => {
+          const abstractContainer = articleElement.querySelector('.abstract-container');
+          const chevronIcon = abstractToggleBtn.querySelector('svg');
           
-          ${article.keywords && article.keywords.length > 0 ? 
-            `<div class="flex flex-wrap gap-1 mb-3">
-              ${article.keywords.slice(0, 5).map(keyword => 
-                `<span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${keyword}</span>`
-              ).join('')}
-              ${article.keywords.length > 5 ? `<span class="text-xs text-gray-500">+${article.keywords.length - 5} more</span>` : ''}
-            </div>` : ''
+          if (abstractContainer) {
+            const isHidden = abstractContainer.classList.contains('hidden');
+            
+            if (isHidden) {
+              abstractContainer.classList.remove('hidden');
+              abstractToggleBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                Hide Full Abstract
+              `;
+              state.abstractViews.add(article.pmid);
+            } else {
+              abstractContainer.classList.add('hidden');
+              abstractToggleBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                Show Full Abstract
+              `;
+              state.abstractViews.delete(article.pmid);
+            }
+          }
+        });
+      }
+      
+      if (annotationToggleBtn) {
+        annotationToggleBtn.addEventListener('click', () => {
+          toggleAnnotations();
+          
+          // Update this specific article's annotations
+          const abstractContainer = articleElement.querySelector('.abstract-container p');
+          if (abstractContainer) {
+            abstractContainer.innerHTML = state.annotationsEnabled ? 
+              annotateText(article.abstract) : article.abstract;
           }
           
-          ${medicalFindings}
+          // Update button text
+          annotationToggleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            ${state.annotationsEnabled ? 'Hide Annotations' : 'Show Annotations'}
+          `;
+        });
+      }
+      
+      return articleElement;
+    }
+
+  // Toggle annotations globally
+  function toggleAnnotations() {
+    state.annotationsEnabled = !state.annotationsEnabled;
+    
+    // Update annotation toggle button in the UI
+    if (elements.pubmedAnnotationToggle) {
+      elements.pubmedAnnotationToggle.textContent = state.annotationsEnabled ? 
+        'Disable Annotations' : 'Enable Annotations';
+      
+      if (state.annotationsEnabled) {
+        elements.pubmedAnnotationToggle.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+        elements.pubmedAnnotationToggle.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white');
+      } else {
+        elements.pubmedAnnotationToggle.classList.remove('bg-green-500', 'hover:bg-green-600', 'text-white');
+        elements.pubmedAnnotationToggle.classList.add('bg-gray-200', 'hover:bg-gray-300');
+      }
+    }
+    
+    // Re-render articles to update annotations
+    renderArticles();
+  }
+
+  // Create collection summary element
+  function createCollectionSummaryElement(summary) {
+    if (!summary) return null;
+    
+    const summaryElement = document.createElement('div');
+    summaryElement.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6';
+    
+    summaryElement.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-800">Collection Overview</h3>
+        <button id="pubmedCollapseCollectionBtn" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
+      
+      <div id="pubmedCollectionContent">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="bg-blue-50 p-3 rounded-lg">
+            <div class="text-2xl font-bold text-blue-800">${summary.articleCount}</div>
+            <div class="text-sm text-blue-700">Articles</div>
+          </div>
           
-          <div class="flex flex-wrap gap-2 mt-3">
-            <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
-               class="text-primary hover:text-primary-dark text-sm flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              View on PubMed
-            </a>
-            ${hasDOI ? 
-              `<a href="https://doi.org/${article.doi}" target="_blank" 
-                  class="text-primary hover:text-primary-dark text-sm flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
-                </svg>
-                DOI
-              </a>` : ''
-            }
-            ${hasFullText ? 
-              `<a href="${article.fullTextUrl}" target="_blank" 
-                  class="text-primary hover:text-primary-dark text-sm flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Full Text
-              </a>` : ''
-            }
+          <div class="bg-green-50 p-3 rounded-lg">
+            <div class="text-lg font-medium text-green-800">${summary.yearRange}</div>
+            <div class="text-sm text-green-700">Publication Period</div>
+          </div>
+          
+          <div class="bg-purple-50 p-3 rounded-lg">
+            <div class="text-2xl font-bold text-purple-800">${summary.fullTextAvailable}</div>
+            <div class="text-sm text-purple-700">Full Text Available (${summary.fullTextPercentage}%)</div>
+          </div>
+          
+          <div class="bg-yellow-50 p-3 rounded-lg">
+            <div class="flex items-center">
+              ${summary.hasRCTs ? 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>` : 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>`
+              }
+              <span class="text-yellow-800 font-medium">RCTs</span>
+            </div>
+            <div class="flex items-center mt-1">
+              ${summary.hasMetaAnalyses ? 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>` : 
+                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>`
+              }
+              <span class="text-yellow-800 font-medium">Meta-Analyses</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Top Journals</h4>
+            <ul class="text-sm text-gray-600">
+              ${summary.topJournals.map(({ journal, count }) => 
+                `<li class="flex justify-between mb-1">
+                  <span class="truncate">${journal}</span>
+                  <span class="font-medium">${count}</span>
+                </li>`
+              ).join('')}
+            </ul>
+          </div>
+          
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Key Topics</h4>
+            <div class="flex flex-wrap gap-1">
+              ${summary.topConditions.map(condition => 
+                `<span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
+              ).join('')}
+              ${summary.topDrugs.map(drug => 
+                `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
+              ).join('')}
+            </div>
           </div>
         </div>
       </div>
     `;
     
-    // Add event listeners to the article element
-    const checkboxEl = articleElement.querySelector('.article-select-checkbox');
-    const abstractToggleBtn = articleElement.querySelector('.toggle-abstract-btn');
+    // Add event listener to collapse button
+    const collapseBtn = summaryElement.querySelector('#pubmedCollapseCollectionBtn');
+    const contentDiv = summaryElement.querySelector('#pubmedCollectionContent');
     
-    if (checkboxEl) {
-      checkboxEl.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          state.selectedArticles.add(article.pmid);
-        } else {
-          state.selectedArticles.delete(article.pmid);
-        }
-        updateSelectedCount();
-      });
-    }
-    
-    if (abstractToggleBtn) {
-      abstractToggleBtn.addEventListener('click', () => {
-        const abstractContainer = articleElement.querySelector('.abstract-container');
-        const chevronIcon = abstractToggleBtn.querySelector('svg');
+    if (collapseBtn && contentDiv) {
+      collapseBtn.addEventListener('click', () => {
+        const isCollapsed = contentDiv.classList.contains('hidden');
         
-        if (abstractContainer) {
-          const isHidden = abstractContainer.classList.contains('hidden');
-          
-          if (isHidden) {
-            abstractContainer.classList.remove('hidden');
-            abstractToggleBtn.innerHTML = `
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              Hide Abstract
-            `;
-            state.abstractViews.add(article.pmid);
-          } else {
-            abstractContainer.classList.add('hidden');
-            abstractToggleBtn.innerHTML = `
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              Show Abstract
-            `;
-            state.abstractViews.delete(article.pmid);
-          }
+        if (isCollapsed) {
+          contentDiv.classList.remove('hidden');
+          collapseBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+          `;
+        } else {
+          contentDiv.classList.add('hidden');
+          collapseBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          `;
         }
       });
     }
     
-    return articleElement;
+    return summaryElement;
+  }
+
+  // Create thematic analysis element
+  function createThematicAnalysisElement(analysis) {
+    if (!analysis) return null;
+    
+    const analysisElement = document.createElement('div');
+    analysisElement.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6';
+    
+    // Calculate max count for word cloud
+    const maxWordCount = analysis.topWords.length > 0 ? 
+      Math.max(...analysis.topWords.map(w => w.count)) : 1;
+    
+    // Generate word cloud HTML
+    const wordCloudHtml = analysis.topWords.map(({ word, count }) => {
+      // Scale font size between 12px and 24px based on frequency
+      const fontSize = 12 + Math.round((count / maxWordCount) * 12);
+      const opacity = 0.6 + ((count / maxWordCount) * 0.4); // Between 0.6 and 1.0
+      
+      return `<span class="inline-block px-2 py-1 m-1 rounded" 
+               style="font-size: ${fontSize}px; opacity: ${opacity};">${word}</span>`;
+    }).join('');
+    
+    analysisElement.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-800">Thematic Analysis</h3>
+        <button id="pubmedCollapseThematicBtn" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+      </div>
+      
+      <div id="pubmedThematicContent">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Study Types</h4>
+            <div class="space-y-2">
+              ${analysis.topStudyTypes.slice(0, 5).map(({ type, count }) => 
+                `<div class="flex items-center">
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-yellow-600 h-2.5 rounded-full" style="width: ${Math.min(100, Math.round((count / analysis.articleCount) * 100))}%"></div>
+                  </div>
+                  <span class="ml-2 text-xs text-gray-600">${type} (${count})</span>
+                </div>`
+              ).join('')}
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 p-3 rounded-lg">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Demographics</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full ${analysis.demographics.hasPediatric ? 'bg-blue-500' : 'bg-gray-300'} mr-2"></div>
+                <span class="text-xs text-gray-600">Pediatric</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full ${analysis.demographics.hasGeriatric ? 'bg-blue-500' : 'bg-gray-300'} mr-2"></div>
+                <span class="text-xs text-gray-600">Geriatric</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full ${analysis.demographics.hasPregnancy ? 'bg-blue-500' : 'bg-gray-300'} mr-2"></div>
+                <span class="text-xs text-gray-600">Pregnancy</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full ${analysis.demographics.mentionsGender ? 'bg-blue-500' : 'bg-gray-300'} mr-2"></div>
+                <span class="text-xs text-gray-600">Gender-specific</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full ${analysis.demographics.mentionsEthnicity ? 'bg-blue-500' : 'bg-gray-300'} mr-2"></div>
+                <span class="text-xs text-gray-600">Ethnicity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Outcome Measures</h4>
+          <div class="flex flex-wrap gap-1">
+            ${analysis.topOutcomes.slice(0, 8).map(({ outcome, count }) => 
+              `<span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+                ${outcome} <span class="font-medium">(${count})</span>
+              </span>`
+            ).join('')}
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Word Frequency</h4>
+          <div class="bg-gray-50 p-3 rounded-lg word-cloud text-center">
+            ${wordCloudHtml}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add event listener to collapse button
+    const collapseBtn = analysisElement.querySelector('#pubmedCollapseThematicBtn');
+    const contentDiv = analysisElement.querySelector('#pubmedThematicContent');
+    
+    if (collapseBtn && contentDiv) {
+      collapseBtn.addEventListener('click', () => {
+        const isCollapsed = contentDiv.classList.contains('hidden');
+        
+        if (isCollapsed) {
+          contentDiv.classList.remove('hidden');
+          collapseBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+          `;
+        } else {
+          contentDiv.classList.add('hidden');
+          collapseBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          `;
+        }
+      });
+    }
+    
+    return analysisElement;
   }
 
   // Filter articles by local search term
   function filterArticlesByLocalSearch(term) {
     if (!term || term.trim() === '') {
-      state.filteredArticles = [...state.articles];
-      state.localSearchTerm = '';
-      renderArticles();
+      resetLocalFilters();
       return;
     }
     
@@ -50828,28 +53414,242 @@ const PubMedModule = (function() {
     state.localSearchTerm = searchTerm;
     
     state.filteredArticles = state.articles.filter(article => {
-      // Search in title, abstract, and keywords
+      // Search in all relevant fields
       const title = article.title ? article.title.toLowerCase() : '';
       const abstract = article.abstract ? article.abstract.toLowerCase() : '';
       const keywords = article.keywords ? article.keywords.join(' ').toLowerCase() : '';
       const authors = article.authors ? article.authors.join(' ').toLowerCase() : '';
       const pmid = article.pmid ? article.pmid.toLowerCase() : '';
+      const journal = article.journal ? article.journal.toLowerCase() : '';
       
       return (
         title.includes(searchTerm) || 
         abstract.includes(searchTerm) || 
         keywords.includes(searchTerm) ||
         authors.includes(searchTerm) ||
-        pmid.includes(searchTerm)
+        pmid.includes(searchTerm) ||
+        journal.includes(searchTerm)
       );
     });
     
     // Reset to first page and update displayed articles
     state.currentPage = 1;
-    state.displayedArticles = state.filteredArticles.slice(0, state.pageSize);
+    updateDisplayedArticles();
     
     // Render the filtered articles
     renderArticles();
+    
+    // Update filter status display
+    updateFilterStatus();
+  }
+
+  // Add function to reset all filters
+  function resetAllFilters() {
+    // Reset local search
+    state.localSearchTerm = '';
+    if (elements.pubmedLocalSearchBox) {
+      elements.pubmedLocalSearchBox.value = '';
+    }
+    
+    // Reset sort order
+    if (elements.pubmedSort) {
+      elements.pubmedSort.value = 'relevance';
+    }
+    state.sortBy = 'relevance';
+    
+    // Reset full text filter
+    if (elements.pubmedFullTextOnly) {
+      elements.pubmedFullTextOnly.checked = false;
+    }
+    state.fullTextOnly = false;
+    
+    // Reset year range to default (5 years)
+    if (elements.pubmedYearRange) {
+      elements.pubmedYearRange.value = '5';
+    }
+    state.yearRange = 5;
+    
+    // Reset journal filter
+    if (elements.pubmedJournalFilter) {
+      elements.pubmedJournalFilter.value = '';
+    }
+    state.journalFilter = '';
+    
+    // Reset filtered articles to all articles
+    state.filteredArticles = [...state.articles];
+    
+    // Reset to first page
+    state.currentPage = 1;
+    updateDisplayedArticles();
+    
+    // Render articles with reset filters
+    renderArticles();
+    
+    // Regenerate collection summary and thematic analysis
+    regenerateAnalysis();
+    
+    // Update filter status display
+    updateFilterStatus(true);
+  }
+
+  // Reset only local search filters (for when local search is cleared)
+  function resetLocalFilters() {
+    state.localSearchTerm = '';
+    state.filteredArticles = [...state.articles];
+    state.currentPage = 1;
+    updateDisplayedArticles();
+    renderArticles();
+    updateFilterStatus();
+  }
+
+  // Helper to update displayed articles based on pagination
+  function updateDisplayedArticles() {
+    const startIndex = (state.currentPage - 1) * state.pageSize;
+    const endIndex = Math.min(startIndex + state.pageSize, state.filteredArticles.length);
+    state.displayedArticles = state.filteredArticles.slice(startIndex, endIndex);
+  }
+
+  // Create and update filter status information
+  function updateFilterStatus(isReset = false) {
+    // Create filter status element if it doesn't exist
+    if (!document.getElementById('pubmedFilterStatus')) {
+      const filterStatus = document.createElement('div');
+      filterStatus.id = 'pubmedFilterStatus';
+      filterStatus.className = 'mb-3 p-3 bg-blue-50 rounded-lg border border-blue-100 flex justify-between items-center';
+      
+      // Insert after local search box
+      if (elements.pubmedLocalSearch) {
+        elements.pubmedLocalSearch.after(filterStatus);
+      } else if (elements.pubmedResultCount) {
+        elements.pubmedResultCount.after(filterStatus);
+      }
+      
+      // Update elements reference
+      elements.pubmedFilterStatus = document.getElementById('pubmedFilterStatus');
+    }
+    
+    // Hide filter status if no filters are applied and we're not resetting
+    const hasActiveFilters = (
+      state.localSearchTerm || 
+      state.fullTextOnly || 
+      state.yearFilter || 
+      state.journalFilter ||
+      state.sortBy !== 'relevance'
+    );
+    
+    if (!hasActiveFilters && !isReset) {
+      showComponent(elements.pubmedFilterStatus, false);
+      return;
+    }
+    
+    // Build filter status content
+    let filterInfo = '';
+    
+    if (state.localSearchTerm) {
+      filterInfo += `<span class="filter-tag bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+        Search: "${state.localSearchTerm}"
+      </span>`;
+    }
+    
+    if (state.fullTextOnly) {
+      filterInfo += `<span class="filter-tag bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+        Full Text Only
+      </span>`;
+    }
+    
+    if (state.yearRange && state.yearRange !== '0') {
+      filterInfo += `<span class="filter-tag bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
+        Last ${state.yearRange} Years
+      </span>`;
+    }
+    
+    if (state.journalFilter) {
+      filterInfo += `<span class="filter-tag bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
+        Journal: ${state.journalFilter}
+      </span>`;
+    }
+    
+    if (state.sortBy && state.sortBy !== 'relevance') {
+      const sortLabel = state.sortBy === 'date' ? 'Most Recent' : 
+                       (state.sortBy === 'citations' ? 'Most Cited' : state.sortBy);
+      
+      filterInfo += `<span class="filter-tag bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+        Sort: ${sortLabel}
+      </span>`;
+    }
+    
+    // Results information
+    filterInfo += `<span class="filter-tag bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+      ${state.filteredArticles.length} of ${state.articles.length} articles
+    </span>`;
+    
+    // Reset button
+    const resetButton = `<button id="pubmedResetFilters" class="text-sm text-red-600 hover:text-red-800 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      Reset Filters
+    </button>`;
+    
+    // Update filter status content
+    elements.pubmedFilterStatus.innerHTML = `
+      <div class="flex flex-wrap gap-2">
+        ${filterInfo}
+      </div>
+      ${resetButton}
+    `;
+    
+    // Add event listener to reset button
+    const resetBtn = document.getElementById('pubmedResetFilters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', resetAllFilters);
+    }
+    
+    // Show filter status
+    showComponent(elements.pubmedFilterStatus, true);
+    
+    // Additional notification if results were significantly filtered
+    if (state.filteredArticles.length < state.articles.length * 0.2 && state.articles.length > 10) {
+      // Significant filtering detected - add notification
+      const percentRemaining = Math.round((state.filteredArticles.length / state.articles.length) * 100);
+      
+      // Create notification if it doesn't exist
+      if (!document.getElementById('pubmedFilterNotification')) {
+        const notification = document.createElement('div');
+        notification.id = 'pubmedFilterNotification';
+        notification.className = 'mb-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-800';
+        
+        // Insert after filter status
+        elements.pubmedFilterStatus.after(notification);
+        
+        // Update elements reference
+        elements.pubmedFilterNotification = document.getElementById('pubmedFilterNotification');
+      }
+      
+      elements.pubmedFilterNotification.innerHTML = `
+        <div class="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>
+            Filters have removed ${state.articles.length - state.filteredArticles.length} articles (${percentRemaining}% remaining).
+            <button id="pubmedShowAllBtn" class="text-blue-600 hover:text-blue-800 underline ml-1">Show all</button>
+          </span>
+        </div>
+      `;
+      
+      // Add event listener to "Show all" button
+      const showAllBtn = document.getElementById('pubmedShowAllBtn');
+      if (showAllBtn) {
+        showAllBtn.addEventListener('click', resetAllFilters);
+      }
+      
+      // Show notification
+      showComponent(elements.pubmedFilterNotification, true);
+    } else if (elements.pubmedFilterNotification) {
+      // Hide notification if it exists but filtering is not significant
+      showComponent(elements.pubmedFilterNotification, false);
+    }
   }
 
   // Render articles in the list with pagination
@@ -50896,6 +53696,51 @@ const PubMedModule = (function() {
     
     // Update selected count
     updateSelectedCount();
+    
+    // Update collection summary and thematic analysis if articles have changed
+    regenerateAnalysis();
+  }
+
+  // Regenerate collection summary and thematic analysis
+  async function regenerateAnalysis() {
+    // Only regenerate if we have articles
+    if (state.articles.length === 0) return;
+    
+    // Generate collection summary
+    const summary = await generateCollectionSummary(state.articles);
+    
+    // Update collection summary in the UI
+    if (summary && elements.pubmedCollectionSummary) {
+      // Clear existing content
+      elements.pubmedCollectionSummary.innerHTML = '';
+      
+      // Create and append new summary element
+      const summaryElement = createCollectionSummaryElement(summary);
+      if (summaryElement) {
+        elements.pubmedCollectionSummary.appendChild(summaryElement);
+      }
+      
+      // Show the summary
+      showComponent(elements.pubmedCollectionSummary, true);
+    }
+    
+    // Generate thematic analysis
+    const analysis = await performThematicAnalysis(state.articles);
+    
+    // Update thematic analysis in the UI
+    if (analysis && elements.pubmedThematicAnalysis) {
+      // Clear existing content
+      elements.pubmedThematicAnalysis.innerHTML = '';
+      
+      // Create and append new analysis element
+      const analysisElement = createThematicAnalysisElement(analysis);
+      if (analysisElement) {
+        elements.pubmedThematicAnalysis.appendChild(analysisElement);
+      }
+      
+      // Show the analysis
+      showComponent(elements.pubmedThematicAnalysis, true);
+    }
   }
 
   // Render pagination controls
@@ -51099,6 +53944,30 @@ const PubMedModule = (function() {
     showComponent(elements.pubmedSelectedArticles, count > 0);
   }
 
+  // Select or deselect all displayed articles
+  function toggleSelectAllArticles(selectAll = true) {
+    const currentArticles = state.displayedArticles;
+    
+    currentArticles.forEach(article => {
+      if (selectAll) {
+        state.selectedArticles.add(article.pmid);
+      } else {
+        state.selectedArticles.delete(article.pmid);
+      }
+    });
+    
+    // Update checkboxes in the UI
+    document.querySelectorAll('.article-select-checkbox').forEach(checkbox => {
+      const articleElement = checkbox.closest('[data-pmid]');
+      if (articleElement) {
+        const pmid = articleElement.dataset.pmid;
+        checkbox.checked = state.selectedArticles.has(pmid);
+      }
+    });
+    
+    updateSelectedCount();
+  }
+
   // Perform AI summary of selected articles
   async function generateAISummary() {
     if (state.selectedArticles.size === 0 || state.aiSummaryLoading) {
@@ -51117,6 +53986,55 @@ const PubMedModule = (function() {
         state.selectedArticles.has(article.pmid)
       );
       
+      // Create custom instructions based on search type
+      let customInstructions = '';
+      
+      if (state.searchType === 'drug' || selectedArticles.some(article => extractDrugs(article).length > 0)) {
+        customInstructions += `
+Focus on pharmacological aspects such as:
+- Mechanism of action and pharmacokinetics
+- Efficacy across different dosages and administration methods
+- Safety profile and adverse events
+- Comparison with other treatments if mentioned
+- Regulatory status if available`;
+      }
+      
+      if (state.searchType === 'condition' || selectedArticles.some(article => extractConditions(article).length > 0)) {
+        customInstructions += `
+Focus on clinical aspects such as:
+- Disease pathophysiology and progression
+- Diagnostic criteria and assessment tools
+- Current treatment approaches and their effectiveness
+- Patient outcomes and quality of life measures
+- Future research directions and unmet needs`;
+      }
+      
+      // Detect if the collection includes RCTs or meta-analyses
+      const hasRCTs = selectedArticles.some(article => 
+        extractStudyTypes(article).some(type => 
+          type.toLowerCase().includes('rct') || 
+          type.toLowerCase().includes('randomized') || 
+          type.toLowerCase().includes('randomised')
+        )
+      );
+      
+      const hasMetaAnalyses = selectedArticles.some(article => 
+        extractStudyTypes(article).some(type => 
+          type.toLowerCase().includes('meta-analysis') || 
+          type.toLowerCase().includes('systematic review')
+        )
+      );
+      
+      if (hasRCTs || hasMetaAnalyses) {
+        customInstructions += `
+Focus on methodological quality of the evidence:
+- Study designs, sample sizes, and statistical power
+- Risk of bias and methodological limitations
+- Consistency across findings
+- Strength of evidence and confidence in results
+- Clinical relevance and applicability of findings`;
+      }
+      
       // Create request options
       const requestOptions = {
         method: 'POST',
@@ -51125,7 +54043,8 @@ const PubMedModule = (function() {
         },
         body: JSON.stringify({
           articles: selectedArticles,
-          prompt: `Provide a comprehensive summary of these ${selectedArticles.length} PubMed articles${selectedArticles.length > 0 ? ' about ' + selectedArticles[0].title.split(' ').slice(0, 3).join(' ') + '...' : ''}.`
+          prompt: `Provide a comprehensive summary of these ${selectedArticles.length} PubMed articles${selectedArticles.length > 0 ? ' about ' + selectedArticles[0].title.split(' ').slice(0, 3).join(' ') + '...' : ''}.`,
+          customInstructions: customInstructions
         })
       };
       
@@ -51212,28 +54131,34 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
-  // Select or deselect all displayed articles
-  function toggleSelectAllArticles(selectAll = true) {
-    const currentArticles = state.displayedArticles;
+  // Update journal filter based on fetched articles
+  function updateJournalFilter() {
+    if (!elements.pubmedJournalFilter) return;
     
-    currentArticles.forEach(article => {
-      if (selectAll) {
-        state.selectedArticles.add(article.pmid);
-      } else {
-        state.selectedArticles.delete(article.pmid);
+    // Extract unique journals from articles
+    const journals = new Set();
+    state.articles.forEach(article => {
+      if (article.journal && article.journal.trim() !== '') {
+        journals.add(article.journal);
       }
     });
     
-    // Update checkboxes in the UI
-    document.querySelectorAll('.article-select-checkbox').forEach(checkbox => {
-      const articleElement = checkbox.closest('[data-pmid]');
-      if (articleElement) {
-        const pmid = articleElement.dataset.pmid;
-        checkbox.checked = state.selectedArticles.has(pmid);
-      }
+    // Convert to array and sort alphabetically
+    const sortedJournals = [...journals].sort();
+    
+    // Create options HTML
+    let journalOptions = '<option value="">All Journals</option>';
+    sortedJournals.forEach(journal => {
+      journalOptions += `<option value="${journal}">${journal}</option>`;
     });
     
-    updateSelectedCount();
+    // Set the options
+    elements.pubmedJournalFilter.innerHTML = journalOptions;
+    
+    // If there was a previous selection, try to restore it
+    if (state.journalFilter) {
+      elements.pubmedJournalFilter.value = state.journalFilter;
+    }
   }
 
   // Perform PubMed search
@@ -51267,6 +54192,8 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     showComponent(elements.pubmedTreatments, false);
     showComponent(elements.pubmedDrugInfo, false);
     showComponent(elements.pubmedAISummarySection, false);
+    showComponent(elements.pubmedCollectionSummary, false);
+    showComponent(elements.pubmedThematicAnalysis, false);
     
     try {
       // Apply year filter based on year range if provided
@@ -51284,7 +54211,8 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
         fullTextOnly: state.fullTextOnly,
         yearFilter: yearFilterParam,
         journalFilter: state.journalFilter,
-        searchType: state.searchType
+        searchType: state.searchType,
+        expandSearch: true // Enable expanded search for better results
       });
       
       const response = await fetch(`/api/pubmed?${params}`);
@@ -51339,36 +54267,6 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     }
     
     state.isLoading = false;
-  }
-
-  // Update journal filter based on fetched articles
-  function updateJournalFilter() {
-    if (!elements.pubmedJournalFilter) return;
-    
-    // Extract unique journals from articles
-    const journals = new Set();
-    state.articles.forEach(article => {
-      if (article.journal && article.journal.trim() !== '') {
-        journals.add(article.journal);
-      }
-    });
-    
-    // Convert to array and sort alphabetically
-    const sortedJournals = [...journals].sort();
-    
-    // Create options HTML
-    let journalOptions = '<option value="">All Journals</option>';
-    sortedJournals.forEach(journal => {
-      journalOptions += `<option value="${journal}">${journal}</option>`;
-    });
-    
-    // Set the options
-    elements.pubmedJournalFilter.innerHTML = journalOptions;
-    
-    // If there was a previous selection, try to restore it
-    if (state.journalFilter) {
-      elements.pubmedJournalFilter.value = state.journalFilter;
-    }
   }
 
   // Function to populate filter options based on data
@@ -51439,7 +54337,9 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
       { id: 'pubmedSelectedArticles', parent: 'pubmedSection', className: 'mb-4 hidden' },
       { id: 'pubmedAISummarySection', parent: 'pubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedAISummaryLoading', parent: 'pubmedAISummarySection', className: 'flex justify-center items-center py-6 hidden' },
-      { id: 'pubmedAISummaryContent', parent: 'pubmedAISummarySection', className: 'bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden' }
+      { id: 'pubmedAISummaryContent', parent: 'pubmedAISummarySection', className: 'bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden' },
+      { id: 'pubmedCollectionSummary', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedThematicAnalysis', parent: 'pubmedSection', className: 'mb-8 hidden' }
     ];
     
     requiredElements.forEach(elem => {
@@ -51489,10 +54389,14 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
         
         <div class="flex items-center">
           <button id="pubmedAdvancedToggle" class="text-sm text-gray-600 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
             Advanced Options
+          </button>
+          
+          <button id="pubmedAnnotationToggle" class="ml-4 text-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors">
+            Enable Annotations
           </button>
         </div>
         
@@ -51543,6 +54447,7 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
       elements.pubmedFullTextOnly = document.getElementById('pubmedFullTextOnly');
       elements.pubmedYearRange = document.getElementById('pubmedYearRange');
       elements.pubmedJournalFilter = document.getElementById('pubmedJournalFilter');
+      elements.pubmedAnnotationToggle = document.getElementById('pubmedAnnotationToggle');
     }
     
     // Create local search functionality if needed
@@ -51568,42 +54473,7 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
       // Update element references
       elements.pubmedLocalSearchBox = document.getElementById('pubmedLocalSearchBox');
       elements.pubmedLocalSearchButton = document.getElementById('pubmedLocalSearchButton');
-    }
-    
-    // Create pagination elements if needed
-    if (!document.getElementById('pubmedPagination') && elements.pubmedArticles) {
-      console.log(`PubMed Module: Creating pagination elements`);
-      
-      const pagination = document.createElement('div');
-      pagination.id = 'pubmedPagination';
-      pagination.className = 'mt-6 hidden';
-      pagination.innerHTML = ''; // Will be populated by renderPagination
-      
-      elements.pubmedArticles.appendChild(pagination);
-      
-      // Update element references 
-      elements.pubmedPagination = document.getElementById('pubmedPagination');
-    }
-    
-    // Create result count element if needed
-    if (!document.getElementById('pubmedResultCount') && elements.pubmedArticles) {
-      console.log(`PubMed Module: Creating result count element`);
-      
-      const resultCount = document.createElement('div');
-      resultCount.id = 'pubmedResultCount';
-      resultCount.className = 'text-sm text-gray-600 mb-4';
-      resultCount.textContent = '0 articles found';
-      
-      // Insert after local search if it exists, otherwise at the beginning
-      const localSearch = document.getElementById('pubmedLocalSearch');
-      if (localSearch) {
-        localSearch.after(resultCount);
-      } else {
-        elements.pubmedArticles.insertBefore(resultCount, elements.pubmedArticles.firstChild);
-      }
-      
-      // Update element references
-      elements.pubmedResultCount = document.getElementById('pubmedResultCount');
+      elements.pubmedLocalSearch = document.getElementById('pubmedLocalSearch');
     }
     
     // Create selected articles section if needed
@@ -51656,57 +54526,40 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
       elements.pubmedDeselectAllBtn = document.getElementById('pubmedDeselectAllBtn');
     }
     
-    // Create AI summary section if needed
-    if (!document.getElementById('pubmedAISummarySection') && elements.pubmedSection) {
-      console.log(`PubMed Module: Creating AI summary elements`);
+    // Create pagination elements if needed
+    if (!document.getElementById('pubmedPagination') && elements.pubmedArticles) {
+      console.log(`PubMed Module: Creating pagination elements`);
       
-      const summarySection = document.createElement('div');
-      summarySection.id = 'pubmedAISummarySection';
-      summarySection.className = 'mb-8 hidden';
-      summarySection.innerHTML = `
-        <h2 class="text-xl font-bold text-gray-800 mb-4">AI Summary</h2>
-        
-        <div id="pubmedAISummaryLoading" class="flex justify-center items-center py-6 hidden">
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-        </div>
-        
-        <div id="pubmedAISummaryContent" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden">
-          <!-- Summary will be placed here -->
-        </div>
-      `;
+      const pagination = document.createElement('div');
+      pagination.id = 'pubmedPagination';
+      pagination.className = 'mt-6 hidden';
+      pagination.innerHTML = ''; // Will be populated by renderPagination
       
-      // Find a good place to insert the summary section
-      const targetElement = document.getElementById('pubmedArticles');
-      if (targetElement) {
-        elements.pubmedSection.insertBefore(summarySection, targetElement);
-      } else {
-        elements.pubmedSection.appendChild(summarySection);
-      }
+      elements.pubmedArticles.appendChild(pagination);
       
-      // Update element references
-      elements.pubmedAISummarySection = document.getElementById('pubmedAISummarySection');
-      elements.pubmedAISummaryLoading = document.getElementById('pubmedAISummaryLoading');
-      elements.pubmedAISummaryContent = document.getElementById('pubmedAISummaryContent');
+      // Update element references 
+      elements.pubmedPagination = document.getElementById('pubmedPagination');
     }
     
-    // Create expanded info section if needed
-    if (!document.getElementById('pubmedExpandedInfo') && elements.pubmedSection) {
-      console.log(`PubMed Module: Creating expanded info element`);
+    // Create result count element if needed
+    if (!document.getElementById('pubmedResultCount') && elements.pubmedArticles) {
+      console.log(`PubMed Module: Creating result count element`);
       
-      const expandedInfo = document.createElement('div');
-      expandedInfo.id = 'pubmedExpandedInfo';
-      expandedInfo.className = 'mb-4 hidden';
+      const resultCount = document.createElement('div');
+      resultCount.id = 'pubmedResultCount';
+      resultCount.className = 'text-sm text-gray-600 mb-4';
+      resultCount.textContent = '0 articles found';
       
-      // Find a good place to insert
-      const targetElement = document.getElementById('pubmedArticles');
-      if (targetElement) {
-        elements.pubmedSection.insertBefore(expandedInfo, targetElement);
+      // Insert after local search if it exists, otherwise at the beginning
+      const localSearch = document.getElementById('pubmedLocalSearch');
+      if (localSearch) {
+        localSearch.after(resultCount);
       } else {
-        elements.pubmedSection.appendChild(expandedInfo);
+        elements.pubmedArticles.insertBefore(resultCount, elements.pubmedArticles.firstChild);
       }
       
       // Update element references
-      elements.pubmedExpandedInfo = document.getElementById('pubmedExpandedInfo');
+      elements.pubmedResultCount = document.getElementById('pubmedResultCount');
     }
     
     // Create empty state content if needed
@@ -51809,6 +54662,22 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
           `;
         }
       });
+    }
+    
+    // Annotation toggle
+    if (elements.pubmedAnnotationToggle) {
+      elements.pubmedAnnotationToggle.addEventListener('click', toggleAnnotations);
+      
+      // Update initial state
+      if (state.annotationsEnabled) {
+        elements.pubmedAnnotationToggle.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+        elements.pubmedAnnotationToggle.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white');
+        elements.pubmedAnnotationToggle.textContent = 'Disable Annotations';
+      } else {
+        elements.pubmedAnnotationToggle.classList.remove('bg-green-500', 'hover:bg-green-600', 'text-white');
+        elements.pubmedAnnotationToggle.classList.add('bg-gray-200', 'hover:bg-gray-300');
+        elements.pubmedAnnotationToggle.textContent = 'Enable Annotations';
+      }
     }
     
     // Sort dropdown
@@ -51944,14 +54813,16 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     init,
     performPubMedSearch,
     filterArticlesByLocalSearch,
-    generateAISummary
+    generateAISummary,
+    toggleAnnotations
   };
 })();
 
-// Initialize the module when the document is ready
+// Initialize the module when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
   PubMedModule.init();
 });
+
 
 // const PubMedModule = (function() {
 //  const elements = {
