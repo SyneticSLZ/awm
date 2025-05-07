@@ -351,35 +351,59 @@ function applyFiltersToQuery(query, filters) {
  * @returns {Object} - Search results
  */
 async function performPubMedSearch(baseUrl, query, retmax, retstart, sortParam, apiKey, parser) {
-  const searchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${retmax}&retstart=${retstart}&sort=${encodeURIComponent(sortParam)}&usehistory=y${apiKey ? `&api_key=${apiKey}` : ''}`;
+  const maxRetries = 5;
+  let retries = 0;
   
-  const response = await fetch(searchUrl);
-  
-  if (!response.ok) {
-    throw new Error(`PubMed search API responded with status: ${response.status}`);
-  }
-  
-  const data = await response.text();
-  const result = await parser.parseStringPromise(data);
-  
-  // Extract IDs and count
-  let idList = [];
-  let count = 0;
-  
-  if (result.eSearchResult) {
-    count = parseInt(result.eSearchResult.Count, 10) || 0;
-    
-    if (result.eSearchResult.IdList && result.eSearchResult.IdList.Id) {
-      idList = Array.isArray(result.eSearchResult.IdList.Id) 
-        ? result.eSearchResult.IdList.Id
-        : [result.eSearchResult.IdList.Id];
+  while (retries <= maxRetries) {
+    try {
+      const searchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${retmax}&retstart=${retstart}&sort=${encodeURIComponent(sortParam)}&usehistory=y${apiKey ? `&api_key=${apiKey}` : ''}`;
+      
+      const response = await fetch(searchUrl, { 
+        timeout: 30000,  // 30 second timeout
+        headers: {
+          'User-Agent': 'Your-App-Name/1.0 (your@email.com)'  // Identifying your application
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`PubMed search API responded with status: ${response.status}`);
+      }
+      
+      const data = await response.text();
+      const result = await parser.parseStringPromise(data);
+      
+      // Extract IDs and count
+      let idList = [];
+      let count = 0;
+      
+      if (result.eSearchResult) {
+        count = parseInt(result.eSearchResult.Count, 10) || 0;
+        
+        if (result.eSearchResult.IdList && result.eSearchResult.IdList.Id) {
+          idList = Array.isArray(result.eSearchResult.IdList.Id) 
+            ? result.eSearchResult.IdList.Id
+            : [result.eSearchResult.IdList.Id];
+        }
+      }
+      
+      return {
+        idList,
+        count
+      };
+    } catch (error) {
+      retries++;
+      
+      if (retries > maxRetries) {
+        console.error(`Failed to connect to PubMed after ${maxRetries} attempts: ${error.message}`);
+        throw error;
+      }
+      
+      // Exponential backoff - wait 2^retries * 1000ms before retrying
+      const delay = Math.pow(2, retries) * 1000; 
+      console.log(`PubMed API request failed (attempt ${retries}/${maxRetries}), retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-  
-  return {
-    idList,
-    count
-  };
 }
 
 /**
