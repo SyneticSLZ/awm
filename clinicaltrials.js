@@ -53,6 +53,33 @@ const DAILYMED_API_URL = 'https://dailymed.nlm.nih.gov/dailymed/services/v2';
 const ORANGE_BOOK_API_URL = 'https://api.fda.gov/drug/orangebook.json'; // Live FDA Orange Book API
 const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live FDA Guidance API
 
+// Add this at the beginning of your server.js file, after the initial require statements 
+// but before defining the Express app
+
+// Security middleware to block malicious requests
+const securityMiddleware = (req, res, next) => {
+  // List of suspicious file extensions and patterns to block
+  const suspiciousPatterns = [
+    '.php', 'wp-', 'shell', 'admin', 'cgi-bin', 'filemanager', '.well-known',
+    'wp-admin', 'wp-content', 'wp-includes', 'autoload', 'xmrlpc'
+  ];
+  
+  const url = req.url.toLowerCase();
+  
+  // Check if the URL contains any suspicious patterns
+  if (suspiciousPatterns.some(pattern => url.includes(pattern))) {
+    // Log the blocked request for monitoring
+    console.log(`Blocked suspicious request: ${req.method} ${req.url} from ${req.ip}`);
+    
+    // Instead of serving the same content for all, return 403 Forbidden
+    return res.status(403).send('Access Denied');
+  }
+  
+  // Allow the request to continue if not suspicious
+  next();
+};
+
+// Then add this right after you create your Express app
 
 // const customDomain = 'syneticx.com';
 
@@ -71,6 +98,8 @@ const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live 
 
 // Create Express app
 const app = express();
+// (after const app = express(); line)
+app.use(securityMiddleware);
 const PORT = process.env.PORT || 3000;
 connectDB();
 
@@ -92,6 +121,17 @@ app.use(
     credentials: true, // If your app uses cookies or authentication
   })
 );
+
+
+app.use((req, res, next) => {
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Content-Security-Policy', "default-src 'self'");
+  next();
+});
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
