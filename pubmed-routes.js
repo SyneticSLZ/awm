@@ -32,7 +32,7 @@ function logDebug(message, data = null) {
 }
 
 // Use environment variables for API keys (more secure)
-const GROK_API_KEY = process.env.GROK_API_KEY || 'xai-oeLa2KzHaDJ0iGw06nlBBFemWQJR0PqL4xbgrIujbPvkNW6Zw5ij7o0jxXxQfDN8CIyKkBjolsRyTsKx';
+const GROK_API_KEY = process.env.grok;
 const GROK_API_URL = 'https://api.x.ai/v1/chat/completions'; // Updated to correct base URL
 
 logDebug('Server started with Grok API configuration', { 
@@ -629,7 +629,6 @@ module.exports = router;
 // const { handlePubMedSearch } = require('./enhancedpubmed.js');
 
 // // Use environment variables for API keys (more secure)
-// const GROK_API_KEY = process.env.GROK_API_KEY || 'xai-oeLa2KzHaDJ0iGw06nlBBFemWQJR0PqL4xbgrIujbPvkNW6Zw5ij7o0jxXxQfDN8CIyKkBjolsRyTsKx';
 // const GROK_API_URL = 'https://api.x.ai/v1/chat/completions'; // Updated to correct base URL
 
 // // Main PubMed search endpoint
@@ -920,7 +919,6 @@ module.exports = router;
 // // // const GROK_API_KEY = process.env.GROK_API_KEY || 'your-grok-api-key-here';
 // // // const GROK_API_URL = 'https://api.grok.ai/v1/chat/completions';
 
-// // const GROK_API_KEY = 'xai-oeLa2KzHaDJ0iGw06nlBBFemWQJR0PqL4xbgrIujbPvkNW6Zw5ij7o0jxXxQfDN8CIyKkBjolsRyTsKx';
 // // const GROK_API_URL = 'https://api.grok.ai/v1/completions'; // Updated endpoint URL
 
 // // v
