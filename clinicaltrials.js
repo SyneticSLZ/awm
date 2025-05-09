@@ -99,7 +99,7 @@ const securityMiddleware = (req, res, next) => {
 // Create Express app
 const app = express();
 // (after const app = express(); line)
-app.use(securityMiddleware);
+// app.use(securityMiddleware);
 const PORT = process.env.PORT || 3000;
 connectDB();
 
@@ -123,14 +123,14 @@ app.use(
 );
 
 
-app.use((req, res, next) => {
-  // Security headers
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Content-Security-Policy', "default-src 'self'");
-  next();
-});
+// app.use((req, res, next) => {
+//   // Security headers
+//   res.setHeader('X-Content-Type-Options', 'nosniff');
+//   res.setHeader('X-Frame-Options', 'DENY');
+//   res.setHeader('X-XSS-Protection', '1; mode=block');
+//   res.setHeader('Content-Security-Policy', "default-src 'self'");
+//   next();
+// });
 
 
 app.use(express.json());
