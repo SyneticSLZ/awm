@@ -30,6 +30,7 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const { connectDB } = require('./db');
 const { User } = require('./db');
+const { Lead } = require('./db');
 const pubmedRoutes = require('./pubmed-routes.js');
 
 
@@ -889,7 +890,275 @@ const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 
 
-// Contact form backend handler
+// // Contact form backend handler
+// app.post('/api/contact', async (req, res) => {
+//   try {
+//     const { 
+//       name, 
+//       company, 
+//       email, 
+//       phone, 
+//       message 
+//     } = req.body;
+    
+//     console.log(`Received contact form submission from ${name} at ${email}`);
+    
+//     // Validate required fields
+//     if (!name || !email || !message) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         error: 'Please provide name, email and message' 
+//       });
+//     }
+    
+//     // Basic email validation
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         error: 'Please provide a valid email address' 
+//       });
+//     }
+    
+//     // Create email transporter (using the same one from your previous code)
+//     const transporter = nodemailer.createTransport({
+//       service: 'gmail',
+//       auth: {
+//         user: 'syneticslz@gmail.com',
+//         pass: 'gble ksdb ntdq hqlx'
+//       }
+//     });
+    
+//     // Prepare HTML email
+//     const htmlEmail = `
+//       <!DOCTYPE html>
+//       <html>
+//       <head>
+//         <meta charset="utf-8">
+//         <title>New Contact Form Submission</title>
+//         <style>
+//           body {
+//             font-family: Arial, sans-serif;
+//             line-height: 1.6;
+//             color: #333;
+//             max-width: 800px;
+//             margin: 0 auto;
+//             padding: 20px;
+//           }
+//           .header {
+//             border-bottom: 2px solid #3b82f6;
+//             padding-bottom: 10px;
+//             margin-bottom: 20px;
+//           }
+//           .header h1 {
+//             color: #1e40af;
+//             margin-bottom: 5px;
+//           }
+//           .content {
+//             margin: 20px 0;
+//           }
+//           .data-item {
+//             margin-bottom: 15px;
+//           }
+//           .label {
+//             font-weight: bold;
+//             color: #4b5563;
+//           }
+//           .footer {
+//             margin-top: 30px;
+//             font-size: 12px;
+//             color: #666;
+//             border-top: 1px solid #ddd;
+//             padding-top: 15px;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="header">
+//           <h1>New Contact Form Submission</h1>
+//           <p>From SyneticX website</p>
+//         </div>
+        
+//         <div class="content">
+//           <div class="data-item">
+//             <p class="label">Name:</p>
+//             <p>${name}</p>
+//           </div>
+          
+//           <div class="data-item">
+//             <p class="label">Company:</p>
+//             <p>${company || 'Not provided'}</p>
+//           </div>
+          
+//           <div class="data-item">
+//             <p class="label">Email:</p>
+//             <p>${email}</p>
+//           </div>
+          
+//           <div class="data-item">
+//             <p class="label">Phone:</p>
+//             <p>${phone || 'Not provided'}</p>
+//           </div>
+          
+//           <div class="data-item">
+//             <p class="label">Message:</p>
+//             <p>${message}</p>
+//           </div>
+//         </div>
+        
+//         <div class="footer">
+//           <p>This message was sent from the contact form on the SyneticX website on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}.</p>
+//         </div>
+//       </body>
+//       </html>
+//     `;
+    
+//     // Send email to yourself
+//     await transporter.sendMail({
+//       from: `"SyneticX Website" <syneticslz@gmail.com>`,
+//       to: 'syneticslz@gmail.com', // Your email where you want to receive messages
+//       replyTo: email, // Set reply-to as the contact's email for easy replies
+//       subject: `New Contact: ${name} from ${company || 'Unknown Company'}`,
+//       html: htmlEmail
+//     });
+    
+//     // Send confirmation email to the user
+//     await transporter.sendMail({
+//       from: `"SyneticX" <syneticslz@gmail.com>`,
+//       to: email,
+//       subject: `Thanks for contacting SyneticX`,
+//       html: `
+//         <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>Thank You for Contacting SyneticX</title>
+//     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+//     <style>
+//         /* Base styles */
+//         * {
+//             margin: 0;
+//             padding: 0;
+//             box-sizing: border-box;
+//         }
+        
+//         body {
+//             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+//             line-height: 1.6;
+//             color: #4b5563;
+//             background-color: #f9fafb;
+//             margin: 0;
+//             padding: 0;
+//         }
+        
+//         .email-container {
+//             max-width: 600px;
+//             margin: 30px auto;
+//             background-color: #ffffff;
+//             border-radius: 8px;
+//             overflow: hidden;
+//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+//         }
+        
+//         .email-header {
+//             background: linear-gradient(to right, #3b82f6, #8b5cf6);
+//             color: white;
+//             padding: 28px 24px;
+//             text-align: center;
+//         }
+        
+//         .logo-text {
+//             font-size: 24px;
+//             font-weight: 700;
+//             margin: 0;
+//             color: white;
+//         }
+        
+//         .email-body {
+//             padding: 32px 24px;
+//         }
+        
+//         .greeting {
+//             font-size: 18px;
+//             font-weight: 600;
+//             color: #111827;
+//             margin-bottom: 16px;
+//         }
+        
+//         .message {
+//             margin-bottom: 20px;
+//         }
+        
+//         .signature {
+//             margin-top: 28px;
+//         }
+        
+//         .signature-name {
+//             font-weight: 600;
+//             color: #111827;
+//         }
+        
+//         .email-footer {
+//             background-color: #f9fafb;
+//             padding: 20px 24px;
+//             text-align: center;
+//             font-size: 14px;
+//             color: #6b7280;
+//             border-top: 1px solid #e5e7eb;
+//         }
+        
+//         .footer-text {
+//             margin-bottom: 10px;
+//         }
+        
+//         .automated-message {
+//             font-size: 12px;
+//             color: #9ca3af;
+//             margin-top: 12px;
+//         }
+//     </style>
+// </head>
+// <body>
+//     <div class="email-container">
+//         <div class="email-header">
+//             <h1 class="logo-text">SyneticX</h1>
+//         </div>
+        
+//         <div class="email-body">
+//             <p class="greeting">Hello ${name},</p>
+            
+//             <p class="message">
+//                 Thank you for contacting SyneticX. We've received your message and one of our team members will get back to you shortly.
+//             </p>
+            
+//             <p class="message">
+//                 We appreciate your interest in our AI-powered market intelligence solutions and look forward to discussing how we can help optimize your business decisions.
+//             </p>
+            
+//             <div class="signature">
+//                 <p class="signature-name">Best regards,</p>
+//                 <p>The SyneticX Team</p>
+//             </div>
+//         </div>
+        
+//         <div class="email-footer">
+//             <p class="footer-text">© 2025 SyneticX. All rights reserved.</p>
+//             <p class="automated-message">This is an automated message, please do not reply directly to this email.</p>
+//         </div>
+//     </div>
+// </body>
+// </html>
+//       `
+//     });
+    
+//     res.json({ success: true, message: 'Your message has been sent successfully. We\'ll be in touch soon!' });
+//   } catch (error) {
+//     console.error('Contact form submission error:', error);
+//     res.status(500).json({ success: false, error: 'Failed to send your message. Please try again later.' });
+//   }
+// });
+
 app.post('/api/contact', async (req, res) => {
   try {
     const { 
@@ -919,7 +1188,28 @@ app.post('/api/contact', async (req, res) => {
       });
     }
     
-    // Create email transporter (using the same one from your previous code)
+    // Split name into first and last name (best effort)
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+    
+    // Create lead in database
+    const { Lead } = require('./db'); // Adjust path as needed
+    
+    const newLead = new Lead({
+      firstName,
+      lastName,
+      email,
+      company,
+      phone,
+      message,
+      source: 'contact_form'
+    });
+    
+    await newLead.save();
+    console.log(`Created lead in database with ID: ${newLead._id}`);
+    
+    // Create email transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -1007,6 +1297,7 @@ app.post('/api/contact', async (req, res) => {
         
         <div class="footer">
           <p>This message was sent from the contact form on the SyneticX website on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}.</p>
+          <p>A lead record has been created in the database with ID: ${newLead._id}</p>
         </div>
       </body>
       </html>
@@ -1157,6 +1448,394 @@ app.post('/api/contact', async (req, res) => {
     res.status(500).json({ success: false, error: 'Failed to send your message. Please try again later.' });
   }
 });
+
+
+// Book a demo route
+app.post('/api/demo', async (req, res) => {
+  try {
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      company, 
+      companyRevenueRange,
+      agreeToTerms
+    } = req.body;
+    
+    console.log(`Received demo booking from ${firstName} ${lastName} at ${email}`);
+    // Create email transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'syneticslz@gmail.com',
+    pass: 'gble ksdb ntdq hqlx'
+  }
+});
+
+    // Validate required fields
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Please provide first name, last name and email' 
+      });
+    }
+    
+    // Ensure terms agreement
+    if (!agreeToTerms) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'You must agree to the Privacy Policy and Terms of Service' 
+      });
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Please provide a valid email address' 
+      });
+    }
+    
+    // Save lead to database
+    const newLead = new Lead({
+      firstName,
+      lastName,
+      email,
+      company,
+      companyRevenueRange,
+      source: 'demo_form',
+      agreeToTerms: true
+    });
+    
+    await newLead.save();
+    
+    // Prepare notification email to admin
+    const adminHtmlEmail = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Demo Request</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          }
+          .header h1 {
+            color: #1e40af;
+            margin-bottom: 5px;
+          }
+          .content {
+            margin: 20px 0;
+          }
+          .data-item {
+            margin-bottom: 15px;
+          }
+          .label {
+            font-weight: bold;
+            color: #4b5563;
+          }
+          .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+          }
+          .priority-high {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>New Demo Request</h1>
+          <p>From SyneticX website</p>
+        </div>
+        
+        <div class="content">
+          <div class="data-item ${companyRevenueRange === 'Over $100M' ? 'priority-high' : ''}">
+            <p class="label">Name:</p>
+            <p>${firstName} ${lastName}</p>
+          </div>
+          
+          <div class="data-item">
+            <p class="label">Company:</p>
+            <p>${company || 'Not provided'}</p>
+          </div>
+          
+          <div class="data-item">
+            <p class="label">Email:</p>
+            <p>${email}</p>
+          </div>
+          
+          <div class="data-item">
+            <p class="label">Company Revenue Range:</p>
+            <p>${companyRevenueRange || 'Not specified'}</p>
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p>This demo request was submitted on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Send notification email to admin
+    await transporter.sendMail({
+      from: `"SyneticX Demo Requests" <syneticslz@gmail.com>`,
+      to: 'syneticslz@gmail.com',
+      replyTo: email,
+      subject: `New Demo Request: ${firstName} ${lastName} from ${company || 'Unknown Company'}`,
+      html: adminHtmlEmail
+    });
+    
+    // Send confirmation email to the user
+    await transporter.sendMail({
+      from: `"SyneticX" <syneticslz@gmail.com>`,
+      to: email,
+      subject: `Your SyneticX Demo Request - Next Steps`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Thank You for Requesting a Demo with SyneticX</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                /* Base styles */
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #4b5563;
+                    background-color: #f9fafb;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .email-container {
+                    max-width: 600px;
+                    margin: 30px auto;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                }
+                
+                .email-header {
+                    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+                    color: white;
+                    padding: 28px 24px;
+                    text-align: center;
+                }
+                
+                .logo-text {
+                    font-size: 24px;
+                    font-weight: 700;
+                    margin: 0;
+                    color: white;
+                }
+                
+                .email-body {
+                    padding: 32px 24px;
+                }
+                
+                .greeting {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #111827;
+                    margin-bottom: 16px;
+                }
+                
+                .message {
+                    margin-bottom: 20px;
+                }
+                
+                .next-steps {
+                    background-color: #f3f4f6;
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin: 24px 0;
+                }
+                
+                .next-steps-title {
+                    font-weight: 600;
+                    color: #111827;
+                    margin-bottom: 12px;
+                }
+                
+                .step {
+                    margin-bottom: 12px;
+                }
+                
+                .step-number {
+                    font-weight: 600;
+                    color: #3b82f6;
+                }
+                
+                .signature {
+                    margin-top: 28px;
+                }
+                
+                .signature-name {
+                    font-weight: 600;
+                    color: #111827;
+                }
+                
+                .email-footer {
+                    background-color: #f9fafb;
+                    padding: 20px 24px;
+                    text-align: center;
+                    font-size: 14px;
+                    color: #6b7280;
+                    border-top: 1px solid #e5e7eb;
+                }
+                
+                .footer-text {
+                    margin-bottom: 10px;
+                }
+                
+                .automated-message {
+                    font-size: 12px;
+                    color: #9ca3af;
+                    margin-top: 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="email-header">
+                    <h1 class="logo-text">SyneticX</h1>
+                </div>
+                
+                <div class="email-body">
+                    <p class="greeting">Hello ${firstName},</p>
+                    
+                    <p class="message">
+                        Thank you for requesting a personalized demo of SyneticX's AI-powered market intelligence solutions. We're excited to show you how our platform can help optimize your business decisions.
+                    </p>
+                    
+                    <div class="next-steps">
+                        <p class="next-steps-title">What happens next?</p>
+                        
+                        <p class="step">
+                            <span class="step-number">1.</span> Our team is reviewing your request and will reach out within 1 business day to schedule your personalized demo.
+                        </p>
+                        
+                        <p class="step">
+                            <span class="step-number">2.</span> During the demo, we'll tailor the presentation to focus on the features most relevant to your business needs.
+                        </p>
+                        
+                        <p class="step">
+                            <span class="step-number">3.</span> After the demo, we'll provide you with additional resources and a special offer to get started with SyneticX.
+                        </p>
+                    </div>
+                    
+                    <p class="message">
+                        If you have any questions before your demo, feel free to reply to this email or call us at (555) 123-4567.
+                    </p>
+                    
+                    <div class="signature">
+                        <p class="signature-name">Looking forward to connecting,</p>
+                        <p>The SyneticX Team</p>
+                    </div>
+                </div>
+                
+                <div class="email-footer">
+                    <p class="footer-text">© 2025 SyneticX. All rights reserved.</p>
+                    <p class="automated-message">This is an automated confirmation of your demo request.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+      `
+    });
+    
+    res.json({ success: true, message: 'Your demo request has been submitted. We\'ll be in touch soon to schedule your personalized demo!' });
+  } catch (error) {
+    console.error('Demo booking error:', error);
+    res.status(500).json({ success: false, error: 'Failed to book your demo. Please try again later.' });
+  }
+});
+
+// Handle LinkedIn ad campaign leads
+app.post('/api/linkedin-lead', async (req, res) => {
+  try {
+    const { 
+      firstName, 
+      lastName, 
+      email,
+      company,
+      campaign,
+      // LinkedIn might send additional params that we can capture
+      ...linkedinParams
+    } = req.body;
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Incomplete lead data' 
+      });
+    }
+    
+    // Save lead to database
+    const newLead = new Lead({
+      firstName,
+      lastName,
+      email,
+      company,
+      source: 'linkedin_ad',
+      campaign,
+      linkedinData: linkedinParams
+    });
+    
+    await newLead.save();
+    
+    // Send notification email to admin about the LinkedIn lead
+    await transporter.sendMail({
+      from: `"SyneticX Lead Generation" <syneticslz@gmail.com>`,
+      to: 'syneticslz@gmail.com',
+      subject: `New LinkedIn Lead: ${firstName} ${lastName} from ${company || 'Unknown Company'}`,
+      html: `
+        <h2>New LinkedIn Campaign Lead</h2>
+        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Company:</strong> ${company || 'Not provided'}</p>
+        <p><strong>Campaign:</strong> ${campaign || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+        <hr>
+        <p>This lead was automatically captured from your LinkedIn advertising campaign.</p>
+      `
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('LinkedIn lead capture error:', error);
+    res.status(500).json({ success: false });
+  }
+});
+
 
 
 // Email summary for warning letters and inspections

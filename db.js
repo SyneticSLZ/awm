@@ -68,7 +68,7 @@ const WideoakUserSchema = new mongoose.Schema({
     default: Date.now
   },
   
-  // New tracking fields
+  // Tracking fields
   lastLogin: {
     type: Date,
     default: null
@@ -103,6 +103,77 @@ const WideoakUserSchema = new mongoose.Schema({
       }
     }],
     default: []
+  }
+});
+
+// New Lead Schema for demo requests and contact form submissions
+const LeadSchema = new mongoose.Schema({
+  firstName: {
+    type: String,
+    required: [true, 'First name is required'],
+    trim: true
+  },
+  lastName: {
+    type: String,
+    required: [true, 'Last name is required'],
+    trim: true
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    trim: true,
+    lowercase: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
+  },
+  company: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  companyRevenueRange: {
+    type: String,
+    enum: ['Under $10M', '$10M - $50M', '$50M - $100M', 'Over $100M', null],
+    default: null
+  },
+  phone: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  message: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  source: {
+    type: String,
+    enum: ['demo_form', 'contact_form', 'linkedin_ad', 'other'],
+    required: true
+  },
+  campaign: {
+    type: String,
+    default: null
+  },
+  leadStatus: {
+    type: String,
+    enum: ['new', 'contacted', 'qualified', 'unqualified', 'converted'],
+    default: 'new'
+  },
+  agreeToTerms: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  linkedinData: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  },
+  notes: {
+    type: String,
+    default: null
   }
 });
 
@@ -169,17 +240,9 @@ const migrateExistingUsers = async () => {
 };
 
 const User = mongoose.model('WideoakUser', WideoakUserSchema);
+const Lead = mongoose.model('Lead', LeadSchema);
 
-// // Run migration after connection
-// const initDB = async () => {
-//   await connectDB();
-//   await migrateExistingUsers();
-//   console.log("completed")
-// };
-
-// initDB()
-
-module.exports = { connectDB, User };
+module.exports = { connectDB, User, Lead };
 // // db.js
 // const mongoose = require('mongoose');
 // const crypto = require('crypto'); // Node.js built-in module
@@ -248,6 +311,43 @@ module.exports = { connectDB, User };
 //   createdAt: {
 //     type: Date,
 //     default: Date.now
+//   },
+  
+//   // New tracking fields
+//   lastLogin: {
+//     type: Date,
+//     default: null
+//   },
+//   loginDates: {
+//     type: [Date],
+//     default: []
+//   },
+//   dailyLogins: {
+//     type: Map,
+//     of: Number,
+//     default: {}
+//   },
+//   monthlyLogins: {
+//     type: Map,
+//     of: Number,
+//     default: {}
+//   },
+//   activityLog: {
+//     type: [{
+//       timestamp: {
+//         type: Date,
+//         default: Date.now
+//       },
+//       activity: {
+//         type: String,
+//         required: true
+//       },
+//       details: {
+//         type: mongoose.Schema.Types.Mixed,
+//         default: {}
+//       }
+//     }],
+//     default: []
 //   }
 // });
 
@@ -263,6 +363,65 @@ module.exports = { connectDB, User };
 //   return hash === verifyHash;
 // };
 
+// // Migration function to add tracking fields to existing users
+// const migrateExistingUsers = async () => {
+//   try {
+//     const now = new Date();
+    
+//     // Count documents that need updating
+//     const needsUpdate = await User.countDocuments({
+//       $or: [
+//         { lastLogin: { $exists: false } },
+//         { loginDates: { $exists: false } },
+//         { dailyLogins: { $exists: false } },
+//         { monthlyLogins: { $exists: false } },
+//         { activityLog: { $exists: false } }
+//       ]
+//     });
+    
+//     if (needsUpdate > 0) {
+//       console.log(`Found ${needsUpdate} users that need migration`);
+      
+//       // Update all users that need the new fields
+//       const result = await User.updateMany(
+//         {
+//           $or: [
+//             { lastLogin: { $exists: false } },
+//             { loginDates: { $exists: false } },
+//             { dailyLogins: { $exists: false } },
+//             { monthlyLogins: { $exists: false } },
+//             { activityLog: { $exists: false } }
+//           ]
+//         },
+//         {
+//           $set: {
+//             lastLogin: null,
+//             loginDates: [],
+//             dailyLogins: {},
+//             monthlyLogins: {},
+//             activityLog: []
+//           }
+//         }
+//       );
+      
+//       console.log(`Migration complete: ${result.modifiedCount} users updated`);
+//     } else {
+//       console.log('No users need migration');
+//     }
+//   } catch (error) {
+//     console.error('Migration error:', error);
+//   }
+// };
+
 // const User = mongoose.model('WideoakUser', WideoakUserSchema);
+
+// // // Run migration after connection
+// // const initDB = async () => {
+// //   await connectDB();
+// //   await migrateExistingUsers();
+// //   console.log("completed")
+// // };
+
+// // initDB()
 
 // module.exports = { connectDB, User };
