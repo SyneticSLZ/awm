@@ -5971,12 +5971,262 @@ async function validateUrl(url) {
 //   }
 // });
 
-app.get('/api/fda/drug/:drugName', async (req, res) => {
+
+
+
+// Helper function to retry failed API requests
+async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}/${maxRetries} for ${url}`);
+      const response = await axios.get(url, { 
+        timeout: 30000,
+        ...options
+      });
+      return response;
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt} failed: ${error.message}`);
+      
+      // If we have response details, log them
+      if (error.response) {
+        console.warn(`Status: ${error.response.status}, Data:`, error.response.data);
+      }
+      
+      // Check if it's a rate limiting error or server error
+      if (error.response && (error.response.status === 429 || error.response.status >= 500)) {
+        const backoffTime = 2000 * attempt; // Increase backoff time with each attempt
+        console.warn(`Rate limiting or server error detected. Waiting ${backoffTime}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+      } else if (attempt < maxRetries) {
+        // For other errors, wait a shorter time
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  }
+  
+  // If we get here, all attempts failed
+  throw lastError;
+}
+
+// Helper function to process results from different endpoints
+// IMPORTANT: Define this before route handlers
+function processEndpointResults(endpointName, results, searchTerm) {
+  const processed = [];
+  
+  try {
+    switch (endpointName) {
+      case "drugsFda":
+        // Process drug application data
+        results.forEach(drug => {
+          const products = drug.products || [];
+          
+          products.forEach(product => {
+            processed.push({
+              source: "drugsFda",
+              type: "application",
+              name: product.brand_name || drug.application_number,
+              applicationNumber: drug.application_number,
+              sponsorName: drug.sponsor_name,
+              approvalType: drug.application_type,
+              productType: product.dosage_form,
+              status: product.marketing_status,
+              description: `${product.brand_name || 'Unknown'} (${product.dosage_form || 'Unknown Dosage Form'})`
+            });
+          });
+        });
+        break;
+        
+      case "label":
+        // Process drug labeling information
+        results.forEach(label => {
+          const brandName = label.openfda?.brand_name?.[0] || 'Unknown';
+          const genericName = label.openfda?.generic_name?.[0] || 'Unknown';
+          
+          processed.push({
+            source: "label",
+            type: "label",
+            name: brandName,
+            genericName: genericName,
+            manufacturerName: label.openfda?.manufacturer_name?.[0] || 'Unknown',
+            description: label.indications_and_usage?.[0] || 'No indication information',
+            warnings: label.warnings?.[0] || 'No warnings information',
+            adverseReactions: label.adverse_reactions?.[0] || 'No adverse reactions information',
+            dosageAdministration: label.dosage_and_administration?.[0] || 'No dosage information'
+          });
+        });
+        break;
+        
+      case "ndc":
+        // Process National Drug Code information
+        results.forEach(ndc => {
+          processed.push({
+            source: "ndc",
+            type: "product",
+            name: ndc.brand_name || ndc.generic_name || 'Unknown',
+            ndcCode: ndc.product_ndc,
+            genericName: ndc.generic_name || 'Unknown',
+            dosageForm: ndc.dosage_form,
+            routeOfAdmin: ndc.route?.[0] || 'Unknown',
+            packageDescription: ndc.packaging?.[0]?.description || 'No packaging information',
+            labelerName: ndc.labeler_name,
+            productType: ndc.product_type,
+            description: `${ndc.brand_name || ndc.generic_name || 'Unknown'} (${ndc.dosage_form || 'Unknown Form'})`
+          });
+        });
+        break;
+        
+      case "enforcement":
+        // Process enforcement reports (recalls)
+        results.forEach(report => {
+          processed.push({
+            source: "enforcement",
+            type: "recall",
+            name: report.openfda?.brand_name?.[0] || report.product_description || 'Unknown',
+            recallNumber: report.recall_number,
+            recallInitiationDate: report.recall_initiation_date,
+            recallReason: report.reason_for_recall,
+            status: report.status,
+            classification: report.classification,
+            description: report.product_description || 'No product description'
+          });
+        });
+        break;
+        
+      case "event":
+        // Process adverse event reports
+        results.forEach(event => {
+          // Find the drug matching our search term in the report
+          const drugReports = event.patient?.drug || [];
+          const relevantDrugs = drugReports.filter(drug => 
+            (drug.medicinalproduct || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (drug.openfda?.brand_name?.[0] || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (drug.openfda?.generic_name?.[0] || '').toLowerCase().includes((searchTerm || '').toLowerCase())
+          );
+          
+          if (relevantDrugs.length > 0) {
+            const drug = relevantDrugs[0]; // Use the first matching drug
+            
+            processed.push({
+              source: "event",
+              type: "adverseEvent",
+              name: drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown',
+              genericName: drug.openfda?.generic_name?.[0] || 'Unknown',
+              reportDate: event.receiptdate,
+              seriousOutcomes: event.serious ? 'Yes' : 'No',
+              reactions: event.patient?.reaction?.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ') || 'No reactions reported',
+              description: `Adverse event report for ${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown drug'}`
+            });
+          }
+        });
+        break;
+        
+      default:
+        // Generic processing for other endpoints
+        results.forEach(result => {
+          processed.push({
+            source: endpointName,
+            name: result.openfda?.brand_name?.[0] || result.brand_name || result.generic_name || 'Unknown',
+            description: `Data from ${endpointName} endpoint`,
+            raw: result
+          });
+        });
+    }
+  } catch (error) {
+    console.error(`Error in processEndpointResults for ${endpointName}:`, error);
+    // Return an empty array if processing fails rather than throwing an error
+  }
+  
+  return processed;
+}
+
+// Middleware to validate drug name parameter
+const validateDrugNamenew = (req, res, next) => {
+  const { drugName } = req.params;
+  
+  if (!drugName || drugName.trim() === '') {
+    return res.status(400).json({
+      error: 'Invalid drug name',
+      message: 'Drug name parameter cannot be empty',
+      approved: false
+    });
+  }
+  
+  next();
+};
+
+// FDA API status check endpoint
+app.get('/api/fda/status', async (req, res) => {
+  try {
+    console.log("Checking FDA API endpoints status");
+    
+    const endpoints = {
+      drugsFda: "https://api.fda.gov/drug/drugsfda.json",
+      label: "https://api.fda.gov/drug/label.json",
+      ndc: "https://api.fda.gov/drug/ndc.json",
+      enforcement: "https://api.fda.gov/drug/enforcement.json",
+      event: "https://api.fda.gov/drug/event.json"
+    };
+    
+    const status = {};
+    
+    for (const [name, url] of Object.entries(endpoints)) {
+      try {
+        const checkUrl = `${url}?limit=1`;
+        const startTime = Date.now();
+        const response = await axios.get(checkUrl, { timeout: 10000 });
+        const endTime = Date.now();
+        
+        status[name] = {
+          status: "available",
+          responseTime: `${endTime - startTime}ms`,
+          statusCode: response.status
+        };
+      } catch (error) {
+        status[name] = {
+          status: "error",
+          error: error.message,
+          statusCode: error.response?.status || "unknown"
+        };
+      }
+    }
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      endpoints: status
+    });
+  } catch (error) {
+    console.error('Error checking FDA API status:', error);
+    res.status(500).json({ 
+      error: 'Error checking FDA API status',
+      message: error.message 
+    });
+  }
+});
+
+// Main drug search endpoint
+app.get('/api/fda/drug/:drugName', validateDrugNamenew, async (req, res) => {
   console.log("Fetching comprehensive FDA drug data");
   const { drugName } = req.params;
   const searchType = req.query.type || 'brand';
 
   try {
+    // Check if FDA API is available first
+    try {
+      console.log("Checking FDA API availability...");
+      const checkUrl = "https://api.fda.gov/drug/label.json?limit=1";
+      await axios.get(checkUrl, { timeout: 10000 });
+      console.log("FDA API is available.");
+    } catch (apiCheckError) {
+      console.error("FDA API appears to be unavailable:", apiCheckError.message);
+      return res.status(503).json({
+        error: 'FDA API unavailable',
+        message: 'The FDA API is currently unavailable. Please try again later.'
+      });
+    }
+
     // Initialize result structure
     const results = { 
       endpoints: {}, 
@@ -5994,6 +6244,7 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
 
     // Define search variations based on the drug name
     const searchVariations = [
+      `${drugName}`,
       `*${drugName}*`,
       // You can add variations here like manufacturer names if needed
     ];
@@ -6033,7 +6284,7 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
           // Fetch all results using pagination
           let allResults = [];
           let skip = 0;
-          const BATCH_SIZE = 500; // FDA API maximum batch size
+          const BATCH_SIZE = 100; // Reduced batch size to avoid overloading API
           let hasMoreResults = true;
           
           while (hasMoreResults) {
@@ -6041,27 +6292,32 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
             const url = `${baseUrl}?${searchQuery}&limit=${BATCH_SIZE}&skip=${skip}`;
             console.log(`Fetching FDA ${endpointName} with search term: ${variation}, skip: ${skip}`);
             
-            const response = await axios.get(url, { timeout: 30000 }); // Increased timeout for larger batches
-            
-            const batchResults = response.data.results || [];
-            if (batchResults.length > 0) {
-              allResults = [...allResults, ...batchResults];
-              console.log(`Retrieved batch of ${batchResults.length} results. Total so far: ${allResults.length}`);
+            try {
+              const response = await fetchWithRetry(url, { timeout: 30000 });
               
-              // Check if we've reached the end or if there might be more results
-              if (batchResults.length < BATCH_SIZE) {
-                hasMoreResults = false; // End of results
+              const batchResults = response.data.results || [];
+              if (batchResults.length > 0) {
+                allResults = [...allResults, ...batchResults];
+                console.log(`Retrieved batch of ${batchResults.length} results. Total so far: ${allResults.length}`);
+                
+                // Check if we've reached the end or if there might be more results
+                if (batchResults.length < BATCH_SIZE) {
+                  hasMoreResults = false; // End of results
+                } else {
+                  skip += BATCH_SIZE; // Move to next batch
+                }
               } else {
-                skip += BATCH_SIZE; // Move to next batch
+                hasMoreResults = false; // No results in this batch
               }
-            } else {
-              hasMoreResults = false; // No results in this batch
-            }
-            
-            // Safety check to prevent excessive requests (FDA API has rate limits)
-            if (allResults.length >= 500) {
-              console.warn(`Reached 5000 results for ${endpointName}, stopping pagination to prevent excessive requests`);
-              break;
+              
+              // Safety check to prevent excessive requests (FDA API has rate limits)
+              if (allResults.length >= 500) {
+                console.warn(`Reached 500 results for ${endpointName}, stopping pagination to prevent excessive requests`);
+                break;
+              }
+            } catch (error) {
+              console.error(`Failed FDA ${endpointName} request for ${variation} after multiple retries: ${error.message}`);
+              hasMoreResults = false; // Stop trying after repeated failures
             }
           }
           
@@ -6074,9 +6330,15 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
               searchTerm: variation
             };
             
-            // Process the results based on endpoint type
-            const processedResults = processEndpointResults(endpointName, allResults, variation);
-            results.combinedResults = [...results.combinedResults, ...processedResults];
+            try {
+              // Process the results based on endpoint type
+              const processedResults = processEndpointResults(endpointName, allResults, variation);
+              console.log(`Successfully processed ${processedResults.length} results from ${endpointName}`);
+              results.combinedResults = [...results.combinedResults, ...processedResults];
+            } catch (processingError) {
+              console.error(`Error processing ${endpointName} results:`, processingError);
+              // Continue with unprocessed results
+            }
             
             endpointSuccess = true;
             break; // Exit the variations loop for this endpoint
@@ -6199,12 +6461,377 @@ app.get('/api/fda/drug/:drugName', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching FDA drug data:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       error: 'Error fetching drug data',
       message: error.message 
     });
   }
 });
+
+
+
+
+// // Helper function to process results from different endpoints
+// function processEndpointResults(endpointName, results, searchTerm) {
+//   const processed = [];
+  
+//   switch (endpointName) {
+//     case "drugsFda":
+//       // Process drug application data
+//       results.forEach(drug => {
+//         const products = drug.products || [];
+        
+//         products.forEach(product => {
+//           processed.push({
+//             source: "drugsFda",
+//             type: "application",
+//             name: product.brand_name || drug.application_number,
+//             applicationNumber: drug.application_number,
+//             sponsorName: drug.sponsor_name,
+//             approvalType: drug.application_type,
+//             productType: product.dosage_form,
+//             status: product.marketing_status,
+//             description: `${product.brand_name || 'Unknown'} (${product.dosage_form || 'Unknown Dosage Form'})`
+//           });
+//         });
+//       });
+//       break;
+      
+//     case "label":
+//       // Process drug labeling information
+//       results.forEach(label => {
+//         const brandName = label.openfda?.brand_name?.[0] || 'Unknown';
+//         const genericName = label.openfda?.generic_name?.[0] || 'Unknown';
+        
+//         processed.push({
+//           source: "label",
+//           type: "label",
+//           name: brandName,
+//           genericName: genericName,
+//           manufacturerName: label.openfda?.manufacturer_name?.[0] || 'Unknown',
+//           description: label.indications_and_usage?.[0] || 'No indication information',
+//           warnings: label.warnings?.[0] || 'No warnings information',
+//           adverseReactions: label.adverse_reactions?.[0] || 'No adverse reactions information',
+//           dosageAdministration: label.dosage_and_administration?.[0] || 'No dosage information'
+//         });
+//       });
+//       break;
+      
+//     case "ndc":
+//       // Process National Drug Code information
+//       results.forEach(ndc => {
+//         processed.push({
+//           source: "ndc",
+//           type: "product",
+//           name: ndc.brand_name || ndc.generic_name || 'Unknown',
+//           ndcCode: ndc.product_ndc,
+//           genericName: ndc.generic_name || 'Unknown',
+//           dosageForm: ndc.dosage_form,
+//           routeOfAdmin: ndc.route?.[0] || 'Unknown',
+//           packageDescription: ndc.packaging?.[0]?.description || 'No packaging information',
+//           labelerName: ndc.labeler_name,
+//           productType: ndc.product_type,
+//           description: `${ndc.brand_name || ndc.generic_name || 'Unknown'} (${ndc.dosage_form || 'Unknown Form'})`
+//         });
+//       });
+//       break;
+      
+//     case "enforcement":
+//       // Process enforcement reports (recalls)
+//       results.forEach(report => {
+//         processed.push({
+//           source: "enforcement",
+//           type: "recall",
+//           name: report.openfda?.brand_name?.[0] || report.product_description || 'Unknown',
+//           recallNumber: report.recall_number,
+//           recallInitiationDate: report.recall_initiation_date,
+//           recallReason: report.reason_for_recall,
+//           status: report.status,
+//           classification: report.classification,
+//           description: report.product_description || 'No product description'
+//         });
+//       });
+//       break;
+      
+//     case "event":
+//       // Process adverse event reports
+//       results.forEach(event => {
+//         // Find the drug matching our search term in the report
+//         const drugReports = event.patient?.drug || [];
+//         const relevantDrugs = drugReports.filter(drug => 
+//           (drug.medicinalproduct || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+//           (drug.openfda?.brand_name?.[0] || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+//           (drug.openfda?.generic_name?.[0] || '').toLowerCase().includes(searchTerm.toLowerCase())
+//         );
+        
+//         if (relevantDrugs.length > 0) {
+//           const drug = relevantDrugs[0]; // Use the first matching drug
+          
+//           processed.push({
+//             source: "event",
+//             type: "adverseEvent",
+//             name: drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown',
+//             genericName: drug.openfda?.generic_name?.[0] || 'Unknown',
+//             reportDate: event.receiptdate,
+//             seriousOutcomes: event.serious ? 'Yes' : 'No',
+//             reactions: event.patient?.reaction?.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ') || 'No reactions reported',
+//             description: `Adverse event report for ${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown drug'}`
+//           });
+//         }
+//       });
+//       break;
+      
+//     default:
+//       // Generic processing for other endpoints
+//       results.forEach(result => {
+//         processed.push({
+//           source: endpointName,
+//           name: result.openfda?.brand_name?.[0] || result.brand_name || result.generic_name || 'Unknown',
+//           description: `Data from ${endpointName} endpoint`,
+//           raw: result
+//         });
+//       });
+//   }
+  
+//   return processed;
+// }
+
+
+// app.get('/api/fda/drug/:drugName', async (req, res) => {
+//   console.log("Fetching comprehensive FDA drug data");
+//   const { drugName } = req.params;
+//   const searchType = req.query.type || 'brand';
+
+//   try {
+//     // Initialize result structure
+//     const results = { 
+//       endpoints: {}, 
+//       combinedResults: []
+//     };
+
+//     // Define all FDA drug endpoints we'll query
+//     const endpoints = {
+//       drugsFda: "https://api.fda.gov/drug/drugsfda.json",
+//       label: "https://api.fda.gov/drug/label.json",
+//       ndc: "https://api.fda.gov/drug/ndc.json",
+//       enforcement: "https://api.fda.gov/drug/enforcement.json",
+//       event: "https://api.fda.gov/drug/event.json"
+//     };
+
+//     // Define search variations based on the drug name
+//     const searchVariations = [
+//       `*${drugName}*`,
+//       // You can add variations here like manufacturer names if needed
+//     ];
+
+//     // Process each endpoint
+//     for (const [endpointName, baseUrl] of Object.entries(endpoints)) {
+//       let endpointSuccess = false;
+      
+//       // Try each search variation
+//       for (const variation of searchVariations) {
+//         if (endpointSuccess) continue; // Skip if we already have data
+        
+//         try {
+//           // Build search query based on endpoint
+//           let searchQuery;
+          
+//           switch (endpointName) {
+//             case "drugsFda":
+//               searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+sponsor_name:"${variation}"`;
+//               break;
+//             case "label":
+//               searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+openfda.manufacturer_name:"${variation}"`;
+//               break;
+//             case "ndc":
+//               searchQuery = `search=brand_name:"${variation}"+OR+generic_name:"${variation}"+OR+labeler_name:"${variation}"`;
+//               break;
+//             case "enforcement":
+//               searchQuery = `search=product_description:"${variation}"`;
+//               break;
+//             case "event":
+//               searchQuery = `search=patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}"`;
+//               break;
+//             default:
+//               searchQuery = `search=${variation}`;
+//           }
+          
+//           // Fetch all results using pagination
+//           let allResults = [];
+//           let skip = 0;
+//           const BATCH_SIZE = 500; // FDA API maximum batch size
+//           let hasMoreResults = true;
+          
+//           while (hasMoreResults) {
+//             // Make the API request with pagination
+//             const url = `${baseUrl}?${searchQuery}&limit=${BATCH_SIZE}&skip=${skip}`;
+//             console.log(`Fetching FDA ${endpointName} with search term: ${variation}, skip: ${skip}`);
+            
+//             const response = await axios.get(url, { timeout: 30000 }); // Increased timeout for larger batches
+            
+//             const batchResults = response.data.results || [];
+//             if (batchResults.length > 0) {
+//               allResults = [...allResults, ...batchResults];
+//               console.log(`Retrieved batch of ${batchResults.length} results. Total so far: ${allResults.length}`);
+              
+//               // Check if we've reached the end or if there might be more results
+//               if (batchResults.length < BATCH_SIZE) {
+//                 hasMoreResults = false; // End of results
+//               } else {
+//                 skip += BATCH_SIZE; // Move to next batch
+//               }
+//             } else {
+//               hasMoreResults = false; // No results in this batch
+//             }
+            
+//             // Safety check to prevent excessive requests (FDA API has rate limits)
+//             if (allResults.length >= 500) {
+//               console.warn(`Reached 5000 results for ${endpointName}, stopping pagination to prevent excessive requests`);
+//               break;
+//             }
+//           }
+          
+//           if (allResults.length > 0) {
+//             console.log(`Success! Found ${allResults.length} FDA records from ${endpointName} for ${variation}`);
+//             results.endpoints[endpointName] = {
+//               status: "success",
+//               count: allResults.length,
+//               data: allResults,
+//               searchTerm: variation
+//             };
+            
+//             // Process the results based on endpoint type
+//             const processedResults = processEndpointResults(endpointName, allResults, variation);
+//             results.combinedResults = [...results.combinedResults, ...processedResults];
+            
+//             endpointSuccess = true;
+//             break; // Exit the variations loop for this endpoint
+//           }
+//         } catch (error) {
+//           console.warn(`Failed FDA ${endpointName} request for ${variation}: ${error.message}`);
+          
+//           // Check if it's a rate limiting error
+//           if (error.response && (error.response.status === 429 || error.response.status === 503)) {
+//             console.warn('Rate limiting detected. Waiting before continuing...');
+//             await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+//           }
+//         }
+//       }
+      
+//       // If no success with any variation, record the failure
+//       if (!endpointSuccess) {
+//         results.endpoints[endpointName] = {
+//           status: "error",
+//           error: "No data found across all search variations",
+//           statusCode: "404",
+//           data: []
+//         };
+//       }
+//     }
+    
+//     // If no results found across all endpoints, add placeholder data
+//     if (results.combinedResults.length === 0) {
+//       results.combinedResults = [{
+//         source: "placeholder",
+//         name: drugName,
+//         description: `No FDA data found for ${drugName} across all endpoints`,
+//         date: "Unknown",
+//         status: "Unknown"
+//       }];
+//     }
+
+//     // Process drugsFda data into categorized format
+//     const categorizedDrugs = {};
+    
+//     if (results.endpoints.drugsFda && results.endpoints.drugsFda.status === "success") {
+//       for (const drug of results.endpoints.drugsFda.data) {
+//         const appNumber = drug.application_number;
+//         const products = drug.products || [];
+//         const submissions = drug.submissions || [];
+        
+//         // Improved approval date extraction logic
+//         let approvalDate = 'Unknown';
+        
+//         // First try to find ORIG-1 or submission number 1
+//         const originalApproval = submissions.find(s =>
+//           (s.submission_number === '1' || s.submission_number === 'ORIG-1') &&
+//           (s.submission_status === 'AP' || s.submission_status === 'Approved')
+//         );
+        
+//         // If not found, look for any approval
+//         if (originalApproval) {
+//           approvalDate = originalApproval.submission_status_date;
+//         } else {
+//           const anyApproval = submissions.find(s =>
+//             s.submission_status === 'AP' || s.submission_status === 'Approved'
+//           );
+//           if (anyApproval) {
+//             approvalDate = anyApproval.submission_status_date;
+//           }
+//         }
+        
+//         for (const product of products) {
+//           if (!product.brand_name) continue;
+          
+//           const brandName = product.brand_name.toLowerCase();
+//           const activeIngredients = product.active_ingredients || [];
+//           const strength = activeIngredients.map(ing => `${ing.name} ${ing.strength}`).join(', ') || 'Unknown';
+          
+//           if (!categorizedDrugs[brandName]) categorizedDrugs[brandName] = {};
+//           if (!categorizedDrugs[brandName][strength]) categorizedDrugs[brandName][strength] = [];
+          
+//           categorizedDrugs[brandName][strength].push({
+//             brandName: product.brand_name,
+//             applicationNumber: appNumber,
+//             approvalDate,
+//             submissions: submissions.map(s => ({
+//               submissionNumber: s.submission_number,
+//               status: s.submission_status,
+//               date: s.submission_status_date,
+//               type: s.submission_type
+//             })),
+//             hasDocuments: true,
+//             fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
+//             sponsorName: drug.sponsor_name,
+//             activeIngredients,
+//             manufacturerName: drug.openfda?.manufacturer_name?.[0] || drug.sponsor_name,
+//             dosageForm: product.dosage_form,
+//             route: product.route,
+//             marketingStatus: product.marketing_status,
+//           });
+//         }
+//       }
+//     }
+
+//     // Add metadata about the request
+//     const metadata = {
+//       query: drugName,
+//       timestamp: new Date().toISOString(),
+//       endpointsQueried: Object.keys(endpoints).length,
+//       totalResults: results.combinedResults.length,
+//       resultBreakdown: Object.entries(results.endpoints).map(([name, data]) => ({
+//         endpoint: name,
+//         status: data.status,
+//         count: data.status === "success" ? data.count : 0
+//       }))
+//     };
+
+//     // Return both the raw endpoint results and the categorized drugs
+//     res.json({
+//       metadata,
+//       raw: results,
+//       categorized: categorizedDrugs
+//     });
+
+//   } catch (error) {
+//     console.error('Error fetching FDA drug data:', error);
+//     res.status(500).json({ 
+//       error: 'Error fetching drug data',
+//       message: error.message 
+//     });
+//   }
+// });
 
 
 
@@ -6329,130 +6956,6 @@ app.get('/api/fda/condition/:conditionName', async (req, res) => {
   }
 });
 
-// Helper function to process results from different endpoints
-function processEndpointResults(endpointName, results, searchTerm) {
-  const processed = [];
-  
-  switch (endpointName) {
-    case "drugsFda":
-      // Process drug application data
-      results.forEach(drug => {
-        const products = drug.products || [];
-        
-        products.forEach(product => {
-          processed.push({
-            source: "drugsFda",
-            type: "application",
-            name: product.brand_name || drug.application_number,
-            applicationNumber: drug.application_number,
-            sponsorName: drug.sponsor_name,
-            approvalType: drug.application_type,
-            productType: product.dosage_form,
-            status: product.marketing_status,
-            description: `${product.brand_name || 'Unknown'} (${product.dosage_form || 'Unknown Dosage Form'})`
-          });
-        });
-      });
-      break;
-      
-    case "label":
-      // Process drug labeling information
-      results.forEach(label => {
-        const brandName = label.openfda?.brand_name?.[0] || 'Unknown';
-        const genericName = label.openfda?.generic_name?.[0] || 'Unknown';
-        
-        processed.push({
-          source: "label",
-          type: "label",
-          name: brandName,
-          genericName: genericName,
-          manufacturerName: label.openfda?.manufacturer_name?.[0] || 'Unknown',
-          description: label.indications_and_usage?.[0] || 'No indication information',
-          warnings: label.warnings?.[0] || 'No warnings information',
-          adverseReactions: label.adverse_reactions?.[0] || 'No adverse reactions information',
-          dosageAdministration: label.dosage_and_administration?.[0] || 'No dosage information'
-        });
-      });
-      break;
-      
-    case "ndc":
-      // Process National Drug Code information
-      results.forEach(ndc => {
-        processed.push({
-          source: "ndc",
-          type: "product",
-          name: ndc.brand_name || ndc.generic_name || 'Unknown',
-          ndcCode: ndc.product_ndc,
-          genericName: ndc.generic_name || 'Unknown',
-          dosageForm: ndc.dosage_form,
-          routeOfAdmin: ndc.route?.[0] || 'Unknown',
-          packageDescription: ndc.packaging?.[0]?.description || 'No packaging information',
-          labelerName: ndc.labeler_name,
-          productType: ndc.product_type,
-          description: `${ndc.brand_name || ndc.generic_name || 'Unknown'} (${ndc.dosage_form || 'Unknown Form'})`
-        });
-      });
-      break;
-      
-    case "enforcement":
-      // Process enforcement reports (recalls)
-      results.forEach(report => {
-        processed.push({
-          source: "enforcement",
-          type: "recall",
-          name: report.openfda?.brand_name?.[0] || report.product_description || 'Unknown',
-          recallNumber: report.recall_number,
-          recallInitiationDate: report.recall_initiation_date,
-          recallReason: report.reason_for_recall,
-          status: report.status,
-          classification: report.classification,
-          description: report.product_description || 'No product description'
-        });
-      });
-      break;
-      
-    case "event":
-      // Process adverse event reports
-      results.forEach(event => {
-        // Find the drug matching our search term in the report
-        const drugReports = event.patient?.drug || [];
-        const relevantDrugs = drugReports.filter(drug => 
-          (drug.medicinalproduct || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (drug.openfda?.brand_name?.[0] || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (drug.openfda?.generic_name?.[0] || '').toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
-        if (relevantDrugs.length > 0) {
-          const drug = relevantDrugs[0]; // Use the first matching drug
-          
-          processed.push({
-            source: "event",
-            type: "adverseEvent",
-            name: drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown',
-            genericName: drug.openfda?.generic_name?.[0] || 'Unknown',
-            reportDate: event.receiptdate,
-            seriousOutcomes: event.serious ? 'Yes' : 'No',
-            reactions: event.patient?.reaction?.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ') || 'No reactions reported',
-            description: `Adverse event report for ${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown drug'}`
-          });
-        }
-      });
-      break;
-      
-    default:
-      // Generic processing for other endpoints
-      results.forEach(result => {
-        processed.push({
-          source: endpointName,
-          name: result.openfda?.brand_name?.[0] || result.brand_name || result.generic_name || 'Unknown',
-          description: `Data from ${endpointName} endpoint`,
-          raw: result
-        });
-      });
-  }
-  
-  return processed;
-}
 
 // Middleware to validate drug name parameter
 const validateDrugName = (req, res, next) => {
