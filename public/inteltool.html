@@ -2693,8 +2693,7 @@
   </section>
   
   <!-- New FDA Data Section -->
-
-
+        <div id="timeline-container"></div>
         <!-- Studies List -->
         <section id="studiesSection" class="hidden mb-6">
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -7914,6 +7913,8 @@ function showLoadingIndicator(targetElementId) {
         });
     });
 }
+
+
 
 /**
  * Updates the timeline year markers when the visible items change
@@ -14981,23 +14982,41 @@ function extractYearFromDate(dateString) {
     // Log which entity we're displaying, helps with debugging
     console.log(`Displaying timeline for ${entityType}: ${entityName}`);
 
+    // // Create and append the timeline
+    // const timelineElement = generateUsageTimeline(studies, entityName, entityType);
+    
+    // // Check if there's already a timeline
+    // const existingTimeline = document.getElementById('entity-usage-timeline');
+    // if (existingTimeline) {
+    //     existingTimeline.replaceWith(timelineElement);
+    // } else {
+    //     // Insert the timeline before the studies list
+    //     const studiesContainer = elements.studiesList.parentElement;
+    //     timelineElement.id = 'entity-usage-timeline';
+    //     studiesContainer.insertBefore(timelineElement, elements.studiesList);
+    // }
+    
+    // // Now continue with the original display logic
+    // elements.studiesList.innerHTML = '';
+    // elements.studyCount.textContent = studies.length;
+
     // Create and append the timeline
-    const timelineElement = generateUsageTimeline(studies, entityName, entityType);
-    
-    // Check if there's already a timeline
-    const existingTimeline = document.getElementById('entity-usage-timeline');
-    if (existingTimeline) {
-        existingTimeline.replaceWith(timelineElement);
-    } else {
-        // Insert the timeline before the studies list
-        const studiesContainer = elements.studiesList.parentElement;
-        timelineElement.id = 'entity-usage-timeline';
-        studiesContainer.insertBefore(timelineElement, elements.studiesList);
-    }
-    
-    // Now continue with the original display logic
-    elements.studiesList.innerHTML = '';
-    elements.studyCount.textContent = studies.length;
+const timelineElement = generateUsageTimeline(studies, entityName, entityType);
+
+// Check if there's already a timeline
+const existingTimeline = document.getElementById('entity-usage-timeline');
+if (existingTimeline) {
+    existingTimeline.replaceWith(timelineElement);
+} else {
+    // Insert the timeline into the dedicated container
+    const timelineContainer = document.getElementById('timeline-container');
+    timelineElement.id = 'entity-usage-timeline';
+    timelineContainer.appendChild(timelineElement);
+}
+
+// Now continue with the original display logic
+elements.studiesList.innerHTML = '';
+elements.studyCount.textContent = studies.length;
 
     if (studies.length === 0) {
         elements.studiesList.innerHTML = `
@@ -16328,6 +16347,8 @@ function displayStudies(studies, drug, condition) {
 }
 
 // Add enhanced, modern filtering UI with animations
+// Add enhanced, modern filtering UI with animations
+// Add enhanced, modern filtering UI with animations
 function addEnhancedFilters() {
     // Create filter section if it doesn't exist
     if (!elements.filterSection) {
@@ -16453,72 +16474,91 @@ function addEnhancedFilters() {
                         transform: translateY(0);
                     }
                 }
-                   /* Phase button active/inactive states */
-    .phase-btn {
-      transition: all 0.2s ease;
-      transform-origin: center;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .phase-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    /* Very distinct active state */
-    .phase-btn.active {
-      transform: scale(1.05);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-      border-width: 2px;
-    }
-    
-    /* Inactive state - visually muted */
-    .phase-btn:not(.active) {
-      opacity: 0.6;
-      background-color: #f9fafb !important;
-      border-color: #e5e7eb !important;
-    }
-    
-    /* Checkmark badge for active phases */
-    .phase-btn .active-indicator {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      background-color: #10b981;
-      color: white;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      opacity: 0;
-      transform: scale(0);
-      transition: all 0.2s ease;
-    }
-    
-    .phase-btn.active .active-indicator {
-      opacity: 1;
-      transform: scale(1);
-    }
-    
-    /* Make the phase dot larger and more prominent */
-    .phase-btn .phase-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      transition: all 0.2s ease;
-    }
-    
-    .phase-btn.active .phase-dot {
-      transform: scale(1.5);
-    }
-      
+                
+                /* Phase button active/inactive states */
+                .phase-btn {
+                  transition: all 0.2s ease;
+                  transform-origin: center;
+                  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                  cursor: pointer;
+                  position: relative;
+                  overflow: hidden;
+                }
+                
+                .phase-btn:hover {
+                  transform: translateY(-2px);
+                  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                
+                /* Very distinct active state */
+                .phase-btn.active {
+                  transform: scale(1.05);
+                  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                  border-width: 2px;
+                }
+                
+                /* Inactive state - visually muted */
+                .phase-btn:not(.active) {
+                  opacity: 0.6;
+                  background-color: #f9fafb !important;
+                  border-color: #e5e7eb !important;
+                }
+                
+                /* Checkmark badge for active phases */
+                .phase-btn .active-indicator {
+                  position: absolute;
+                  top: 4px;
+                  right: 4px;
+                  background-color: #10b981;
+                  color: white;
+                  border-radius: 50%;
+                  width: 16px;
+                  height: 16px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 10px;
+                  opacity: 0;
+                  transform: scale(0);
+                  transition: all 0.2s ease;
+                }
+                
+                .phase-btn.active .active-indicator {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+                
+                /* Make the phase dot larger and more prominent */
+                .phase-btn .phase-dot {
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  display: inline-block;
+                  transition: all 0.2s ease;
+                }
+                
+                .phase-btn.active .phase-dot {
+                  transform: scale(1.5);
+                }
+                
+                /* Selected phases text display */
+                .selected-phases-text {
+                  font-size: 13px;
+                  color: #4b5563;
+                  margin-top: 8px;
+                  transition: all 0.3s ease;
+                  line-height: 1.5;
+                }
+                
+                .selected-phases-text .phase-name {
+                  font-weight: 500;
+                  color: #1e40af;
+                  padding: 1px 6px;
+                  border-radius: 4px;
+                  background-color: #eff6ff;
+                  display: inline-block;
+                  margin: 0 2px;
+                }
             `;
             document.head.appendChild(styleEl);
         }
@@ -16580,28 +16620,34 @@ function addEnhancedFilters() {
                         </h4>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                             <div id="phase-pre_phase" class="phase-btn active px-3 py-2 rounded-lg bg-blue-50 border border-blue-100 hover:bg-blue-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-blue-800">Pre-Clinical</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-blue-500"></span>
                             </div>
                             <div id="phase-phase1" class="phase-btn active px-3 py-2 rounded-lg bg-green-50 border border-green-100 hover:bg-green-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-green-800">Phase 1</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-green-500"></span>
                             </div>
                             <div id="phase-phase1_phase2" class="phase-btn active px-3 py-2 rounded-lg bg-teal-50 border border-teal-100 hover:bg-teal-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-teal-800">Phase 1/2</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-teal-500"></span>
                             </div>
                             <div id="phase-phase2" class="phase-btn active px-3 py-2 rounded-lg bg-cyan-50 border border-cyan-100 hover:bg-cyan-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-cyan-800">Phase 2</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-cyan-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-cyan-500"></span>
                             </div>
                             <div id="phase-phase3" class="phase-btn active px-3 py-2 rounded-lg bg-purple-50 border border-purple-100 hover:bg-purple-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-purple-800">Phase 3</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-purple-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-purple-500"></span>
                             </div>
                             <div id="phase-phase4" class="phase-btn active px-3 py-2 rounded-lg bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-center">
+                                <div class="active-indicator">✓</div>
                                 <span class="text-xs font-medium block mb-1 text-indigo-800">Phase 4</span>
-                                <span class="inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
+                                <span class="phase-dot inline-block w-2 h-2 rounded-full bg-indigo-500"></span>
                             </div>
                         </div>
                         <div id="phase-warning" class="mt-2 text-red-600 text-xs hidden">
@@ -16609,6 +16655,12 @@ function addEnhancedFilters() {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                             At least one phase must be selected
+                        </div>
+                        <div id="selected-phases-text" class="selected-phases-text mt-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Currently showing: <span class="phase-name">All Phases</span>
                         </div>
                     </div>
                 </div>
@@ -16646,6 +16698,40 @@ function addEnhancedFilters() {
         elements.phaseWarning = document.getElementById('phase-warning');
         elements.toggleFiltersBtn = document.getElementById('toggle-filters');
         elements.filterOptions = document.getElementById('filter-options');
+        elements.selectedPhasesText = document.getElementById('selected-phases-text');
+        
+        // Define phase name mapping for display
+        const phaseNameMap = {
+            'PRE_PHASE': 'Pre-Clinical',
+            'PHASE1': 'Phase 1',
+            'PHASE1_PHASE2': 'Phase 1/2',
+            'PHASE2': 'Phase 2',
+            'PHASE3': 'Phase 3',
+            'PHASE4': 'Phase 4'
+        };
+        
+        // Function to update the selected phases text
+        function updateSelectedPhasesText() {
+            const activePhases = Object.entries(appState.filters.phaseFilters)
+                .filter(([_, isActive]) => isActive)
+                .map(([phase, _]) => phaseNameMap[phase]);
+            
+            let text = '';
+            if (activePhases.length === 0) {
+                text = '<span class="text-red-600">No phases selected</span>';
+            } else if (activePhases.length === Object.keys(phaseNameMap).length) {
+                text = '<span class="phase-name">All Phases</span>';
+            } else {
+                text = 'Showing: ' + activePhases.map(phase => `<span class="phase-name">${phase}</span>`).join(', ');
+            }
+            
+            elements.selectedPhasesText.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${text}
+            `;
+        }
         
         // Store references to phase buttons
         elements.phaseButtons = {};
@@ -16692,9 +16778,15 @@ function addEnhancedFilters() {
                         elements.phaseWarning.classList.add('hidden');
                         elements.applyFiltersBtn.disabled = false;
                     }
+                    
+                    // Update the text showing selected phases
+                    updateSelectedPhasesText();
                 });
             }
         });
+        
+        // Initial update of selected phases text
+        updateSelectedPhasesText();
         
         // Toggle filters visibility
         elements.toggleFiltersBtn.addEventListener('click', function() {
@@ -16720,10 +16812,76 @@ function addEnhancedFilters() {
         });
         
         // Add event listeners to apply/reset buttons
-        elements.applyFiltersBtn.addEventListener('click', applyFilters);
-        elements.resetFiltersBtn.addEventListener('click', resetAllFilters);
+        elements.applyFiltersBtn.addEventListener('click', function() {
+            applyFilters();
+            // Update the text when filters are applied
+            updateSelectedPhasesText();
+        });
+        
+        elements.resetFiltersBtn.addEventListener('click', function() {
+            resetAllFilters();
+            // Reset all phase buttons to active state visually
+            phaseIds.forEach(phase => {
+                const button = elements.phaseButtons[phase];
+                if (button) {
+                    button.classList.add('active');
+                }
+            });
+            // Update the text after reset
+            updateSelectedPhasesText();
+        });
     }
 }
+
+
+// // Function to apply all filters
+// function applyFilters() {
+//     // Apply filters logic here
+//     console.log("Applying filters:", appState.filters);
+    
+//     // Filter the studies based on the current filter state
+//     filterStudies();
+    
+//     // Scroll to the studies list
+//     if (elements.studiesList) {
+//         elements.studiesList.scrollIntoView({ behavior: 'smooth' });
+//     }
+// }
+
+// // Function to reset all filters
+// function resetAllFilters() {
+//     // Reset the phase filters
+//     const phaseIds = ['PRE_PHASE', 'PHASE1', 'PHASE1_PHASE2', 'PHASE2', 'PHASE3', 'PHASE4'];
+//     phaseIds.forEach(phase => {
+//         appState.filters.phaseFilters[phase] = true;
+//         if (elements.phaseButtons[phase]) {
+//             elements.phaseButtons[phase].classList.add('active');
+//         }
+//     });
+    
+//     // Reset other filters
+//     appState.filters.hasResults = false;
+//     appState.filters.isCompleted = false;
+    
+//     // Update UI
+//     if (elements.hasResultsCheckbox) {
+//         elements.hasResultsCheckbox.checked = false;
+//     }
+//     if (elements.completedCheckbox) {
+//         elements.completedCheckbox.checked = false;
+//     }
+//     if (elements.phaseWarning) {
+//         elements.phaseWarning.classList.add('hidden');
+//     }
+//     if (elements.applyFiltersBtn) {
+//         elements.applyFiltersBtn.disabled = false;
+//     }
+    
+//     // Apply the reset filters
+//     applyFilters();
+// }
+
+
 
 // Function to apply all filters and update the display with validation
 function applyFilters() {
@@ -16919,6 +17077,8 @@ function resetAllFilters() {
     displayStudiesPage(1);
     setupPaginationControls(appState.allStudies.length);
 }
+
+
 // The key issue is in the pagination buttons handling - when we set up the page buttons,
 // they call displayFilteredStudiesPage() but we also have a displayStudiesPage() function
 // that isn't properly connected. Let's fix the main setupPaginationControls function:

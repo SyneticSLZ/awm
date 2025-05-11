@@ -311,6 +311,199 @@ function verifyPassword(password, hash, salt) {
 app.use(pubmedRoutes);
 
 
+// Set cutoff date for leads (May 9, 2025)
+const LEAD_CUTOFF_DATE = new Date('2025-05-09T00:00:00.000Z');
+
+// API Routes for Users
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const users = await User.find().select('-passwordHash -salt');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-passwordHash -salt');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// API Routes for user statistics
+app.get('/api/admin/stats/users', async (req, res) => {
+  try {
+    // Get total users
+    const totalUsers = await User.countDocuments();
+    
+    // Get users by subscription status
+    const subscriptionStats = await User.aggregate([
+      { $group: { _id: '$subscriptionStatus', count: { $sum: 1 } } }
+    ]);
+    
+    // Get average usage
+    const usageStats = await User.aggregate([
+      { $group: { _id: null, avgUsage: { $avg: '$usage' }, totalUsage: { $sum: '$usage' } } }
+    ]);
+    
+    // Get new users in the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const newUsers = await User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } });
+    
+    // Get active users (logged in within the last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const activeUsers = await User.countDocuments({ lastLogin: { $gte: sevenDaysAgo } });
+    
+    // Get drug search statistics
+    const drugSearchStats = await User.aggregate([
+      { $unwind: "$activityLog" },
+      { $match: { 
+        "activityLog.activity": "search",
+        "activityLog.details.searchType": "drug_only" 
+      }},
+      { $group: { 
+        _id: "$activityLog.details.terms.drug", 
+        count: { $sum: 1 },
+        users: { $addToSet: "$_id" }
+      }},
+      { $project: {
+        drug: "$_id",
+        count: 1,
+        uniqueUsers: { $size: "$users" }
+      }},
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+    
+    // Get daily active users for the last 30 days
+    const dailyActiveUsers = await User.aggregate([
+      { $unwind: "$loginDates" },
+      { $match: { loginDates: { $gte: thirtyDaysAgo } } },
+      { 
+        $group: { 
+          _id: { 
+            $dateToString: { format: "%Y-%m-%d", date: "$loginDates" } 
+          }, 
+          count: { $sum: 1 } 
+        } 
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+res.json({
+  totalUsers,
+  subscriptionStats,
+  usageStats: usageStats[0] || { avgUsage: 0, totalUsage: 0 },
+  newUsers,
+  activeUsers,
+  drugSearchStats,
+  dailyActiveUsers,
+  metrics: {
+    totalUsers: "Total number of registered users in the database",
+    newUsers: "Number of users who registered within the last 30 days",
+    activeUsers: "Number of users who have logged in at least once in the past 7 days",
+    avgUsage: "Average number of actions (API calls, searches, etc.) per user",
+    totalUsage: "Sum of all usage counts across all users",
+    subscriptionStats: "Distribution of users across different subscription types",
+    drugSearchStats: "Most frequently searched drugs with counts and unique users"
+  }
+});
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// API Routes for Leads
+app.get('/api/admin/leads', async (req, res) => {
+  try {
+    // Only return leads after the cutoff date
+    const leads = await Lead.find({ createdAt: { $gte: LEAD_CUTOFF_DATE } });
+    res.json(leads);
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/stats/leads', async (req, res) => {
+  try {
+    // Only count leads after the cutoff date
+    const totalLeads = await Lead.countDocuments({ createdAt: { $gte: LEAD_CUTOFF_DATE } });
+    
+    // Get leads by status (only after cutoff)
+    const statusStats = await Lead.aggregate([
+      { $match: { createdAt: { $gte: LEAD_CUTOFF_DATE } } },
+      { $group: { _id: '$leadStatus', count: { $sum: 1 } } }
+    ]);
+    
+    // Get leads by source (only after cutoff)
+    const sourceStats = await Lead.aggregate([
+      { $match: { createdAt: { $gte: LEAD_CUTOFF_DATE } } },
+      { $group: { _id: '$source', count: { $sum: 1 } } }
+    ]);
+    
+    // Get new leads in the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const newLeads = await Lead.countDocuments({ 
+      createdAt: { $gte: thirtyDaysAgo, $gte: LEAD_CUTOFF_DATE } 
+    });
+    
+    // Get leads by revenue range (only after cutoff)
+    const revenueStats = await Lead.aggregate([
+      { $match: { createdAt: { $gte: LEAD_CUTOFF_DATE } } },
+      { $group: { _id: '$companyRevenueRange', count: { $sum: 1 } } }
+    ]);
+    
+    // Get leads by day (last 30 days)
+    const dailyLeads = await Lead.aggregate([
+      { $match: { 
+        createdAt: { $gte: thirtyDaysAgo, $gte: LEAD_CUTOFF_DATE } 
+      }},
+      { 
+        $group: { 
+          _id: { 
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } 
+          }, 
+          count: { $sum: 1 } 
+        } 
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    res.json({
+  totalLeads,
+  statusStats,
+  sourceStats,
+  newLeads,
+  revenueStats,
+  dailyLeads,
+  metrics: {
+    totalLeads: "Total number of leads captured after May 9, 2025",
+    newLeads: "Number of leads captured within the last 30 days",
+    statusStats: "Distribution of leads across different status categories",
+    sourceStats: "Breakdown of leads by acquisition channel or source",
+    revenueStats: "Distribution of leads by company revenue range"
+  }
+});
+  } catch (error) {
+    console.error('Error fetching lead stats:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 
 // Login endpoint with tracking
