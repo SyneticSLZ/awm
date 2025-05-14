@@ -3,1088 +3,1303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinical Trials Explorer v2</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com" ></script>
-    
-    <!-- Chart.js for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Custom styling -->
+    <title>TEG 6S Clinical Research Dashboard</title>
+    <!-- Modern CSS Framework -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* Add custom CSS here */
-        .loading {
-            @apply animate-pulse;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        /* For styling the scrollbar */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-        
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
+            background: rgb(241 245 249);
             border-radius: 4px;
         }
-        
+        ::-webkit-scrollbar-thumb {
+            background: rgb(148 163 184);
+            border-radius: 4px;
+        }
         ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
+            background: rgb(100 116 139);
         }
         
-        .toggle-checkbox:checked {
-            @apply right-0 border-green-400;
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-track {
+            background: rgb(30 41 59);
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgb(71 85 105);
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgb(100 116 139);
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .expanded .rotate-icon {
+            transform: rotate(90deg);
+        }
+        
+        /* Fade animations */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: rgb(30 41 59);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 20;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgb(30 41 59) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Dark mode tooltip */
+        .dark .tooltip .tooltip-text {
+            background-color: rgb(226 232 240);
+            color: rgb(15 23 42);
+        }
+        
+        .dark .tooltip .tooltip-text::after {
+            border-color: rgb(226 232 240) transparent transparent transparent;
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
             right: 0;
-            border-color: #68D391;
+            bottom: 0;
+            background-color: rgb(203 213 225);
+            transition: .4s;
+            border-radius: 24px;
         }
         
-        .toggle-checkbox:checked + .toggle-label {
-            @apply bg-green-400;
-            background-color: #68D391;
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
         
-        .tab-active {
-            @apply bg-indigo-700 text-white;
+        input:checked + .toggle-slider {
+            background-color: rgb(14 165 233);
         }
         
-        .comparison-chart-container {
-            height: 400px;
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
         }
+        
+        /* Detail panel animation
+        .detail-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        
+        .detail-panel.open {
+            max-height: 1500px;
+            transition: max-height 0.6s ease-in;
+        } */
+
+        /* Detail panel animation */
+.detail-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    display: none;
+}
+
+.detail-panel.open {
+    max-height: 1500px;
+    transition: max-height 0.6s ease-in;
+    display: table-row;
+}
+
+/* Expand icon rotation */
+.rotate-icon {
+    transition: transform 0.3s ease;
+}
+
+.expanded .rotate-icon {
+    transform: rotate(90deg);
+}
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <!-- App Container -->
-    <div id="app" class="min-h-screen">
-        <!-- Header -->
-        <header class="bg-indigo-700 text-white shadow-md">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div class="flex items-center mb-4 md:mb-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
-                        <h1 class="text-2xl font-bold">Clinical Trials Explorer v2</h1>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <button id="toggleFiltersBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            Filters
-                        </button>
-                        
-                        <button id="toggleLogsBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            Logs
-                        </button>
-                        
-                        <button id="toggleStatsBtn" class="flex items-center px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Statistics
-                        </button>
-                    </div>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen transition-colors duration-300 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12">
+            <div class="mb-6 md:mb-0">
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600">TEG 6S Clinical Research Dashboard</h1>
+                <p class="text-secondary-600 dark:text-secondary-300 mt-2">Comprehensive analysis of neonatal & pediatric applications</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <button id="exportBtn" class="flex items-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md">
+                    <i class="fas fa-download mr-2"></i> Export Data
+                </button>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-secondary-600 dark:text-secondary-300">Dark Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
         </header>
-        
-        <!-- Main Content -->
-        <main class="container mx-auto px-4 py-6">
-            <!-- Search Section -->
-            <section class="mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">Search Clinical Trials</h2>
-                    
-                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    id="searchInput" 
-                                    class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                    placeholder="Search by keyword, condition, drug..."
-                                >
-                                <div class="absolute left-3 top-2.5 text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                            </div>
+
+        <!-- Key Findings Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-10 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-3 text-xl"></i>
+                    <h2 class="text-2xl font-bold text-secondary-800 dark:text-white">Key Neonatal Research Findings</h2>
+                </div>
+                
+                <div class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
                         </div>
-                        
-                        <div class="md:w-56">
-                            <select 
-                                id="searchType" 
-                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="term">General Search</option>
-                                <option value="cond">By Condition</option>
-                                <option value="intr">By Intervention/Drug</option>
-                                <option value="spons">By Sponsor</option>
-                                <option value="locn">By Location</option>
-                                <option value="id">By NCT ID</option>
-                                <option value="patient">By Patient Data</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <button 
-                                id="searchBtn" 
-                                class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg px-6 py-2 transition duration-200"
-                            >
-                                Search
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Tabs for advanced search options -->
-                    <div class="flex mb-4">
-                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300 tab-active" data-tab="basicSearch">Basic Search</button>
-                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="advancedSearch">Advanced Search</button>
-                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="compareSearch">Compare Studies</button>
-                        <button class="tab-btn px-4 py-2 rounded-t-lg border-t border-l border-r border-gray-300" data-tab="patientSearch">Patient Outcomes</button>
-                    </div>
-                    
-                    <!-- Basic Search Filters Panel -->
-                    <div id="basicSearch" class="tab-content">
-                        <div id="filtersPanel" class="border-t border-gray-200 pt-4">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label for="phaseFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Phase</label>
-                                    <select id="phaseFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="">All Phases</option>
-                                        <option value="Phase 1">Phase 1</option>
-                                        <option value="Phase 2">Phase 2</option>
-                                        <option value="Phase 3">Phase 3</option>
-                                        <option value="Phase 4">Phase 4</option>
-                                        <option value="Early Phase 1">Early Phase 1</option>
-                                        <option value="Not Applicable">Not Applicable</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Status</label>
-                                    <select id="statusFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="">All Statuses</option>
-                                        <option value="RECRUITING">Recruiting</option>
-                                        <option value="COMPLETED">Completed</option>
-                                        <option value="ACTIVE_NOT_RECRUITING">Active, not recruiting</option>
-                                        <option value="NOT_YET_RECRUITING">Not yet recruiting</option>
-                                        <option value="TERMINATED">Terminated</option>
-                                        <option value="WITHDRAWN">Withdrawn</option>
-                                        <option value="SUSPENDED">Suspended</option>
-                                        <option value="UNKNOWN">Unknown</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="pageSizeFilter" class="block text-sm font-medium text-gray-700 mb-1">Results Per Page</label>
-                                    <select id="pageSizeFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="10">10</option>
-                                        <option value="20" selected>20</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                        <option value="200">200</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="sortFilter" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-                                    <select id="sortFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="@relevance">Relevance</option>
-                                        <option value="LastUpdatePostDate:desc">Last Updated (newest first)</option>
-                                        <option value="EnrollmentCount:desc">Enrollment (highest first)</option>
-                                        <option value="StartDate:desc">Start Date (newest first)</option>
-                                        <option value="CompletionDate:desc">Completion Date (newest first)</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="hasResultsFilter" class="block text-sm font-medium text-gray-700 mb-1">Study Results</label>
-                                    <select id="hasResultsFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="">All Studies</option>
-                                        <option value="true">With Results</option>
-                                        <option value="false">Without Results</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="flex items-center mt-6">
-                                    <label class="flex items-center cursor-pointer">
-                                        <div class="relative">
-                                            <input type="checkbox" id="countTotalFilter" class="toggle-checkbox sr-only" checked />
-                                            <div class="toggle-label block w-12 h-6 rounded-full bg-gray-300 transition"></div>
-                                            <div class="toggle-checkbox absolute inset-y-0 left-0 w-6 h-6 rounded-full bg-white border-2 border-gray-300 transition"></div>
-                                        </div>
-                                        <div class="ml-3 text-sm font-medium text-gray-700">Include Total Count</div>
-                                    </label>
-                                </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-red-800 dark:text-red-200">Critical Research Gap Identified</h3>
+                            <div class="mt-2 text-red-700 dark:text-red-300">
+                                <p><strong>No TEG 6S trials include neonates or premature infants in the dataset.</strong> The youngest age group in current trials is 3 months to 18 years (NCT05874843).</p>
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-vial text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">Blood Collection Method</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">All trials use citrated blood (3.2% citric acid) and require reactivation before analysis. No small-volume protocols for neonates identified.</p>
+                    </div>
                     
-                    <!-- Advanced Search Tab -->
-                    <div id="advancedSearch" class="tab-content hidden">
-                        <div class="border-t border-gray-200 pt-4">
-                            <div class="mb-4">
-                                <label for="advancedQueryInput" class="block text-sm font-medium text-gray-700 mb-1">Advanced Query</label>
-                                <textarea 
-                                    id="advancedQueryInput" 
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500" 
-                                    rows="3"
-                                    placeholder="Example: AREA[StartDate]2022 AND AREA[MinimumAge]RANGE[MIN, 16 years] AND AREA[MaximumAge]RANGE[16 years, MAX]"
-                                ></textarea>
-                            </div>
-                            
-                            <div class="bg-gray-100 p-4 rounded-md mb-4">
-                                <h3 class="text-sm font-medium text-gray-700 mb-2">Advanced Query Examples</h3>
-                                <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
-                                    <li>Search by date range: <span class="text-indigo-600 cursor-pointer example-query">AREA[StartDate]RANGE[2021-01-01, 2022-12-31]</span></li>
-                                    <li>Search by age: <span class="text-indigo-600 cursor-pointer example-query">AREA[MinimumAge]RANGE[65 years, MAX]</span></li>
-                                    <li>Search by enrollment: <span class="text-indigo-600 cursor-pointer example-query">AREA[EnrollmentCount]RANGE[1000, MAX]</span></li>
-                                    <li>Studies with results: <span class="text-indigo-600 cursor-pointer example-query">AREA[HasResults]true</span></li>
-                                    <li>Multiple criteria: <span class="text-indigo-600 cursor-pointer example-query">AREA[Phase]Phase 3 AND AREA[HasResults]true</span></li>
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-baby text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">Neonatal Applications</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">Potential neonatal concerns (tiny blood volumes, different coagulation values) not addressed in any identified trials or publications.</p>
+                    </div>
+                    
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-stethoscope text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">FDA Clearance Status</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">TEG 6S received FDA 510(k) clearance in 2019 (K183160) with an updated cartridge in 2024. No specific neonatal clearance documented.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-primary-50 dark:bg-primary-900/30 border-l-4 border-primary-500 p-4 rounded-r">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-search text-primary-500 text-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-primary-800 dark:text-primary-200">Recommended Next Steps</h3>
+                            <div class="mt-2 text-primary-700 dark:text-primary-300">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Perform targeted search in CDRH 510(k) database for any neonatal mentions with TEG 6S</li>
+                                    <li>Conduct PubMed literature search for any research on TEG devices in neonatal/premature populations</li>
+                                    <li>Contact Haemonetics Corporation to inquire about unpublished neonatal validation studies</li>
+                                    <li>Explore alternative small-volume blood collection methods compatible with TEG 6S</li>
                                 </ul>
                             </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="fieldsFilter" class="block text-sm font-medium text-gray-700 mb-1">Fields to Include</label>
-                                    <select id="fieldsFilter" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500" multiple size="5">
-                                        <option value="NCTId,BriefTitle,OverallStatus" selected>Basic Info</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,Phase,InterventionName,Condition">Interventions & Conditions</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,BriefSummary,DetailedDescription">With Descriptions</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,StartDate,PrimaryCompletionDate,CompletionDate">With Dates</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,EnrollmentCount,Phase,StudyType">Study Design</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,protocolSection.eligibilityModule">Eligibility Criteria</option>
-                                        <option value="NCTId,BriefTitle,OverallStatus,protocolSection,derivedSection,hasResults">All Data (Large Response)</option>
-                                    </select>
-                                    <div class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Compare Studies Tab -->
-                    <div id="compareSearch" class="tab-content hidden">
-                        <div class="border-t border-gray-200 pt-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label for="compareCondition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-                                    <input 
-                                        type="text" 
-                                        id="compareCondition" 
-                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                        placeholder="e.g., cancer, diabetes"
-                                    >
-                                </div>
-                                
-                                <div>
-                                    <label for="compareIntervention" class="block text-sm font-medium text-gray-700 mb-1">Intervention/Drug</label>
-                                    <input 
-                                        type="text" 
-                                        id="compareIntervention" 
-                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                        placeholder="e.g., aspirin, vaccine"
-                                    >
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label for="comparePhase" class="block text-sm font-medium text-gray-700 mb-1">Phase</label>
-                                    <select id="comparePhase" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="">All Phases</option>
-                                        <option value="Phase 1">Phase 1</option>
-                                        <option value="Phase 2">Phase 2</option>
-                                        <option value="Phase 3">Phase 3</option>
-                                        <option value="Phase 4">Phase 4</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label for="compareStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                    <select id="compareStatus" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                        <option value="COMPLETED">Completed</option>
-                                        <option value="">All Statuses</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="flex items-center mt-6">
-                                    <button 
-                                        id="generateComparisonBtn" 
-                                        class="w-full bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 transition"
-                                    >
-                                        Generate Comparison
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div id="comparisonChartSection" class="mt-4 hidden">
-                                <h3 class="text-lg font-medium mb-2">Comparison Results</h3>
-                                <div class="comparison-chart-container">
-                                    <canvas id="comparisonChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Patient Outcomes Tab -->
-                    <div id="patientSearch" class="tab-content hidden">
-                        <div class="border-t border-gray-200 pt-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label for="outcomeCondition" class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-                                    <input 
-                                        type="text" 
-                                        id="outcomeCondition" 
-                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                        placeholder="e.g., cancer, diabetes"
-                                    >
-                                </div>
-                                
-                                <div>
-                                    <label for="outcomeIntervention" class="block text-sm font-medium text-gray-700 mb-1">Intervention/Drug</label>
-                                    <input 
-                                        type="text" 
-                                        id="outcomeIntervention" 
-                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                        placeholder="e.g., aspirin, vaccine"
-                                    >
-                                </div>
-                            </div>
-                            
-                            <div class="flex justify-end mb-4">
-                                <button 
-                                    id="analyzeOutcomesBtn" 
-                                    class="bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 transition"
-                                >
-                                    Analyze Patient Outcomes
-                                </button>
-                            </div>
-                            
-                            <div id="outcomeAnalysisSection" class="mt-4 hidden">
-                                <div class="bg-white rounded-lg shadow p-4">
-                                    <h3 class="text-lg font-medium mb-4">Patient Outcome Analysis</h3>
-                                    
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <h4 class="font-medium mb-2">Success Rate Statistics</h4>
-                                            <div id="successRateStats" class="bg-gray-50 p-4 rounded"></div>
-                                        </div>
-                                        
-                                        <div>
-                                            <h4 class="font-medium mb-2">Enrollment Distribution</h4>
-                                            <canvas id="enrollmentChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- FDA Data Integration Section (add this to index.html) -->
-<section id="fdaDataSection" class="mb-8 hidden">
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <div class="flex justify-between items-start mb-4">
-        <h2 class="text-xl font-semibold">FDA Data Explorer</h2>
-        <div class="flex space-x-2">
-          <input 
-            type="text" 
-            id="selectedDrugInput" 
-            class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="Enter drug name"
-          >
-          <button 
-            id="fetchCompleteDataBtn"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-3 py-1 transition"
-          >
-            Fetch Data
-          </button>
-        </div>
-      </div>
-      
-      <!-- Loading Indicator -->
-      <div id="fdaDataLoading" class="hidden mb-4">
-        <div class="flex justify-center items-center py-8">
-          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-      </div>
-      
-      <!-- Error Message -->
-      <div id="fdaDataError" class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
-      
-      <!-- FDA Data Content -->
-      <div id="fdaDataContent">
-        <!-- Individual Data Sections -->
-        <div class="space-y-8">
-          <!-- Drug Info Section -->
-          <div id="drugInfoSection" class="mb-6"></div>
-          
-          <!-- Tabs for different data categories -->
-          <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="FDA Data Categories">
-              <button class="border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('regulatory')">
-                Regulatory Information
-              </button>
-              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('clinical')">
-                Clinical Information
-              </button>
-              <button class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm" onclick="showDataTab('compliance')">
-                Compliance & Patents
-              </button>
-            </nav>
-          </div>
-          
-          <!-- Regulatory Tab Content -->
-          <div id="regulatoryTab" class="tab-content space-y-6">
-            <!-- FDA Guidance Section -->
-            <div id="fdaGuidanceSection" class="mb-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">FDA Guidance Documents</h3>
-                <button 
-                  id="fetchGuidanceBtn"
-                  class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 py-1 text-sm transition"
-                >
-                  Refresh Guidance
-                </button>
-              </div>
-              <div id="guidanceLoading" class="hidden">
-                <div class="flex justify-center items-center py-4">
-                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-              </div>
-              <div id="guidanceContent"></div>
             </div>
-            
-            <!-- FDA Approval Section -->
-            <div id="fdaApprovalSection" class="mb-6"></div>
-          </div>
-          
-          <!-- Clinical Tab Content -->
-          <div id="clinicalTab" class="tab-content hidden space-y-6">
-            <!-- Trials Summary Section -->
-            <div id="trialsSummarySection" class="mb-6"></div>
-            
-            <!-- DailyMed Label Section -->
-            <div id="dailyMedSection" class="mb-6"></div>
-            
-            <!-- Publications Section -->
-            <div id="publicationsSection" class="mb-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Scientific Publications</h3>
-                <button 
-                  id="fetchPublicationsBtn"
-                  class="bg-green-600 hover:bg-green-700 text-white rounded-md px-3 py-1 text-sm transition"
-                >
-                  Fetch Publications
-                </button>
-              </div>
-              <div id="publicationsLoading" class="hidden">
-                <div class="flex justify-center items-center py-4">
-                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
-                </div>
-              </div>
-              <div id="publicationsContent"></div>
-            </div>
-            
-            <!-- Treatment Effect Section -->
-            <div id="treatmentEffectSection" class="mb-6"></div>
-          </div>
-          
-          <!-- Compliance Tab Content -->
-          <div id="complianceTab" class="tab-content hidden space-y-6">
-            <!-- Warning Letters Section -->
-            <div id="warningLettersSection" class="mb-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">FDA Warning Letters</h3>
-                <button 
-                  id="fetchWarningsBtn"
-                  class="bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1 text-sm transition"
-                >
-                  Fetch Warnings
-                </button>
-              </div>
-              <div id="warningsLoading" class="hidden">
-                <div class="flex justify-center items-center py-4">
-                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
-                </div>
-              </div>
-              <div id="warningsContent"></div>
-            </div>
-            
-            <!-- Orange Book Section -->
-            <div id="orangeBookSection" class="mb-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Orange Book Patent Information</h3>
-                <button 
-                  id="fetchPatentsBtn"
-                  class="bg-yellow-600 hover:bg-yellow-700 text-white rounded-md px-3 py-1 text-sm transition"
-                >
-                  Fetch Patents
-                </button>
-              </div>
-              <div id="patentsLoading" class="hidden">
-                <div class="flex justify-center items-center py-4">
-                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
-                </div>
-              </div>
-              <div id="patentsContent"></div>
-            </div>
-          </div>
-          
-          <!-- Similar Drugs Section -->
-          <div id="similarDrugsSection" class="mb-6"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Tab Switching Script -->
-  <!-- <script>
-    function showDataTab(tabName) {
-      // Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.add('hidden');
-      });
-      
-      // Show the selected tab
-      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-      
-      // Update tab button styles
-      document.querySelectorAll('nav button').forEach(button => {
-        button.classList.remove('border-indigo-500', 'text-indigo-600');
-        button.classList.add('border-transparent', 'text-gray-500');
-      });
-      
-      // Highlight the active tab button
-      const activeButton = Array.from(document.querySelectorAll('nav button')).find(
-        button => button.textContent.trim().toLowerCase().includes(tabName)
-      );
-      
-      if (activeButton) {
-        activeButton.classList.remove('border-transparent', 'text-gray-500');
-        activeButton.classList.add('border-indigo-500', 'text-indigo-600');
-      }
-    }
-  </script> -->
-            <!-- Results Section -->
-            <section class="mb-8">
-                <div id="resultsContainer" class="bg-white rounded-lg shadow-md p-6 hidden">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                        <h2 class="text-xl font-semibold">Results</h2>
-                        <div id="resultStats" class="text-sm text-gray-600"></div>
-                    </div>
-                    
-                    <div id="resultsTable" class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr id="resultsTableHeader">
-                                    <!-- Dynamically generated headers will go here -->
-                                </tr>
-                            </thead>
-                            <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
-                                <!-- Results will go here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Loading Indicator -->
-                    <div id="loadingIndicator" class="hidden">
-                        <div class="flex justify-center items-center py-8">
-                            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- No Results Message -->
-                    <div id="noResultsMessage" class="hidden">
-                        <div class="flex flex-col items-center justify-center py-8 text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-lg">No results found for your search criteria.</p>
-                            <p class="text-sm mt-1">Try adjusting your search terms or filters.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <div id="paginationContainer" class="mt-6 flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="paginationTotal">0</span> results
-                            </p>
-                        </div>
-                        <div class="flex-1 flex justify-end">
-                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                <button id="prevPageBtn" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                                <div id="paginationPages" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
-                                </div>
-                                <button id="nextPageBtn" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- FDA Comparison and Protocol Analysis Section -->
-<section id="fdaComparisonSection" class="mb-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-semibold mb-4">FDA Drug Comparison & Protocol Analysis</h2>
-      
-      <p class="text-gray-600 mb-4">
-        Compare similar drugs, analyze protocols, and understand FDA precedent for patient numbers and trial design.
-        This helps predict requirements for new drug development based on similar approved drugs.
-      </p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <!-- Primary Drug Selection -->
-        <div>
-          <label for="primaryDrugInput" class="block text-sm font-medium text-gray-700 mb-1">Primary Drug</label>
-          <div class="flex">
-            <input 
-              type="text" 
-              id="primaryDrugInput" 
-              class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="e.g., olanzapine, risperidone"
-            >
-            <button 
-              id="drugCompareBtn"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-md px-4 py-2 transition"
-            >
-              Compare
-            </button>
-          </div>
-          <p class="text-xs text-gray-500 mt-1">Enter a drug name to analyze its clinical trials and protocols</p>
-        </div>
-        
-        <!-- Additional Drug Selection -->
-        <div>
-          <label for="additionalDrugInput" class="block text-sm font-medium text-gray-700 mb-1">Add Comparison Drug</label>
-          <div class="flex">
-            <input 
-            type="text" 
-            id="additionalDrugInput" 
-            class="flex-1 border border-gray-300 rounded-l-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="e.g., quetiapine, aripiprazole"
-          >
-          <button 
-            id="addComparisonDrugBtn"
-            class="bg-green-600 hover:bg-green-700 text-white rounded-r-md px-4 py-2 transition"
-          >
-            Add
-          </button>
-        </div>
-        <div id="comparisonDrugsList" class="mt-2 text-sm"></div>
-      </div>
-    </div>
-    
-    <div class="flex flex-wrap gap-2 mb-6">
-      <button 
-        id="protocolAnalysisBtn"
-        class="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 transition"
-      >
-        Analyze Protocols
-      </button>
-      
-      <button 
-        id="variabilityAnalysisBtn"
-        class="bg-purple-600 hover:bg-purple-700 text-white rounded-md px-4 py-2 transition"
-      >
-        Analyze Variability & Treatment Effect
-      </button>
-    </div>
-    
-    <!-- Comparison Results Section -->
-    <div id="comparisonResults" class="hidden">
-      <!-- Loading Indicator -->
-      <div id="comparisonLoading" class="hidden mb-4">
-        <div class="flex justify-center items-center py-8">
-          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-      </div>
-      
-      <!-- Error Message -->
-      <div id="comparisonError" class="hidden mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
-      
-      <!-- Comparison Content -->
-      <div id="comparisonContent">
-        <h3 class="text-lg font-semibold mb-3">Comparison Results for <span id="primaryDrugName">Drug</span></h3>
-        
-        <!-- Drug Summary Card -->
-        <div id="drugSummaryCard" class="mb-6"></div>
-        
-        <!-- FDA Guidance Section -->
-        <div id="fdaGuidanceSection" class="mb-6 hidden"></div>
-        
-        <!-- Patient Number Comparison Chart -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-            <h4 class="text-md font-medium mb-3">Patient Numbers Comparison</h4>
-            <canvas id="patientNumberComparisonChart" height="250"></canvas>
-          </div>
-          
-          <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-            <h4 class="text-md font-medium mb-3">Treatment Effects & Variability</h4>
-            <canvas id="treatmentEffectsComparisonChart" height="250"></canvas>
-          </div>
-        </div>
-        
-        <!-- Protocol Comparison -->
-        <div class="mb-6">
-          <h4 class="text-lg font-medium mb-3">Protocol Comparison</h4>
-          <div class="overflow-x-auto">
-            <div id="protocolComparisonTable"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Protocol Analysis Section -->
-    <div id="protocolAnalysisSection" class="hidden mt-8">
-      <h3 class="text-lg font-semibold mb-4">Protocol Analysis</h3>
-      
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h4 class="text-md font-medium mb-3">Study Design Distribution</h4>
-          <canvas id="studyDesignChart" height="250"></canvas>
-        </div>
-        
-        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <h4 class="text-md font-medium mb-3">Patient Distribution by Phase</h4>
-          <canvas id="patientsByPhaseChart" height="250"></canvas>
-        </div>
-      </div>
-      
-      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
-        <h4 class="text-md font-medium mb-3">Study Timeline</h4>
-        <canvas id="timelineChart" height="200"></canvas>
-      </div>
-      
-      <div class="mb-6">
-        <h4 class="text-lg font-medium mb-3">Protocol Details</h4>
-        <div class="overflow-x-auto">
-          <div id="protocolDetailsTable"></div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Variability Analysis Section -->
-    <div id="variabilityAnalysisSection" class="hidden mt-8">
-      <h3 class="text-lg font-semibold mb-4">Variability & Treatment Effect Analysis</h3>
-      
-      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
-        <h4 class="text-md font-medium mb-3">Response Distribution: Placebo vs. Treatment</h4>
-        <canvas id="bellCurveChart" height="250"></canvas>
-        <div id="bellCurveAnnotation"></div>
-      </div>
-      
-      <div class="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6">
-        <div id="patientEstimationTable"></div>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-        <h4 class="font-medium text-gray-700 mb-2">Understanding Patient Number Requirements</h4>
-        <p class="text-sm text-gray-600 mb-2">
-          Two primary factors determine how many patients are needed for a clinical trial:
-        </p>
-        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-2">
-          <li><strong>Treatment Effect Size:</strong> The difference between treatment and placebo responses. Larger effects require fewer patients.</li>
-          <li><strong>Variability:</strong> How much responses vary within each group. Higher variability requires more patients.</li>
-        </ol>
-        <p class="text-sm text-gray-600">
-          Statistical power calculations use these factors to determine the minimum number of patients needed to demonstrate a statistically significant effect with confidence.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
 
-
-            <!-- Study Details Section (hidden by default) -->
-            <section id="studyDetailsSection" class="mb-8 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-xl font-semibold">Study Details</h2>
-                        <button id="closeStudyDetailsBtn" class="text-gray-500 hover:text-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <div id="studyDetailsContent">
-                        <!-- Study details will be inserted here -->
-                    </div>
+        <!-- Filters Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-8 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-filter text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Search & Filter Trials</h2>
                 </div>
-            </section>
-            
-            <!-- Statistics Section (hidden by default) -->
-            <section id="statisticsSection" class="mb-8 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">Clinical Trials Statistics</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Study Status Distribution</h3>
-                            <canvas id="statusChart" height="250"></canvas>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Phase Distribution</h3>
-                            <canvas id="phaseChart" height="250"></canvas>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="col-span-2">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fas fa-search text-secondary-400"></i>
+                            </div>
+                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2.5 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white" placeholder="Search by ID, title, keyword...">
                         </div>
                     </div>
                     
-                    <div class="mt-8">
-                        <h3 class="text-lg font-medium mb-3">Enrollment Statistics</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div class="bg-gray-50 p-4 rounded">
-                                <h4 class="text-sm font-medium text-gray-500">Total Studies</h4>
-                                <p id="totalStudiesCount" class="text-2xl font-bold">-</p>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded">
-                                <h4 class="text-sm font-medium text-gray-500">Avg. Enrollment</h4>
-                                <p id="avgEnrollment" class="text-2xl font-bold">-</p>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded">
-                                <h4 class="text-sm font-medium text-gray-500">Studies with Results</h4>
-                                <p id="studiesWithResults" class="text-2xl font-bold">-</p>
-                            </div>
-                        </div>
-                        <canvas id="enrollmentDistChart" height="200"></canvas>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Logs Section (hidden by default) -->
-            <section id="logsSection" class="mb-8 hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-xl font-semibold">API Request Logs</h2>
-                        <button id="clearLogsBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">
-                            Clear Logs
-                        </button>
-                    </div>
-                    
-                    <div id="logsContainer" class="bg-gray-100 p-4 rounded-md h-64 overflow-y-auto font-mono text-sm">
-                        <div class="text-gray-500 italic">No logs yet. Make a request to see logs.</div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- API Documentation Section -->
-            <section class="mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">API Documentation</h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-lg font-medium mb-2">Available Endpoints</h3>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Endpoint</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parameters</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/studies/search</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Search studies with various parameters</td>
-                                            <td class="px-6 py-4 text-sm text-gray-500">
-                                                <code class="text-xs bg-gray-100 rounded p-1">query</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">condition</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">intervention</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">status</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">page</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">pageSize</code>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/studies/:nctId</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get specific study details</td>
-                                            <td class="px-6 py-4 text-sm text-gray-500">
-                                                <code class="text-xs bg-gray-100 rounded p-1">fields</code>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/metadata</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get data model metadata</td>
-                                            <td class="px-6 py-4 text-sm text-gray-500">None</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/stats/field-values</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get field values statistics</td>
-                                            <td class="px-6 py-4 text-sm text-gray-500">
-                                                <code class="text-xs bg-gray-100 rounded p-1">types</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">fields</code>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">/api/analysis/success-rates</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Get success rates and comparison data</td>
-                                            <td class="px-6 py-4 text-sm text-gray-500">
-                                                <code class="text-xs bg-gray-100 rounded p-1">condition</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">intervention</code>,
-                                                <code class="text-xs bg-gray-100 rounded p-1">phase</code>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h3 class="text-lg font-medium mb-2">Example Usage</h3>
-                            <div class="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
-                                <pre><code>// Search for studies related to COVID-19
-fetch('/api/studies/search?condition=covid-19&page=1&pageSize=20')
-  .then(response => response.json())
-  .then(data => console.log(data));</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-        
-        <!-- Footer -->
-        <footer class="bg-gray-800 text-white py-6">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <p>&copy; 2025 Clinical Trials Explorer v2</p>
-                    </div>
                     <div>
-                        <p class="text-gray-400 text-sm">
-                            Data provided by <a href="https://clinicaltrials.gov/api/v2/" class="text-indigo-300 hover:text-indigo-200" target="_blank">ClinicalTrials.gov API v2</a>
-                        </p>
+                        <select id="ageFilter" class="block w-full py-2.5 px-3 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white">
+                            <option value="all">All Age Groups</option>
+                            <option value="infant">Infant (<1 year)</option>
+                            <option value="pediatric">Pediatric (1-17 years)</option>
+                            <option value="adult">Adult (18+ years)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <select id="statusFilter" class="block w-full py-2.5 px-3 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white">
+                            <option value="all">All Statuses</option>
+                            <option value="recruiting">Recruiting</option>
+                            <option value="not_recruiting">Not Recruiting</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-6 flex-col sm:flex-row space-y-2 sm:space-y-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-secondary-700 dark:text-secondary-300 text-sm">Found: </span>
+                        <span id="resultCount" class="font-medium text-primary-700 dark:text-primary-400">10 trials</span>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="ctresetFiltersBtn" class="text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white text-sm font-medium flex items-center">
+                            <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                        </button>
+                        
+                        <button id="focusNeonatalBtn" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium flex items-center">
+                            <i class="fas fa-baby mr-1"></i> Focus on Neonatal
+                        </button>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Age Range Summary Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-8 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-users text-primary-600 dark:text-primary-400 mr-3"></i>
+                        <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Age Range Summary</h2>
+                    </div>
+                    <button id="toggleAgeTableBtn" class="text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-white">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                
+                <div id="ageTableContainer" class="table-container">
+                    <table class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
+                        <thead>
+                            <tr class="bg-secondary-50 dark:bg-secondary-700">
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Trial ID</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Age Range</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Neonatal Inclusion</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Relevant Population</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ageRangeTableBody" class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Trials Table -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-12 animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-clipboard-list text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">TEG 6S Clinical Trials</h2>
+                </div>
+                
+                <div class="table-container overflow-x-auto">
+                    <table id="trialsTable" class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
+                        <thead>
+                            <tr class="bg-secondary-50 dark:bg-secondary-700">
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="trialID">
+                                    <div class="flex items-center">
+                                        Trial ID
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="publicTitle">
+                                    <div class="flex items-center">
+                                        Title
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Sponsor</th>
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="dateRegistration">
+                                    <div class="flex items-center">
+                                        Registration Date
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Age Range</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trialsTableBody" class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neonatal Research Gap Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-12 animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-flask text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Neonatal Research Gap Analysis</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 dark:bg-secondary-700/40 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-secondary-800 dark:text-white mb-2">Current Limitations</h3>
+                        <ul class="list-disc list-inside space-y-2 text-secondary-700 dark:text-secondary-300">
+                            <li>No trials include neonates (<28 days) or premature infants</li>
+                            <li>Youngest cohort: 3 months to 18 years (NCT05874843)</li>
+                            <li>Blood volume constraints of neonates not addressed in any protocols</li>
+                            <li>No specific neonatal reference ranges available for TEG 6S parameters</li>
+                            <li>Citrated blood draw procedures not validated for very small volume collections</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-secondary-50 dark:bg-secondary-700/40 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-secondary-800 dark:text-white mb-2">Clinical Implications</h3>
+                        <ul class="list-disc list-inside space-y-2 text-secondary-700 dark:text-secondary-300">
+                            <li>Premature and newborn infants have distinct coagulation profiles compared to older children and adults</li>
+                            <li>Standard blood collection volumes may be excessive for neonates with limited blood volume</li>
+                            <li>Interpretation of TEG 6S results in neonates would require specific reference ranges</li>
+                            <li>Risk/benefit ratio of TEG 6S testing in neonates has not been formally assessed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-primary-50 dark:bg-primary-900/30 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-primary-800 dark:text-primary-200 mb-2">Research Opportunities</h3>
+                        <ul class="list-disc list-inside space-y-2 text-primary-700 dark:text-primary-300">
+                            <li>Validation study of TEG 6S in neonatal populations with age-appropriate reference ranges</li>
+                            <li>Development of micro-sampling techniques compatible with TEG 6S cartridges</li>
+                            <li>Comparison of citrated vs. non-citrated samples in neonatal blood</li>
+                            <li>Assessment of minimal blood volume requirements for valid results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="text-center py-6 text-secondary-500 dark:text-secondary-400 animate-fade-in">
+            <p>TEG 6S Clinical Research Dashboard | Generated on May 14, 2025</p>
+            <p class="text-sm mt-2">Compiled for client research purposes only</p>
         </footer>
     </div>
-    
-    <!-- Main JavaScript -->
-    <script src="app.js"></script>
-    <script src="fda.js"></script>
-    <script src="newintegration.js"></script>
+
     <script>
-        // fda-bridge.js - Bridge between mock and real FDA data integration
+        // Trial data (original data maintained)
+        const trials = [
+            {
+                trialID: "NCT06352125",
+                publicTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                scientificTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/04/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiovascular on-pump/off-pump surgeries or liver transplantation, at risk of coagulopathy-related complications.",
+                exclusionCriteria: "Hereditary coagulation/bleeding disorders, fibrinolytic disorders, unfit by PI, incompatible clinical trials, oral anticoagulants.",
+                condition: "Surgery",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "Primary Method Comparison (multiple parameters)",
+                secondaryOutcome: "",
+                targetSize: 338,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Jan Hartmann, MD, Haemonetics Corporation",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06352125",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients who are at an increased risk of intervention-induced coagulopathy or at increased risk of developing intervention-induced coagulopathy complications undergoing cardiovascular surgeries or liver transplantation (recipients): 1. Adult patients (18 years of age and older) who underwent cardiovascular on-pump surgeries or procedures (e.g., CABG) who were at an increased risk of coagulopathy-related complications... 2. Adult patients (18 years of age and older) who underwent not-on-pump cardiovascular surgeries... 3. Adult patients (18 years of age and older) who underwent liver transplantation (recipients)",
+                rawExclusionCriteria: "1. Patients with hereditary chronic coagulation and/or bleeding disorders 2. Patients with hereditary fibrinolytic bleeding disorders 3. Patients deemed unfit for participation by the principal investigator 4. Patients participating in another clinical trial that would not be scientifically or medically compatible with this trial 5. Patients with currently altered coagulation due to the presence of oral anticoagulants (e.g., apixaban, rivaroxaban, dabigatran, warfarin)"
+            },
+            {
+                trialID: "NCT06230640",
+                publicTitle: "Evaluation of TEG 6S PM® During Cardiopulmonary Bypass to Detect Postoperative Biological Coagulopathy",
+                scientificTitle: "Evaluation of TEG 6S Platelet Mapping® During Cardiopulmonary Bypass for Cardiac Surgery to Detect Postoperative Biological Coagulopathy",
+                acronym: "PREDIPOC",
+                primarySponsor: "University Hospital, Montpellier",
+                dateRegistration: "19/01/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiac surgery under cardiopulmonary bypass with high bleeding risk (e.g., circulatory arrest, transplantation, redo surgery).",
+                exclusionCriteria: "Heparin allergy, heparin-induced thrombocytopenia, recent direct oral anticoagulants, antagonized VKAs, opposition, legal protections, no social security, pregnancy.",
+                condition: "Coagulopathy; Cardiopulmonary Bypass; Cardiac Surgery",
+                intervention: "Diagnostic Test: In vitro medical diagnostic device TEG6s® Platelet Mapping",
+                primaryOutcome: "Prolongation of the R in kaolin with heparinase (HKH) of TEG 6S platelet mapping® during cardiopulmonary bypass.",
+                secondaryOutcome: "Changes in MA HKH, MA ActF, MA AA, MA ADP; correlation with TEG 6S citrated®; postoperative bleeding (2h, 12h).",
+                targetSize: 60,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Benjamin Bourdois, MD, University Hospital, Montpellier",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06230640",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "18 years old or older; Cardiac surgery under cardiopulmonary bypass with high risk of bleeding defined among: CPB with circulatory arrest, cardiac transplantation, redo surgery, infective endocarditis, predicted duration of CBP = 120 min, high transfusion risk defined by a Trust predictive score = 3.",
+                rawExclusionCriteria: "Patient with heparin allergy or heparin-induced thrombocytopenia; Use of direct oral anticoagulant (DAA) with anti-factor X activity (Apixaban, Rivaroxaban) < 72h, even if antagonized; Patient on partially or fully antagonized VKAs; Opposition to participation after a period of reflection; Adult protected by law (guardianship, curatorship); Person deprived of liberty; Person participating in another study with an exclusion period still in progress; Patient not affiliated to a social security scheme or not benefiting from such a scheme; Pregnant or breast-feeding woman."
+            },
+            {
+                trialID: "JPRN-UMIN000052805",
+                publicTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the TEG 6s",
+                scientificTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the blood coagulation analysis device TEG 6s - Coagulation function evaluation of contrast medium-mixed blood",
+                acronym: "",
+                primarySponsor: "Tohoku University",
+                dateRegistration: "01/12/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (20-60 years) under general anesthesia with arterial line during surgery.",
+                exclusionCriteria: "Hemostatic coagulation abnormalities (e.g., protein S/C deficiency), abnormal preoperative fibrinogen/platelet values, pregnancy, refusal of consent.",
+                condition: "Patients under general anesthesia",
+                intervention: "",
+                primaryOutcome: "Coagulation ability of blood mixed with contrast medium in various proportions.",
+                secondaryOutcome: "",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "Not selected",
+                countries: "Japan",
+                contact: "Hidehisa Saito, hidehisa.saito.e2@tohoku.ac.jp, Tohoku University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000060192",
+                inclusionAgeMin: "20 years",
+                inclusionAgeMax: "60 years",
+                rawInclusionCriteria: "Patients under general anesthesia with an arterial line inserted during surgery.",
+                rawExclusionCriteria: "Patients with diseases that cause abnormalities in hemostatic coagulation ability, such as protein S/C or antithrombin deficiency, patients whose fibrinogen and platelet values deviate from the reference range in preoperative blood tests, pregnant women, patients who have difficulty obtaining consent forms, and patients who refuse consent."
+            },
+            {
+                trialID: "JPRN-UMIN000051020",
+                publicTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery",
+                scientificTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery: Prospective Observational Study",
+                acronym: "",
+                primarySponsor: "Nowon Eulji University Hospital",
+                dateRegistration: "09/05/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (65+) undergoing hip joint surgery.",
+                exclusionCriteria: "Under 65 years, ASA 4+, recent surgery within 30 days, refusal to participate.",
+                condition: "Hip Joint Surgery",
+                intervention: "",
+                primaryOutcome: "Linear regression of CFF A10 and postoperative bleeding amount.",
+                secondaryOutcome: "Linear regression of CFF A10 and intraoperative bleeding; CFF MA AUC for detecting massive bleeding.",
+                targetSize: 50,
+                studyType: "Observational",
+                phase: "Phase IV",
+                countries: "Asia (except Japan)",
+                contact: "Shin Wook Lee, chelenh@gmail.com, Nowon Eulji University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000058167",
+                inclusionAgeMin: "65 years",
+                inclusionAgeMax: "Not applicable",
+                rawInclusionCriteria: "Recruiting patient",
+                rawExclusionCriteria: "Patients under 65 years of age, ASA 4 or higher, patients with a history of surgery within the last 30 days, and patients who refused to participate in the study."
+            },
+            {
+                trialID: "NCT05874843",
+                publicTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                scientificTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                acronym: "",
+                primarySponsor: "Indiana University",
+                dateRegistration: "25/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Pediatric patients (3 months to 18 years) undergoing elective surgical care at Riley Hospital for Children.",
+                exclusionCriteria: "Known coagulation disorders, medications altering coagulation, foster care, or wards of the court.",
+                condition: "Coagulopathy",
+                intervention: "Diagnostic Test: Thromboelastography (TEG 6S)",
+                primaryOutcome: "TEG 6s viscoelastic measurements (angle, R time, maximum amplitude, lysis at 30 minutes) in pediatric surgical patients.",
+                secondaryOutcome: "",
+                targetSize: 25,
+                studyType: "Interventional",
+                phase: "N/A",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05874843",
+                inclusionAgeMin: "3 Months",
+                inclusionAgeMax: "18 Years",
+                rawInclusionCriteria: "Patients less than 18 years of age undergoing elective pediatric surgical care in the operating room at Riley Hospital for Children.",
+                rawExclusionCriteria: "Known disorder of coagulation pathway(s); Administration of medications that may alter the coagulation cascade; Patients in foster care or wards of the court."
+            },
+            {
+                trialID: "NCT05824013",
+                publicTitle: "Blood Coagulation Profile After Liver Resection",
+                scientificTitle: "Blood Coagulation Profile After Liver Resection. Comparison of Conventional Blood Coagulation Tests With Thromboelastography",
+                acronym: "",
+                primarySponsor: "Fondazione Policlinico Universitario Agostino Gemelli IRCCS",
+                dateRegistration: "11/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing elective liver resection for primary or metastatic liver cancer, admitted to surgical ICU post-surgery.",
+                exclusionCriteria: "Renal disease (creatinine clearance <30 ml/min), pregnancy, benign liver disease, emergency surgery, reintervention.",
+                condition: "Coagulation Disorder",
+                intervention: "Diagnostic Test: thromboelastography (TEG®6s)",
+                primaryOutcome: "Blood coagulation profile",
+                secondaryOutcome: "",
+                targetSize: 46,
+                studyType: "Observational",
+                phase: "",
+                countries: "Italy",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05824013",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Elective liver resection surgery for liver cancer primary or metastatic; Admission to surgical intensive care unit at the end of the surgery.",
+                rawExclusionCriteria: "Renal disease (creatinine clearance < 30 ml/min); pregnancy; Benign liver disease; Emergency surgery; Reintervention."
+            },
+            {
+                trialID: "NCT06261580",
+                publicTitle: "Normal Reference Range Study With the TEG6s Heparin Neutralization Cartridge in Healthy Volunteers",
+                scientificTitle: "Procedure to Define a Normal Reference Range Using the TEG® 6s Diagnostic System With the Heparin Neutralization Cartridge in Healthy Volunteers",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "31/03/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Healthy adults (18+) self-identifying as in good health.",
+                exclusionCriteria: "Acute/chronic illness, cancer, diabetes, renal/liver disease, morbid obesity, coagulation disorders, recent surgery, anticoagulant use.",
+                condition: "Healthy",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, and FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "CK-MA, CK-R, CKH-MA, CKH-R, CKH-LY30, CRTH-MA, CFFH-MA TEG Parameters",
+                secondaryOutcome: "",
+                targetSize: 181,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Yamini Bynagari, PhD, Machaon Diagnostics",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06261580",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Adult volunteers (18 years of age and older) who self-identify as being in general good health.",
+                rawExclusionCriteria: "Volunteers with any acute illness or uncontrolled chronic disease; Volunteers with any type of cancer; Volunteers with diabetes; Volunteers with renal disease; Volunteers with liver disease; Volunteers with morbid obesity; Volunteers with autoimmune or inflammatory diseases; Volunteers with known coagulation and/or bleeding disorders (e.g., hemophilia, Von Willebrand's disease); Volunteers currently abusing alcohol...; Volunteers with hereditary fibrinolytic bleeding disorders; Volunteers with altered coagulation due to the presence of direct oral anticoagulants...; Volunteers on any fibrinolytic activators...; Volunteers who have had recent surgery (within the last four weeks); Volunteers with any injuries leading to substantial bleeding or bruising...; Volunteers with bruising, wounds, or scarring around the selected venipuncture site; Volunteers deemed unfit for participation in the trial by the principal investigator; Volunteers participating in another clinical trial that would not be scientifically or medically compatible with this trial; Volunteers who have been on P2Y12 inhibitors within the last 30 days; Volunteers receiving treatment with low molecular weight heparin (e.g., enoxaparin); Volunteers with altered coagulation due to the presence of drugs known to affect the coagulation status in the blood...; Volunteers who have participated in this trial previously."
+            },
+            {
+                trialID: "NCT04746560",
+                publicTitle: "TEG 6s® for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                scientificTitle: "Evaluation of the Diagnostic Performances of the TEG 6s® Hemostasis Device and Its Platelet Mapping® Cartridge for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                acronym: "TEG-PM",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "11/12/2020",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) scheduled for cardiopulmonary bypass with informed consent.",
+                exclusionCriteria: "Under 18, pregnant, emergency surgery, no CPB, thrombocytopenia <100000/mm3.",
+                condition: "Cardiopulmonary Bypass",
+                intervention: "Device: TEG®6S device with its Platelet mapping® cartridge",
+                primaryOutcome: "Compare diagnostic performance of TEG®6S Platelet Mapping with reference tests for platelet function.",
+                secondaryOutcome: "Predict post-CPB bleeding risk; evaluate Global Haemostasis® cartridge for bleeding risk.",
+                targetSize: 6,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Adrien Bougle, MD; Ahmed Abbes, MD, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT04746560",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients scheduled to undergo cardiopulmonary bypass; Informed consent.",
+                rawExclusionCriteria: "Age <18 years; Pregnant women; Emergency surgery; Cardiac surgery without CPB; thrombocytopenia <100000/mmm3."
+            },
+            {
+                trialID: "NCT03592303",
+                publicTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                scientificTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                acronym: "HPPTEG6S",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "27/04/2018",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Women (18+) during labor or with PPH (>500 mL blood loss) requiring hemostasis evaluation, with health insurance.",
+                exclusionCriteria: "Pre-existing coagulopathy, anticoagulant medications, hepatocellular insufficiency, renal failure, psychiatric care, legal restrictions.",
+                condition: "Coagulation Defect; Puerperal; Post Partum Hemorrhage; Blood Protein Disorders; Pregnancy Hemorrhage",
+                intervention: "",
+                primaryOutcome: "Performance analysis of TEG6S kaolin parameters for diagnosing coagulation disorders in PPH.",
+                secondaryOutcome: "Performance of RapidTEG, Functional Fibrinogen; correlation with standard tests; predict severe PPH; define normal TEG6S values in pregnant women.",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Agnès Rigouzzo, agnes.rigouzzo@aphp.fr, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT03592303",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Age = 18 years old; Patient with health insurance; Group of patients during labor: any pregnant woman with a normal pregnancy in the delivery room; Group of patients with PPH: any woman with a normal pregnancy experiencing a PPH with blood loss greater than 500 mL and who requires a biological evaluation of haemostasis.",
+                rawExclusionCriteria: "Coagulopathy pre-existing to pregnancy; Medication that interferes with blood coagulation; Hepato-cellular insufficiency; Renal failure; Psychiatric care patients; Patient deprived of liberty by judicial or administrative decision; Major patient undergoing legal protective measures."
+            },
+            {
+                trialID: "NCT02798328",
+                publicTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                scientificTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/06/2016",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) on DOAC for at least 7 days.",
+                exclusionCriteria: "Genetic bleeding disorders, unknown DOAC dosing, recent heparin/LMWH, non-standard DOAC dosage, coagulation-affecting medications.",
+                condition: "DOAC Eligible Subjects",
+                intervention: "Device: TEG6s DOAC Cartridge",
+                primaryOutcome: "Presence/Absence of DOAC Drug",
+                secondaryOutcome: "",
+                targetSize: 385,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/show/NCT02798328",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "= 18 years old; DOAC administered for a minimum of 7 days.",
+                rawExclusionCriteria: "Genetic Bleeding disorders. Known or subsequently discovered inherited defects of coagulation (e.g. hemophilia or Von Willebrand disease); Not known when last two DOAC doses were administered prior to blood draw; DOAC first administered (or resumed after temporary cessation) less than 7 days prior to blood draw; DOAC dosage outside of manufacturer's recommended range (e.g. study subject with renal impairment and supratherapeutic dose); Heparin or LMWH administered within 7 days prior to blood draw; On any medications known to affect coagulation status and listed below; Bruising, wounds or scarring in the area of venipuncture."
+            }
+        ];
 
-// Ensure all necessary objects are initialized
-window.fdaDataState = window.fdaDataState || {
-    selectedDrug: null,
-    similarDrugs: [],
-    drugDetails: null,
-    cache: {}
-};
-
-window.fdaComparisonState = window.fdaComparisonState || {
-    selectedDrug: null,
-    comparisonDrugs: [],
-    loadingComparison: false
-};
-
-// Add the showDataTab function that's referenced in HTML
-function showDataTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.add('hidden');
-    });
-    
-    // Show the selected tab
-    document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-    
-    // Update tab button styles
-    document.querySelectorAll('nav button').forEach(button => {
-        button.classList.remove('border-indigo-500', 'text-indigo-600');
-        button.classList.add('border-transparent', 'text-gray-500');
-    });
-    
-    // Highlight the active tab button
-    const activeButton = Array.from(document.querySelectorAll('nav button')).find(
-        button => button.textContent.trim().toLowerCase().includes(tabName)
-    );
-    
-    if (activeButton) {
-        activeButton.classList.remove('border-transparent', 'text-gray-500');
-        activeButton.classList.add('border-indigo-500', 'text-indigo-600');
-    }
-}
-
-// Add the toggleSectionContent function that's used in the FDA data display
-function toggleSectionContent(link, sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.toggle('hidden');
-        link.textContent = section.classList.contains('hidden') ? 'Show more' : 'Show less';
-    }
-}
-
-// Make functions globally available
-window.showDataTab = showDataTab;
-window.toggleSectionContent = toggleSectionContent;
-
-// Safe initialization function that checks for element existence
-function safeInit() {
-    console.log("FDA Bridge: Initializing FDA modules safely...");
-    
-    // Initialize FDA Data Integration module if elements exist
-    if (document.getElementById('fdaDataSection') || document.getElementById('fetchCompleteDataBtn')) {
-        console.log("FDA Bridge: Initializing FDA Data Integration module");
-        if (typeof initFDADataModule === 'function') {
-            initFDADataModule();
-        } else {
-            console.error("FDA Bridge: initFDADataModule function not found!");
+        // Helper function to format dates consistently
+        function ctformatDate(dateStr) {
+            if (!dateStr) return '';
+            
+            // Handle different date formats
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                // DD/MM/YYYY format
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            
+            return dateStr; // Return as is if not in expected format
         }
-    }
-    
-    // Initialize FDA Comparison module if elements exist
-    if (document.getElementById('fdaComparisonSection') || document.getElementById('drugCompareBtn')) {
-        console.log("FDA Bridge: Initializing FDA Comparison module");
-        if (typeof initFDAComparisonModule === 'function') {
-            initFDAComparisonModule();
-        } else {
-            console.error("FDA Bridge: initFDAComparisonModule function not found!");
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Check for user preference
+            if (localStorage.getItem('darkMode') === 'enabled' || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                darkModeToggle.checked = true;
+            }
+            
+            darkModeToggle.addEventListener('change', () => {
+                if (darkModeToggle.checked) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
+            
+            // Populate age range table
+            populateAgeRangeTable();
+            
+            // Populate trials table
+            populateTrialsTable(trials);
+            
+            // Set up search and filters
+            setupSearchAndFilters();
+            
+            // Set up sorting
+            setupSorting();
+            
+            // Set up export functionality
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            
+            // Toggle age range table
+            document.getElementById('toggleAgeTableBtn').addEventListener('click', toggleAgeTable);
+            
+            // Set up neonatal focus button
+            document.getElementById('focusNeonatalBtn').addEventListener('click', focusOnNeonatal);
+            
+            // Reset filters button
+            document.getElementById('ctresetFiltersBtn').addEventListener('click', ctresetFilters);
+            
+            // Update result count
+            updateResultCount(trials.length);
+        });
+
+        // Populate the Age Range Summary table
+        function populateAgeRangeTable() {
+            const tableBody = document.getElementById('ageRangeTableBody');
+            tableBody.innerHTML = '';
+            
+            trials.forEach(trial => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-secondary-50 dark:hover:bg-secondary-700/50 transition-colors';
+                
+                // Determine if trial is relevant for neonatal/pediatric research
+                const isRelevantForNeonatal = trial.inclusionAgeMin && (
+                    trial.inclusionAgeMin.includes('Month') || 
+                    (parseInt(trial.inclusionAgeMin) < 2 && trial.inclusionAgeMin.includes('Year'))
+                );
+                
+                // Format age range display
+                const ageRange = `${trial.inclusionAgeMin || 'N/A'}${trial.inclusionAgeMax ? ' to ' + trial.inclusionAgeMax : ''}`;
+                
+                // Relevant population determination
+                let relevantPopulation = 'Adult';
+                if (trial.inclusionAgeMin && (trial.inclusionAgeMin.includes('Month') || (trial.inclusionAgeMax && trial.inclusionAgeMax.includes('Year') && !trial.inclusionAgeMin.includes('18')))) {
+                    relevantPopulation = 'Pediatric';
+                }
+                if (trial.inclusionAgeMin && parseInt(trial.inclusionAgeMin) < 1 && trial.inclusionAgeMin.includes('Month')) {
+                    relevantPopulation = 'Infant';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm font-medium text-primary-700 dark:text-primary-400">${trial.trialID}</td>
+                    <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${ageRange}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                            <i class="fas fa-times-circle mr-1"></i> No
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            relevantPopulation === 'Adult' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : 
+                            relevantPopulation === 'Pediatric' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 
+                            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
+                        }">
+                            ${relevantPopulation}
+                        </span>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
         }
+
+// Toggle detail panel expansion
+function toggleDetailPanel(trialID) {
+    const detailPanel = document.getElementById(`detail-${trialID}`);
+    const icon = document.querySelector(`.rotate-icon[data-id="${trialID}"]`);
+    const parentRow = icon.closest('tr');
+    
+    if (detailPanel) {
+        detailPanel.classList.toggle('open');
+        parentRow.classList.toggle('expanded');
+        
+        // Close all other panels
+        document.querySelectorAll('.detail-panel.open').forEach(panel => {
+            if (panel.id !== `detail-${trialID}`) {
+                panel.classList.remove('open');
+                const otherTrialID = panel.id.replace('detail-', '');
+                const otherIcon = document.querySelector(`.rotate-icon[data-id="${otherTrialID}"]`);
+                if (otherIcon) {
+                    otherIcon.closest('tr').classList.remove('expanded');
+                }
+            }
+        });
     }
 }
 
-// Run initialization after DOM is fully loaded
-document.addEventListener('DOMContentLoaded', safeInit);
+// Populate the main trials table
+function populateTrialsTable(data) {
+    const tableBody = document.getElementById('trialsTableBody');
+    tableBody.innerHTML = '';
+    
+    if (data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="7" class="px-4 py-8 text-center text-secondary-500 dark:text-secondary-400 italic">
+                No matching trials found. Try adjusting your filters.
+            </td>
+        `;
+        tableBody.appendChild(emptyRow);
+        return;
+    }
+    
+    data.forEach(trial => {
+        // Create main row
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-secondary-50 dark:hover:bg-secondary-700/50 transition-colors cursor-pointer';
+        row.dataset.id = trial.trialID;
+        
+        // Format status display
+        const statusClass = trial.recruitmentStatus.toLowerCase().includes('recruiting') ? 
+            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 
+            'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        
+        row.innerHTML = `
+            <td class="px-4 py-3 text-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-secondary-400 mr-2 rotate-icon" data-id="${trial.trialID}"></i>
+                    <span class="font-medium text-primary-700 dark:text-primary-400">${trial.trialID}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">
+                <div class="tooltip">
+                    <span class="line-clamp-2">${trial.publicTitle}</span>
+                    <span class="tooltip-text">${trial.publicTitle}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${trial.primarySponsor}</td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${trial.dateRegistration}</td>
+            <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                    ${trial.recruitmentStatus}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">
+                ${trial.inclusionAgeMin || 'N/A'}${trial.inclusionAgeMax ? ' to ' + trial.inclusionAgeMax : ''}
+            </td>
+            <td class="px-4 py-3 text-sm">
+                <a href="${trial.link}" target="_blank" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 inline-flex items-center" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt mr-1"></i> View
+                </a>
+            </td>
+        `;
+        
+        // Add click event to the row
+        row.addEventListener('click', function() {
+            toggleDetailPanel(trial.trialID);
+        });
+        
+        tableBody.appendChild(row);
+        
+        // Create detail panel row
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-panel';
+        detailRow.id = `detail-${trial.trialID}`;
+        
+        detailRow.innerHTML = `
+            <td colspan="7" class="px-0 py-0">
+                <div class="bg-secondary-50 dark:bg-secondary-800/50 border-t border-b border-secondary-200 dark:border-secondary-700 p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4">Trial Details</h3>
+                            <div class="space-y-3">
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Scientific Title:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.scientificTitle}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Acronym:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.acronym || 'None'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Condition:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.condition}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Intervention:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.intervention || 'Not specified'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Primary Outcome:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.primaryOutcome}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Secondary Outcome:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.secondaryOutcome || 'None'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Target Enrollment:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.targetSize}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Study Type:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.studyType}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Phase:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.phase || 'Not applicable'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Countries:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.countries}</span></p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4">Participant Criteria</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Inclusion Criteria:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400 bg-white dark:bg-secondary-700/50 p-3 rounded border border-secondary-200 dark:border-secondary-600">${trial.inclusionCriteria}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Exclusion Criteria:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400 bg-white dark:bg-secondary-700/50 p-3 rounded border border-secondary-200 dark:border-secondary-600">${trial.exclusionCriteria}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Age Range:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400">${trial.inclusionAgeMin || 'Not specified'} to ${trial.inclusionAgeMax || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Contact:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400">${trial.contact || 'Not provided'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(detailRow);
+    });
+}
+
+
+        // Set up search and filters
+        function setupSearchAndFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const ageFilter = document.getElementById('ageFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            const filterHandler = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const ageValue = ageFilter.value;
+                const statusValue = statusFilter.value;
+                
+                const filteredData = trials.filter(trial => {
+                    // Search term filter
+                    const matchesSearch = (
+                        trial.trialID.toLowerCase().includes(searchTerm) ||
+                        trial.publicTitle.toLowerCase().includes(searchTerm) ||
+                        trial.condition.toLowerCase().includes(searchTerm) ||
+                        trial.intervention.toLowerCase().includes(searchTerm) ||
+                        trial.primarySponsor.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    // Age filter
+                    let matchesAge = true;
+                    if (ageValue !== 'all') {
+                        const ageMin = trial.inclusionAgeMin ? trial.inclusionAgeMin.toLowerCase() : '';
+                        const ageMax = trial.inclusionAgeMax ? trial.inclusionAgeMax.toLowerCase() : '';
+                        
+                        if (ageValue === 'infant') {
+                            matchesAge = ageMin.includes('month') || (ageMin.includes('year') && parseInt(ageMin) < 1);
+                        } else if (ageValue === 'pediatric') {
+                            matchesAge = (ageMin.includes('month') || ageMin.includes('year')) && 
+                                        (!ageMin.includes('18') && !ageMin.includes('65'));
+                        } else if (ageValue === 'adult') {
+                            matchesAge = ageMin.includes('18') || ageMin.includes('65') || parseInt(ageMin) >= 18;
+                        }
+                    }
+                    
+                    // Status filter
+                    let matchesStatus = true;
+                    if (statusValue !== 'all') {
+                        const status = trial.recruitmentStatus.toLowerCase();
+                        if (statusValue === 'recruiting') {
+                            matchesStatus = status.includes('recruit') && !status.includes('not');
+                        } else if (statusValue === 'not_recruiting') {
+                            matchesStatus = status.includes('not recruit');
+                        } else if (statusValue === 'completed') {
+                            matchesStatus = status.includes('complete');
+                        }
+                    }
+                    
+                    return matchesSearch && matchesAge && matchesStatus;
+                });
+                
+                populateTrialsTable(filteredData);
+                updateResultCount(filteredData.length);
+            };
+            
+            searchInput.addEventListener('input', filterHandler);
+            ageFilter.addEventListener('change', filterHandler);
+            statusFilter.addEventListener('change', filterHandler);
+        }
+
+        // Toggle age range table visibility
+        function toggleAgeTable() {
+            const container = document.getElementById('ageTableContainer');
+            const button = document.getElementById('toggleAgeTableBtn');
+            
+            container.classList.toggle('hidden');
+            
+            const icon = button.querySelector('i');
+            if (container.classList.contains('hidden')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // Focus on neonatal relevant studies
+        function focusOnNeonatal() {
+            document.getElementById('ageFilter').value = 'infant';
+            document.getElementById('searchInput').value = 'pediatric';
+            
+            // Trigger the filter
+            const event = new Event('change');
+            document.getElementById('ageFilter').dispatchEvent(event);
+        }
+
+        // Reset all filters
+        function ctresetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('ageFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            
+            populateTrialsTable(trials);
+            updateResultCount(trials.length);
+        }
+
+        // Update the result count display
+        function updateResultCount(count) {
+            document.getElementById('resultCount').textContent = `${count} trial${count !== 1 ? 's' : ''}`;
+        }
+
+        // Set up sorting functionality
+        function setupSorting() {
+            const sortableHeaders = document.querySelectorAll('th[data-sort]');
+            
+            // Track sort state
+            const sortState = {
+                column: 'dateRegistration',
+                direction: 'desc'
+            };
+            
+            // Initial sort
+            sortData(sortState.column, sortState.direction);
+            
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.sort;
+                    const newDirection = sortState.column === column && sortState.direction === 'asc' ? 'desc' : 'asc';
+                    
+                    // Update sort state
+                    sortState.column = column;
+                    sortState.direction = newDirection;
+                    
+                    // Perform sort
+                    sortData(column, newDirection);
+                    
+                    // Update UI
+                    sortableHeaders.forEach(h => {
+                        const icon = h.querySelector('i');
+                        if (h.dataset.sort === column) {
+                            icon.className = newDirection === 'asc' ? 'fas fa-sort-up ml-1' : 'fas fa-sort-down ml-1';
+                        } else {
+                            icon.className = 'fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Sort data by column and direction
+        function sortData(column, direction) {
+            const searchInput = document.getElementById('searchInput');
+            const ageFilter = document.getElementById('ageFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            // Get currently filtered data
+            const searchTerm = searchInput.value.toLowerCase();
+            const ageValue = ageFilter.value;
+            const statusValue = statusFilter.value;
+            
+            const filteredData = trials.filter(trial => {
+                // Search term filter
+                const matchesSearch = (
+                    trial.trialID.toLowerCase().includes(searchTerm) ||
+                    trial.publicTitle.toLowerCase().includes(searchTerm) ||
+                    trial.condition.toLowerCase().includes(searchTerm) ||
+                    trial.intervention.toLowerCase().includes(searchTerm) ||
+                    trial.primarySponsor.toLowerCase().includes(searchTerm)
+                );
+                
+                // Age filter
+                let matchesAge = true;
+                if (ageValue !== 'all') {
+                    const ageMin = trial.inclusionAgeMin ? trial.inclusionAgeMin.toLowerCase() : '';
+                    const ageMax = trial.inclusionAgeMax ? trial.inclusionAgeMax.toLowerCase() : '';
+                    
+                    if (ageValue === 'infant') {
+                        matchesAge = ageMin.includes('month') || (ageMin.includes('year') && parseInt(ageMin) < 1);
+                    } else if (ageValue === 'pediatric') {
+                        matchesAge = (ageMin.includes('month') || ageMin.includes('year')) && 
+                                    (!ageMin.includes('18') && !ageMin.includes('65'));
+                    } else if (ageValue === 'adult') {
+                        matchesAge = ageMin.includes('18') || ageMin.includes('65') || parseInt(ageMin) >= 18;
+                    }
+                }
+                
+                // Status filter
+                let matchesStatus = true;
+                if (statusValue !== 'all') {
+                    const status = trial.recruitmentStatus.toLowerCase();
+                    if (statusValue === 'recruiting') {
+                        matchesStatus = status.includes('recruit') && !status.includes('not');
+                    } else if (statusValue === 'not_recruiting') {
+                        matchesStatus = status.includes('not recruit');
+                    } else if (statusValue === 'completed') {
+                        matchesStatus = status.includes('complete');
+                    }
+                }
+                
+                return matchesSearch && matchesAge && matchesStatus;
+            });
+            
+            // Sort the data
+            const sortedData = [...filteredData].sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+                
+                // Special handling for date format
+                if (column === 'dateRegistration') {
+                    // Convert DD/MM/YYYY to sortable format
+                    aValue = ctformatDate(aValue);
+                    bValue = ctformatDate(bValue);
+                }
+                
+                // Compare values
+                if (direction === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+            
+            // Update the table
+            populateTrialsTable(sortedData);
+        }
+
+        // Export data to CSV
+        function exportData() {
+            // Get currently filtered/sorted data
+            const visibleRows = document.querySelectorAll('#trialsTableBody > tr:not(.detail-panel)');
+            const visibleTrialIds = Array.from(visibleRows).map(row => row.dataset.id).filter(Boolean);
+            
+            const exportData = trials.filter(trial => visibleTrialIds.includes(trial.trialID));
+            
+            // Define CSV headers
+            const headers = [
+                "Trial ID", "Title", "Sponsor", "Registration Date", "Status", 
+                "Min Age", "Max Age", "Condition", "Intervention", "Enrollment",
+                "Study Type", "Phase", "Countries", "Link"
+            ];
+            
+            // Create CSV rows
+            const csvRows = [
+                headers.join(','),
+                ...exportData.map(trial => [
+                    `"${trial.trialID}"`,
+                    `"${trial.publicTitle.replace(/"/g, '""')}"`,
+                    `"${trial.primarySponsor.replace(/"/g, '""')}"`,
+                    `"${trial.dateRegistration}"`,
+                    `"${trial.recruitmentStatus}"`,
+                    `"${trial.inclusionAgeMin || 'N/A'}"`,
+                    `"${trial.inclusionAgeMax || 'N/A'}"`,
+                    `"${trial.condition.replace(/"/g, '""')}"`,
+                    `"${(trial.intervention || 'N/A').replace(/"/g, '""')}"`,
+                    `"${trial.targetSize}"`,
+                    `"${trial.studyType}"`,
+                    `"${trial.phase || 'N/A'}"`,
+                    `"${trial.countries}"`,
+                    `"${trial.link}"`
+                ].join(','))
+            ];
+            
+            // Create CSV content
+            const csvContent = csvRows.join('\n');
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            // Set link properties
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'TEG_6S_Clinical_Trials.csv');
+            link.style.visibility = 'hidden';
+            
+            // Add link to document, click it, then remove it
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,193 @@
+<div id="teg6s-research" class="container mx-auto p-4"></div>
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- React CDNs -->
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
+<!-- Babel for JSX -->
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
+<!-- Hugging Face Transformers CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.1/dist/transformers.min.js"></script>
+
+<script type="text/babel">
+  const { useState, useEffect } = React;
+
+  const Teg6sResearch = () => {
+    const [papers, setPapers] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [message, setMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState('TEG 6S neonatal premature baby');
+    const [summaries, setSummaries] = useState({});
+    const [showSummaries, setShowSummaries] = useState(false);
+
+    const fetchPapers = async (query) => {
+      setLoading(true);
+      setError(null);
+      setMessage('');
+      setSummaries({});
+      setShowSummaries(false);
+      try {
+        const response = await fetch(`http://localhost:3001/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        if (data.error) throw new Error(data.details || data.error);
+        setPapers(data.papers || []);
+        setTotal(data.total || 0);
+        setMessage(data.message || '');
+      } catch (err) {
+        setError(err.message);
+        setPapers([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchPapers(searchTerm);
+    }, []);
+
+    const handleSearch = (e) => {
+      e.preventDefault();
+      fetchPapers(searchTerm);
+    };
+
+    const summarizeAbstracts = async () => {
+      setLoading(true);
+      try {
+        if (!window.transformers) {
+          throw new Error('Transformers library not loaded');
+        }
+        const summarizer = await window.transformers.pipeline('summarization', 'facebook/bart-large-cnn');
+        const newSummaries = {};
+        for (const [index, paper] of papers.entries()) {
+          if (paper.abstract && paper.abstract !== 'No abstract available') {
+            try {
+              const summary = await summarizer(paper.abstract, {
+                max_length: 100,
+                min_length: 30,
+                do_sample: false
+              });
+              newSummaries[index] = summary[0].summary_text;
+            } catch (err) {
+              newSummaries[index] = 'Failed to summarize';
+            }
+          } else {
+            newSummaries[index] = 'No summary available';
+          }
+        }
+        setSummaries(newSummaries);
+        setShowSummaries(true);
+      } catch (err) {
+        setError('Failed to generate summaries: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const downloadCSV = () => {
+      const headers = ['Title', 'Authors', 'Year', 'Venue', 'Publication Date', 'Abstract', 'Summary'];
+      const rows = papers.map((paper, index) => [
+        `"${paper.title.replace(/"/g, '""')}"`,
+        `"${paper.authors.replace(/"/g, '""')}"`,
+        paper.year,
+        `"${paper.venue.replace(/"/g, '""')}"`,
+        paper.publicationDate,
+        `"${paper.abstract.replace(/"/g, '""')}"`,
+        `"${(summaries[index] || 'No summary available').replace(/"/g, '""')}"`
+      ]);
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'teg6s_papers.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    return (
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">
+          TEG 6S Neonatal & Premature Baby Research
+        </h1>
+        <form onSubmit={handleSearch} className="mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search for TEG 6S papers..."
+              className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              disabled={loading}
+            >
+              Search
+            </button>
+          </div>
+        </form>
+        <div className="mb-6 flex gap-2">
+          <button
+            onClick={summarizeAbstracts}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+            disabled={loading || papers.length === 0}
+          >
+            Summarize Abstracts
+          </button>
+          {showSummaries && (
+            <button
+              onClick={() => setShowSummaries(false)}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            >
+              Show Full Abstracts
+            </button>
+          )}
+          <button
+            onClick={downloadCSV}
+            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
+            disabled={loading || papers.length === 0}
+          >
+            Download CSV
+          </button>
+        </div>
+        {loading && <p className="text-center text-gray-600">Loading...</p>}
+        {error && <p className="text-center text-red-500">Error: {error}</p>}
+        {message && <p className="text-center text-gray-600">{message}</p>}
+        {papers.length > 0 && (
+          <p className="text-center text-gray-600 mb-4">
+            Found {papers.length} of {total} papers
+          </p>
+        )}
+        <div className="space-y-4">
+          {papers.map((paper, index) => (
+            <div key={index} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+              <h2 className="text-xl font-semibold text-blue-800 mb-2">
+                <a href={paper.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {paper.title}
+                </a>
+              </h2>
+              <p className="text-gray-600 mb-1"><strong>Authors:</strong> {paper.authors}</p>
+              <p className="text-gray-600 mb-1"><strong>Year:</strong> {paper.year}</p>
+              <p className="text-gray-600 mb-1"><strong>Venue:</strong> {paper.venue}</p>
+              <p className="text-gray-600 mb-1"><strong>Publication Date:</strong> {paper.publicationDate}</p>
+              <p className="text-gray-700">
+                <strong>{showSummaries ? 'Summary' : 'Abstract'}:</strong>{' '}
+                {showSummaries ? summaries[index] || 'No summary available' : paper.abstract}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  ReactDOM.render(<Teg6sResearch />, document.getElementById('teg6s-research'));
+</script>

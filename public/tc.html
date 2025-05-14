@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEG 6S Clinical Trials Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for table, animations, and tooltips */
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        th {
+            position: sticky;
+            top: 0;
+            background-color: #e5f0ff;
+            z-index: 10;
+        }
+        tr {
+            transition: background-color 0.2s ease;
+        }
+        tr:hover {
+            background-color: #e6f3ff;
+        }
+        .sort-asc::after {
+            content: ' ↑';
+        }
+        .sort-desc::after {
+            content: ' ↓';
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 20;
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .collapsible-content.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-blue-50">
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-extrabold mb-6 text-blue-800">TEG 6S Clinical Trials Dashboard</h1>
+        
+        <!-- Insights Section -->
+        <div class="bg-white p-8 rounded-xl shadow-lg mb-8 border border-blue-100">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-700">Insights on TEG 6S Trials</h2>
+            <ul class="list-disc pl-6 space-y-3 text-gray-700">
+                <li><span class="font-medium">Trial Overview</span>: 10 trials evaluate TEG 6S for coagulation in cardiovascular surgery, liver transplantation, pediatric surgery, postpartum hemorrhage, and DOAC monitoring. All use citrated blood (3.2% citric acid), reactivated for analysis.</li>
+                <li><span class="font-medium">Neonates & Premature Babies</span>: No trials include neonates (<28 days) or premature infants. Youngest cohort: 3 months-18 years (NCT05874843). Neonatal coagulation and blood volume constraints unaddressed.</li>
+                <li><span class="font-medium">Citrated Blood Draw</span>: Citric acid prevents clotting; reagents (e.g., heparinase) reactivate factors. Safe in adults/children, but neonatal volume risks unstudied in dataset.</li>
+                <li><span class="font-medium">FDA 510(k)</span>: TEG 6S cleared in 2019 (K183160); new cartridge in 2024. No neonatal clearance noted.</li>
+                <li><span class="font-medium">Recommendations</span>: Search CDRH 510(k) database and PubMed for neonatal data. Dashboard below supports further analysis.</li>
+            </ul>
+            <div class="mt-4">
+                <h3 class="text-lg font-medium text-blue-600">Age Range Summary</h3>
+                <table class="w-full mt-2 border-collapse">
+                    <thead>
+                        <tr class="bg-blue-100">
+                            <th class="p-2 text-left text-sm font-medium text-blue-800">Trial ID</th>
+                            <th class="p-2 text-left text-sm font-medium text-blue-800">Age Range</th>
+                            <th class="p-2 text-left text-sm font-medium text-blue-800">Neonatal Inclusion?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${trials.map(trial => `
+                            <tr class="border-t">
+                                <td class="p-2 text-sm">${trial.trialID}</td>
+                                <td class="p-2 text-sm">${trial.inclusionAgeMin || 'N/A'}${trial.inclusionAgeMax ? ' - ' + trial.inclusionAgeMax : ''}</td>
+                                <td class="p-2 text-sm">${trial.inclusionAgeMin.includes('month') || trial.inclusionAgeMin.includes('year') ? 'No' : 'No'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex justify-between mb-6">
+            <div class="flex space-x-4">
+                <input type="text" id="searchInput" placeholder="Search by ID, title, or condition..." class="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+                <select id="ageFilter" class="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Age Groups</option>
+                    <option value="pediatric">Pediatric (<18 years)</option>
+                    <option value="adult">Adult (18+ years)</option>
+                </select>
+            </div>
+            <button id="exportCsv" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Export to CSV</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container bg-white shadow-xl rounded-xl border border-blue-100">
+            <table id="trialsTable" class="min-w-full divide-y divide-blue-200">
+                <thead class="bg-blue-100">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider cursor-pointer" data-sort="trialID">Trial ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider cursor-pointer" data-sort="publicTitle">Public Title</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Scientific Title</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Acronym</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Sponsor</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider cursor-pointer" data-sort="dateRegistration">Registration Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Recruitment Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Inclusion Criteria</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Exclusion Criteria</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Condition</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Intervention</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Primary Outcome</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Secondary Outcome</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider cursor-pointer" data-sort="targetSize">Enrollment</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Study Type</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Phase</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Countries</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">Link</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-blue-200" id="tableBody">
+                    <!-- Table rows populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Hardcoded trial data from CSV
+        const trials = [
+            {
+                trialID: "NCT06352125",
+                publicTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                scientificTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/04/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiovascular on-pump/off-pump surgeries or liver transplantation, at risk of coagulopathy-related complications.",
+                exclusionCriteria: "Hereditary coagulation/bleeding disorders, fibrinolytic disorders, unfit by PI, incompatible clinical trials, oral anticoagulants.",
+                condition: "Surgery",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "Primary Method Comparison (multiple parameters)",
+                secondaryOutcome: "",
+                targetSize: 338,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Jan Hartmann, MD, Haemonetics Corporation",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06352125",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients who are at an increased risk of intervention-induced coagulopathy or at increased risk of developing intervention-induced coagulopathy complications undergoing cardiovascular surgeries or liver transplantation (recipients): 1. Adult patients (18 years of age and older) who underwent cardiovascular on-pump surgeries or procedures (e.g., CABG) who were at an increased risk of coagulopathy-related complications... 2. Adult patients (18 years of age and older) who underwent not-on-pump cardiovascular surgeries... 3. Adult patients (18 years of age and older) who underwent liver transplantation (recipients)",
+                rawExclusionCriteria: "1. Patients with hereditary chronic coagulation and/or bleeding disorders 2. Patients with hereditary fibrinolytic bleeding disorders 3. Patients deemed unfit for participation by the principal investigator 4. Patients participating in another clinical trial that would not be scientifically or medically compatible with this trial 5. Patients with currently altered coagulation due to the presence of oral anticoagulants (e.g., apixaban, rivaroxaban, dabigatran, warfarin)"
+            },
+            {
+                trialID: "NCT06230640",
+                publicTitle: "Evaluation of TEG 6S PM® During Cardiopulmonary Bypass to Detect Postoperative Biological Coagulopathy",
+                scientificTitle: "Evaluation of TEG 6S Platelet Mapping® During Cardiopulmonary Bypass for Cardiac Surgery to Detect Postoperative Biological Coagulopathy",
+                acronym: "PREDIPOC",
+                primarySponsor: "University Hospital, Montpellier",
+                dateRegistration: "19/01/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiac surgery under cardiopulmonary bypass with high bleeding risk (e.g., circulatory arrest, transplantation, redo surgery).",
+                exclusionCriteria: "Heparin allergy, heparin-induced thrombocytopenia, recent direct oral anticoagulants, antagonized VKAs, opposition, legal protections, no social security, pregnancy.",
+                condition: "Coagulopathy; Cardiopulmonary Bypass; Cardiac Surgery",
+                intervention: "Diagnostic Test: In vitro medical diagnostic device TEG6s® Platelet Mapping",
+                primaryOutcome: "Prolongation of the R in kaolin with heparinase (HKH) of TEG 6S platelet mapping® during cardiopulmonary bypass.",
+                secondaryOutcome: "Changes in MA HKH, MA ActF, MA AA, MA ADP; correlation with TEG 6S citrated®; postoperative bleeding (2h, 12h).",
+                targetSize: 60,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Benjamin Bourdois, MD, University Hospital, Montpellier",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06230640",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "18 years old or older; Cardiac surgery under cardiopulmonary bypass with high risk of bleeding defined among: CPB with circulatory arrest, cardiac transplantation, redo surgery, infective endocarditis, predicted duration of CBP = 120 min, high transfusion risk defined by a Trust predictive score = 3.",
+                rawExclusionCriteria: "Patient with heparin allergy or heparin-induced thrombocytopenia; Use of direct oral anticoagulant (DAA) with anti-factor X activity (Apixaban, Rivaroxaban) < 72h, even if antagonized; Patient on partially or fully antagonized VKAs; Opposition to participation after a period of reflection; Adult protected by law (guardianship, curatorship); Person deprived of liberty; Person participating in another study with an exclusion period still in progress; Patient not affiliated to a social security scheme or not benefiting from such a scheme; Pregnant or breast-feeding woman."
+            },
+            {
+                trialID: "JPRN-UMIN000052805",
+                publicTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the TEG 6s",
+                scientificTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the blood coagulation analysis device TEG 6s - Coagulation function evaluation of contrast medium-mixed blood",
+                acronym: "",
+                primarySponsor: "Tohoku University",
+                dateRegistration: "01/12/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (20-60 years) under general anesthesia with arterial line during surgery.",
+                exclusionCriteria: "Hemostatic coagulation abnormalities (e.g., protein S/C deficiency), abnormal preoperative fibrinogen/platelet values, pregnancy, refusal of consent.",
+                condition: "Patients under general anesthesia",
+                intervention: "",
+                primaryOutcome: "Coagulation ability of blood mixed with contrast medium in various proportions.",
+                secondaryOutcome: "",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "Not selected",
+                countries: "Japan",
+                contact: "Hidehisa Saito, hidehisa.saito.e2@tohoku.ac.jp, Tohoku University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000060192",
+                inclusionAgeMin: "20 years",
+                inclusionAgeMax: "60 years",
+                rawInclusionCriteria: "Patients under general anesthesia with an arterial line inserted during surgery.",
+                rawExclusionCriteria: "Patients with diseases that cause abnormalities in hemostatic coagulation ability, such as protein S/C or antithrombin deficiency, patients whose fibrinogen and platelet values deviate from the reference range in preoperative blood tests, pregnant women, patients who have difficulty obtaining consent forms, and patients who refuse consent."
+            },
+            {
+                trialID: "JPRN-UMIN000051020",
+                publicTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery",
+                scientificTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery: Prospective Observational Study",
+                acronym: "",
+                primarySponsor: "Nowon Eulji University Hospital",
+                dateRegistration: "09/05/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (65+) undergoing hip joint surgery.",
+                exclusionCriteria: "Under 65 years, ASA 4+, recent surgery within 30 days, refusal to participate.",
+                condition: "Hip Joint Surgery",
+                intervention: "",
+                primaryOutcome: "Linear regression of CFF A10 and postoperative bleeding amount.",
+                secondaryOutcome: "Linear regression of CFF A10 and intraoperative bleeding; CFF MA AUC for detecting massive bleeding.",
+                targetSize: 50,
+                studyType: "Observational",
+                phase: "Phase IV",
+                countries: "Asia (except Japan)",
+                contact: "Shin Wook Lee, chelenh@gmail.com, Nowon Eulji University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000058167",
+                inclusionAgeMin: "65 years",
+                inclusionAgeMax: "Not applicable",
+                rawInclusionCriteria: "Recruiting patient",
+                rawExclusionCriteria: "Patients under 65 years of age, ASA 4 or higher, patients with a history of surgery within the last 30 days, and patients who refused to participate in the study."
+            },
+            {
+                trialID: "NCT05874843",
+                publicTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                scientificTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                acronym: "",
+                primarySponsor: "Indiana University",
+                dateRegistration: "25/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Pediatric patients (3 months to 18 years) undergoing elective surgical care at Riley Hospital for Children.",
+                exclusionCriteria: "Known coagulation disorders, medications altering coagulation, foster care, or wards of the court.",
+                condition: "Coagulopathy",
+                intervention: "Diagnostic Test: Thromboelastography (TEG 6S)",
+                primaryOutcome: "TEG 6s viscoelastic measurements (angle, R time, maximum amplitude, lysis at 30 minutes) in pediatric surgical patients.",
+                secondaryOutcome: "",
+                targetSize: 25,
+                studyType: "Interventional",
+                phase: "N/A",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05874843",
+                inclusionAgeMin: "3 Months",
+                inclusionAgeMax: "18 Years",
+                rawInclusionCriteria: "Patients less than 18 years of age undergoing elective pediatric surgical care in the operating room at Riley Hospital for Children.",
+                rawExclusionCriteria: "Known disorder of coagulation pathway(s); Administration of medications that may alter the coagulation cascade; Patients in foster care or wards of the court."
+            },
+            {
+                trialID: "NCT05824013",
+                publicTitle: "Blood Coagulation Profile After Liver Resection",
+                scientificTitle: "Blood Coagulation Profile After Liver Resection. Comparison of Conventional Blood Coagulation Tests With Thromboelastography",
+                acronym: "",
+                primarySponsor: "Fondazione Policlinico Universitario Agostino Gemelli IRCCS",
+                dateRegistration: "11/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing elective liver resection for primary or metastatic liver cancer, admitted to surgical ICU post-surgery.",
+                exclusionCriteria: "Renal disease (creatinine clearance <30 ml/min), pregnancy, benign liver disease, emergency surgery, reintervention.",
+                condition: "Coagulation Disorder",
+                intervention: "Diagnostic Test: thromboelastography (TEG®6s)",
+                primaryOutcome: "Blood coagulation profile",
+                secondaryOutcome: "",
+                targetSize: 46,
+                studyType: "Observational",
+                phase: "",
+                countries: "Italy",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05824013",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Elective liver resection surgery for liver cancer primary or metastatic; Admission to surgical intensive care unit at the end of the surgery.",
+                rawExclusionCriteria: "Renal disease (creatinine clearance < 30 ml/min); pregnancy; Benign liver disease; Emergency surgery; Reintervention."
+            },
+            {
+                trialID: "NCT06261580",
+                publicTitle: "Normal Reference Range Study With the TEG6s Heparin Neutralization Cartridge in Healthy Volunteers",
+                scientificTitle: "Procedure to Define a Normal Reference Range Using the TEG® 6s Diagnostic System With the Heparin Neutralization Cartridge in Healthy Volunteers",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "31/03/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Healthy adults (18+) self-identifying as in good health.",
+                exclusionCriteria: "Acute/chronic illness, cancer, diabetes, renal/liver disease, morbid obesity, coagulation disorders, recent surgery, anticoagulant use.",
+                condition: "Healthy",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, and FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "CK-MA, CK-R, CKH-MA, CKH-R, CKH-LY30, CRTH-MA, CFFH-MA TEG Parameters",
+                secondaryOutcome: "",
+                targetSize: 181,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Yamini Bynagari, PhD, Machaon Diagnostics",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06261580",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Adult volunteers (18 years of age and older) who self-identify as being in general good health.",
+                rawExclusionCriteria: "Volunteers with any acute illness or uncontrolled chronic disease; Volunteers with any type of cancer; Volunteers with diabetes; Volunteers with renal disease; Volunteers with liver disease; Volunteers with morbid obesity; Volunteers with autoimmune or inflammatory diseases; Volunteers with known coagulation and/or bleeding disorders (e.g., hemophilia, Von Willebrand's disease); Volunteers currently abusing alcohol...; Volunteers with hereditary fibrinolytic bleeding disorders; Volunteers with altered coagulation due to the presence of direct oral anticoagulants...; Volunteers on any fibrinolytic activators...; Volunteers who have had recent surgery (within the last four weeks); Volunteers with any injuries leading to substantial bleeding or bruising...; Volunteers with bruising, wounds, or scarring around the selected venipuncture site; Volunteers deemed unfit for participation in the trial by the principal investigator; Volunteers participating in another clinical trial that would not be scientifically or medically compatible with this trial; Volunteers who have been on P2Y12 inhibitors within the last 30 days; Volunteers receiving treatment with low molecular weight heparin (e.g., enoxaparin); Volunteers with altered coagulation due to the presence of drugs known to affect the coagulation status in the blood...; Volunteers who have participated in this trial previously."
+            },
+            {
+                trialID: "NCT04746560",
+                publicTitle: "TEG 6s® for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                scientificTitle: "Evaluation of the Diagnostic Performances of the TEG 6s® Hemostasis Device and Its Platelet Mapping® Cartridge for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                acronym: "TEG-PM",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "11/12/2020",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) scheduled for cardiopulmonary bypass with informed consent.",
+                exclusionCriteria: "Under 18, pregnant, emergency surgery, no CPB, thrombocytopenia <100000/mm3.",
+                condition: "Cardiopulmonary Bypass",
+                intervention: "Device: TEG®6S device with its Platelet mapping® cartridge",
+                primaryOutcome: "Compare diagnostic performance of TEG®6S Platelet Mapping with reference tests for platelet function.",
+                secondaryOutcome: "Predict post-CPB bleeding risk; evaluate Global Haemostasis® cartridge for bleeding risk.",
+                targetSize: 6,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Adrien Bougle, MD; Ahmed Abbes, MD, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT04746560",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients scheduled to undergo cardiopulmonary bypass; Informed consent.",
+                rawExclusionCriteria: "Age <18 years; Pregnant women; Emergency surgery; Cardiac surgery without CPB; thrombocytopenia <100000/mmm3."
+            },
+            {
+                trialID: "NCT03592303",
+                publicTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                scientificTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                acronym: "HPPTEG6S",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "27/04/2018",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Women (18+) during labor or with PPH (>500 mL blood loss) requiring hemostasis evaluation, with health insurance.",
+                exclusionCriteria: "Pre-existing coagulopathy, anticoagulant medications, hepatocellular insufficiency, renal failure, psychiatric care, legal restrictions.",
+                condition: "Coagulation Defect; Puerperal; Post Partum Hemorrhage; Blood Protein Disorders; Pregnancy Hemorrhage",
+                intervention: "",
+                primaryOutcome: "Performance analysis of TEG6S kaolin parameters for diagnosing coagulation disorders in PPH.",
+                secondaryOutcome: "Performance of RapidTEG, Functional Fibrinogen; correlation with standard tests; predict severe PPH; define normal TEG6S values in pregnant women.",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Agnès Rigouzzo, agnes.rigouzzo@aphp.fr, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT03592303",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Age = 18 years old; Patient with health insurance; Group of patients during labor: any pregnant woman with a normal pregnancy in the delivery room; Group of patients with PPH: any woman with a normal pregnancy experiencing a PPH with blood loss greater than 500 mL and who requires a biological evaluation of haemostasis.",
+                rawExclusionCriteria: "Coagulopathy pre-existing to pregnancy; Medication that interferes with blood coagulation; Hepato-cellular insufficiency; Renal failure; Psychiatric care patients; Patient deprived of liberty by judicial or administrative decision; Major patient undergoing legal protective measures."
+            },
+            {
+                trialID: "NCT02798328",
+                publicTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                scientificTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/06/2016",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) on DOAC for at least 7 days.",
+                exclusionCriteria: "Genetic bleeding disorders, unknown DOAC dosing, recent heparin/LMWH, non-standard DOAC dosage, coagulation-affecting medications.",
+                condition: "DOAC Eligible Subjects",
+                intervention: "Device: TEG6s DOAC Cartridge",
+                primaryOutcome: "Presence/Absence of DOAC Drug",
+                secondaryOutcome: "",
+                targetSize: 385,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/show/NCT02798328",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "= 18 years old; DOAC administered for a minimum of 7 days.",
+                rawExclusionCriteria: "Genetic Bleeding disorders. Known or subsequently discovered inherited defects of coagulation (e.g. hemophilia or Von Willebrand disease); Not known when last two DOAC doses were administered prior to blood draw; DOAC first administered (or resumed after temporary cessation) less than 7 days prior to blood draw; DOAC dosage outside of manufacturer's recommended range (e.g. study subject with renal impairment and supratherapeutic dose); Heparin or LMWH administered within 7 days prior to blood draw; On any medications known to affect coagulation status and listed below; Bruising, wounds or scarring in the area of venipuncture."
+            }
+        ];
+
+        // Function to populate the table
+        function populateTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            data.forEach(trial => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 cursor-pointer" onclick="toggleCollapse(this)">${trial.trialID}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><span class="tooltip" data-tooltip="TEG 6S: Thromboelastography system for coagulation analysis">${trial.publicTitle}</span></td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.scientificTitle}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.acronym}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.primarySponsor}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.dateRegistration}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.recruitmentStatus}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.inclusionCriteria}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.exclusionCriteria}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.condition}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><span class="tooltip" data-tooltip="Citrated Blood: Blood mixed with citric acid to prevent clotting">${trial.intervention}</span></td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.primaryOutcome}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.secondaryOutcome}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.targetSize}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.studyType}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${trial.phase}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.countries}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${trial.contact}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="${trial.link}" target="_blank" class="text-blue-600 hover:text-blue-800 transition">View Trial</a>
+                    </td>
+                `;
+                const collapsibleRow = document.createElement('tr');
+                collapsibleRow.classList.add('collapsible-content');
+                collapsibleRow.innerHTML = `
+                    <td colspan="19" class="px-6 py-4 bg-blue-50">
+                        <div class="text-sm text-gray-700">
+                            <p><strong>Raw Inclusion Criteria:</strong> ${trial.rawInclusionCriteria}</p>
+                            <p><strong>Raw Exclusion Criteria:</strong> ${trial.rawExclusionCriteria}</p>
+                            <p><strong>Age Range:</strong> ${trial.inclusionAgeMin} - ${trial.inclusionAgeMax || 'N/A'}</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                tableBody.appendChild(collapsibleRow);
+            });
+        }
+
+        // Toggle collapsible row
+        function toggleCollapse(element) {
+            const row = element.parentElement;
+            const collapsible = row.nextElementSibling;
+            collapsible.classList.toggle('open');
+        }
+
+        // Sorting functionality
+        let sortDirection = {};
+        function sortTable(key) {
+            sortDirection[key] = !sortDirection[key];
+            const sortedData = [...trials].sort((a, b) => {
+                let aValue = a[key];
+                let bValue = b[key];
+
+                if (key === 'targetSize') {
+                    aValue = Number(aValue);
+                    bValue = Number(bValue);
+                } else if (key === 'dateRegistration') {
+                    aValue = new Date(aValue.split('/').reverse().join('-'));
+                    bValue = new Date(bValue.split('/').reverse().join('-'));
+                }
+
+                if (sortDirection[key]) {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === key) {
+                    th.classList.add(sortDirection[key] ? 'sort-asc' : 'sort-desc');
+                }
+            });
+
+            populateTable(sortedData);
+        }
+
+        // Filter functionality
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const ageFilter = document.getElementById('ageFilter').value;
+            const filteredData = trials.filter(trial => {
+                const matchesSearch = (
+                    trial.trialID.toLowerCase().includes(searchTerm) ||
+                    trial.publicTitle.toLowerCase().includes(searchTerm) ||
+                    trial.condition.toLowerCase().includes(searchTerm)
+                );
+                const matchesAge = (
+                    ageFilter === 'all' ||
+                    (ageFilter === 'pediatric' && trial.inclusionAgeMin.includes('Month') || trial.inclusionAgeMax.includes('18 Years')) ||
+                    (ageFilter === 'adult' && trial.inclusionAgeMin.includes('18 Years'))
+                );
+                return matchesSearch && matchesAge;
+            });
+            populateTable(filteredData);
+        }
+
+        // Export to CSV
+        function exportToCsv() {
+            const headers = [
+                "Trial ID", "Public Title", "Scientific Title", "Acronym", "Sponsor", "Registration Date",
+                "Recruitment Status", "Inclusion Criteria", "Exclusion Criteria", "Condition", "Intervention",
+                "Primary Outcome", "Secondary Outcome", "Enrollment", "Study Type", "Phase", "Countries", "Contact", "Link"
+            ];
+            const rows = trials.map(trial => [
+                trial.trialID, trial.publicTitle, trial.scientificTitle, trial.acronym, trial.primarySponsor,
+                trial.dateRegistration, trial.recruitmentStatus, trial.inclusionCriteria, trial.exclusionCriteria,
+                trial.condition, trial.intervention, trial.primaryOutcome, trial.secondaryOutcome, trial.targetSize,
+                trial.studyType, trial.phase, trial.countries, trial.contact, trial.link
+            ].map(field => `"${field.replace(/"/g, '""')}"`));
+            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'teg_6s_trials.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTable(trials);
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => sortTable(th.dataset.sort));
+            });
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('ageFilter').addEventListener('change', filterTable);
+            document.getElementById('exportCsv').addEventListener('click', exportToCsv);
+        });
+    </script>
+</body>
+</html>

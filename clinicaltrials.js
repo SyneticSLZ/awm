@@ -33,6 +33,8 @@ const { User } = require('./db');
 const { Lead } = require('./db');
 const pubmedRoutes = require('./pubmed-routes.js');
 
+const { UserSession } = require('./db');
+
 
 const { 
   DrugClassification, 
@@ -308,7 +310,715 @@ function verifyPassword(password, hash, salt) {
 // });
 
 
+
+
+// // Route for FDA 510(k) data
+// app.get('/api/TEG/fda/510k', async (req, res) => {
+//   try {
+//     const searchTerm = req.query.search || 'TEG 6S';
+//     const limit = req.query.limit || 100;
+    
+//     const response = await axios.get(`https://api.fda.gov/device/510k.json`, {
+//       params: {
+//         search: `device_name:${searchTerm}`,
+//         limit: limit
+//       }
+//     });
+    
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error('Error fetching FDA data:', error.message);
+//     res.status(500).json({ 
+//       error: 'Failed to fetch FDA data',
+//       details: error.message
+//     });
+//   }
+// });
+
+// Grok API Configuration
+const GROK_API = 'https://api.grok.ai/v1';
+const GROK_URL = process.env.grok
+// Configure axios for Grok API calls
+const grokAPI = axios.create({
+  baseURL: GROK_URL,
+  headers: {
+    'Authorization': `Bearer ${GROK_API}`,
+    'Content-Type': 'application/json'
+  }
+});
+
+// Route for FDA 510(k) data
+app.get('/api/TEG/fda/510k', async (req, res) => {
+  try {
+    const searchTerm = req.query.search || 'TEG 6S';
+    const limit = req.query.limit || 100;
+    
+    const response = await axios.get(`https://api.fda.gov/device/510k.json`, {
+      params: {
+        search: `device_name:"${searchTerm}"`,
+        limit: limit
+      }
+    });
+    
+    // Filter results to only include TEG 6S related devices
+    const filteredResults = response.data.results.filter(item => 
+      item.device_name && 
+      item.device_name.toLowerCase().includes('teg 6s')
+    );
+    
+    res.json({
+      meta: response.data.meta,
+      results: filteredResults
+    });
+  } catch (error) {
+    console.error('Error fetching FDA data:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch FDA data',
+      details: error.message
+    });
+  }
+});
+
+// Route for PubMed data
+app.get('/api/TEG/pubmed', async (req, res) => {
+  try {
+    const searchTerm = req.query.search || 'TEG 6S';
+    const limit = req.query.limit || 100;
+    
+    // First, search for article IDs
+    const searchResponse = await axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, {
+      params: {
+        db: 'pubmed',
+        term: searchTerm,
+        retmax: limit,
+        retmode: 'json',
+        sort: 'relevance'
+      }
+    });
+    
+    if (!searchResponse.data.esearchresult.idlist || searchResponse.data.esearchresult.idlist.length === 0) {
+      return res.json({
+        esearchresult: searchResponse.data.esearchresult,
+        results: []
+      });
+    }
+    
+    // Then, fetch details for those IDs
+    const idList = searchResponse.data.esearchresult.idlist.join(',');
+    const detailsResponse = await axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi`, {
+      params: {
+        db: 'pubmed',
+        id: idList,
+        retmode: 'json'
+      }
+    });
+    
+    // Process and extract relevant information
+    const results = Object.values(detailsResponse.data.result).filter(item => item.uid).map(item => {
+      // Determine if article is related to neonates or pediatrics based on title and content
+      const isNeonatal = 
+        item.title.toLowerCase().includes('neonate') || 
+        item.title.toLowerCase().includes('neonatal') || 
+        item.title.toLowerCase().includes('premature') || 
+        item.title.toLowerCase().includes('infant');
+        
+      const isPediatric = !isNeonatal && (
+        item.title.toLowerCase().includes('pediatric') || 
+        item.title.toLowerCase().includes('children') || 
+        item.title.toLowerCase().includes('adolescent')
+      );
+      
+      return {
+        pmid: item.uid,
+        title: item.title,
+        abstract: item.abstract || 'Abstract not available',
+        authors: (item.authors || []).map(author => ({
+          name: author.name,
+          affiliation: author.affiliation || ''
+        })),
+        journal: item.fulljournalname || item.source,
+        publication_date: item.pubdate,
+        keywords: item.keywords || [],
+        patient_type: isNeonatal ? 'neonatal' : (isPediatric ? 'pediatric' : 'adult')
+      };
+    });
+    
+    res.json({
+      esearchresult: searchResponse.data.esearchresult,
+      results
+    });
+  } catch (error) {
+    console.error('Error fetching PubMed data:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch PubMed data',
+      details: error.message
+    });
+  }
+});
+
+// Route for PubMed neonatal data
+app.get('/api/TEG/pubmed/neonatal', async (req, res) => {
+  try {
+    const searchTerm = req.query.search || '(TEG 6S) AND (neonate OR neonatal OR neonates OR premature OR infant OR infants)';
+    const limit = req.query.limit || 100;
+    
+    // Use the PubMed search with neonatal-specific terms
+    const searchResponse = await axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, {
+      params: {
+        db: 'pubmed',
+        term: searchTerm,
+        retmax: limit,
+        retmode: 'json',
+        sort: 'relevance'
+      }
+    });
+    
+    if (!searchResponse.data.esearchresult.idlist || searchResponse.data.esearchresult.idlist.length === 0) {
+      return res.json({
+        esearchresult: searchResponse.data.esearchresult,
+        results: []
+      });
+    }
+    
+    // Then, fetch details for those IDs
+    const idList = searchResponse.data.esearchresult.idlist.join(',');
+    const detailsResponse = await axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi`, {
+      params: {
+        db: 'pubmed',
+        id: idList,
+        retmode: 'json'
+      }
+    });
+    
+    // Process and extract relevant information
+    const results = Object.values(detailsResponse.data.result).filter(item => item.uid).map(item => {
+      return {
+        pmid: item.uid,
+        title: item.title,
+        abstract: item.abstract || 'Abstract not available',
+        authors: (item.authors || []).map(author => ({
+          name: author.name,
+          affiliation: author.affiliation || ''
+        })),
+        journal: item.fulljournalname || item.source,
+        publication_date: item.pubdate,
+        keywords: item.keywords || [],
+        patient_type: 'neonatal'
+      };
+    });
+    
+    res.json({
+      esearchresult: searchResponse.data.esearchresult,
+      results
+    });
+  } catch (error) {
+    console.error('Error fetching PubMed neonatal data:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch PubMed neonatal data',
+      details: error.message
+    });
+  }
+});
+
+// Route for clinical trials data
+app.get('/api/TEG/clinical-trials', async (req, res) => {
+  try {
+    const searchTerm = req.query.search || 'TEG 6S';
+    const limit = req.query.limit || 100;
+    
+    // Use the ClinicalTrials.gov API
+    const response = await axios.get(`https://clinicaltrials.gov/api/query/study_fields`, {
+      params: {
+        expr: searchTerm,
+        fields: 'NCTId,BriefTitle,OfficialTitle,OverallStatus,StudyType,Condition,Intervention,StartDate,CompletionDate,EnrollmentCount,LocationCountry,EligibilityCriteria,MinimumAge,MaximumAge,Sponsor',
+        fmt: 'json',
+        max_rnk: limit
+      }
+    });
+    
+    if (!response.data.StudyFieldsResponse.StudyFields || response.data.StudyFieldsResponse.StudyFields.length === 0) {
+      return res.json({
+        results: []
+      });
+    }
+    
+    // Process and extract relevant information
+    const results = response.data.StudyFieldsResponse.StudyFields.map(study => {
+      // Determine age groups based on MinimumAge and MaximumAge
+      const ageGroups = [];
+      
+      const minAge = study.MinimumAge[0] || '';
+      const maxAge = study.MaximumAge[0] || '';
+      
+      if (minAge.includes('newborn') || minAge.includes('0 days') || minAge.includes('0 month')) {
+        ageGroups.push('Newborn');
+      }
+      
+      if (minAge.includes('month') || (parseInt(minAge) < 2 && minAge.includes('year'))) {
+        ageGroups.push('Infant');
+      }
+      
+      if ((parseInt(minAge) >= 2 && parseInt(minAge) <= 12 && minAge.includes('year')) || 
+          (parseInt(maxAge) >= 2 && parseInt(maxAge) <= 12 && maxAge.includes('year'))) {
+        ageGroups.push('Child');
+      }
+      
+      if ((parseInt(minAge) >= 13 && parseInt(minAge) <= 17 && minAge.includes('year')) || 
+          (parseInt(maxAge) >= 13 && parseInt(maxAge) <= 17 && maxAge.includes('year'))) {
+        ageGroups.push('Adolescent');
+      }
+      
+      if ((parseInt(minAge) >= 18 && parseInt(minAge) <= 64 && minAge.includes('year')) || 
+          (parseInt(maxAge) >= 18 && parseInt(maxAge) <= 64 && maxAge.includes('year'))) {
+        ageGroups.push('Adult');
+      }
+      
+      if ((parseInt(minAge) >= 65 && minAge.includes('year')) || 
+          (parseInt(maxAge) >= 65 && maxAge.includes('year'))) {
+        ageGroups.push('Older Adult');
+      }
+      
+      if (ageGroups.length === 0) {
+        ageGroups.push('Not Specified');
+      }
+      
+      // Determine patient type
+      let patientType = 'Adult';
+      if (ageGroups.includes('Newborn') || ageGroups.includes('Infant')) {
+        patientType = 'Neonatal';
+      } else if (ageGroups.includes('Child') || ageGroups.includes('Adolescent')) {
+        patientType = 'Pediatric';
+      }
+      
+      return {
+        nct_id: study.NCTId[0],
+        title: study.BriefTitle[0] || study.OfficialTitle[0] || 'Untitled',
+        status: study.OverallStatus[0] || 'Unknown',
+        study_type: study.StudyType[0] || 'Unknown',
+        conditions: study.Condition || [],
+        interventions: study.Intervention || [],
+        sponsors: study.Sponsor || [],
+        start_date: study.StartDate[0] || 'Unknown',
+        completion_date: study.CompletionDate[0] || 'Unknown',
+        enrollment: study.EnrollmentCount[0] || 0,
+        url: `https://clinicaltrials.gov/study/${study.NCTId[0]}`,
+        age_groups: ageGroups,
+        patient_type: patientType
+      };
+    });
+    
+    // Filter results to only include TEG 6S related trials
+    const filteredResults = results.filter(item => 
+      item.title.toLowerCase().includes('teg 6s') || 
+      item.interventions.some(intervention => 
+        intervention.toLowerCase().includes('teg 6s') || 
+        intervention.toLowerCase().includes('thromboelastography')
+      )
+    );
+    
+    res.json({
+      results: filteredResults
+    });
+  } catch (error) {
+    console.error('Error fetching clinical trials data:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch clinical trials data',
+      details: error.message
+    });
+  }
+});
+
+// Route for clinical trials neonatal data
+app.get('/api/TEG/clinical-trials/neonatal', async (req, res) => {
+  try {
+    const searchTerm = req.query.search || '(TEG 6S) AND (neonate OR neonatal OR neonates OR premature OR infant OR infants)';
+    const limit = req.query.limit || 100;
+    
+    const response = await axios.get(`https://clinicaltrials.gov/api/query/study_fields`, {
+      params: {
+        expr: searchTerm,
+        fields: 'NCTId,BriefTitle,OfficialTitle,OverallStatus,StudyType,Condition,Intervention,StartDate,CompletionDate,EnrollmentCount,LocationCountry,EligibilityCriteria,MinimumAge,MaximumAge,Sponsor',
+        fmt: 'json',
+        max_rnk: limit
+      }
+    });
+    
+    if (!response.data.StudyFieldsResponse.StudyFields || response.data.StudyFieldsResponse.StudyFields.length === 0) {
+      return res.json({
+        results: []
+      });
+    }
+    
+    // Process trials similar to the clinical trials endpoint, but only include neonatal studies
+    const allResults = response.data.StudyFieldsResponse.StudyFields.map(study => {
+      // Similar processing to the clinical trials endpoint...
+      const ageGroups = [];
+      
+      const minAge = study.MinimumAge[0] || '';
+      const maxAge = study.MaximumAge[0] || '';
+      
+      if (minAge.includes('newborn') || minAge.includes('0 days') || minAge.includes('0 month')) {
+        ageGroups.push('Newborn');
+      }
+      
+      if (minAge.includes('month') || (parseInt(minAge) < 2 && minAge.includes('year'))) {
+        ageGroups.push('Infant');
+      }
+      
+      // Other age groups...
+      
+      return {
+        nct_id: study.NCTId[0],
+        title: study.BriefTitle[0] || study.OfficialTitle[0] || 'Untitled',
+        status: study.OverallStatus[0] || 'Unknown',
+        study_type: study.StudyType[0] || 'Unknown',
+        conditions: study.Condition || [],
+        interventions: study.Intervention || [],
+        sponsors: study.Sponsor || [],
+        start_date: study.StartDate[0] || 'Unknown',
+        completion_date: study.CompletionDate[0] || 'Unknown',
+        enrollment: study.EnrollmentCount[0] || 0,
+        url: `https://clinicaltrials.gov/study/${study.NCTId[0]}`,
+        age_groups: ageGroups,
+        patient_type: ageGroups.includes('Newborn') || ageGroups.includes('Infant') ? 'Neonatal' : 'Other'
+      };
+    });
+    
+    // Filter for neonatal studies and TEG 6S
+    const filteredResults = allResults.filter(item => 
+      (item.patient_type === 'Neonatal' || 
+       item.title.toLowerCase().includes('neonate') || 
+       item.title.toLowerCase().includes('neonatal') || 
+       item.title.toLowerCase().includes('premature') || 
+       item.title.toLowerCase().includes('infant')) && 
+      (item.title.toLowerCase().includes('teg 6s') || 
+       item.interventions.some(intervention => 
+         intervention.toLowerCase().includes('teg 6s') || 
+         intervention.toLowerCase().includes('thromboelastography')
+       ))
+    );
+    
+    res.json({
+      results: filteredResults
+    });
+  } catch (error) {
+    console.error('Error fetching clinical trials neonatal data:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch clinical trials neonatal data',
+      details: error.message
+    });
+  }
+});
+
+// Route for AI insights
+app.post('/api/TEG/ai/insights', async (req, res) => {
+  try {
+    const { question } = req.body;
+    
+    if (!question) {
+      return res.status(400).json({
+        error: 'No question provided'
+      });
+    }
+    
+    // Build prompt for Grok
+    const prompt = `Based on the latest medical research, please provide insights on the following question about the TEG 6S hemostasis system: "${question}"\n\nFocus specifically on neonatal applications and citrated blood samples where relevant. Structure your response with:\n1. Key Insights (technical analysis)\n2. Summary (practical implications)\n3. Clinical Recommendations (actionable advice)`;
+    
+    // Call Grok API
+    const response = await grokAPI.post('/chat/completions', {
+      model: "grok-1", // Use Grok's model
+      messages: [
+        { role: "system", content: "You are a medical research assistant with expertise in hematology and diagnostic devices." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+    
+    // Parse response - Grok uses a different structure compared to OpenAI's completion API
+    // We're assuming Grok returns a structure similar to ChatGPT with message content
+    const completionText = response.data.choices[0].message.content.trim();
+    
+    // Split into sections
+    const insights = completionText.split("Summary")[0].replace("Key Insights", "").trim();
+    const summary = completionText.split("Summary")[1].split("Clinical Recommendations")[0].trim();
+    const recommendations = completionText
+      .split("Clinical Recommendations")[1]
+      .trim()
+      .split("\n")
+      .filter(line => line.trim())
+      .map(line => line.replace(/^\d+\.\s*/, "").trim());
+    
+    res.json({
+      insights,
+      summary,
+      recommendations
+    });
+  } catch (error) {
+    console.error('Error generating AI insights:', error.message);
+    res.status(500).json({
+      error: 'Failed to generate AI insights',
+      details: error.message
+    });
+  }
+});
+
+// Route for AI summary of selected items
+app.post('/api/TEG/ai/summary', async (req, res) => {
+  try {
+    const { items } = req.body;
+    
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        error: 'No items provided for summarization'
+      });
+    }
+    
+    // Build prompt for Grok
+    let prompt = `Please provide a comprehensive summary of the following research items related to the TEG 6S hemostasis system:\n\n`;
+    
+    // Add FDA items
+    const fdaItems = items.filter(item => item.type === 'fda');
+    if (fdaItems.length > 0) {
+      prompt += `FDA Clearances:\n`;
+      fdaItems.forEach(item => {
+        prompt += `- ${item.data.device_name || 'TEG 6S Device'} (${item.data.k_number || 'No K Number'}): ${item.data.decision_description || 'No decision description'}\n`;
+      });
+      prompt += `\n`;
+    }
+    
+    // Add PubMed items
+    const pubmedItems = items.filter(item => item.type === 'pubmed');
+    if (pubmedItems.length > 0) {
+      prompt += `PubMed Articles:\n`;
+      pubmedItems.forEach(item => {
+        prompt += `- Title: ${item.data.title}\n`;
+        prompt += `  Abstract: ${item.data.abstract}\n\n`;
+      });
+    }
+    
+    // Add Clinical Trials items
+    const trialItems = items.filter(item => item.type === 'clinical-trial');
+    if (trialItems.length > 0) {
+      prompt += `Clinical Trials:\n`;
+      trialItems.forEach(item => {
+        prompt += `- Title: ${item.data.title}\n`;
+        prompt += `  Status: ${item.data.status}\n`;
+        prompt += `  Type: ${item.data.study_type}\n`;
+        prompt += `  Conditions: ${item.data.conditions.join(', ')}\n\n`;
+      });
+    }
+    
+    prompt += `Focus specifically on neonatal applications and the use of citrated blood samples where relevant. Highlight key findings, gaps in the research, and implications for clinical practice.`;
+    
+    // Call Grok API
+    const response = await grokAPI.post('/chat/completions', {
+      model: "grok-1", // Use Grok's model
+      messages: [
+        { role: "system", content: "You are a medical research assistant with expertise in hematology and diagnostic devices." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+    
+    // Parse response - assuming Grok returns a structure similar to ChatGPT
+    const summary = response.data.choices[0].message.content.trim();
+    
+    res.json({
+      summary
+    });
+  } catch (error) {
+    console.error('Error generating AI summary:', error.message);
+    res.status(500).json({
+      error: 'Failed to generate AI summary',
+      details: error.message
+    });
+  }
+});
+
+
 app.use(pubmedRoutes);
+
+// Record new session or update existing session
+app.post('/api/tracking/track', async (req, res) => {
+  try {
+    const data = req.body;
+    
+    // Try to find existing session
+    let session = await UserSession.findOne({ sessionId: data.sessionId });
+    
+    if (session) {
+      // Update existing session
+      session.timeSpent = data.timeSpent;
+      session.mousePositions = [...session.mousePositions, ...data.mousePositions];
+      session.clicks = [...session.clicks, ...data.clicks];
+      
+      if (data.scrollPositions) {
+        session.scrollPositions = [...session.scrollPositions, ...data.scrollPositions];
+      }
+      
+      if (data.scrollDepth && data.scrollDepth > session.scrollDepth) {
+        session.scrollDepth = data.scrollDepth;
+      }
+      
+      if (data.isFinal) {
+        session.isFinal = true;
+        session.endTime = new Date();
+      }
+      
+      await session.save();
+    } else {
+      // Create new session
+      // Extract userId from authentication if available
+      const userId = req.user ? req.user._id : null;
+      
+      session = new UserSession({
+        sessionId: data.sessionId,
+        userId,
+        pageUrl: data.pageUrl,
+        referrer: data.referrer,
+        startTime: new Date(data.startTime),
+        timeSpent: data.timeSpent,
+        screenWidth: data.screenWidth,
+        screenHeight: data.screenHeight,
+        userAgent: data.userAgent,
+        mousePositions: data.mousePositions || [],
+        clicks: data.clicks || [],
+        scrollPositions: data.scrollPositions || [],
+        scrollDepth: data.scrollDepth || 0,
+        isFinal: data.isFinal || false
+      });
+      
+      await session.save();
+    }
+    
+    res.status(200).send({ success: true });
+  } catch (error) {
+    console.error('Error recording session data:', error);
+    res.status(500).send({ success: false, error: 'Error saving tracking data' });
+  }
+});
+
+// Get heatmap data for a specific page
+app.get('/api/tracking/heatmap', async (req, res) => {
+  try {
+    const { pageUrl, startDate, endDate } = req.query;
+    
+    if (!pageUrl) {
+      return res.status(400).send({ success: false, error: 'Page URL is required' });
+    }
+    
+    const query = { pageUrl };
+    
+    // Add date filtering if provided
+    if (startDate && endDate) {
+      query.startTime = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+    
+    // Find relevant sessions
+    const sessions = await UserSession.find(query);
+    
+    // Extract click data for heatmap
+    const clickData = sessions.flatMap(session => 
+      session.clicks.map(click => ({
+        x: click.x,
+        y: click.y,
+        elementClicked: click.target.tagName,
+        elementId: click.target.id,
+        elementClass: click.target.className
+      }))
+    );
+    
+    // Extract mouse movement data
+    const movementData = sessions.flatMap(session => 
+      session.mousePositions.map(pos => ({
+        x: pos.x,
+        y: pos.y
+      }))
+    );
+    
+    // Calculate average time spent on page
+    const totalSessions = sessions.length;
+    const totalTimeSpent = sessions.reduce((sum, session) => sum + session.timeSpent, 0);
+    const averageTimeSpent = totalSessions > 0 ? totalTimeSpent / totalSessions : 0;
+    
+    res.status(200).send({
+      success: true,
+      clickData,
+      movementData,
+      averageTimeSpent,
+      sessionCount: totalSessions
+    });
+    
+  } catch (error) {
+    console.error('Error fetching heatmap data:', error);
+    res.status(500).send({ success: false, error: 'Error fetching heatmap data' });
+  }
+});
+
+// Get session analytics summary
+app.get('api/tracking/analytics', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const query = {};
+    
+    // Add date filtering if provided
+    if (startDate && endDate) {
+      query.startTime = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+    
+    // Get all sessions that match the criteria
+    const sessions = await UserSession.find(query);
+    
+    // Calculate analytics
+    const totalSessions = sessions.length;
+    const pageViews = {};
+    const deviceTypes = { desktop: 0, tablet: 0, mobile: 0 };
+    let totalTimeSpent = 0;
+    
+    sessions.forEach(session => {
+      // Count page views
+      if (!pageViews[session.pageUrl]) {
+        pageViews[session.pageUrl] = 0;
+      }
+      pageViews[session.pageUrl]++;
+      
+      // Count device types
+      deviceTypes[session.deviceType]++;
+      
+      // Sum time spent
+      totalTimeSpent += session.timeSpent;
+    });
+    
+    // Sort pages by most visited
+    const topPages = Object.entries(pageViews)
+      .map(([url, count]) => ({ url, count }))
+      .sort((a, b) => b.count - a.count);
+    
+    const averageTimeSpent = totalSessions > 0 ? totalTimeSpent / totalSessions : 0;
+    
+    res.status(200).send({
+      success: true,
+      totalSessions,
+      topPages: topPages.slice(0, 10), // Top 10 pages
+      deviceBreakdown: deviceTypes,
+      averageTimePerSession: averageTimeSpent
+    });
+    
+  } catch (error) {
+    console.error('Error fetching analytics data:', error);
+    res.status(500).send({ success: false, error: 'Error fetching analytics data' });
+  }
+});
+
 
 
 // Set cutoff date for leads (May 9, 2025)
@@ -6663,7 +7373,530 @@ app.get('/api/fda/drug/:drugName', validateDrugNamenew, async (req, res) => {
 });
 
 
+// Main device search endpoint
+app.get('/api/fda/device/:deviceName', validateDeviceName, async (req, res) => {
+  console.log("Fetching comprehensive FDA device data");
+  const { deviceName } = req.params;
+  const searchType = req.query.type || 'brand';
 
+  try {
+    // Check if FDA API is available first
+    try {
+      console.log("Checking FDA API availability...");
+      const checkUrl = "https://api.fda.gov/device/510k.json?limit=1";
+      await axios.get(checkUrl, { timeout: 10000 });
+      console.log("FDA API is available.");
+    } catch (apiCheckError) {
+      console.error("FDA API appears to be unavailable:", apiCheckError.message);
+      return res.status(503).json({
+        error: 'FDA API unavailable',
+        message: 'The FDA API is currently unavailable. Please try again later.'
+      });
+    }
+
+    // Initialize result structure
+    const results = { 
+      endpoints: {}, 
+      combinedResults: []
+    };
+
+    // Define all FDA device endpoints we'll query
+    const endpoints = {
+      classification: "https://api.fda.gov/device/classification.json",
+      registrationlisting: "https://api.fda.gov/device/registrationlisting.json",
+      enforcement: "https://api.fda.gov/device/enforcement.json",
+      event: "https://api.fda.gov/device/event.json",
+      recall: "https://api.fda.gov/device/recall.json",
+      pma: "https://api.fda.gov/device/pma.json",
+      '510k': "https://api.fda.gov/device/510k.json",
+      covid19serology: "https://api.fda.gov/device/covid19serology.json",
+      udi: "https://api.fda.gov/device/udi.json"
+    };
+
+    // Define search variations based on the device name
+    const searchVariations = [
+      `${deviceName}`,
+      `*${deviceName}*`,
+      // You can add variations here like manufacturer names if needed
+    ];
+
+    // Process each endpoint
+    for (const [endpointName, baseUrl] of Object.entries(endpoints)) {
+      let endpointSuccess = false;
+      
+      // Try each search variation
+      for (const variation of searchVariations) {
+        if (endpointSuccess) continue; // Skip if we already have data
+        
+        try {
+          // Build search query based on endpoint
+          let searchQuery;
+          
+          switch (endpointName) {
+            case "classification":
+              searchQuery = `search=device_name:"${variation}"+OR+medical_specialty_description:"${variation}"`;
+              break;
+            case "registrationlisting":
+              searchQuery = `search=products.name:"${variation}"+OR+products.device_name:"${variation}"+OR+registration.owner_operator.name:"${variation}"`;
+              break;
+            case "enforcement":
+              searchQuery = `search=product_description:"${variation}"+OR+firm_legal_name:"${variation}"`;
+              break;
+            case "event":
+              searchQuery = `search=device.brand_name:"${variation}"+OR+device.generic_name:"${variation}"+OR+device.manufacturer_d_name:"${variation}"`;
+              break;
+            case "recall":
+              searchQuery = `search=product_description:"${variation}"+OR+product_code:"${variation}"+OR+firm_name:"${variation}"`;
+              break;
+            case "pma":
+              searchQuery = `search=device_name:"${variation}"+OR+applicant:"${variation}"+OR+trade_name:"${variation}"`;
+              break;
+            case "510k":
+              searchQuery = `search=device_name:"${variation}"+OR+applicant:"${variation}"+OR+k_number:"${variation}"`;
+              break;
+            case "covid19serology":
+              searchQuery = `search=device_name:"${variation}"+OR+manufacturer_name:"${variation}"`;
+              break;
+            case "udi":
+              searchQuery = `search=device_name:"${variation}"+OR+brand_name:"${variation}"+OR+company_name:"${variation}"`;
+              break;
+            default:
+              searchQuery = `search=${variation}`;
+          }
+          
+          // Fetch all results using pagination
+          let allResults = [];
+          let skip = 0;
+          const BATCH_SIZE = 100; // Reduced batch size to avoid overloading API
+          let hasMoreResults = true;
+          
+          while (hasMoreResults) {
+            // Make the API request with pagination
+            const url = `${baseUrl}?${searchQuery}&limit=${BATCH_SIZE}&skip=${skip}`;
+            console.log(`Fetching FDA ${endpointName} with search term: ${variation}, skip: ${skip}`);
+            
+            try {
+              const response = await fetchWithRetry(url, { timeout: 30000 });
+              
+              const batchResults = response.data.results || [];
+              if (batchResults.length > 0) {
+                allResults = [...allResults, ...batchResults];
+                console.log(`Retrieved batch of ${batchResults.length} results. Total so far: ${allResults.length}`);
+                
+                // Check if we've reached the end or if there might be more results
+                if (batchResults.length < BATCH_SIZE) {
+                  hasMoreResults = false; // End of results
+                } else {
+                  skip += BATCH_SIZE; // Move to next batch
+                }
+              } else {
+                hasMoreResults = false; // No results in this batch
+              }
+              
+              // Safety check to prevent excessive requests (FDA API has rate limits)
+              if (allResults.length >= 500) {
+                console.warn(`Reached 500 results for ${endpointName}, stopping pagination to prevent excessive requests`);
+                break;
+              }
+            } catch (error) {
+              console.error(`Failed FDA ${endpointName} request for ${variation} after multiple retries: ${error.message}`);
+              hasMoreResults = false; // Stop trying after repeated failures
+            }
+          }
+          
+          if (allResults.length > 0) {
+            console.log(`Success! Found ${allResults.length} FDA records from ${endpointName} for ${variation}`);
+            results.endpoints[endpointName] = {
+              status: "success",
+              count: allResults.length,
+              data: allResults,
+              searchTerm: variation
+            };
+            
+            try {
+              // Process the results based on endpoint type
+              const processedResults = processDeviceEndpointResults(endpointName, allResults, variation);
+              console.log(`Successfully processed ${processedResults.length} results from ${endpointName}`);
+              results.combinedResults = [...results.combinedResults, ...processedResults];
+            } catch (processingError) {
+              console.error(`Error processing ${endpointName} results:`, processingError);
+              // Continue with unprocessed results
+            }
+            
+            endpointSuccess = true;
+            break; // Exit the variations loop for this endpoint
+          }
+        } catch (error) {
+          console.warn(`Failed FDA ${endpointName} request for ${variation}: ${error.message}`);
+          
+          // Check if it's a rate limiting error
+          if (error.response && (error.response.status === 429 || error.response.status === 503)) {
+            console.warn('Rate limiting detected. Waiting before continuing...');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+          }
+        }
+      }
+      
+      // If no success with any variation, record the failure
+      if (!endpointSuccess) {
+        results.endpoints[endpointName] = {
+          status: "error",
+          error: "No data found across all search variations",
+          statusCode: "404",
+          data: []
+        };
+      }
+    }
+    
+    // If no results found across all endpoints, add placeholder data
+    if (results.combinedResults.length === 0) {
+      results.combinedResults = [{
+        source: "placeholder",
+        name: deviceName,
+        description: `No FDA device data found for ${deviceName} across all endpoints`,
+        date: "Unknown",
+        status: "Unknown"
+      }];
+    }
+
+    // Process 510k data into categorized format
+    const categorizedDevices = {};
+    
+    // Process 510k clearances
+    if (results.endpoints['510k'] && results.endpoints['510k'].status === "success") {
+      for (const device of results.endpoints['510k'].data) {
+        const deviceName = device.device_name || 'Unknown Device';
+        const applicant = device.applicant || 'Unknown Applicant';
+        const clearanceDate = device.decision_date || device.date_received || 'Unknown';
+        const kNumber = device.k_number || 'Unknown';
+        
+        if (!categorizedDevices[deviceName]) categorizedDevices[deviceName] = {};
+        if (!categorizedDevices[deviceName][applicant]) categorizedDevices[deviceName][applicant] = [];
+        
+        categorizedDevices[deviceName][applicant].push({
+          deviceName: device.device_name,
+          applicant: device.applicant,
+          kNumber: device.k_number,
+          clearanceDate: device.decision_date,
+          decisionCode: device.decision_code,
+          decisionDescription: device.decision_description,
+          productCode: device.product_code,
+          dateReceived: device.date_received,
+          hasDocuments: true,
+          fdaPage: `https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${kNumber}`,
+          advisoryCommittee: device.advisory_committee,
+          reviewAdvisoryCommittee: device.review_advisory_committee,
+          deviceClass: device.device_class,
+          regulationNumber: device.regulation_number,
+          substantialEquivalence: device.statement_or_summary,
+          type: "510k"
+        });
+      }
+    }
+    
+    // Process PMA data
+    if (results.endpoints.pma && results.endpoints.pma.status === "success") {
+      for (const device of results.endpoints.pma.data) {
+        const deviceName = device.device_name || device.trade_name || 'Unknown Device';
+        const applicant = device.applicant || 'Unknown Applicant';
+        const approvalDate = device.decision_date || device.date_received || 'Unknown';
+        const pmaNumber = device.pma_number || 'Unknown';
+        
+        if (!categorizedDevices[deviceName]) categorizedDevices[deviceName] = {};
+        if (!categorizedDevices[deviceName][applicant]) categorizedDevices[deviceName][applicant] = [];
+        
+        categorizedDevices[deviceName][applicant].push({
+          deviceName: device.device_name,
+          tradeName: device.trade_name,
+          applicant: device.applicant,
+          pmaNumber: device.pma_number,
+          approvalDate: device.decision_date,
+          decisionCode: device.decision_code,
+          productCode: device.product_code,
+          dateReceived: device.date_received,
+          expeditedReview: device.expedited_review_flag,
+          hasDocuments: true,
+          fdaPage: `https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=${pmaNumber}`,
+          advisoryCommittee: device.advisory_committee,
+          type: "PMA"
+        });
+      }
+    }
+
+    // Add metadata about the request
+    const metadata = {
+      query: deviceName,
+      timestamp: new Date().toISOString(),
+      endpointsQueried: Object.keys(endpoints).length,
+      totalResults: results.combinedResults.length,
+      resultBreakdown: Object.entries(results.endpoints).map(([name, data]) => ({
+        endpoint: name,
+        status: data.status,
+        count: data.status === "success" ? data.count : 0
+      }))
+    };
+
+    // Return both the raw endpoint results and the categorized devices
+    res.json({
+      metadata,
+      raw: results,
+      categorized: categorizedDevices
+    });
+
+  } catch (error) {
+    console.error('Error fetching FDA device data:', error);
+    console.error('Stack trace:', error.stack);
+    res.status(500).json({ 
+      error: 'Error fetching device data',
+      message: error.message 
+    });
+  }
+});
+
+// Helper function for device validation
+function validateDeviceName(req, res, next) {
+  const { deviceName } = req.params;
+  
+  if (!deviceName || deviceName.trim().length < 2) {
+    return res.status(400).json({
+      error: 'Invalid device name',
+      message: 'Please provide a valid device name (minimum 2 characters)'
+    });
+  }
+  
+  // Sanitize the device name to prevent potential injection
+  req.params.deviceName = deviceName.trim().replace(/[^\w\s\-\.]/g, '');
+  next();
+}
+
+// Process endpoint-specific results for devices
+function processDeviceEndpointResults(endpointName, results, searchTerm) {
+  const processedResults = [];
+  
+  try {
+    switch (endpointName) {
+      case "510k":
+        for (const item of results) {
+          processedResults.push({
+            source: "510k",
+            name: item.device_name || "Unknown Device",
+            description: `510(k) submission ${item.k_number} - ${item.device_name || "Unknown Device"}`,
+            applicant: item.applicant || "Unknown",
+            date: item.decision_date || item.date_received || "Unknown",
+            status: item.decision_description || "Unknown",
+            id: item.k_number || "",
+            additionalInfo: {
+              productCode: item.product_code,
+              deviceClass: item.device_class
+            }
+          });
+        }
+        break;
+        
+      case "pma":
+        for (const item of results) {
+          processedResults.push({
+            source: "pma",
+            name: item.device_name || item.trade_name || "Unknown Device",
+            description: `PMA submission ${item.pma_number} - ${item.device_name || item.trade_name || "Unknown Device"}`,
+            applicant: item.applicant || "Unknown",
+            date: item.decision_date || item.date_received || "Unknown",
+            status: item.decision_code || "Unknown",
+            id: item.pma_number || "",
+            additionalInfo: {
+              productCode: item.product_code,
+              expedited: item.expedited_review_flag === "Y" ? "Yes" : "No"
+            }
+          });
+        }
+        break;
+        
+      case "classification":
+        for (const item of results) {
+          processedResults.push({
+            source: "classification",
+            name: item.device_name || "Unknown Device",
+            description: `Device Classification - ${item.device_name || "Unknown Device"}`,
+            date: "N/A",
+            status: `Class ${item.device_class || "Unknown"}`,
+            id: item.product_code || "",
+            additionalInfo: {
+              regulationNumber: item.regulation_number,
+              medicalSpecialty: item.medical_specialty_description,
+              regulationText: item.regulation_text
+            }
+          });
+        }
+        break;
+        
+      case "registrationlisting":
+        for (const item of results) {
+          const products = item.products || [];
+          for (const product of products) {
+            processedResults.push({
+              source: "registrationlisting",
+              name: product.name || product.device_name || "Unknown Device",
+              description: `Listed Device - ${product.name || product.device_name || "Unknown Device"}`,
+              applicant: item.registration?.owner_operator?.name || "Unknown",
+              date: item.registration?.initial_importer_flag === "Y" ? "Importer" : "Manufacturer",
+              status: product.proprietary_name || "Unknown",
+              id: product.registration_number || "",
+              additionalInfo: {
+                productCode: product.product_code,
+                ownerOperatorNumber: item.registration?.owner_operator?.owner_operator_number
+              }
+            });
+          }
+        }
+        break;
+        
+      case "enforcement":
+        for (const item of results) {
+          processedResults.push({
+            source: "enforcement",
+            name: item.product_description || "Unknown Device",
+            description: `Enforcement - ${item.product_description || "Unknown Device"}`,
+            applicant: item.firm_legal_name || item.recalling_firm || "Unknown",
+            date: item.recall_initiation_date || item.event_date_initiated || "Unknown",
+            status: item.status || "Unknown",
+            id: item.recall_number || "",
+            additionalInfo: {
+              classification: item.classification,
+              codeInfo: item.code_info,
+              reasonForRecall: item.reason_for_recall
+            }
+          });
+        }
+        break;
+        
+      case "event":
+        for (const item of results) {
+          const deviceInfo = item.device || {};
+          processedResults.push({
+            source: "event",
+            name: deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device",
+            description: `Adverse Event - ${deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device"}`,
+            applicant: deviceInfo.manufacturer_d_name || "Unknown",
+            date: item.date_received || item.date_of_event || "Unknown",
+            status: item.type_of_report || "Unknown",
+            id: item.report_number || "",
+            additionalInfo: {
+              productProblem: item.product_problem_code,
+              eventType: item.event_type,
+              deviceCategory: deviceInfo.device_category
+            }
+          });
+        }
+        break;
+        
+      case "recall":
+        for (const item of results) {
+          processedResults.push({
+            source: "recall",
+            name: item.product_description || "Unknown Device",
+            description: `Recall - ${item.product_description || "Unknown Device"}`,
+            applicant: item.firm_name || "Unknown",
+            date: item.recall_initiation_date || "Unknown",
+            status: item.status || "Unknown",
+            id: item.recall_number || "",
+            additionalInfo: {
+              classification: item.classification,
+              productCode: item.product_code,
+              terminationDate: item.termination_date || "Ongoing"
+            }
+          });
+        }
+        break;
+        
+      case "covid19serology":
+        for (const item of results) {
+          processedResults.push({
+            source: "covid19serology",
+            name: item.device_name || "Unknown Device",
+            description: `COVID-19 Serology Device - ${item.device_name || "Unknown Device"}`,
+            applicant: item.manufacturer_name || "Unknown",
+            date: item.date_eua_authorized || "Unknown",
+            status: item.status || "Unknown",
+            id: item.eua_id || "",
+            additionalInfo: {
+              testPerformance: item.test_performance,
+              targetedAntigen: item.targeted_antigen
+            }
+          });
+        }
+        break;
+        
+      case "udi":
+        for (const item of results) {
+          processedResults.push({
+            source: "udi",
+            name: item.device_name || item.brand_name || "Unknown Device",
+            description: `UDI - ${item.device_name || item.brand_name || "Unknown Device"}`,
+            applicant: item.company_name || "Unknown",
+            date: "N/A",
+            status: item.commercial_distribution_status || "Unknown",
+            id: item.identifier || "",
+            additionalInfo: {
+              deviceClass: item.device_class,
+              productCode: item.product_code,
+              versionModelNumber: item.version_or_model_number
+            }
+          });
+        }
+        break;
+        
+      default:
+        for (const item of results) {
+          processedResults.push({
+            source: endpointName,
+            name: item.device_name || item.trade_name || item.product_description || "Unknown Device",
+            description: `${endpointName} data for ${searchTerm}`,
+            date: "Unknown",
+            status: "Unknown",
+            id: "",
+            additionalInfo: {}
+          });
+        }
+    }
+  } catch (error) {
+    console.error(`Error in processDeviceEndpointResults for ${endpointName}:`, error);
+  }
+  
+  return processedResults;
+}
+
+// Helper function to fetch with retry
+async function fetchWithRetry(url, options = {}, maxRetries = 3, initialDelay = 1000) {
+  let lastError;
+  let delay = initialDelay;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await axios.get(url, options);
+    } catch (error) {
+      console.warn(`Attempt ${attempt} failed for ${url}: ${error.message}`);
+      lastError = error;
+      
+      // Don't retry on certain error codes
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 404 || status === 400) {
+          throw error; // Don't retry on 404 (not found) or 400 (bad request)
+        }
+      }
+      
+      if (attempt < maxRetries) {
+        // Exponential backoff with jitter
+        const jitter = Math.random() * 0.3 + 0.85; // Random factor between 0.85 and 1.15
+        delay = delay * 2 * jitter;
+        console.log(`Retrying in ${Math.round(delay)}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError;
+}
 
 // // Helper function to process results from different endpoints
 // function processEndpointResults(endpointName, results, searchTerm) {
@@ -11169,6 +12402,100 @@ async function searchAllTrialsForDrugNames(drugNames) {
   }
 }
 
+
+
+/**
+ * General search route that supports searching for any terms including medical devices
+ * and allows filtering by patient populations
+ */
+/**
+ * Improved general search route that supports exact phrase matching for medical devices
+ */
+/**
+ * General search route that uses proper ClinicalTrials.gov API v2 parameters
+ */
+app.get('/api/studies/general-search', validatePagination, async (req, res) => {
+  try {
+    // Parse query parameters using proper naming - critical for the v2 API
+    const {
+      'query.term': searchTerm,       // Using the correct parameter name for search term
+      'query.patient': patientPopulation,  // Using the correct parameter name for patient population
+      exactMatch = 'true',            // Default to exact match
+      'filter.overallStatus': status,
+      aggFilters: hasResults,
+      'filter.advanced': advancedFilter,
+      pageToken,
+    } = req.query;
+    
+    const { page, pageSize } = req.pagination;
+    
+    console.log(`🔍 General search request using v2 API for term: "${searchTerm}", population: "${patientPopulation}"`);
+    
+    // Define the API base URL for v2
+    const CLINICAL_TRIALS_API_BASE = 'https://clinicaltrials.gov/api/v2';
+    
+    // Create query parameters following the v2 API format
+    // This is critical - we pass through the properly named parameters directly
+    const queryParams = {
+      format: 'json',
+      pageSize: pageSize || 100,
+      countTotal: true,
+      fields: "protocolSection,derivedSection,hasResults"
+    };
+    
+    // Pass through the search term as-is with proper parameter name
+    if (searchTerm) {
+      queryParams['query.term'] = searchTerm;
+    }
+    
+    // Pass through the patient population as-is with proper parameter name
+    if (patientPopulation) {
+      queryParams['query.patient'] = patientPopulation;
+    }
+    
+    // Pass through the status filter if provided
+    if (status) {
+      queryParams['filter.overallStatus'] = status;
+    }
+    
+    // Pass through the advanced filter if provided
+    if (advancedFilter) {
+      queryParams['filter.advanced'] = advancedFilter;
+    }
+    
+    // Pass through hasResults filter if provided
+    if (hasResults) {
+      queryParams.aggFilters = hasResults;
+    }
+    
+    // Pass through pageToken if provided for pagination
+    if (pageToken) {
+      queryParams.pageToken = pageToken;
+    }
+    
+    console.log(`Fetching from ClinicalTrials.gov API with params:`, queryParams);
+    
+    // Make the API request to ClinicalTrials.gov
+    const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+      params: queryParams,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    // Send the response directly back to the client
+    // This simplifies things by not adding extra filtering which can break the search
+    res.json(response.data);
+    
+  } catch (error) {
+    console.error("General search API error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 // Also update the API handler to use the enhanced functionality
 /**
  * API handler for the /api/studies/search endpoint

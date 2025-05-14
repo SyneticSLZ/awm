@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { handlePubMedSearch } = require('./enhancedpubmed.js');
+const { handleCustomPubMedSearch} = require('./enhancedpubmed.js')
 const fs = require('fs');
 const path = require('path');
 
@@ -404,6 +405,29 @@ router.get('/api/pubmed', async (req, res) => {
     res.status(500).json({ 
       error: 'Internal server error', 
       message: error.message 
+    });
+  }
+});
+
+
+// Route for custom PubMed search
+router.get('/api/pubmed/custom', async (req, res) => {
+  try {
+    logDebug('Handling Custom PubMed search request', {
+      query: req.query,
+      path: req.path
+    });
+    
+    await handleCustomPubMedSearch(req, res);
+  } catch (error) {
+    logDebug('Error in Custom PubMed route', {
+      message: error.message,
+      stack: error.stack
+    });
+    
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
     });
   }
 });

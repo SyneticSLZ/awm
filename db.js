@@ -238,7 +238,121 @@ const migrateExistingUsers = async () => {
     console.error('Migration error:', error);
   }
 };
+// New UserSession Schema for detailed tracking
+const UserSessionSchema = new mongoose.Schema({
+  sessionId: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'WideoakUser',
+    default: null
+  },
+  pageUrl: {
+    type: String,
+    required: true
+  },
+  referrer: {
+    type: String,
+    default: null
+  },
+  startTime: {
+    type: Date,
+    required: true
+  },
+  endTime: {
+    type: Date,
+    default: null
+  },
+  timeSpent: {
+    type: Number,
+    default: 0
+  },
+  screenWidth: {
+    type: Number,
+    required: true
+  },
+  screenHeight: {
+    type: Number,
+    required: true
+  },
+  userAgent: {
+    type: String,
+    required: true
+  },
+  deviceType: {
+    type: String,
+    enum: ['desktop', 'tablet', 'mobile'],
+    required: true
+  },
+  mousePositions: [{
+    x: Number,
+    y: Number,
+    timestamp: Date
+  }],
+  clicks: [{
+    x: Number,
+    y: Number,
+    timestamp: Date,
+    target: {
+      tagName: String,
+      id: String,
+      className: String,
+      text: String,
+      href: String
+    }
+  }],
+  scrollDepth: {
+    type: Number,
+    default: 0
+  },
+  scrollPositions: [{
+    position: Number,
+    timestamp: Date
+  }],
+  inactive: {
+    type: Boolean,
+    default: false
+  },
+  isFinal: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
+// Add index for querying by date range
+UserSessionSchema.index({ startTime: 1 });
+// Add index for analyzing specific page performance
+UserSessionSchema.index({ pageUrl: 1 });
+
+// Add method to calculate device type from user agent
+UserSessionSchema.pre('save', function(next) {
+  if (!this.deviceType) {
+    const userAgent = this.userAgent.toLowerCase();
+    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent)) {
+      this.deviceType = 'tablet';
+    } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(userAgent)) {
+      this.deviceType = 'mobile';
+    } else {
+      this.deviceType = 'desktop';
+    }
+  }
+  this.updatedAt = Date.now();
+  next();
+});
+
+const UserSession = mongoose.model('UserSession', UserSessionSchema);
 const User = mongoose.model('WideoakUser', WideoakUserSchema);
 const Lead = mongoose.model('Lead', LeadSchema);
 

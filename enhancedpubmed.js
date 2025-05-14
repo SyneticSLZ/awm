@@ -214,6 +214,94 @@ async function handlePubMedSearch(req, res) {
   }
 }
 
+
+/**
+ * Handle custom fulltext PubMed search requests
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function handleCustomPubMedSearch(req, res) {
+  try {
+    // Extract query parameters
+    const {
+      query = '',
+      page = 1,
+      sortBy = 'relevance',
+      fullTextOnly = true,
+      yearFilter = '',
+      journalFilter = ''
+    } = req.query;
+
+    // Base URL for PubMed E-utilities
+    const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+    
+    // Your NCBI API key - use environment variable
+    const apiKey = process.env.NCBI_API_KEY || '';
+    
+    // Create a filter object for reuse
+    const filters = {
+      yearFilter,
+      journalFilter,
+      fullTextOnly: fullTextOnly === 'true' || fullTextOnly === true
+    };
+
+    // Build sort parameter
+    let sortParam = sortBy === 'date' ? 'pub date' : 'relevance';
+    
+    // Set up the XML parser
+    const parser = new xml2js.Parser({ explicitArray: false });
+    
+    // Calculate pagination parameters
+    const retmax = 20;
+    const retstart = (page - 1) * retmax;
+    
+    console.log(`PubMed custom search initiated with query: ${query}, page: ${page}`);
+
+    // Start with the raw query provided by user
+    let searchQuery = query;
+    
+    // Apply filters to search query
+    searchQuery = applyFiltersToQuery(searchQuery, filters);
+
+    console.log(`Using search query: ${searchQuery}`);
+
+    // Perform the PubMed search
+    const searchResponse = await performPubMedSearch(
+      baseUrl, 
+      searchQuery, 
+      retmax, 
+      retstart, 
+      sortParam, 
+      apiKey, 
+      parser
+    );
+    
+    // Check if we have results
+    const hasResults = searchResponse.idList && searchResponse.idList.length > 0;
+    const totalResults = parseInt(searchResponse.count, 10) || 0;
+    
+    // Fetch full article details
+    const articles = await fetchArticleDetails(
+      baseUrl, 
+      searchResponse.idList || [], 
+      apiKey, 
+      parser
+    );
+    
+    return res.json({
+      articles,
+      totalResults,
+      originalQuery: query
+    });
+    
+  } catch (error) {
+    console.error('PubMed API error:', error);
+    res.status(500).json({ 
+      error: 'Error fetching data from PubMed',
+      message: error.message
+    });
+  }
+}
 /**
  * Determines the search type based on the query term
  * @param {string} term - The search term
@@ -1552,5 +1640,6 @@ async function callGrokAPI(prompt) {
 // Export all handlers
 module.exports = {
   handlePubMedSearch,
-  generateAISummary
+  generateAISummary,
+handleCustomPubMedSearch
 };
