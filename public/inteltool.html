@@ -42908,7 +42908,7 @@ async function fetchAllStudyDetails(studies) {
 
 const userInfo = getCurrentUserInfo();
 
-if (userInfo.username == "alex") {
+if (userInfo.username == "ro") {
   console.log(`Logged in as: ${userInfo.username}`);
   console.log(`Email address: ${userInfo.email}`);
 
@@ -60361,33 +60361,6 @@ async function displayFdaDeviceData(deviceName, condition) {
           const summaryFooter = document.createElement('div');
           summaryFooter.className = 'flex items-center justify-between mt-4';
           
-          // Email button for basic summary
-          const emailButton = document.createElement('button');
-          emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
-          emailButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-            </svg>
-            Email Me This Summary
-          `;
-          emailButton.onclick = function() {
-            emailSummary(deviceName, summaryContainer.innerHTML);
-          };
-          
-          // AI summary button
-          const aiSummaryButton = document.createElement('button');
-          aiSummaryButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
-          aiSummaryButton.innerHTML = `
-            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-            </svg>
-            Generate AI-Enhanced Summary
-          `;
-          
-          // Add button containers to the footer
-          summaryFooter.appendChild(emailButton);
-          summaryFooter.appendChild(aiSummaryButton);
           
           // Set the basic summary content
           summaryContainer.innerHTML = basicSummary;
@@ -66678,7 +66651,7 @@ function truncateText(text, maxLength) {
             }
 
             showMainContent(user) {
-              if(user.username == "alex"){
+              if(user.username == "ro"){
                 console.log("hi ro ")
                 // handleSearch(user.username)
                 // handleSearch();
