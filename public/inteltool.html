@@ -2905,17 +2905,6 @@
                         <div class="flex-shrink-0">
                             <i class="fas fa-search text-primary-500 text-lg"></i>
                         </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-medium text-primary-800 dark:text-primary-200">Recommended Next Steps</h3>
-                            <div class="mt-2 text-primary-700 dark:text-primary-300">
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>Perform targeted search in CDRH 510(k) database for any neonatal mentions with TEG 6S</li>
-                                    <li>Conduct PubMed literature search for any research on TEG devices in neonatal/premature populations</li>
-                                    <li>Contact Haemonetics Corporation to inquire about unpublished neonatal validation studies</li>
-                                    <li>Explore alternative small-volume blood collection methods compatible with TEG 6S</li>
-                                </ul>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -62461,6 +62450,9 @@ document.getElementById('view-all-enforcements')?.addEventListener('click', func
 
 
 function generateDeviceLocalSummary(fdaData, deviceName){
+  const pdfPath = "./FDA-report.pdf";
+
+
   return ` <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-lg mb-6">
   <h3 class="text-2xl font-bold text-blue-800 mb-4">FDA Device Regulatory Summary: TEG 6S</h3>
   
@@ -62628,15 +62620,17 @@ function generateDeviceLocalSummary(fdaData, deviceName){
     <h4 class="text-lg font-semibold text-gray-900 mb-2">Detailed Report</h4>
     <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
       <p class="text-sm text-gray-700 mb-3">Download the comprehensive FDA and clinical research report for detailed insights on TEG 6S use in neonates and premature infants.</p>
-      <a href="path/to/TEG_6S_FDA_Clinical_Report.pdf" download class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Download Detailed Report</a>
-    </div>
+ <a href="${pdfPath}" download class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Download Detailed Report</a>    </div>
   </div>
   
   <div class="mt-4 text-xs text-gray-500">
-    <p>Summary generated based on FDA device data and clinical research as of May 14, 2025. This summary is for informational purposes only and should not be considered as medical or regulatory advice.</p>
+    <p>Summary generated based on FDA device data and clinical research as of May 14, 2025. </p>
   </div>
 </div> `;
 }
+
+
+
 // // Helper function to generate a basic device summary
 // function generateDeviceLocalSummary(fdaData, deviceName) {
 //   if (!fdaData || !fdaData.raw || !fdaData.raw.endpoints) {
