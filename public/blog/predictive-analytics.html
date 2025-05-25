@@ -106,4 +106,527 @@
                         <p class="text-gray-800 italic">
                             "Predictive analytics has enabled us to reduce emergency department wait times by 47% while improving patient satisfaction scores by 35%. It's not just about efficiency—it's about saving lives."
                         </p>
-                        <cite class="text-sm text-gray-
+                        <cite class="text-sm text-gray-600 mt-2 block">- Dr. James Mitchell, Chief Medical Officer, Memorial Healthcare System</cite>
+                    </div>
+                </section>
+
+                <!-- Core Applications -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Core Applications in Modern Hospitals</h2>
+                    
+                    <p class="text-gray-700 mb-8">
+                        The applications of predictive analytics in healthcare are vast and growing. Here are the key areas where hospitals are seeing transformative results:
+                    </p>
+
+                    <!-- Interactive Application Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="application-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer" data-app="patient-flow">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">🏥</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2">Patient Flow Optimization</h3>
+                                    <p class="text-gray-600 text-sm">Predict admission patterns, discharge times, and bed availability</p>
+                                    <div class="mt-4 hidden" id="patient-flow-details">
+                                        <ul class="text-sm text-gray-700 space-y-2">
+                                            <li>• 24-hour admission forecasting</li>
+                                            <li>• Real-time bed management</li>
+                                            <li>• Discharge planning optimization</li>
+                                            <li>• Transfer coordination</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="application-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer" data-app="readmission">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">📊</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2">Readmission Risk Prediction</h3>
+                                    <p class="text-gray-600 text-sm">Identify high-risk patients and intervene proactively</p>
+                                    <div class="mt-4 hidden" id="readmission-details">
+                                        <ul class="text-sm text-gray-700 space-y-2">
+                                            <li>• 30-day readmission scoring</li>
+                                            <li>• Personalized intervention plans</li>
+                                            <li>• Post-discharge monitoring</li>
+                                            <li>• Care coordination alerts</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="application-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer" data-app="staffing">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">👥</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2">Staff Scheduling Intelligence</h3>
+                                    <p class="text-gray-600 text-sm">Optimize staffing levels based on predicted patient volumes</p>
+                                    <div class="mt-4 hidden" id="staffing-details">
+                                        <ul class="text-sm text-gray-700 space-y-2">
+                                            <li>• Demand-based scheduling</li>
+                                            <li>• Skill mix optimization</li>
+                                            <li>• Overtime prediction</li>
+                                            <li>• Float pool management</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="application-card bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer" data-app="sepsis">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">🚨</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2">Early Sepsis Detection</h3>
+                                    <p class="text-gray-600 text-sm">Identify sepsis risk hours before traditional methods</p>
+                                    <div class="mt-4 hidden" id="sepsis-details">
+                                        <ul class="text-sm text-gray-700 space-y-2">
+                                            <li>• Real-time vital sign analysis</li>
+                                            <li>• Lab result integration</li>
+                                            <li>• Alert prioritization</li>
+                                            <li>• Treatment protocol activation</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Live Chart Section -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Real-World Impact: A Case Study</h2>
+                    
+                    <p class="text-gray-700 mb-6">
+                        Let's examine how Memorial Healthcare System implemented predictive analytics across their network of hospitals:
+                    </p>
+
+                    <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                        <h3 class="text-xl font-semibold mb-6">Emergency Department Wait Time Reduction</h3>
+                        <canvas id="waitTimeChart" width="400" height="200"></canvas>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-purple-50 to-white rounded-xl p-6">
+                            <h4 class="font-semibold text-lg mb-4">Before Implementation</h4>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>Average ER wait: 4.2 hours</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>Left without being seen: 8.3%</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>Staff overtime: 18% of hours</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-red-500 mr-2">✗</span>
+                                    <span>Patient satisfaction: 68%</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-white rounded-xl p-6">
+                            <h4 class="font-semibold text-lg mb-4">After 6 Months</h4>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Average ER wait: 2.3 hours</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Left without being seen: 2.1%</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Staff overtime: 7% of hours</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-2">✓</span>
+                                    <span>Patient satisfaction: 91%</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Implementation Roadmap -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Your Implementation Roadmap</h2>
+                    
+                    <p class="text-gray-700 mb-8">
+                        Successfully implementing predictive analytics requires a structured approach. Here's a proven roadmap based on best practices from leading healthcare institutions:
+                    </p>
+
+                    <!-- Interactive Roadmap -->
+                    <div class="relative">
+                        <div class="absolute left-8 top-0 bottom-0 w-1 bg-gray-300"></div>
+                        
+                        <div class="space-y-8">
+                            <div class="roadmap-item relative flex items-start opacity-0">
+                                <div class="absolute left-0 w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center z-10">
+                                    <span class="text-gray-100 font-bold text-xl">1</span>
+                                </div>
+                                <div class="ml-24 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="text-xl font-bold mb-2">Data Infrastructure Assessment</h3>
+                                    <p class="text-gray-600 mb-3">Evaluate current data systems and identify integration points</p>
+                                    <div class="text-sm text-gray-500">Duration: 2-4 weeks</div>
+                                </div>
+                            </div>
+
+                            <div class="roadmap-item relative flex items-start opacity-0">
+                                <div class="absolute left-0 w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center z-10">
+                                    <span class="text-gray-100 font-bold text-xl">2</span>
+                                </div>
+                                <div class="ml-24 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="text-xl font-bold mb-2">Use Case Prioritization</h3>
+                                    <p class="text-gray-600 mb-3">Identify high-impact areas for initial deployment</p>
+                                    <div class="text-sm text-gray-500">Duration: 1-2 weeks</div>
+                                </div>
+                            </div>
+
+                            <div class="roadmap-item relative flex items-start opacity-0">
+                                <div class="absolute left-0 w-16 h-16 bg-accent-600 rounded-full flex items-center justify-center z-10">
+                                    <span class="text-gray-100 font-bold text-xl">3</span>
+                                </div>
+                                <div class="ml-24 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="text-xl font-bold mb-2">Pilot Program Launch</h3>
+                                    <p class="text-gray-600 mb-3">Deploy analytics in selected department with measurable KPIs</p>
+                                    <div class="text-sm text-gray-500">Duration: 3-6 months</div>
+                                </div>
+                            </div>
+
+                            <div class="roadmap-item relative flex items-start opacity-0">
+                                <div class="absolute left-0 w-16 h-16 bg-green-600 rounded-full flex items-center justify-center z-10">
+                                    <span class="text-gray-100 font-bold text-xl">4</span>
+                                </div>
+                                <div class="ml-24 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="text-xl font-bold mb-2">Scale & Optimize</h3>
+                                    <p class="text-gray-600 mb-3">Expand successful models across the organization</p>
+                                    <div class="text-sm text-gray-500">Duration: Ongoing</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ROI Calculator -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Calculate Your Potential ROI</h2>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-primary-50 rounded-2xl p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Input Your Hospital Metrics</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Annual Patient Volume</label>
+                                        <input type="number" id="patientVolume" class="w-full px-4 py-2 border rounded-lg" placeholder="50000" value="50000">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Average Length of Stay (days)</label>
+                                        <input type="number" id="avgLOS" class="w-full px-4 py-2 border rounded-lg" placeholder="4.5" value="4.5" step="0.1">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Readmission Rate (%)</label>
+                                        <input type="number" id="readmissionRate" class="w-full px-4 py-2 border rounded-lg" placeholder="15" value="15">
+                                    </div>
+                                </div>
+                                <button onclick="calculateROI()" class="mt-6 w-full bg-purple-600 text-gray-100 py-3 rounded-lg font-semibold hover:bg-purple-700 transition">
+                                    Calculate ROI
+                                </button>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Projected Annual Savings</h3>
+                                <div class="bg-white rounded-xl p-6">
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Reduced Readmissions</span>
+                                            <span class="font-semibold text-green-600" id="readmissionSavings">$0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Optimized Staffing</span>
+                                            <span class="font-semibold text-green-600" id="staffingSavings">$0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Improved Throughput</span>
+                                            <span class="font-semibold text-green-600" id="throughputSavings">$0</span>
+                                        </div>
+                                        <div class="border-t pt-4 mt-4">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-lg font-semibold">Total Annual Savings</span>
+                                                <span class="text-2xl font-bold text-green-600" id="totalSavings">$0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Best Practices for Success</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">🎯</span>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-3">Start with Clear Goals</h3>
+                            <p class="text-gray-600 text-sm">Define specific, measurable objectives before implementation. Focus on solving real clinical or operational pain points.</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">🤝</span>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-3">Engage Clinical Staff Early</h3>
+                            <p class="text-gray-600 text-sm">Involve physicians and nurses from day one. Their buy-in is crucial for successful adoption and optimization.</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">📈</span>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-3">Iterate and Improve</h3>
+                            <p class="text-gray-600 text-sm">Continuously monitor model performance and refine algorithms based on real-world outcomes and feedback.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Conclusion -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">The Future is Predictive</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                        As we move forward, predictive analytics will become not just a competitive advantage but a fundamental requirement for delivering high-quality, cost-effective healthcare. The institutions that embrace these technologies today will be the leaders of tomorrow, setting new standards for patient care and operational excellence.
+                    </p>
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                        The question isn't whether to implement predictive analytics—it's how quickly you can begin transforming your data into actionable insights that save lives and resources. The tools are available, the benefits are proven, and the time to act is now.
+                    </p>
+                </section>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="bg-gradient-to-r from-purple-600 to-primary-600 rounded-2xl p-8 text-gray-100 mb-12">
+                <h3 class="text-2xl font-bold mb-4">Ready to Transform Your Hospital Operations?</h3>
+                <p class="mb-6 opacity-90">See how SyneticX's predictive analytics platform can help your institution achieve similar results.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="../demo.html" class="bg-gray-100 text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition text-center">
+                        Schedule a Demo
+                    </a>
+                    <a href="../resources/whitepaper-predictive-analytics.pdf" class="border-2 border-gray-100 text-gray-100 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 hover:text-purple-600 transition text-center">
+                        Download Whitepaper
+                    </a>
+                </div>
+            </div>
+
+            <!-- Author Bio -->
+            <div class="bg-gray-100 rounded-2xl p-8 mb-12">
+                <div class="flex items-start space-x-4">
+                    <img src="https://ui-avatars.com/api/?name=Dr+Emily+Watson&background=9333ea&color=fff&size=200" 
+                         alt="Dr. Emily Watson" 
+                         class="w-20 h-20 rounded-full">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-2">Dr. Emily Watson</h3>
+                        <p class="text-gray-600 mb-4">
+                            Chief Data Scientist at SyneticX and former Director of Analytics at Johns Hopkins Medicine. Dr. Watson has pioneered the use of machine learning in hospital operations, with published research in predictive modeling for healthcare resource optimization.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-primary-600 hover:text-primary-700">LinkedIn</a>
+                            <a href="#" class="text-primary-600 hover:text-primary-700">Twitter</a>
+                            <a href="#" class="text-primary-600 hover:text-primary-700">Research Papers</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6">Related Articles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="ai-diagnostics.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">AI Revolutionizes Medical Diagnostics</h4>
+                            <p class="text-gray-600 text-sm">How AI is transforming diagnostic accuracy across specialties</p>
+                        </div>
+                    </a>
+                    <a href="fda-regulatory-landscape.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">FDA's Evolving AI/ML Framework</h4>
+                            <p class="text-gray-600 text-sm">Understanding the regulatory landscape for AI medical devices</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- Newsletter CTA -->
+    <section class="bg-gradient-to-r from-purple-600 to-primary-600 py-16">
+        <div class="container mx-auto px-4 text-center text-gray-100">
+            <h2 class="text-3xl font-bold mb-4">Get Weekly Healthcare Analytics Insights</h2>
+            <p class="text-lg mb-8 opacity-90">Stay ahead with the latest trends in predictive analytics and data-driven healthcare</p>
+            <form class="max-w-md mx-auto flex gap-4">
+                <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg text-gray-900">
+                <button type="submit" class="bg-gray-100 text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200">
+                    Subscribe
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 SyneticX. Founded by Rohan Mehta. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        /* Gradient text */
+        .text-gradient {
+            background: linear-gradient(135deg, #9333ea 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Colors */
+        .bg-primary-600 { background-color: #667eea; }
+        .bg-accent-600 { background-color: #764ba2; }
+        .bg-purple-600 { background-color: #9333ea; }
+        .bg-green-600 { background-color: #10b981; }
+        .bg-red-100 { background-color: #fee2e2; }
+        .text-primary-600 { color: #667eea; }
+        .text-accent-600 { color: #764ba2; }
+        .text-purple-600 { color: #9333ea; }
+        .text-green-600 { color: #10b981; }
+        .text-green-500 { color: #22c55e; }
+        .text-red-500 { color: #ef4444; }
+        .bg-primary-100 { background-color: #e0e7ff; }
+        .bg-accent-100 { background-color: #f3e8ff; }
+        .bg-purple-100 { background-color: #f3e8ff; }
+        .bg-green-100 { background-color: #d1fae5; }
+        .bg-purple-50 { background-color: #faf5ff; }
+        .bg-primary-50 { background-color: #eef2ff; }
+        .bg-green-50 { background-color: #f0fdf4; }
+        .bg-primary-200 { background-color: #c7d2fe; }
+        .bg-accent-200 { background-color: #e9d5ff; }
+        .bg-purple-200 { background-color: #e9d5ff; }
+        .hover\:text-primary-600:hover { color: #667eea; }
+        .hover\:text-primary-700:hover { color: #5a67d8; }
+        .hover\:bg-purple-700:hover { background-color: #7e22ce; }
+        .border-purple-600 { border-color: #9333ea; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .roadmap-item {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .roadmap-item:nth-child(1) { animation-delay: 0.1s; }
+        .roadmap-item:nth-child(2) { animation-delay: 0.3s; }
+        .roadmap-item:nth-child(3) { animation-delay: 0.5s; }
+        .roadmap-item:nth-child(4) { animation-delay: 0.7s; }
+    </style>
+
+    <script>
+        // Live counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.live-counter');
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const suffix = counter.getAttribute('data-suffix') || '';
+                const prefix = counter.getAttribute('data-prefix') || '';
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = prefix + target + suffix;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = prefix + current.toFixed(1) + suffix;
+                    }
+                }, 16);
+            });
+        }
+
+        // Start counter animation when page loads
+        window.addEventListener('load', animateCounters);
+
+        // Application card interactions
+        document.querySelectorAll('.application-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const app = card.getAttribute('data-app');
+                const details = document.getElementById(app + '-details');
+                details.classList.toggle('hidden');
+            });
+        });
+
+        // Wait time chart
+        const ctx = document.getElementById('waitTimeChart').getContext('2d');
+        const waitTimeChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Average Wait Time (hours)',
+                    data: [4.2, 3.8, 3.2, 2.9, 2.5, 2.3],
+                    borderColor: '#9333ea',
+                    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                }
+            }
+        });
+
+        // // ROI Calculator
+        // function calculateROI() {
+        //     const volume = parseInt(document.getElementById('patientVolume').value) || 50000;
+        //     const los = parseFloat(document.getElementById('avgLOS').value) || 4.5;
+        //     const readmitRate = parseInt(document.getElementById('readmissionRate').value) || 15;
+            
+        //     // Calculate savings (simplified model)
+        //     const readmissionSavings = volume * (readmitRate / 100) * 0.3 * 15000; // 30% reduction, $15
