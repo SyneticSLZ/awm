@@ -35,6 +35,10 @@ const pubmedRoutes = require('./pubmed-routes.js');
 
 const { UserSession } = require('./db');
 
+const { router: drugWatchRouter, initializeDrugWatchService } = require('./watch.js');
+
+
+
 
 const { 
   DrugClassification, 
@@ -334,6 +338,13 @@ function verifyPassword(password, hash, salt) {
 //     });
 //   }
 // });
+
+// Initialize drug watch service
+initializeDrugWatchService();
+
+// Use the drug watch routes
+app.use('/api', drugWatchRouter);
+
 
 // Grok API Configuration
 const GROK_API = 'https://api.grok.ai/v1';

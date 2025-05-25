@@ -1529,6 +1529,223 @@
         </div>
     </section>
 
+
+
+<!-- Improved Blog Section -->
+<section id="blog" class="relative py-24 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <style>
+/* Gradient text effect */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Pattern background */
+.bg-pattern {
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+}
+
+/* Line clamp utility */
+.line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Custom animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Primary colors */
+.bg-primary-600 { background-color: #667eea; }
+.bg-accent-600 { background-color: #764ba2; }
+.bg-purple-600 { background-color: #9333ea; }
+.text-primary-600 { color: #667eea; }
+.hover\:text-primary-600:hover { color: #667eea; }
+.hover\:bg-primary-700:hover { background-color: #5a67d8; }
+</style>
+    <!-- Background patterns -->
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-primary-500 rounded-full filter blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-accent-500 rounded-full filter blur-3xl"></div>
+    </div>
+    
+    <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">
+                <span class="block text-gray-900">Latest Insights in</span>
+                <span class="text-gradient">Healthcare Innovation</span>
+            </h2>
+            <p class="text-xl text-gray-600 leading-relaxed">
+                Explore cutting-edge developments in medical AI, regulatory updates, and transformative technologies shaping the future of healthcare
+            </p>
+        </div>
+
+        <!-- Featured Blog Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Blog Card 1 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/ai-diagnostics.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop" 
+                             alt="AI Diagnostics in Healthcare" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-primary-600 text-white text-xs font-semibold rounded-full">
+                            AI & Diagnostics
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-20">May 20, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>5 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            AI Revolutionizes Medical Diagnostics: From Theory to Clinical Practice
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            Discover how artificial intelligence is transforming diagnostic accuracy across radiology, pathology, and genomics, enabling earlier disease detection and personalized treatment strategies.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+
+            <!-- Blog Card 2 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/fda-regulatory-landscape.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&h=200&fit=crop" 
+                             alt="FDA Regulatory Framework" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-accent-600 text-white text-xs font-semibold rounded-full">
+                            Regulatory Update
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-18">May 18, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>7 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            Navigating FDA's Evolving AI/ML Medical Device Framework in 2025
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            An in-depth analysis of the current regulatory landscape for AI-powered medical devices, including recent policy changes and what MedTech companies need to know for successful approvals.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+
+            <!-- Blog Card 3 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/predictive-analytics.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400&h=200&fit=crop" 
+                             alt="Hospital Analytics Dashboard" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
+                            Data Analytics
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-15">May 15, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>6 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            Predictive Analytics: Transforming Hospital Operations and Patient Care
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            Learn how leading healthcare institutions leverage predictive models to optimize resource allocation, reduce readmissions, and improve patient outcomes through data-driven insights.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+        </div>
+
+        <!-- Newsletter CTA -->
+        <div class="mt-16 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
+            <div class="absolute inset-0 bg-pattern opacity-10"></div>
+            <div class="relative z-10 max-w-3xl mx-auto text-center">
+                <h3 class="text-3xl font-bold mb-4">Stay Ahead of Healthcare Innovation</h3>
+                <p class="text-lg mb-8 opacity-90">Get weekly insights on AI in healthcare, regulatory updates, and market intelligence delivered to your inbox</p>
+                <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                    <input type="email" 
+                           placeholder="Enter your email" 
+                           class="flex-1 px-6 py-3 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-white/30">
+                    <button type="submit" 
+                            class="px-8 py-3 bg-white text-primary-600 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
     <!-- Demo Request Section -->
     <section id="demo" class="py-24 bg-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">

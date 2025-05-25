@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Revolutionizes Medical Diagnostics | SyneticX Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (simplified) -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-lg z-50 border-b border-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="../index.html" class="text-2xl font-bold text-primary-600">SyneticX</a>
+                <a href="../index.html#blog" class="text-gray-700 hover:text-primary-600 transition">← Back to Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-24 pb-16 overflow-hidden">
+        <!-- Gradient background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-100 via-white to-accent-100 opacity-50"></div>
+        
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="mb-6">
+                    <span class="inline-block px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-full">
+                        AI & Diagnostics
+                    </span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                    <span class="text-gradient">AI Revolutionizes Medical Diagnostics:</span>
+                    <span class="block text-gray-900 mt-2">From Theory to Clinical Practice</span>
+                </h1>
+                <div class="flex items-center justify-center space-x-6 text-gray-600 mb-8">
+                    <div class="flex items-center">
+                        <img src="https://ui-avatars.com/api/?name=Dr+Sarah+Chen&background=667eea&color=fff" alt="Author" class="w-10 h-10 rounded-full mr-2">
+                        <span>Dr. Sarah Chen</span>
+                    </div>
+                    <span>•</span>
+                    <time datetime="2025-05-20">May 20, 2025</time>
+                    <span>•</span>
+                    <span>5 min read</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div class="max-w-4xl mx-auto">
+            <!-- Featured Image -->
+            <div class="mb-12 rounded-2xl overflow-hidden shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1200&h=600&fit=crop" 
+                     alt="AI Medical Diagnostics Visualization" 
+                     class="w-full h-auto">
+            </div>
+
+            <!-- Article Body -->
+            <div class="prose prose-lg max-w-none">
+                <!-- Interactive Table of Contents -->
+                <div class="bg-gray-100 rounded-xl p-6 mb-12 sticky top-20 float-right ml-8 w-80 hidden lg:block">
+                    <h3 class="text-lg font-bold mb-4 text-gray-900">Table of Contents</h3>
+                    <nav class="space-y-2">
+                        <a href="#introduction" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ Introduction</a>
+                        <a href="#radiology" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ AI in Radiology</a>
+                        <a href="#pathology" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ Digital Pathology</a>
+                        <a href="#genomics" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ Genomic Analysis</a>
+                        <a href="#challenges" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ Implementation Challenges</a>
+                        <a href="#future" class="block text-gray-600 hover:text-primary-600 transition toc-link">→ Future Outlook</a>
+                    </nav>
+                </div>
+
+                <!-- Introduction -->
+                <section id="introduction" class="mb-12 scroll-mt-24">
+                    <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                        The integration of artificial intelligence into medical diagnostics represents one of the most transformative developments in modern healthcare. From detecting cancer in its earliest stages to predicting patient outcomes with unprecedented accuracy, AI is not just enhancing diagnostic capabilities—it's fundamentally redefining what's possible in clinical practice.
+                    </p>
+                    
+                    <div class="bg-primary-50 border-l-4 border-primary-600 p-6 my-8 rounded-r-xl">
+                        <p class="text-gray-800 italic">
+                            "AI-powered diagnostics have shown the potential to reduce diagnostic errors by up to 30% while cutting analysis time from hours to minutes."
+                        </p>
+                        <cite class="text-sm text-gray-600 mt-2 block">- Journal of Medical AI, 2025</cite>
+                    </div>
+                </section>
+
+                <!-- AI in Radiology -->
+                <section id="radiology" class="mb-12 scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">AI in Radiology: The Visual Revolution</h2>
+                    
+                    <p class="text-gray-700 mb-6">
+                        Radiology has emerged as the frontier of AI adoption in healthcare. Deep learning algorithms now analyze medical images with accuracy that rivals—and in some cases surpasses—experienced radiologists.
+                    </p>
+
+                    <!-- Interactive Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                            <div class="text-4xl font-bold text-primary-600 mb-2 counter" data-target="94">0</div>
+                            <p class="text-gray-600">Detection Accuracy</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                            <div class="text-4xl font-bold text-accent-600 mb-2 counter" data-target="78">0</div>
+                            <p class="text-gray-600">Time Reduction</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                            <div class="text-4xl font-bold text-purple-600 mb-2 counter" data-target="40">0</div>
+                            <p class="text-gray-600">Cost Savings</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800">Key Applications:</h3>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-primary-600 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <strong>Breast Cancer Screening:</strong> AI systems detect microcalcifications and masses with 99.5% sensitivity
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-primary-600 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <strong>Lung Nodule Detection:</strong> Automated systems identify pulmonary nodules 20% more accurately than traditional methods
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-primary-600 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <strong>Stroke Detection:</strong> AI-powered CT analysis reduces door-to-treatment time by 45 minutes
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Digital Pathology -->
+                <section id="pathology" class="mb-12 scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Digital Pathology: Microscopic Precision</h2>
+                    
+                    <div class="bg-gray-100 rounded-2xl p-8 mb-8">
+                        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&h=400&fit=crop" 
+                             alt="Digital Pathology Analysis" 
+                             class="w-full rounded-xl mb-6">
+                        
+                        <p class="text-gray-700 mb-4">
+                            Digital pathology platforms powered by AI are transforming how tissue samples are analyzed. These systems can process thousands of cells in seconds, identifying subtle patterns that might escape human observation.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">Traditional Method</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• Manual slide review</li>
+                                    <li>• 15-30 minutes per slide</li>
+                                    <li>• Subjective interpretation</li>
+                                    <li>• Limited quantification</li>
+                                </ul>
+                            </div>
+                            <div class="bg-primary-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">AI-Enhanced Method</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• Automated analysis</li>
+                                    <li>• 30 seconds per slide</li>
+                                    <li>• Objective metrics</li>
+                                    <li>• Comprehensive data</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Implementation Challenges -->
+                <section id="challenges" class="mb-12 scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Implementation Challenges</h2>
+                    
+                    <p class="text-gray-700 mb-6">
+                        While the potential of AI in diagnostics is immense, healthcare organizations face several challenges in implementation:
+                    </p>
+
+                    <!-- Interactive Accordion -->
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden accordion-item">
+                            <button class="w-full px-6 py-4 text-left font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center accordion-trigger">
+                                <span>Data Privacy and Security</span>
+                                <svg class="w-5 h-5 text-gray-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="px-6 py-4 bg-gray-50 hidden accordion-content">
+                                <p class="text-gray-700">
+                                    Healthcare data is highly sensitive, requiring robust security measures and compliance with regulations like HIPAA. AI systems must be designed with privacy-by-design principles and undergo rigorous security audits.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden accordion-item">
+                            <button class="w-full px-6 py-4 text-left font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center accordion-trigger">
+                                <span>Integration with Existing Systems</span>
+                                <svg class="w-5 h-5 text-gray-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="px-6 py-4 bg-gray-50 hidden accordion-content">
+                                <p class="text-gray-700">
+                                    Legacy healthcare IT systems often struggle to accommodate AI tools. Successful implementation requires careful planning, API development, and sometimes complete infrastructure overhauls.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-md overflow-hidden accordion-item">
+                            <button class="w-full px-6 py-4 text-left font-semibold text-gray-800 hover:bg-gray-50 transition flex justify-between items-center accordion-trigger">
+                                <span>Regulatory Compliance</span>
+                                <svg class="w-5 h-5 text-gray-500 transform transition-transform accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="px-6 py-4 bg-gray-50 hidden accordion-content">
+                                <p class="text-gray-700">
+                                    FDA approval processes for AI-based medical devices continue to evolve. Organizations must navigate complex regulatory pathways and ensure continuous compliance as algorithms are updated.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Future Outlook -->
+                <section id="future" class="mb-12 scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">The Future of AI Diagnostics</h2>
+                    
+                    <p class="text-gray-700 mb-8">
+                        As we look toward the future, several emerging trends promise to further revolutionize diagnostic medicine:
+                    </p>
+
+                    <!-- Interactive Timeline -->
+                    <div class="relative mb-12">
+                        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                        
+                        <div class="space-y-8">
+                            <div class="relative flex items-center timeline-item opacity-0">
+                                <div class="absolute left-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                                    <div class="w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                                <div class="ml-12 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="font-bold text-lg mb-2">2025-2026: Multimodal AI Integration</h3>
+                                    <p class="text-gray-600">Combining imaging, genomics, and clinical data for comprehensive diagnostics</p>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex items-center timeline-item opacity-0">
+                                <div class="absolute left-0 w-8 h-8 bg-accent-600 rounded-full flex items-center justify-center">
+                                    <div class="w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                                <div class="ml-12 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="font-bold text-lg mb-2">2027-2028: Real-time Predictive Diagnostics</h3>
+                                    <p class="text-gray-600">AI systems that predict disease onset before symptoms appear</p>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex items-center timeline-item opacity-0">
+                                <div class="absolute left-0 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                    <div class="w-3 h-3 bg-white rounded-full"></div>
+                                </div>
+                                <div class="ml-12 bg-white rounded-xl p-6 shadow-lg flex-1">
+                                    <h3 class="font-bold text-lg mb-2">2029-2030: Personalized AI Diagnostics</h3>
+                                    <p class="text-gray-600">Custom diagnostic algorithms tailored to individual patient genetics and history</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Call-out Box -->
+                    <div class="bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl p-8 text-white">
+                        <h3 class="text-2xl font-bold mb-4">Key Takeaways for Healthcare Leaders</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">🎯</span>
+                                <span>Start with pilot programs in high-impact areas like radiology or pathology</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">🔐</span>
+                                <span>Prioritize data security and patient privacy from day one</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">👥</span>
+                                <span>Invest in training programs to help clinicians work alongside AI</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">📊</span>
+                                <span>Establish clear metrics for measuring AI impact on patient outcomes</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Conclusion -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Conclusion</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                        The integration of AI into medical diagnostics represents a paradigm shift in healthcare delivery. While challenges remain, the potential benefits—earlier disease detection, more accurate diagnoses, and personalized treatment plans—make this transformation not just desirable but inevitable. Healthcare organizations that embrace these technologies today will be best positioned to deliver superior patient care tomorrow.
+                    </p>
+                </section>
+            </div>
+
+            <!-- Author Bio -->
+            <div class="bg-gray-100 rounded-2xl p-8 mb-12">
+                <div class="flex items-start space-x-4">
+                    <img src="https://ui-avatars.com/api/?name=Dr+Sarah+Chen&background=667eea&color=fff&size=200" 
+                         alt="Dr. Sarah Chen" 
+                         class="w-20 h-20 rounded-full">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-2">Dr. Sarah Chen</h3>
+                        <p class="text-gray-600 mb-4">
+                            Chief Medical Officer at SyneticX with over 15 years of experience in diagnostic medicine and healthcare AI implementation. Dr. Chen has published extensively on the intersection of artificial intelligence and clinical practice.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-primary-600 hover:text-primary-700">LinkedIn</a>
+                            <a href="#" class="text-primary-600 hover:text-primary-700">Twitter</a>
+                            <a href="#" class="text-primary-600 hover:text-primary-700">Email</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6">Related Articles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="fda-regulatory-landscape.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">FDA's Evolving AI/ML Framework</h4>
+                            <p class="text-gray-600 text-sm">Understanding the regulatory landscape for AI medical devices in 2025</p>
+                        </div>
+                    </a>
+                    <a href="predictive-analytics.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">Predictive Analytics in Healthcare</h4>
+                            <p class="text-gray-600 text-sm">How hospitals use AI to optimize operations and patient care</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- Newsletter CTA -->
+    <section class="bg-gradient-to-r from-primary-600 to-accent-600 py-16">
+        <div class="container mx-auto px-4 text-center text-white">
+            <h2 class="text-3xl font-bold mb-4">Stay Updated on Healthcare AI</h2>
+            <p class="text-lg mb-8 opacity-90">Get the latest insights delivered to your inbox</p>
+            <form class="max-w-md mx-auto flex gap-4">
+                <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg text-gray-900">
+                <button type="submit" class="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
+                    Subscribe
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 SyneticX. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        /* Gradient text */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Colors */
+        .bg-primary-600 { background-color: #667eea; }
+        .bg-accent-600 { background-color: #764ba2; }
+        .bg-purple-600 { background-color: #9333ea; }
+        .bg-primary-500 { background-color: #7c3aed; }
+        .bg-accent-500 { background-color: #9333ea; }
+        .text-primary-600 { color: #667eea; }
+        .text-accent-600 { color: #764ba2; }
+        .text-purple-600 { color: #9333ea; }
+        .bg-primary-100 { background-color: #e0e7ff; }
+        .bg-accent-100 { background-color: #f3e8ff; }
+        .bg-primary-50 { background-color: #eef2ff; }
+        .hover\:text-primary-600:hover { color: #667eea; }
+        .hover\:text-primary-700:hover { color: #5a67d8; }
+        .border-primary-600 { border-color: #667eea; }
+
+        /* Prose adjustments */
+        .prose { color: #374151; }
+        .prose h2 { color: #111827; }
+        .prose h3 { color: #1f2937; }
+        .prose strong { color: #111827; }
+
+        /* Animation for timeline */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline-item {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.6s; }
+
+        /* Counter animation */
+        .counter {
+            transition: all 0.3s ease-out;
+        }
+
+        /* Sticky TOC */
+        @media (min-width: 1024px) {
+            .prose > *:not(.sticky) {
+                max-width: calc(100% - 22rem);
+            }
+        }
+    </style>
+
+    <script>
+        // Smooth scrolling for TOC links
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Highlight active TOC item
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('text-primary-600', 'font-semibold');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('text-primary-600', 'font-semibold');
+                }
+            });
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target + '%';
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current) + '%';
+                    }
+                }, 16);
+            });
+        };
+
+        // Intersection Observer for counter animation
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    counterObserver.disconnect();
+                }
+            });
+        });
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
+        // Accordion functionality
+        document.querySelectorAll('.accordion-trigger').forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const item = trigger.parentElement;
+                const content = item.querySelector('.accordion-content');
+                const icon = trigger.querySelector('.accordion-icon');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+
+        // Timeline animation on scroll
+        const timelineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove('opacity-0');
+                }
+            });
+        });
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            timelineObserver.observe(item);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Watch System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+<!-- Complete Search Section with Drug Watch -->
+<section class="bg-white rounded-xl shadow-lg p-6 mb-6" id="mainSearch">
+    <h2 class="text-xl font-semibold mb-6 text-gray-800">Search for Clinical Trials</h2>
+    
+    <!-- Main Search Row -->
+    <div class="flex flex-col md:flex-row gap-3">
+        <div class="flex-grow">
+            <div class="relative">
+                <input type="text" id="drugSearch" placeholder="Drug Name" 
+                       class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16a1 1 0 11-2 0V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 013 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L7 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+        <div class="flex-grow">
+            <div class="relative">
+                <input type="text" id="conditionSearch" placeholder="Condition (Optional)" 
+                       class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+        <div>
+            <button id="searchButton" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg transition duration-200 flex items-center shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search
+            </button>
+        </div>
+    </div>
+    
+    <!-- Timeline Slider -->
+    <div class="mt-7">
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center">
+                <label for="timelineSlider" class="text-sm font-medium text-gray-700">Timeline:</label>
+                <span id="yearValue" class="ml-2 text-blue-600 font-bold text-lg transition-all duration-300">7</span>
+                <span class="ml-1 text-sm text-gray-700">years back</span>
+            </div>
+            <div class="text-xs bg-blue-50 px-3 py-1.5 rounded-full shadow-sm text-blue-700">
+                From <span id="startYear" class="font-medium"></span> to <span id="currentYear" class="font-medium"></span>
+            </div>
+        </div>
+        
+        <div class="relative mb-5">
+            <!-- Timeline Track -->
+            <div class="w-full h-2 bg-gray-200 rounded-full shadow-inner overflow-hidden">
+                <!-- Filled Track -->
+                <div id="filledTrack" class="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300" style="width: 46.6%;"></div>
+            </div>
+            
+            <!-- Custom Slider Thumb -->
+            <input type="range" id="timelineSlider" min="1" max="15" value="7" 
+                   class="absolute top-0 w-full h-2 opacity-0 cursor-pointer z-10">
+                   
+            <!-- Visual Thumb -->
+            <div id="sliderThumb" class="absolute top-0 h-6 w-6 bg-white rounded-full shadow-md border-2 border-blue-500 flex items-center justify-center transform -translate-y-2 -translate-x-1/2 transition-all duration-200" style="left: 46.6%;">
+                <span id="thumbValue" class="text-xs font-bold text-blue-600">7</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-y-3">
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+            <!-- Drug Watch Button -->
+            <button id="drugWatchBtn" class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg transition duration-200 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-7.5 7.5h5z" />
+                </svg>
+                Watch Drug
+            </button>
+            
+            <!-- Save Search Button -->
+            <button id="saveSearchBtn" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+            </button>
+            
+            <!-- Saved Searches Dropdown -->
+            <div class="relative hidden">
+                <button id="savedSearchesBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Saved Searches Dropdown -->
+                <div id="savedSearchesDropdown" class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl z-20 hidden overflow-hidden border border-gray-100">
+                    <div class="py-2 px-4 bg-gray-50 border-b border-gray-100">
+                        <h3 class="text-sm font-medium text-gray-700">Saved Searches</h3>
+                    </div>
+                    <div id="savedSearchesList" class="max-h-72 overflow-y-auto">
+                        <div class="p-4 text-sm text-gray-500 text-center">No saved searches yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Drug Watch Modal -->
+<div id="drugWatchModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-7.5 7.5h5z" />
+                </svg>
+                Drug Watch System
+            </h2>
+            <button id="closeDrugWatchModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6">
+            <!-- Tab Navigation -->
+            <div class="flex mb-6 border-b border-gray-200">
+                <button id="myWatchesTab" class="px-4 py-2 font-medium text-sm border-b-2 border-green-500 text-green-600 transition-colors">
+                    My Drug Watches
+                </button>
+                <button id="newWatchTab" class="px-4 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors ml-4">
+                    Create New Watch
+                </button>
+            </div>
+
+            <!-- My Watches Section -->
+            <div id="myWatchesSection" class="space-y-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Active Drug Watches</h3>
+                    <span id="watchCount" class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">0 watches</span>
+                </div>
+                
+                <!-- Watches List -->
+                <div id="watchesList" class="space-y-3">
+                    <!-- Empty state -->
+                    <div id="emptyWatchesState" class="text-center py-8 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-7.5 7.5h5z" />
+                        </svg>
+                        <p class="text-lg mb-2">No drug watches yet</p>
+                        <p class="text-sm">Click "Create New Watch" to start monitoring drugs for updates</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Watch Section -->
+            <div id="newWatchSection" class="hidden">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Create New Drug Watch</h3>
+                
+                <form id="newWatchForm" class="space-y-6">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="watchName" class="block text-sm font-medium text-gray-700 mb-2">Watch Name</label>
+                            <input type="text" id="watchName" name="watchName" placeholder="e.g., Ketamine TRD Trials" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="watchDrugName" class="block text-sm font-medium text-gray-700 mb-2">Drug Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="watchDrugName" name="watchDrugName" placeholder="e.g., Ketamine" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="watchCondition" class="block text-sm font-medium text-gray-700 mb-2">Condition (Optional)</label>
+                        <input type="text" id="watchCondition" name="watchCondition" placeholder="e.g., Treatment-Resistant Depression"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+
+                    <!-- Notification Sources -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Monitor Sources</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="sources" value="ema" checked class="mr-3 text-green-600">
+                                <div>
+                                    <div class="font-medium text-sm">EMA</div>
+                                    <div class="text-xs text-gray-500">European Medicines Agency</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="sources" value="fda" checked class="mr-3 text-green-600">
+                                <div>
+                                    <div class="font-medium text-sm">FDA</div>
+                                    <div class="text-xs text-gray-500">US Food & Drug Admin</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="sources" value="clinicalTrials" checked class="mr-3 text-green-600">
+                                <div>
+                                    <div class="font-medium text-sm">Clinical Trials</div>
+                                    <div class="text-xs text-gray-500">ClinicalTrials.gov</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="sources" value="pubmed" checked class="mr-3 text-green-600">
+                                <div>
+                                    <div class="font-medium text-sm">PubMed</div>
+                                    <div class="text-xs text-gray-500">Research Publications</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="sources" value="dailyMed" class="mr-3 text-green-600">
+                                <div>
+                                    <div class="font-medium text-sm">DailyMed</div>
+                                    <div class="text-xs text-gray-500">Drug Labels</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Email & Frequency Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="notificationEmail" class="block text-sm font-medium text-gray-700 mb-2">Notification Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="notificationEmail" name="notificationEmail" placeholder="your@email.com" required
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="notificationFrequency" class="block text-sm font-medium text-gray-700 mb-2">Notification Frequency</label>
+                            <select id="notificationFrequency" name="notificationFrequency" 
+                                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="immediate">Immediate</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly" selected>Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Search Filters -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Search Filters</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="watchYearsBack" class="block text-xs text-gray-600 mb-1">Years to look back</label>
+                                <select id="watchYearsBack" name="watchYearsBack" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
+                                    <option value="1">1 year</option>
+                                    <option value="2">2 years</option>
+                                    <option value="5" selected>5 years</option>
+                                    <option value="10">10 years</option>
+                                    <option value="15">15 years</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="hasResultsOnly" class="mr-2 text-green-600">
+                                    <span class="text-sm text-gray-700">Studies with results only</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="exactMatch" class="mr-2 text-green-600">
+                                    <span class="text-sm text-gray-700">Exact drug name match</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button type="button" id="cancelNewWatch" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            Create Watch
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Drug Watch functionality -->
+<script>
+
+
+</script>
+</body>
+</html>

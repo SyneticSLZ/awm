@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDA's Evolving AI/ML Medical Device Framework | SyneticX Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-lg z-50 border-b border-gray-100">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="../index.html" class="text-2xl font-bold text-primary-600">SyneticX</a>
+                <a href="../index.html#blog" class="text-gray-700 hover:text-primary-600 transition">← Back to Blog</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-24 pb-16 overflow-hidden">
+        <!-- Animated background -->
+        <div class="absolute inset-0">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-accent-200 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-primary-200 rounded-full filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="mb-6">
+                    <span class="inline-block px-4 py-2 bg-accent-600 text-white text-sm font-semibold rounded-full">
+                        Regulatory Update
+                    </span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                    <span class="block text-gray-900">Navigating FDA's Evolving</span>
+                    <span class="text-gradient">AI/ML Medical Device Framework</span>
+                    <span class="block text-gray-900 text-3xl mt-2">in 2025</span>
+                </h1>
+                <div class="flex items-center justify-center space-x-6 text-gray-600 mb-8">
+                    <div class="flex items-center">
+                        <img src="https://ui-avatars.com/api/?name=Michael+Rodriguez&background=764ba2&color=fff" alt="Author" class="w-10 h-10 rounded-full mr-2">
+                        <span>Michael Rodriguez, JD</span>
+                    </div>
+                    <span>•</span>
+                    <time datetime="2025-05-18">May 18, 2025</time>
+                    <span>•</span>
+                    <span>7 min read</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div class="max-w-4xl mx-auto">
+            <!-- Featured Image -->
+            <div class="mb-12 rounded-2xl overflow-hidden shadow-2xl">
+                <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&h=600&fit=crop" 
+                     alt="FDA Regulatory Framework Visualization" 
+                     class="w-full h-auto">
+            </div>
+
+            <!-- Article Body -->
+            <div class="prose prose-lg max-w-none">
+                <!-- Key Stats Banner -->
+                <div class="bg-gradient-to-r from-accent-50 to-primary-50 rounded-2xl p-8 mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <div class="text-4xl font-bold text-accent-600 mb-2">521</div>
+                            <p class="text-gray-700">AI/ML-enabled devices approved</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-primary-600 mb-2">68%</div>
+                            <p class="text-gray-700">Increase in submissions YoY</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold text-purple-600 mb-2">45</div>
+                            <p class="text-gray-700">Days average review time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Introduction -->
+                <section class="mb-12">
+                    <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                        The FDA's approach to regulating AI and machine learning-based medical devices has undergone significant transformation in recent years. With the rapid advancement of these technologies, the agency has had to balance innovation with patient safety, creating a framework that adapts to the unique challenges posed by continuously learning algorithms.
+                    </p>
+                    
+                    <div class="bg-white border-l-4 border-accent-600 p-6 my-8 rounded-r-xl shadow-md">
+                        <p class="text-gray-800 font-medium">
+                            "The FDA has cleared or approved over 500 AI/ML-enabled medical devices, with radiology applications comprising nearly 80% of these authorizations."
+                        </p>
+                        <cite class="text-sm text-gray-600 mt-2 block">- FDA Center for Devices and Radiological Health, 2025</cite>
+                    </div>
+                </section>
+
+                <!-- Current Regulatory Pathways -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Current Regulatory Pathways</h2>
+                    
+                    <p class="text-gray-700 mb-6">
+                        Understanding the appropriate regulatory pathway is crucial for successful market entry. The FDA currently offers several routes for AI/ML medical devices:
+                    </p>
+
+                    <!-- Interactive Pathway Selector -->
+                    <div class="bg-gray-100 rounded-2xl p-8 mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Select Your Device Type:</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <button class="pathway-btn active bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition" data-pathway="510k">
+                                <h4 class="font-semibold text-primary-600">510(k)</h4>
+                                <p class="text-sm text-gray-600">Moderate risk devices</p>
+                            </button>
+                            <button class="pathway-btn bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition" data-pathway="denovo">
+                                <h4 class="font-semibold text-accent-600">De Novo</h4>
+                                <p class="text-sm text-gray-600">Novel low-moderate risk</p>
+                            </button>
+                            <button class="pathway-btn bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition" data-pathway="pma">
+                                <h4 class="font-semibold text-purple-600">PMA</h4>
+                                <p class="text-sm text-gray-600">High risk devices</p>
+                            </button>
+                        </div>
+                        
+                        <div id="pathway-content">
+                            <div class="pathway-info" data-pathway="510k">
+                                <h4 class="font-bold text-lg mb-3">510(k) Premarket Notification</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Most common pathway for AI/ML devices</li>
+                                    <li>• Requires demonstration of substantial equivalence</li>
+                                    <li>• Average review time: 90-120 days</li>
+                                    <li>• Best for: CADe/CADx software, image processing tools</li>
+                                </ul>
+                            </div>
+                            <div class="pathway-info hidden" data-pathway="denovo">
+                                <h4 class="font-bold text-lg mb-3">De Novo Classification</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• For novel devices without predicate</li>
+                                    <li>• Creates new classification regulation</li>
+                                    <li>• Average review time: 150-180 days</li>
+                                    <li>• Best for: First-of-kind AI applications</li>
+                                </ul>
+                            </div>
+                            <div class="pathway-info hidden" data-pathway="pma">
+                                <h4 class="font-bold text-lg mb-3">Premarket Approval (PMA)</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Most stringent pathway</li>
+                                    <li>• Requires clinical trial data</li>
+                                    <li>• Average review time: 180-360 days</li>
+                                    <li>• Best for: Life-sustaining or life-supporting AI devices</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Predetermined Change Control Plan -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">The Game-Changer: Predetermined Change Control Plans</h2>
+                    
+                    <p class="text-gray-700 mb-6">
+                        One of the most significant developments in FDA's AI/ML framework is the introduction of Predetermined Change Control Plans (PCCPs). This mechanism allows manufacturers to implement certain modifications to their algorithms without requiring new regulatory submissions.
+                    </p>
+
+                    <!-- PCCP Process Flow -->
+                    <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                        <h3 class="text-xl font-semibold mb-6 text-center">PCCP Implementation Process</h3>
+                        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
+                            <div class="flex-1 text-center process-step">
+                                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <span class="text-2xl font-bold text-primary-600">1</span>
+                                </div>
+                                <h4 class="font-semibold mb-2">Define Changes</h4>
+                                <p class="text-sm text-gray-600">Specify types of modifications</p>
+                            </div>
+                            <div class="hidden md:block text-gray-400">→</div>
+                            <div class="flex-1 text-center process-step">
+                                <div class="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <span class="text-2xl font-bold text-accent-600">2</span>
+                                </div>
+                                <h4 class="font-semibold mb-2">Set Boundaries</h4>
+                                <p class="text-sm text-gray-600">Establish performance limits</p>
+                            </div>
+                            <div class="hidden md:block text-gray-400">→</div>
+                            <div class="flex-1 text-center process-step">
+                                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <span class="text-2xl font-bold text-purple-600">3</span>
+                                </div>
+                                <h4 class="font-semibold mb-2">Validate Methods</h4>
+                                <p class="text-sm text-gray-600">Prove testing approach</p>
+                            </div>
+                            <div class="hidden md:block text-gray-400">→</div>
+                            <div class="flex-1 text-center process-step">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <span class="text-2xl font-bold text-green-600">4</span>
+                                </div>
+                                <h4 class="font-semibold mb-2">Implement</h4>
+                                <p class="text-sm text-gray-600">Deploy approved changes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PCCP Benefits -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-primary-50 rounded-xl p-6">
+                            <h4 class="font-semibold text-lg mb-3 text-primary-800">Benefits for Manufacturers</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>✓ Faster iteration cycles</li>
+                                <li>✓ Reduced regulatory burden</li>
+                                <li>✓ Competitive advantage</li>
+                                <li>✓ Lower compliance costs</li>
+                            </ul>
+                        </div>
+                        <div class="bg-accent-50 rounded-xl p-6">
+                            <h4 class="font-semibold text-lg mb-3 text-accent-800">Benefits for Patients</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>✓ Access to latest improvements</li>
+                                <li>✓ Better diagnostic accuracy</li>
+                                <li>✓ Personalized algorithms</li>
+                                <li>✓ Continuous enhancement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Key Considerations -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Key Considerations for 2025</h2>
+                    
+                    <!-- Interactive Checklist -->
+                    <div class="bg-gray-100 rounded-2xl p-8 mb-8">
+                        <h3 class="text-xl font-semibold mb-6">Regulatory Readiness Checklist</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start cursor-pointer checklist-item">
+                                <input type="checkbox" class="mt-1 mr-3 w-5 h-5 text-primary-600 rounded">
+                                <div class="flex-1">
+                                    <span class="font-medium">Clinical Validation Strategy</span>
+                                    <p class="text-sm text-gray-600 mt-1">Robust evidence demonstrating safety and effectiveness</p>
+                                </div>
+                            </label>
+<label class="flex items-start cursor-pointer checklist-item">
+                                <input type="checkbox" class="mt-1 mr-3 w-5 h-5 text-primary-600 rounded">
+                                <div class="flex-1">
+                                    <span class="font-medium">Cybersecurity Controls</span>
+                                    <p class="text-sm text-gray-600 mt-1">Comprehensive security measures and vulnerability management</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start cursor-pointer checklist-item">
+                                <input type="checkbox" class="mt-1 mr-3 w-5 h-5 text-primary-600 rounded">
+                                <div class="flex-1">
+                                    <span class="font-medium">Bias Mitigation Plan</span>
+                                    <p class="text-sm text-gray-600 mt-1">Strategies to ensure algorithmic fairness across populations</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start cursor-pointer checklist-item">
+                                <input type="checkbox" class="mt-1 mr-3 w-5 h-5 text-primary-600 rounded">
+                                <div class="flex-1">
+                                    <span class="font-medium">Real-World Performance Monitoring</span>
+                                    <p class="text-sm text-gray-600 mt-1">Post-market surveillance and continuous improvement systems</p>
+                                </div>
+                            </label>
+                            <label class="flex items-start cursor-pointer checklist-item">
+                                <input type="checkbox" class="mt-1 mr-3 w-5 h-5 text-primary-600 rounded">
+                                <div class="flex-1">
+                                    <span class="font-medium">Transparency Documentation</span>
+                                    <p class="text-sm text-gray-600 mt-1">Clear labeling and user training materials</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <div class="text-sm text-gray-600 mb-2">Your Readiness Score:</div>
+                            <div class="text-3xl font-bold text-primary-600" id="readiness-score">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Box -->
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl mb-8">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <h4 className="font-semibold text-yellow-800 mb-1">Common Pitfalls to Avoid</h4>
+                                <ul class="text-sm text-yellow-700 space-y-1">
+                                    <li>• Inadequate dataset diversity leading to bias</li>
+                                    <li>• Insufficient cybersecurity documentation</li>
+                                    <li>• Unclear clinical validation endpoints</li>
+                                    <li>• Overpromising on PCCP capabilities</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Policy Updates -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">2025 Policy Updates</h2>
+                    
+                    <!-- Timeline of Updates -->
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-gray-100 font-bold">Q1</span>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h4 class="font-semibold text-lg mb-2">Expanded PCCP Guidance</h4>
+                                <p class="text-gray-600">FDA released comprehensive guidance on implementing PCCPs for continuous learning algorithms, including specific examples for radiology and pathology applications.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-accent-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-gray-100 font-bold">Q2</span>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h4 class="font-semibold text-lg mb-2">Streamlined 510(k) Process</h4>
+                                <p class="text-gray-600">Introduction of the AI/ML-specific 510(k) template reducing submission preparation time by an estimated 40%.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-gray-100 font-bold">Q3</span>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h4 class="font-semibold text-lg mb-2">International Harmonization</h4>
+                                <p class="text-gray-600">FDA announces collaboration with EU MDR and Health Canada on harmonized AI/ML evaluation frameworks.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Best Practices for Successful Submissions</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">📊</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Data Quality & Diversity</h3>
+                            <p class="text-gray-600">Ensure your training data represents the intended use population. Document data sources, preprocessing steps, and address potential biases explicitly.</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">🔒</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Cybersecurity by Design</h3>
+                            <p class="text-gray-600">Implement comprehensive security controls from development through deployment. Include threat modeling and vulnerability management plans.</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">📈</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Performance Monitoring</h3>
+                            <p class="text-gray-600">Establish clear metrics and monitoring systems for real-world performance. Plan for continuous improvement and adverse event reporting.</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                                <span class="text-2xl">👥</span>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">User-Centered Design</h3>
+                            <p class="text-gray-600">Develop intuitive interfaces and comprehensive training materials. Consider the clinical workflow and minimize alert fatigue.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Looking Ahead -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">Looking Ahead: What to Expect</h2>
+                    
+                    <div class="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8 mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Anticipated Developments for 2025-2026</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-6 h-6 bg-primary-600 rounded-full flex-shrink-0 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium mb-1">Generative AI Guidelines</h4>
+                                    <p class="text-gray-600 text-sm">Specific regulatory framework for LLMs and generative AI in clinical settings</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-6 h-6 bg-accent-600 rounded-full flex-shrink-0 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium mb-1">Real-World Evidence Integration</h4>
+                                    <p class="text-gray-600 text-sm">Expanded use of RWE for post-market surveillance and algorithm updates</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-6 h-6 bg-purple-600 rounded-full flex-shrink-0 mt-1"></div>
+                                <div class="ml-4">
+                                    <h4 class="font-medium mb-1">Multi-Modal AI Frameworks</h4>
+                                    <p class="text-gray-600 text-sm">Guidelines for AI systems integrating imaging, genomics, and clinical data</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Conclusion -->
+                <section class="mb-12">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900">Conclusion</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                        The FDA's evolving framework for AI/ML medical devices represents a thoughtful balance between innovation and patient safety. As we progress through 2025, manufacturers who understand and embrace these regulatory requirements will be best positioned to bring transformative technologies to market. The key is preparation, transparency, and a commitment to continuous improvement—principles that align perfectly with both regulatory expectations and clinical excellence.
+                    </p>
+                </section>
+            </div>
+
+            <!-- CTA Box -->
+            <div class="bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl p-8 text-gray-100 mb-12">
+                <h3 class="text-2xl font-bold mb-4">Need Regulatory Guidance?</h3>
+                <p class="mb-6 opacity-90">SyneticX helps MedTech companies navigate FDA submissions with our AI-powered regulatory intelligence platform.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="../demo.html" class="bg-gray-100 text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition text-center">
+                        Schedule a Consultation
+                    </a>
+                    <a href="../inteltool.html" class="border-2 border-gray-100 text-gray-100 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 hover:text-primary-600 transition text-center">
+                        Try Our FDA Tool
+                    </a>
+                </div>
+            </div>
+
+            <!-- Author Bio -->
+            <div class="bg-gray-100 rounded-2xl p-8 mb-12">
+                <div class="flex items-start space-x-4">
+                    <img src="https://ui-avatars.com/api/?name=Michael+Rodriguez&background=764ba2&color=fff&size=200" 
+                         alt="Michael Rodriguez" 
+                         class="w-20 h-20 rounded-full">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-2">Michael Rodriguez, JD</h3>
+                        <p class="text-gray-600 mb-4">
+                            VP of Regulatory Affairs at SyneticX with over 12 years of experience in medical device regulation. Michael previously served as a reviewer at FDA's Center for Devices and Radiological Health, specializing in AI/ML submissions.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-primary-600 hover:text-primary-700">LinkedIn</a>
+                            <a href="#" class="text-primary-600 hover:text-primary-700">Email</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6">Related Articles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="ai-diagnostics.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">AI Revolutionizes Medical Diagnostics</h4>
+                            <p class="text-gray-600 text-sm">How AI is transforming diagnostic accuracy across specialties</p>
+                        </div>
+                    </a>
+                    <a href="predictive-analytics.html" class="group">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition">
+                            <h4 class="font-semibold text-lg mb-2 group-hover:text-primary-600">Predictive Analytics in Healthcare</h4>
+                            <p class="text-gray-600 text-sm">Optimizing hospital operations with data-driven insights</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- Newsletter CTA -->
+    <section class="bg-gradient-to-r from-primary-600 to-accent-600 py-16">
+        <div class="container mx-auto px-4 text-center text-gray-100">
+            <h2 class="text-3xl font-bold mb-4">Stay Informed on Regulatory Updates</h2>
+            <p class="text-lg mb-8 opacity-90">Get the latest FDA guidance and regulatory insights delivered weekly</p>
+            <form class="max-w-md mx-auto flex gap-4">
+                <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-lg text-gray-900">
+                <button type="submit" class="bg-gray-100 text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200">
+                    Subscribe
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 SyneticX. Founded by Rohan Mehmi. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        /* Gradient text */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Colors */
+        .bg-primary-600 { background-color: #667eea; }
+        .bg-accent-600 { background-color: #764ba2; }
+        .bg-purple-600 { background-color: #9333ea; }
+        .bg-green-100 { background-color: #d1fae5; }
+        .text-primary-600 { color: #667eea; }
+        .text-accent-600 { color: #764ba2; }
+        .text-purple-600 { color: #9333ea; }
+        .text-primary-800 { color: #4c51bf; }
+        .text-accent-800 { color: #553c7b; }
+        .bg-primary-100 { background-color: #e0e7ff; }
+        .bg-accent-100 { background-color: #f3e8ff; }
+        .bg-purple-100 { background-color: #f3e8ff; }
+        .bg-primary-50 { background-color: #eef2ff; }
+        .bg-accent-50 { background-color: #faf5ff; }
+        .bg-primary-200 { background-color: #c7d2fe; }
+        .bg-accent-200 { background-color: #e9d5ff; }
+        .hover\:text-primary-600:hover { color: #667eea; }
+        .hover\:text-primary-700:hover { color: #5a67d8; }
+        .border-accent-600 { border-color: #764ba2; }
+        .text-yellow-600 { color: #d97706; }
+        .text-yellow-700 { color: #b45309; }
+        .text-yellow-800 { color: #92400e; }
+        .bg-yellow-50 { background-color: #fffbeb; }
+        .border-yellow-400 { border-color: #fbbf24; }
+
+        /* Active states */
+        .pathway-btn.active {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .process-step {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .process-step:nth-child(2) { animation-delay: 0.2s; }
+        .process-step:nth-child(4) { animation-delay: 0.4s; }
+        .process-step:nth-child(6) { animation-delay: 0.6s; }
+        .process-step:nth-child(8) { animation-delay: 0.8s; }
+
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #667eea;
+        }
+    </style>
+
+    <script>
+        // Pathway selector
+        const pathwayBtns = document.querySelectorAll('.pathway-btn');
+        const pathwayInfos = document.querySelectorAll('.pathway-info');
+
+        pathwayBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                pathwayBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Hide all pathway info
+                pathwayInfos.forEach(info => info.classList.add('hidden'));
+                // Show selected pathway info
+                const selectedPathway = btn.dataset.pathway;
+                document.querySelector(`.pathway-info[data-pathway="${selectedPathway}"]`).classList.remove('hidden');
+            });
+        });
+
+        // Readiness score calculator
+        const checkboxes = document.querySelectorAll('.checklist-item input');
+        const scoreDisplay = document.getElementById('readiness-score');
+
+        function updateScore() {
+            const checkedCount = document.querySelectorAll('.checklist-item input:checked').length;
+            const totalCount = checkboxes.length;
+            const score = Math.round((checkedCount / totalCount) * 100);
+            scoreDisplay.textContent = `${score}%`;
+            
+            // Change color based on score
+            if (score >= 80) {
+                scoreDisplay.className = 'text-3xl font-bold text-green-600';
+            } else if (score >= 60) {
+                scoreDisplay.className = 'text-3xl font-bold text-yellow-600';
+            } else {
+                scoreDisplay.className = 'text-3xl font-bold text-red-600';
+            }
+        }
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateScore);
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe timeline items
+        document.querySelectorAll('.process-step').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
