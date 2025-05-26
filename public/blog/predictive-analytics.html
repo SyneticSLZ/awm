@@ -436,7 +436,7 @@
             </div>
 
             <!-- Author Bio -->
-            <div class="bg-gray-100 rounded-2xl p-8 mb-12">
+            <!-- <div class="bg-gray-100 rounded-2xl p-8 mb-12">
                 <div class="flex items-start space-x-4">
                     <img src="https://ui-avatars.com/api/?name=Dr+Emily+Watson&background=9333ea&color=fff&size=200" 
                          alt="Dr. Emily Watson" 
@@ -453,7 +453,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Related Articles -->
             <div class="bg-white rounded-2xl p-8 shadow-lg">
@@ -493,7 +493,7 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-8">
         <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2025 SyneticX. Founded by Rohan Mehta. All rights reserved.</p>
+            <p>&copy; 2025 SyneticX. All rights reserved.</p>
         </div>
     </footer>
 
@@ -622,11 +622,46 @@
             }
         });
 
-        // // ROI Calculator
-        // function calculateROI() {
-        //     const volume = parseInt(document.getElementById('patientVolume').value) || 50000;
-        //     const los = parseFloat(document.getElementById('avgLOS').value) || 4.5;
-        //     const readmitRate = parseInt(document.getElementById('readmissionRate').value) || 15;
+        // ROI Calculator
+        function calculateROI() {
+            const volume = parseInt(document.getElementById('patientVolume').value) || 50000;
+            const los = parseFloat(document.getElementById('avgLOS').value) || 4.5;
+            const readmitRate = parseInt(document.getElementById('readmissionRate').value) || 15;
             
-        //     // Calculate savings (simplified model)
-        //     const readmissionSavings = volume * (readmitRate / 100) * 0.3 * 15000; // 30% reduction, $15
+            // Calculate savings (simplified model)
+const readmissionSavings = volume * (readmitRate / 100) * 0.3 * 15000; // 30% reduction, $15k per readmission
+            const staffingSavings = volume * 0.02 * 50; // $50 per patient from optimized staffing
+            const throughputSavings = volume * 0.1 * 200; // 10% more patients, $200 margin
+            const totalSavings = readmissionSavings + staffingSavings + throughputSavings;
+            
+            // Format and display results
+            document.getElementById('readmissionSavings').textContent = '$' + readmissionSavings.toLocaleString();
+            document.getElementById('staffingSavings').textContent = '$' + staffingSavings.toLocaleString();
+            document.getElementById('throughputSavings').textContent = '$' + throughputSavings.toLocaleString();
+            document.getElementById('totalSavings').textContent = '$' + totalSavings.toLocaleString();
+        }
+
+        // Calculate initial ROI on page load
+        calculateROI();
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove('opacity-0');
+                }
+            });
+        }, observerOptions);
+
+        // Observe roadmap items
+        document.querySelectorAll('.roadmap-item').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
