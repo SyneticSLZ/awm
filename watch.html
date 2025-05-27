@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<head>
+       <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<!-- Drug Watch Modal HTML - Add this to your inteltool.html -->
+<!-- Place this right after your main content div or before closing body tag -->
+
+<!-- Drug Watch Modal -->
+<div id="drugWatchModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold flex items-center">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Drug Watch System
+                        </h2>
+                        <p class="text-green-100 mt-1">Monitor drug updates from FDA, Clinical Trials, PubMed, and more</p>
+                    </div>
+                    <button id="closeDrugWatchModal" class="text-white hover:text-green-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200 bg-gray-50">
+                <nav class="flex -mb-px">
+                    <button id="myWatchesTab" class="py-3 px-6 border-b-2 border-green-500 text-green-600 font-medium focus:outline-none transition-colors">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            My Watches
+                            <span id="watchCount" class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">0</span>
+                        </div>
+                    </button>
+                    <button id="newWatchTab" class="py-3 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium focus:outline-none transition-colors">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            New Watch
+                        </div>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <!-- My Watches Section -->
+                <div id="myWatchesSection">
+                    <!-- Watches List -->
+                    <div id="watchesList" class="space-y-4">
+                        <!-- Empty State -->
+                        <div id="emptyWatchesState" class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No drug watches</h3>
+                            <p class="mt-1 text-sm text-gray-500">Get started by creating a new drug watch.</p>
+                            <div class="mt-6">
+                                <button onclick="drugWatchSystem.switchTab('newWatch')" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                    <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Create New Watch
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Watch items will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- New Watch Section -->
+                <div id="newWatchSection" class="hidden">
+                    <form id="newWatchForm" class="space-y-6">
+                        <!-- Basic Information -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="watchDrugName" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Drug Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="watchDrugName" name="watchDrugName" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                                        placeholder="e.g., Metformin">
+                                </div>
+                                <div>
+                                    <label for="watchName" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Watch Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="watchName" name="watchName" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                                        placeholder="e.g., Metformin for Diabetes">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label for="watchCondition" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Condition (Optional)
+                                </label>
+                                <input type="text" id="watchCondition" name="watchCondition"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                                    placeholder="e.g., Type 2 Diabetes">
+                            </div>
+                        </div>
+
+                        <!-- Data Sources -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Data Sources</h3>
+                            <p class="text-sm text-gray-600 mb-3">Select which sources to monitor for updates:</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="sources" value="fda" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <span class="font-medium">FDA</span> - Drug labels, approvals, recalls, adverse events
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="sources" value="clinicalTrials" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <span class="font-medium">Clinical Trials</span> - Ongoing and completed studies
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="sources" value="pubmed" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <span class="font-medium">PubMed</span> - Latest research publications
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="sources" value="dailyMed" checked class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <span class="font-medium">DailyMed</span> - Package inserts and prescribing info
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="sources" value="ema" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <span class="font-medium">EMA</span> - European Medicines Agency updates
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Notification Settings</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="notificationEmail" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Notification Email
+                                    </label>
+                                    <input type="email" id="notificationEmail" name="notificationEmail"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                                        placeholder="your@email.com">
+                                    <p class="mt-1 text-xs text-gray-500">Leave blank to use your account email</p>
+                                </div>
+                                <div>
+                                    <label for="notificationFrequency" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Check Frequency
+                                    </label>
+                                    <select id="notificationFrequency" name="notificationFrequency"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option value="immediate">Immediate (Hourly)</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly" selected>Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Filters -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Search Filters</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="hasResultsOnly" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Only show clinical trials with results</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="exactMatch" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Exact drug name match only</span>
+                                </label>
+                                <div>
+                                    <label for="watchYearsBack" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Include results from past
+                                    </label>
+                                    <select id="watchYearsBack" name="watchYearsBack"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                                        <option value="1" selected>1 year</option>
+                                        <option value="2">2 years</option>
+                                        <option value="5">5 years</option>
+                                        <option value="10">10 years</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t">
+                            <button type="button" id="cancelNewWatch"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Create Watch
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this CSS to your existing styles -->
+<style>
+/* Drug Watch Specific Styles */
+.watch-item {
+    transition: all 0.2s ease;
+}
+
+.watch-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Notification styles */
+.notification-enter {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Custom scrollbar for modal */
+#drugWatchModal .overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+}
+
+#drugWatchModal .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#drugWatchModal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#drugWatchModal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+
+<!-- Complete JavaScript Integration -->
+<script>
+// Complete Drug Watch System Class
+class DrugWatchSystem {
+    constructor() {
+        this.currentUserEmail = null;
+        this.activeWatches = [];
+        this.apiBase = '/api';
+        this.init();
+    }
+
+    init() {
+        console.log('🚀 Initializing Drug Watch System...');
+        this.bindEvents();
+        this.getCurrentUser();
+        this.loadActiveWatches();
+        
+        // Add debug access
+        window.drugWatchDebug = {
+            system: this,
+            checkAPI: () => this.testAPIConnection(),
+            reloadWatches: () => this.loadActiveWatches(),
+            showUser: () => console.log('Current user:', this.currentUserEmail)
+        };
+    }
+
+    getCurrentUser() {
+        try {
+            // Try to get from your existing auth system
+            if (typeof getCurrentUserInfo === 'function') {
+                const userInfo = getCurrentUserInfo();
+                this.currentUserEmail = userInfo?.email || userInfo?.username;
+            }
+            
+            // Check localStorage
+            if (!this.currentUserEmail) {
+                this.currentUserEmail = localStorage.getItem('userEmail') || 
+                                      localStorage.getItem('currentUserEmail');
+            }
+            
+            // Parse current user from localStorage
+            if (!this.currentUserEmail) {
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    try {
+                        const userData = JSON.parse(currentUser);
+                        this.currentUserEmail = userData.email || userData.username;
+                    } catch (e) {
+                        console.error('Error parsing user data:', e);
+                    }
+                }
+            }
+            
+            // Check window object
+            if (!this.currentUserEmail && window.currentUser) {
+                this.currentUserEmail = window.currentUser.email || window.currentUser.username;
+            }
+            
+            // Default for testing
+            if (!this.currentUserEmail) {
+                this.currentUserEmail = 'rohanmehmi72@gmail.com';
+                console.warn('Using default email for testing');
+            }
+            
+            console.log('📧 Current user email:', this.currentUserEmail);
+            
+        } catch (error) {
+            console.error('Error getting current user:', error);
+            this.currentUserEmail = 'rohanmehmi72@gmail.com';
+        }
+    }
+
+    async testAPIConnection() {
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches/health`);
+            const data = await response.json();
+            console.log('✅ API Health Check:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ API connection failed:', error);
+            return null;
+        }
+    }
+
+    bindEvents() {
+        // Check if drug watch button exists in your UI
+        const drugWatchBtn = document.getElementById('drugWatchBtn');
+        if (drugWatchBtn) {
+            drugWatchBtn.addEventListener('click', () => {
+                this.openDrugWatchModal();
+            });
+        } else {
+            // If button doesn't exist, create it
+            this.createDrugWatchButton();
+        }
+
+        // Modal events
+        const closeModal = document.getElementById('closeDrugWatchModal');
+        if (closeModal) {
+            closeModal.addEventListener('click', () => {
+                this.closeDrugWatchModal();
+            });
+        }
+
+        const modal = document.getElementById('drugWatchModal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeDrugWatchModal();
+                }
+            });
+        }
+
+        // Tab switching
+        const myWatchesTab = document.getElementById('myWatchesTab');
+        const newWatchTab = document.getElementById('newWatchTab');
+        
+        if (myWatchesTab) {
+            myWatchesTab.addEventListener('click', () => {
+                this.switchTab('myWatches');
+            });
+        }
+
+        if (newWatchTab) {
+            newWatchTab.addEventListener('click', () => {
+                this.switchTab('newWatch');
+            });
+        }
+
+        // Form submission
+        const newWatchForm = document.getElementById('newWatchForm');
+        if (newWatchForm) {
+            newWatchForm.addEventListener('submit', (e) => {
+                this.handleNewWatchSubmit(e);
+            });
+        }
+
+        const cancelNewWatch = document.getElementById('cancelNewWatch');
+        if (cancelNewWatch) {
+            cancelNewWatch.addEventListener('click', () => {
+                this.switchTab('myWatches');
+            });
+        }
+
+        // Auto-fill functionality
+        this.setupAutoFill();
+    }
+
+    createDrugWatchButton() {
+        // Find a suitable place to add the button
+        const searchContainer = document.querySelector('.search-container') || 
+                               document.querySelector('.toolbar') ||
+                               document.querySelector('.actions');
+        
+        if (searchContainer) {
+            const button = document.createElement('button');
+            button.id = 'drugWatchBtn';
+            button.className = 'btn btn-primary drug-watch-btn';
+            button.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Drug Watch
+            `;
+            button.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                padding: 8px 16px;
+                background-color: #10b981;
+                color: white;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                font-weight: 500;
+                margin-left: 10px;
+            `;
+            
+            button.addEventListener('click', () => {
+                this.openDrugWatchModal();
+            });
+            
+            searchContainer.appendChild(button);
+            console.log('✅ Drug Watch button created');
+        }
+    }
+
+    setupAutoFill() {
+        const drugSearchField = document.getElementById('drugSearch') || 
+                               document.querySelector('input[name="drug"]') ||
+                               document.querySelector('input[placeholder*="drug"]');
+        
+        const conditionField = document.getElementById('conditionSearch') ||
+                              document.querySelector('input[name="condition"]') ||
+                              document.querySelector('input[placeholder*="condition"]');
+        
+        const watchDrugNameField = document.getElementById('watchDrugName');
+        const watchNameField = document.getElementById('watchName');
+        const watchConditionField = document.getElementById('watchCondition');
+
+        // Set up auto-fill when opening modal
+        const drugWatchBtn = document.getElementById('drugWatchBtn');
+        if (drugWatchBtn && drugSearchField && watchDrugNameField) {
+            drugWatchBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                    if (drugSearchField.value.trim()) {
+                        watchDrugNameField.value = drugSearchField.value.trim();
+                        
+                        // Generate suggested watch name
+                        const drug = drugSearchField.value.trim();
+                        const condition = conditionField?.value.trim() || '';
+                        const suggestedName = condition ? 
+                            `${drug} for ${condition}` : 
+                            `${drug} Updates`;
+                        
+                        if (watchNameField) {
+                            watchNameField.value = suggestedName;
+                        }
+                    }
+
+                    if (conditionField && watchConditionField && conditionField.value.trim()) {
+                        watchConditionField.value = conditionField.value.trim();
+                    }
+                }, 100);
+            });
+        }
+    }
+
+    async loadActiveWatches() {
+        if (!this.currentUserEmail) {
+            console.error('No user email available');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches/${encodeURIComponent(this.currentUserEmail)}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.activeWatches = data.watches || [];
+            console.log(`✅ Loaded ${this.activeWatches.length} watches`);
+            this.renderActiveWatches();
+            
+        } catch (error) {
+            console.error('Error loading watches:', error);
+            this.showNotification('Failed to load drug watches', 'error');
+        }
+    }
+
+    renderActiveWatches() {
+        const watchesList = document.getElementById('watchesList');
+        const watchCount = document.getElementById('watchCount');
+        const emptyState = document.getElementById('emptyWatchesState');
+
+        if (!watchesList) return;
+
+        if (watchCount) {
+            watchCount.textContent = this.activeWatches.length;
+        }
+
+        // Clear existing watches
+        const existingWatches = watchesList.querySelectorAll('.watch-item');
+        existingWatches.forEach(item => item.remove());
+
+        if (this.activeWatches.length === 0) {
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+            }
+            return;
+        }
+
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+
+        // Render each watch
+        this.activeWatches.forEach(watch => {
+            const watchElement = this.createWatchElement(watch);
+            watchesList.appendChild(watchElement);
+        });
+    }
+
+    createWatchElement(watch) {
+        const div = document.createElement('div');
+        div.className = 'watch-item bg-gray-50 rounded-lg p-4 border border-gray-200';
+        
+        const sources = Object.entries(watch.notificationSources || {})
+            .filter(([key, value]) => value)
+            .map(([key]) => key.toUpperCase())
+            .join(', ');
+
+        const frequencyDisplay = {
+            'immediate': 'Immediate',
+            'daily': 'Daily',
+            'weekly': 'Weekly',
+            'monthly': 'Monthly'
+        };
+
+        div.innerHTML = `
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center mb-2">
+                        <h4 class="font-semibold text-gray-800">${watch.watchName || watch.drugName}</h4>
+                        <span class="ml-2 px-2 py-1 ${watch.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} text-xs rounded-full">
+                            ${watch.isActive ? 'Active' : 'Paused'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <p><span class="font-medium">Drug:</span> ${watch.drugName}</p>
+                        ${watch.condition ? `<p><span class="font-medium">Condition:</span> ${watch.condition}</p>` : ''}
+                        <p><span class="font-medium">Sources:</span> ${sources || 'None selected'}</p>
+                        <p><span class="font-medium">Frequency:</span> ${frequencyDisplay[watch.notificationFrequency] || 'Weekly'}</p>
+                        <p><span class="font-medium">Email:</span> ${watch.notificationEmail}</p>
+                        <p><span class="font-medium">Last checked:</span> ${watch.lastChecked ? new Date(watch.lastChecked).toLocaleDateString() : 'Never'}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 ml-4">
+                    <button onclick="drugWatchSystem.toggleWatch('${watch._id}')" 
+                            class="p-2 ${watch.isActive ? 'text-orange-600 hover:text-orange-700' : 'text-green-600 hover:text-green-700'} transition-colors"
+                            title="${watch.isActive ? 'Pause watch' : 'Resume watch'}">
+                        ${watch.isActive ? 
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' :
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                        }
+                    </button>
+                    <button onclick="drugWatchSystem.testWatch('${watch._id}')" 
+                            class="p-2 text-purple-600 hover:text-purple-700 transition-colors" title="Test watch">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </button>
+                    <button onclick="drugWatchSystem.deleteWatch('${watch._id}')" 
+                            class="p-2 text-red-600 hover:text-red-700 transition-colors" title="Delete watch">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        return div;
+    }
+
+    openDrugWatchModal() {
+        const modal = document.getElementById('drugWatchModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            this.loadActiveWatches();
+        }
+    }
+
+    closeDrugWatchModal() {
+        const modal = document.getElementById('drugWatchModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    switchTab(tab) {
+        const myWatchesTab = document.getElementById('myWatchesTab');
+        const newWatchTab = document.getElementById('newWatchTab');
+        const myWatchesSection = document.getElementById('myWatchesSection');
+        const newWatchSection = document.getElementById('newWatchSection');
+
+        if (!myWatchesTab || !newWatchTab || !myWatchesSection || !newWatchSection) {
+            console.error('Tab elements not found');
+            return;
+        }
+
+        if (tab === 'myWatches') {
+            myWatchesTab.classList.add('border-green-500', 'text-green-600');
+            myWatchesTab.classList.remove('border-transparent', 'text-gray-500');
+            newWatchTab.classList.remove('border-green-500', 'text-green-600');
+            newWatchTab.classList.add('border-transparent', 'text-gray-500');
+            
+            myWatchesSection.classList.remove('hidden');
+            newWatchSection.classList.add('hidden');
+        } else {
+            newWatchTab.classList.add('border-green-500', 'text-green-600');
+            newWatchTab.classList.remove('border-transparent', 'text-gray-500');
+            myWatchesTab.classList.remove('border-green-500', 'text-green-600');
+            myWatchesTab.classList.add('border-transparent', 'text-gray-500');
+            
+            newWatchSection.classList.remove('hidden');
+            myWatchesSection.classList.add('hidden');
+        }
+    }
+
+    async handleNewWatchSubmit(e) {
+        e.preventDefault();
+        
+        if (!this.currentUserEmail) {
+            this.showNotification('User email not available. Please log in again.', 'error');
+            return;
+        }
+        
+        const formData = new FormData(e.target);
+        const sources = Array.from(formData.getAll('sources'));
+        
+        // Validate at least one source is selected
+        if (sources.length === 0) {
+            this.showNotification('Please select at least one data source', 'error');
+            return;
+        }
+
+        const watchData = {
+            userEmail: this.currentUserEmail,
+            watchName: formData.get('watchName'),
+            drugName: formData.get('watchDrugName'),
+            condition: formData.get('watchCondition') || null,
+            notificationSources: {
+                ema: sources.includes('ema'),
+                fda: sources.includes('fda'),
+                clinicalTrials: sources.includes('clinicalTrials'),
+                pubmed: sources.includes('pubmed'),
+                dailyMed: sources.includes('dailyMed')
+            },
+            notificationEmail: formData.get('notificationEmail') || this.currentUserEmail,
+            notificationFrequency: formData.get('notificationFrequency'),
+            searchFilters: {
+                hasResultsOnly: formData.get('hasResultsOnly') === 'on',
+                exactMatch: formData.get('exactMatch') === 'on',
+                yearsBack: parseInt(formData.get('watchYearsBack')) || 1
+            }
+        };
+
+        console.log('Creating watch:', watchData);
+
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(watchData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to create watch');
+            }
+
+            const result = await response.json();
+            console.log('Watch created:', result);
+            
+            // Reset form and switch to watches tab
+            e.target.reset();
+            this.switchTab('myWatches');
+            this.loadActiveWatches();
+            
+            this.showNotification('Drug watch created successfully! You will receive updates based on your selected frequency.', 'success');
+            
+        } catch (error) {
+            console.error('Error creating watch:', error);
+            this.showNotification(`Failed to create drug watch: ${error.message}`, 'error');
+        }
+    }
+
+    async toggleWatch(watchId) {
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches/${watchId}/toggle`, {
+                method: 'PATCH'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to toggle watch');
+            }
+
+            const result = await response.json();
+            console.log('Watch toggled:', result);
+            this.loadActiveWatches();
+            this.showNotification(`Watch ${result.watch.isActive ? 'activated' : 'paused'} successfully`, 'success');
+        } catch (error) {
+            console.error('Error toggling watch:', error);
+            this.showNotification(`Failed to update watch status: ${error.message}`, 'error');
+        }
+    }
+
+    async testWatch(watchId) {
+        try {
+            this.showNotification('Testing watch... This may take a moment.', 'info');
+            
+            const response = await fetch(`${this.apiBase}/drug-watches/${watchId}/trigger`, {
+                method: 'POST'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to test watch');
+            }
+
+            const result = await response.json();
+            console.log('Watch test initiated:', result);
+            this.showNotification('Watch test initiated! Check your email for updates if any new information is found.', 'success');
+            this.loadActiveWatches();
+        } catch (error) {
+            console.error('Error testing watch:', error);
+            this.showNotification(`Failed to test watch: ${error.message}`, 'error');
+        }
+    }
+
+    async deleteWatch(watchId) {
+        if (!confirm('Are you sure you want to delete this drug watch? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches/${watchId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to delete watch');
+            }
+
+            const result = await response.json();
+            console.log('Watch deleted:', result);
+            this.loadActiveWatches();
+            this.showNotification('Drug watch deleted successfully', 'success');
+        } catch (error) {
+            console.error('Error deleting watch:', error);
+            this.showNotification(`Failed to delete drug watch: ${error.message}`, 'error');
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transition-all duration-300 notification-enter ${
+            type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' :
+            type === 'error' ? 'bg-red-100 text-red-800 border border-red-300' :
+            'bg-blue-100 text-blue-800 border border-blue-300'
+        }`;
+        
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
+        
+        notification.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0 text-lg font-bold mr-3">${icon}</div>
+                <div class="flex-1">${message}</div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-500 hover:text-gray-700">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // Utility methods for integration with existing code
+    async checkSystemStatus() {
+        try {
+            const response = await fetch(`${this.apiBase}/drug-watches/system/status`);
+            const data = await response.json();
+            console.log('System Status:', data);
+            return data;
+        } catch (error) {
+            console.error('Error checking system status:', error);
+            return null;
+        }
+    }
+
+    async getUserStats() {
+        if (!this.currentUserEmail) return null;
+
+        try {
+            const response = await fetch(`${this.apiBase}/users/${encodeURIComponent(this.currentUserEmail)}/watch-stats`);
+            const data = await response.json();
+            return data.stats;
+        } catch (error) {
+            console.error('Error getting user stats:', error);
+            return null;
+        }
+    }
+}
+
+// Initialize the Drug Watch System when DOM is ready
+let drugWatchSystem = null;
+
+function initializeDrugWatch() {
+    if (drugWatchSystem) {
+        console.log('Drug Watch System already initialized');
+        return;
+    }
+
+    drugWatchSystem = new DrugWatchSystem();
+    console.log('✅ Drug Watch System initialized. Use window.debugDrugWatch for debugging.');
+    
+    // Add keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+        // Ctrl/Cmd + Shift + W to open Drug Watch
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'W') {
+            e.preventDefault();
+            drugWatchSystem.openDrugWatchModal();
+        }
+    });
+}
+
+// Initialize when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDrugWatch);
+} else {
+    initializeDrugWatch();
+}
+
+// Integration with existing code
+// If you have existing auth functions, integrate them
+if (typeof getCurrentUserInfo === 'undefined') {
+    window.getCurrentUserInfo = function() {
+        // This is a placeholder - replace with your actual auth logic
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                return JSON.parse(currentUser);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    };
+}
+
+// Add helper functions for existing code to use
+window.drugWatchHelpers = {
+    // Open drug watch modal programmatically
+    openDrugWatch: (drugName, condition) => {
+        if (drugWatchSystem) {
+            drugWatchSystem.openDrugWatchModal();
+            
+            // Pre-fill if provided
+            setTimeout(() => {
+                if (drugName) {
+                    const drugField = document.getElementById('watchDrugName');
+                    if (drugField) drugField.value = drugName;
+                    
+                    const nameField = document.getElementById('watchName');
+                    if (nameField) {
+                        nameField.value = condition ? 
+                            `${drugName} for ${condition}` : 
+                            `${drugName} Updates`;
+                    }
+                }
+                
+                if (condition) {
+                    const conditionField = document.getElementById('watchCondition');
+                    if (conditionField) conditionField.value = condition;
+                }
+                
+                // Switch to new watch tab
+                drugWatchSystem.switchTab('newWatch');
+            }, 100);
+        }
+    },
+    
+    // Get active watches count
+    getWatchCount: () => {
+        return drugWatchSystem ? drugWatchSystem.activeWatches.length : 0;
+    },
+    
+    // Check if drug is being watched
+    isDrugWatched: (drugName) => {
+        if (!drugWatchSystem) return false;
+        return drugWatchSystem.activeWatches.some(watch => 
+            watch.drugName.toLowerCase() === drugName.toLowerCase()
+        );
+    }
+};
+
+// Log initialization
+console.log('💊 Drug Watch System loaded. Use window.debugDrugWatch for debugging.');
+</script>
+
+<!-- Additional Integration Points -->
+<script>
+// If you want to add a Drug Watch indicator to existing drug search results
+function addDrugWatchIndicators() {
+    // Find drug result elements (adjust selector based on your UI)
+    const drugResults = document.querySelectorAll('.drug-result, .search-result-item, [data-drug-name]');
+    
+    drugResults.forEach(result => {
+        // Get drug name from the element
+        const drugName = result.getAttribute('data-drug-name') || 
+                        result.querySelector('.drug-name')?.textContent ||
+                        result.textContent.match(/^[\w\s-]+/)?.[0];
+        
+        if (drugName && window.drugWatchHelpers.isDrugWatched(drugName)) {
+            // Add watch indicator
+            if (!result.querySelector('.watch-indicator')) {
+                const indicator = document.createElement('span');
+                indicator.className = 'watch-indicator';
+                indicator.innerHTML = '👁️ Watching';
+                indicator.style.cssText = `
+                    display: inline-block;
+                    margin-left: 8px;
+                    font-size: 12px;
+                    color: #10b981;
+                    background: #d1fae5;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                `;
+                result.appendChild(indicator);
+            }
+        }
+    });
+}
+
+// Call this after search results are loaded
+if (window.afterSearchComplete) {
+    const originalAfterSearchComplete = window.afterSearchComplete;
+    window.afterSearchComplete = function(...args) {
+        originalAfterSearchComplete.apply(this, args);
+        setTimeout(addDrugWatchIndicators, 100);
+    };
+} else {
+    // Set up observer for dynamic content
+    const observer = new MutationObserver((mutations) => {
+        const hasNewResults = mutations.some(mutation => 
+            Array.from(mutation.addedNodes).some(node => 
+                node.nodeType === 1 && (
+                    node.classList?.contains('search-results') ||
+                    node.querySelector?.('.drug-result')
+                )
+            )
+        );
+        
+        if (hasNewResults) {
+            setTimeout(addDrugWatchIndicators, 100);
+        }
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+</script>
+</body>
+</html>
