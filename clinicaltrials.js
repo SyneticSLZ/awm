@@ -2381,8 +2381,8 @@ app.post('/api/demo', async (req, res) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'syneticslz@gmail.com',
-    pass: 'gble ksdb ntdq hqlx'
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
   }
 });
 

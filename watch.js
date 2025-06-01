@@ -73,10 +73,14 @@ class EnhancedDrugWatchService {
         host:  'smtp.gmail.com',
         port:  587,
         secure: false,
-        auth: {
-          user: 'rohanmehmi72@gmail.com',
-          pass: 'wqlu aaba oprn dxsd'
-        }
+        // auth: {
+        //   user: 'rohanmehmi72@gmail.com',
+        //   pass: 'wqlu aaba oprn dxsd'
+        // }
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
+  }
       });
 
       this.emailTransporter.verify((error, success) => {
