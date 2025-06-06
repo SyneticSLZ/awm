@@ -4755,8 +4755,42 @@ async function analyzeTextWithGrokAPI(text) {
   try {
     // Truncate text if too long (Grok API may have limits)
     const truncatedText = text.length > 8000 ? text.substring(0, 8000) + '...' : text;
+    const grokApiKey = process.env.grok;
+    const grokApiUrl = 'https://api.x.ai/v1/chat/completions';
+
+    // const payload = {
+    //   messages: [
+    //     {
+    //       role: "system",
+    //       content: "You are an AI assistant that specializes in analyzing FDA documents. Provide a clear, concise summary of the key information in the document, focusing on: 1) Drug name and active ingredients, 2) Approved indications, 3) Important safety information, 4) Dosage recommendations, 5) Contraindications, and 6) Any special populations or warnings. Format your response with clear markdown headings."
+    //     },
+    //     {
+    //       role: "user",
+    //       content: [
+    //         { 
+    //           type: "text", 
+    //           text: `Analyze and summarize this FDA document content:\n\n${truncatedText}` 
+    //         }
+    //       ]
+    //     }
+    //   ],
+    //   model: "grok-2-latest",
+    //   stream: false,
+    //   temperature: 0
+    // };
     
-    const payload = {
+    console.log('Sending request to Grok API...');
+    
+    // const response = await axios.post('https://api.x.ai/v1/chat/completions', payload, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${grokApiKey}`
+    //   },
+    //   timeout: 60000 // 60 second timeout
+    // });
+
+      const response = await axios.post(grokApiUrl, {
+      model: "grok-2", // Add the required model field - update to your specific Grok model name if different
       messages: [
         {
           role: "system",
@@ -4772,19 +4806,13 @@ async function analyzeTextWithGrokAPI(text) {
           ]
         }
       ],
-      model: "grok-2-latest",
-      stream: false,
-      temperature: 0
-    };
-    
-    console.log('Sending request to Grok API...');
-    
-    const response = await axios.post(GROK_API_URL, payload, {
+      max_tokens:  1500,
+      temperature:  0.7
+    }, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROK_API_KEY}`
-      },
-      timeout: 60000 // 60 second timeout
+        'Authorization': `Bearer ${grokApiKey}`,
+        'Content-Type': 'application/json'
+      }
     });
     
     console.log('Received response from Grok API');
