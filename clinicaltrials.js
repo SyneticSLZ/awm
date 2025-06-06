@@ -3575,8 +3575,14 @@ app.post('/api/conditions/drugs', async (req, res) => {
 app.post('/api/generate-summary', async (req, res) => {
   try {
     const { prompt, maxTokens, temperature, drugName } = req.body;
-    const grokApiKey = GROK_API_KEY;
-    const grokApiUrl = GROK_API_URL; // Your Grok chat completions URL
+
+    // const GROK_API_URL = ''; // Updated to correct base URL
+
+
+    const grokApiKey = process.env.grok;
+    const grokApiUrl = 'https://api.x.ai/v1/chat/completions'; // Your Grok chat completions URL
+    
+
     
     console.log(`Generating Grok summary for ${drugName}`);
     
