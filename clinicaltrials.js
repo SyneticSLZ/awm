@@ -32,6 +32,7 @@ const { connectDB } = require('./db');
 const { User } = require('./db');
 const { Lead } = require('./db');
 const pubmedRoutes = require('./pubmed-routes.js');
+const biomarkerRoutes = require('./bioserver.js');
 
 const { UserSession } = require('./db');
 
@@ -344,7 +345,7 @@ initializeDrugWatchService();
 
 // Use the drug watch routes
 app.use('/api', drugWatchRouter);
-
+app.use('/api/biomarkers', biomarkerRoutes);
 
 // Grok API Configuration
 const GROK_API = 'https://api.grok.ai/v1';

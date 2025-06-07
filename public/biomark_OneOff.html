@@ -52,6 +52,30 @@
             color: white;
             margin: 8px 0;
         }
+        .search-result-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid #e5e7eb;
+}
+.search-result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-left-color: #3b82f6;
+}
+.biomarker-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+.trial-phase-badge {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+.search-loading {
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
     </style>
 </head>
 <body class="bg-gray-50">
@@ -106,8 +130,11 @@
                     Trial Burden Impact
                 </button>
                 <button class="nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="search">
-                    Search Database
+                    Advanced Search
                 </button>
+                <!-- <button class="nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="search">Advanced Search</button>
+                <button class="nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="results">Search Results</button> -->
+
             </div>
         </div>
     </nav>
@@ -567,114 +594,323 @@
             </div>
         </section>
 
-        <!-- Search Database Section -->
-        <section id="search" class="content-section hidden">
-            <div class="bg-white rounded-lg shadow-sm p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">Search Evidence Database</h2>
 
-                <!-- AI Insight -->
-                <div class="ai-insight mb-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="brain" class="w-5 h-5"></i>
-                        <h3 class="font-bold">AI SEARCH ASSISTANT</h3>
-                    </div>
-                    <p class="text-sm">Search our database of 42 FDA approvals to find precedents for your case. Try searches like "HLA exclusion safety", "CFTR 100% positive", "CYP2D6 mixed population", or specific drug names. Each result shows the exact biomarker strategy used and regulatory outcome.</p>
+
+        <!-- Replace the entire search section in your existing HTML -->
+
+<!-- Enhanced Search Section -->
+<section id="search" class="content-section">
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <i data-lucide="search" class="w-6 h-6 text-blue-600"></i>
+            Professional Biomarker Search
+        </h2>
+        
+        <!-- Search Form -->
+        <form id="searchForm" class="space-y-6">
+            <!-- Primary Search Parameters -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i data-lucide="dna" class="w-4 h-4 inline mr-1"></i>
+                        Biomarker
+                    </label>
+                    <input type="text" id="biomarkerInput" 
+                           placeholder="e.g., HLA-B*15:02, CFTR, CYP2C19"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="text-xs text-gray-500 mt-1">Genetic, protein, or pathway biomarkers</div>
                 </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i data-lucide="pill" class="w-4 h-4 inline mr-1"></i>
+                        Drug/Intervention
+                    </label>
+                    <input type="text" id="drugInput" 
+                           placeholder="e.g., carbamazepine, ivacaftor"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="text-xs text-gray-500 mt-1">Drug name or intervention</div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i data-lucide="building" class="w-4 h-4 inline mr-1"></i>
+                        FDA Division
+                    </label>
+                    <select id="fdaDivisionSelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Divisions</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="pulmonary">Pulmonary</option>
+                        <option value="psychiatry">Psychiatry</option>
+                        <option value="infectious diseases">Infectious Diseases</option>
+                        <option value="ophthalmology">Ophthalmology</option>
+                        <option value="endocrinology">Endocrinology</option>
+                        <option value="gastroenterology">Gastroenterology</option>
+                    </select>
+                </div>
+            </div>
 
-                <!-- Enhanced Search Form -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Advanced Filters -->
+            <div class="border-t pt-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Advanced Filters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Biomarker</label>
-                        <input type="text" id="searchBiomarker" placeholder="e.g., HLA-B*15:02, CFTR, SMN1" 
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <div class="text-xs text-gray-500 mt-1">Examples: HLA, CFTR, CYP2D6, SMN1</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Drug</label>
-                        <input type="text" id="searchDrug" placeholder="e.g., carbamazepine, ivacaftor" 
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <div class="text-xs text-gray-500 mt-1">Examples: carbamazepine, nusinersen, clopidogrel</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Division</label>
-                        <select id="searchDivision" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All Divisions</option>
-                            <option value="neurology">Neurology</option>
-                            <option value="pulmonary">Pulmonary</option>
-                            <option value="psychiatry">Psychiatry</option>
-                            <option value="cardiology">Cardiology</option>
-                            <option value="infectious diseases">Infectious Diseases</option>
-                            <option value="ophthalmology">Ophthalmology</option>
-                            <option value="endocrinology">Endocrinology</option>
-                            <option value="gastroenterology">Gastroenterology</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Study Phase</label>
+                        <select id="phaseSelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Phases</option>
+                            <option value="Phase 1">Phase 1</option>
+                            <option value="Phase 2">Phase 2</option>
+                            <option value="Phase 3">Phase 3</option>
+                            <option value="Phase 4">Phase 4</option>
                         </select>
                     </div>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Enrichment Type</label>
-                        <select id="searchEnrichment" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All Types</option>
-                            <option value="high">Efficient (0-10% negative)</option>
-                            <option value="moderate">Moderate (10-50% negative)</option>
-                            <option value="low">Inefficient (50%+ negative)</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Study Status</label>
+                        <select id="statusSelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Statuses</option>
+                            <option value="completed">Completed</option>
+                            <option value="recruiting">Recruiting</option>
+                            <option value="active">Active</option>
+                            <option value="terminated">Terminated</option>
                         </select>
                     </div>
-                </div>
-
-                <!-- Quick Search Examples -->
-                <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                    <h3 class="font-medium text-gray-800 mb-3">Quick Search Examples</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="safety exclusion">
-                            Safety Exclusion Precedents
-                        </button>
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="100% positive">
-                            100% Biomarker-Positive Trials
-                        </button>
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="HLA">
-                            HLA Biomarker Cases
-                        </button>
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="genetic mutation">
-                            Genetic Mutation Enrichment
-                        </button>
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="pharmacogenomics">
-                            Pharmacogenomic Dosing
-                        </button>
-                        <button class="quick-search-btn text-left text-sm bg-white border rounded p-2 hover:bg-blue-50" data-search="neurology efficient">
-                            Neurology Division Successes
-                        </button>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Results</label>
+                        <select id="maxResultsSelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="25">25 results</option>
+                            <option value="50" selected>50 results</option>
+                            <option value="100">100 results</option>
+                            <option value="200">200 results</option>
+                        </select>
                     </div>
-                </div>
-
-                <div class="flex gap-3 mb-6">
-                    <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                        Search Database
-                    </button>
-                    <button id="clearSearchBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                        Clear Search
-                    </button>
-                </div>
-
-                <!-- Search Results -->
-                <div id="searchResults" class="hidden">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                        Search Results <span id="resultCount" class="text-sm font-normal text-gray-600"></span>
-                    </h3>
-                    <div id="resultsList" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <!-- Results will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div id="searchLoading" class="hidden text-center py-8">
-                    <div class="inline-flex items-center gap-3 text-gray-600">
-                        <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        Searching databases...
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search Sources</label>
+                        <div class="space-y-1">
+                            <label class="flex items-center text-xs">
+                                <input type="checkbox" id="sourcePubmed" checked class="mr-2 rounded">
+                                PubMed Literature
+                            </label>
+                            <label class="flex items-center text-xs">
+                                <input type="checkbox" id="sourceClinicalTrials" checked class="mr-2 rounded">
+                                ClinicalTrials.gov
+                            </label>
+                            <label class="flex items-center text-xs">
+                                <input type="checkbox" id="sourceFDA" checked class="mr-2 rounded">
+                                FDA Database
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Quick Search Examples -->
+            <div class="border-t pt-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Quick Search Examples</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button type="button" class="example-search text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors" 
+                            data-biomarker="HLA-B*15:02" data-drug="carbamazepine" data-division="neurology">
+                        <div class="font-medium text-sm">Safety Exclusion Example</div>
+                        <div class="text-xs text-gray-600">HLA-B*15:02 + Carbamazepine (Neurology)</div>
+                    </button>
+                    
+                    <button type="button" class="example-search text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                            data-biomarker="CFTR" data-drug="ivacaftor" data-division="pulmonary">
+                        <div class="font-medium text-sm">Precision Medicine Example</div>
+                        <div class="text-xs text-gray-600">CFTR + Ivacaftor (Pulmonary)</div>
+                    </button>
+                    
+                    <button type="button" class="example-search text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                            data-biomarker="CYP2C19" data-drug="clopidogrel" data-division="cardiology">
+                        <div class="font-medium text-sm">Pharmacogenomic Example</div>
+                        <div class="text-xs text-gray-600">CYP2C19 + Clopidogrel (Cardiology)</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Actions -->
+            <div class="flex gap-3 pt-4">
+                <button type="submit" id="searchButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    Search All Sources
+                </button>
+                
+                <button type="button" id="clearSearchButton" class="bg-gray-500 text-white px-4 py-3 rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Clear
+                </button>
+                
+                <button type="button" id="advancedOptionsButton" class="border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    Options
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Search Status -->
+    <div id="searchStatus" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div>
+                <div class="font-medium text-blue-900">Searching databases...</div>
+                <div id="searchProgress" class="text-sm text-blue-700"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced Search Results Section -->
+<section id="results" class="content-section hidden">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i data-lucide="database" class="w-6 h-6 text-blue-600"></i>
+            Search Results
+        </h2>
+        <div class="flex items-center gap-3">
+            <div id="resultsCount" class="text-sm text-gray-600"></div>
+            <select id="resultsSortSelect" class="text-sm border rounded-lg px-3 py-2">
+                <option value="relevance">Sort by Relevance</option>
+                <option value="date">Sort by Date</option>
+                <option value="enrichment">Sort by Enrichment</option>
+                <option value="precedent">Sort by Precedent Strength</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div id="resultsSummary" class="bg-white rounded-lg shadow-sm p-4 mb-6 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="text-center">
+                <div id="pubmedCount" class="text-2xl font-bold text-green-600">0</div>
+                <div class="text-sm text-gray-600">PubMed Articles</div>
+            </div>
+            <div class="text-center">
+                <div id="clinicalTrialsCount" class="text-2xl font-bold text-blue-600">0</div>
+                <div class="text-sm text-gray-600">Clinical Trials</div>
+            </div>
+            <div class="text-center">
+                <div id="fdaCount" class="text-2xl font-bold text-purple-600">0</div>
+                <div class="text-sm text-gray-600">FDA Precedents</div>
+            </div>
+            <div class="text-center">
+                <div id="totalCount" class="text-2xl font-bold text-gray-900">0</div>
+                <div class="text-sm text-gray-600">Total Results</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Container -->
+    <div id="searchResults" class="space-y-4">
+        <!-- Results will be populated here -->
+    </div>
+
+    <!-- Load More Button -->
+    <div id="loadMoreContainer" class="hidden text-center mt-6">
+        <button id="loadMoreButton" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Load More Results
+        </button>
+    </div>
+</section>
+
+<!-- Add this right after your search form/section -->
+<section id="searchResultsSection" class="max-w-7xl mx-auto px-4 py-6 hidden">
+    <!-- Results Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            Search Results
+        </h2>
+        <div class="flex items-center gap-3">
+            <span id="resultsCount" class="text-sm text-gray-600"></span>
+            <select id="resultsSortSelect" class="text-sm border rounded-lg px-3 py-2">
+                <option value="relevance">Sort by Relevance</option>
+                <option value="date">Sort by Date</option>
+                <option value="enrichment">Sort by Enrichment Level</option>
+                <option value="source">Sort by Source</option>
+            </select>
+            <button onclick="exportResults()" class="text-sm bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                Export Results
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Summary Cards -->
+    <div id="resultsSummary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-purple-600" id="fdaPrecedentsCount">0</div>
+                    <div class="text-sm text-gray-600">FDA Precedents</div>
+                </div>
+                <svg class="w-8 h-8 text-purple-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1a1 1 0 100-2 2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-blue-600" id="clinicalTrialsCount">0</div>
+                    <div class="text-sm text-gray-600">Clinical Trials</div>
+                </div>
+                <svg class="w-8 h-8 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-green-600" id="pubmedCount">0</div>
+                    <div class="text-sm text-gray-600">PubMed Articles</div>
+                </div>
+                <svg class="w-8 h-8 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                </svg>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-2xl font-bold text-gray-900" id="totalResultsCount">0</div>
+                    <div class="text-sm text-gray-600">Total Results</div>
+                </div>
+                <svg class="w-8 h-8 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 6.707 6.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l4-4z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights Panel -->
+    <div id="insightsPanel" class="hidden mb-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            </svg>
+            Key Insights
+        </h3>
+        <div id="insightsContent" class="space-y-3"></div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="searchResultsContainer" class="space-y-4"></div>
+
+    <!-- Load More -->
+    <div id="loadMoreContainer" class="hidden text-center mt-6">
+        <button onclick="loadMoreResults()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Load More Results
+        </button>
+    </div>
+</section>
+
     </main>
 
     <!-- Footer -->
@@ -4000,59 +4236,2238 @@ function renderDivisionAnalysis() {
     `).join('');
 }
 
-// Perform search
-function performSearch() {
-    const biomarker = document.getElementById('searchBiomarker').value.toLowerCase();
-    const drug = document.getElementById('searchDrug').value.toLowerCase();
-    const division = document.getElementById('searchDivision').value.toLowerCase();
-    const enrichment = document.getElementById('searchEnrichment').value;
+
+// Enhanced Search Functionality - Replace existing search code
+
+// // Global search state
+// let searchState = {
+//     isSearching: false,
+//     currentResults: [],
+//     currentQuery: {},
+//     lastSearchTime: null
+// };
+
+// // Initialize enhanced search functionality
+// function initEnhancedSearch() {
+//     console.log('[SEARCH INIT] Initializing enhanced search functionality');
     
-    let results = appState.trials.filter(trial => {
-        const matchesBiomarker = !biomarker || 
-            trial.biomarker.toLowerCase().includes(biomarker) ||
-            trial.trialDesign.toLowerCase().includes(biomarker) ||
-            trial.results.biomarkerPositive.toLowerCase().includes(biomarker);
-        
-        const matchesDrug = !drug || trial.drug.toLowerCase().includes(drug);
-        const matchesDivision = !division || trial.division.toLowerCase().includes(division);
-        const matchesEnrichment = !enrichment || trial.enrichmentCategory === enrichment;
-        
-        return matchesBiomarker && matchesDrug && matchesDivision && matchesEnrichment;
-    });
+//     // Setup event listeners
+//     document.getElementById('searchForm').addEventListener('submit', handleSearch);
+//     document.getElementById('clearSearchButton').addEventListener('click', clearSearchForm);
+//     document.getElementById('advancedOptionsButton').addEventListener('click', toggleAdvancedOptions);
     
-    displaySearchResults(results);
+//     // Example search buttons
+//     document.querySelectorAll('.example-search').forEach(btn => {
+//         btn.addEventListener('click', (e) => {
+//             const biomarker = e.currentTarget.dataset.biomarker;
+//             const drug = e.currentTarget.dataset.drug;
+//             const division = e.currentTarget.dataset.division;
+            
+//             document.getElementById('biomarkerInput').value = biomarker;
+//             document.getElementById('drugInput').value = drug;
+//             document.getElementById('fdaDivisionSelect').value = division;
+            
+//             handleSearch(e);
+//         });
+//     });
+    
+//     // Results sorting
+//     document.getElementById('resultsSortSelect').addEventListener('change', handleResultsSort);
+    
+//     console.log('[SEARCH INIT] Enhanced search initialized successfully');
+// }
+
+// // Handle search form submission
+// async function handleSearch(e) {
+//     e.preventDefault();
+    
+//     if (searchState.isSearching) {
+//         console.log('[SEARCH] Search already in progress, ignoring request');
+//         return;
+//     }
+    
+//     console.log('[SEARCH] Starting new search...');
+    
+//     // Get search parameters
+//     const searchParams = {
+//         biomarker: document.getElementById('biomarkerInput').value.trim(),
+//         drug: document.getElementById('drugInput').value.trim(),
+//         fdaDivision: document.getElementById('fdaDivisionSelect').value,
+//         phase: document.getElementById('phaseSelect').value,
+//         status: document.getElementById('statusSelect').value,
+//         maxResults: parseInt(document.getElementById('maxResultsSelect').value),
+//         sources: getSelectedSources()
+//     };
+    
+//     console.log('[SEARCH] Search parameters:', searchParams);
+    
+//     // Validate search parameters
+//     if (!searchParams.biomarker && !searchParams.drug && !searchParams.fdaDivision) {
+//         showNotification('Please enter at least one search parameter (biomarker, drug, or FDA division)', 'warning');
+//         return;
+//     }
+    
+//     // Update UI state
+//     searchState.isSearching = true;
+//     searchState.currentQuery = searchParams;
+//     searchState.lastSearchTime = Date.now();
+    
+//     showSearchProgress();
+//     switchToResultsSection();
+    
+//     try {
+//         // Perform comprehensive search
+//         const results = await performComprehensiveSearch(searchParams);
+        
+//         console.log('[SEARCH] Search completed successfully:', {
+//             totalResults: results.length,
+//             breakdown: getResultsBreakdown(results)
+//         });
+        
+//         // Update results
+//         searchState.currentResults = results;
+//         displaySearchResults(results);
+//         updateResultsSummary(results);
+        
+//         showNotification(`Found ${results.length} results across all databases`, 'success');
+        
+//     } catch (error) {
+//         console.error('[SEARCH] Search failed:', error);
+//         showSearchError(error.message);
+//         showNotification('Search failed. Please try again.', 'error');
+//     } finally {
+//         searchState.isSearching = false;
+//         hideSearchProgress();
+//     }
+// }
+
+// // Get selected search sources
+// function getSelectedSources() {
+//     const sources = [];
+//     if (document.getElementById('sourcePubmed').checked) sources.push('pubmed');
+//     if (document.getElementById('sourceClinicalTrials').checked) sources.push('clinicaltrials');
+//     if (document.getElementById('sourceFDA').checked) sources.push('fda');
+//     return sources;
+// }
+
+// // Perform comprehensive search across all sources
+// async function performComprehensiveSearch(searchParams) {
+//     console.log('[SEARCH API] Starting comprehensive search');
+    
+//     updateSearchProgress('Initializing search across databases...');
+    
+//     try {
+//         const response = await fetch('/api/search/comprehensive', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify(searchParams)
+//         });
+        
+//         if (!response.ok) {
+//             throw new Error(`Search API returned ${response.status}: ${response.statusText}`);
+//         }
+        
+//         const data = await response.json();
+        
+//         if (!data.success) {
+//             throw new Error(data.error || 'Search failed');
+//         }
+        
+//         console.log('[SEARCH API] Comprehensive search completed:', {
+//             total: data.totalResults,
+//             breakdown: data.breakdown
+//         });
+        
+//         return data.data || [];
+        
+//     } catch (error) {
+//         console.error('[SEARCH API] Comprehensive search failed:', error);
+//         throw error;
+//     }
+// }
+
+// // Display search results
+// function displaySearchResults(results) {
+//     console.log('[RESULTS] Displaying', results.length, 'search results');
+    
+//     const container = document.getElementById('searchResults');
+    
+//     if (results.length === 0) {
+//         container.innerHTML = `
+//             <div class="text-center py-12">
+//                 <i data-lucide="search-x" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+//                 <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+//                 <p class="text-gray-600 mb-4">Try adjusting your search parameters or using different keywords.</p>
+//                 <button onclick="clearSearchForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+//                     Start New Search
+//                 </button>
+//             </div>
+//         `;
+//         lucide.createIcons();
+//         return;
+//     }
+    
+//     container.innerHTML = results.map(result => createResultCard(result)).join('');
+//     lucide.createIcons();
+    
+//     // Show results section
+//     document.getElementById('resultsSummary').classList.remove('hidden');
+// }
+
+// // Create individual result card
+// function createResultCard(result) {
+//     const sourceType = result.sourceType || 'unknown';
+//     const cardClass = getSourceCardClass(sourceType);
+    
+//     return `
+//         <div class="search-result-card bg-white rounded-lg shadow-sm p-6 ${cardClass}">
+//             ${createResultHeader(result)}
+//             ${createResultContent(result)}
+//             ${createResultBiomarkerAnalysis(result)}
+//             ${createResultMetrics(result)}
+//             ${createResultActions(result)}
+//         </div>
+//     `;
+// }
+
+// // Create result card header
+// function createResultHeader(result) {
+//     const sourceIcon = getSourceIcon(result.sourceType);
+//     const sourceLabel = getSourceLabel(result.sourceType);
+    
+//     return `
+//         <div class="flex items-start justify-between mb-4">
+//             <div class="flex-1">
+//                 <h3 class="text-lg font-semibold text-gray-900 mb-2">${escapeHtml(result.title || result.drug || 'Title not available')}</h3>
+//                 <div class="flex items-center gap-3 text-sm text-gray-600">
+//                     <span class="flex items-center gap-1">
+//                         <i data-lucide="${sourceIcon}" class="w-4 h-4"></i>
+//                         ${sourceLabel}
+//                     </span>
+//                     ${result.nctId ? `<span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">${result.nctId}</span>` : ''}
+//                     ${result.pmid ? `<span class="font-mono text-xs bg-green-100 text-green-800 px-2 py-1 rounded">PMID: ${result.pmid}</span>` : ''}
+//                 </div>
+//             </div>
+//             <div class="text-right">
+//                 ${createPrecedentBadge(result)}
+//                 ${createPhaseBadge(result)}
+//             </div>
+//         </div>
+//     `;
+// }
+
+// // Create result content section
+// function createResultContent(result) {
+//     let content = '';
+    
+//     if (result.briefSummary || result.abstract) {
+//         content += `
+//             <div class="mb-4">
+//                 <div class="text-sm font-medium text-gray-700 mb-2">Summary</div>
+//                 <div class="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+//                     ${escapeHtml((result.briefSummary || result.abstract || '').substring(0, 300))}
+//                     ${(result.briefSummary || result.abstract || '').length > 300 ? '...' : ''}
+//                 </div>
+//             </div>
+//         `;
+//     }
+    
+//     // Trial design for clinical trials
+//     if (result.sourceType === 'clinical_trial' && result.trialDesign) {
+//         content += `
+//             <div class="mb-4">
+//                 <div class="text-sm font-medium text-gray-700 mb-2">Trial Design</div>
+//                 <div class="text-sm text-gray-600">${escapeHtml(result.trialDesign)}</div>
+//             </div>
+//         `;
+//     }
+    
+//     // FDA outcome for precedents
+//     if (result.sourceType === 'fda_approval' && result.fdaOutcome) {
+//         content += `
+//             <div class="mb-4">
+//                 <div class="text-sm font-medium text-gray-700 mb-2">FDA Outcome</div>
+//                 <div class="text-sm text-blue-800 bg-blue-50 rounded-lg p-3">${escapeHtml(result.fdaOutcome)}</div>
+//             </div>
+//         `;
+//     }
+    
+//     return content;
+// }
+
+// // Create biomarker analysis section
+// function createResultBiomarkerAnalysis(result) {
+//     if (!result.biomarkerAnalysis) return '';
+    
+//     const analysis = result.biomarkerAnalysis;
+    
+//     return `
+//         <div class="mb-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4">
+//             <div class="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+//                 <i data-lucide="dna" class="w-4 h-4 text-blue-600"></i>
+//                 Biomarker Analysis
+//             </div>
+            
+//             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                 <div>
+//                     <div class="text-xs text-gray-600 mb-1">Biomarker Type</div>
+//                     <div class="text-sm font-medium ${analysis.biomarkerType !== 'Not specified' ? 'text-blue-700' : 'text-gray-500'}">
+//                         ${analysis.biomarkerType}
+//                     </div>
+//                 </div>
+                
+//                 <div>
+//                     <div class="text-xs text-gray-600 mb-1">Enrichment Strategy</div>
+//                     <div class="text-sm font-medium ${analysis.enrichmentStrategy !== 'Not determined' ? 'text-green-700' : 'text-gray-500'}">
+//                         ${analysis.enrichmentStrategy}
+//                     </div>
+//                 </div>
+                
+//                 <div>
+//                     <div class="text-xs text-gray-600 mb-1">Estimated Enrichment</div>
+//                     <div class="text-sm font-medium ${analysis.estimatedEnrichment !== 'Unknown' ? 'text-purple-700' : 'text-gray-500'}">
+//                         ${analysis.estimatedEnrichment}
+//                     </div>
+//                 </div>
+//             </div>
+            
+//             ${analysis.biomarkerDetails && analysis.biomarkerDetails.length > 0 ? `
+//                 <div class="mt-3">
+//                     <div class="text-xs text-gray-600 mb-2">Specific Biomarkers</div>
+//                     <div class="flex flex-wrap gap-1">
+//                         ${analysis.biomarkerDetails.map(biomarker => 
+//                             `<span class="biomarker-badge text-white text-xs px-2 py-1 rounded-full">${escapeHtml(biomarker)}</span>`
+//                         ).join('')}
+//                     </div>
+//                 </div>
+//             ` : ''}
+            
+//             ${analysis.keyFindings && analysis.keyFindings.length > 0 ? `
+//                 <div class="mt-3">
+//                     <div class="text-xs text-gray-600 mb-2">Key Findings</div>
+//                     <div class="flex flex-wrap gap-1">
+//                         ${analysis.keyFindings.map(finding => 
+//                             `<span class="text-xs bg-white text-gray-700 px-2 py-1 rounded border">${escapeHtml(finding)}</span>`
+//                         ).join('')}
+//                     </div>
+//                 </div>
+//             ` : ''}
+//         </div>
+//     `;
+// }
+
+// // Create result metrics section
+// function createResultMetrics(result) {
+//     let metrics = '';
+    
+//     // Enrollment information for clinical trials
+//     if (result.enrollment && typeof result.enrollment === 'object') {
+//         const enrollment = result.enrollment;
+//         metrics += `
+//             <div class="mb-4">
+//                 <div class="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+//                     <i data-lucide="users" class="w-4 h-4 text-purple-600"></i>
+//                     Enrollment Details
+//                 </div>
+                
+//                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+//                     <div class="bg-gray-50 rounded p-2">
+//                         <div class="text-xs text-gray-600 mb-1">Total Patients</div>
+//                         <div class="font-medium">${enrollment.count || enrollment.total || 'Not specified'}</div>
+//                     </div>
+                    
+//                     ${enrollment.percentPositive !== undefined ? `
+//                         <div class="bg-green-50 rounded p-2">
+//                             <div class="text-xs text-gray-600 mb-1">Biomarker Positive</div>
+//                             <div class="font-medium text-green-700">${enrollment.percentPositive}%</div>
+//                         </div>
+                        
+//                         <div class="bg-red-50 rounded p-2">
+//                             <div class="text-xs text-gray-600 mb-1">Biomarker Negative</div>
+//                             <div class="font-medium text-red-700">${enrollment.percentNegative}%</div>
+//                         </div>
+                        
+//                         <div class="bg-blue-50 rounded p-2">
+//                             <div class="text-xs text-gray-600 mb-1">Enrichment Level</div>
+//                             <div class="font-medium text-blue-700">${getEnrichmentLevel(enrollment.percentPositive)}</div>
+//                         </div>
+//                     ` : ''}
+//                 </div>
+                
+//                 ${enrollment.percentPositive !== undefined ? `
+//                     <div class="mt-3">
+//                         <div class="text-xs text-gray-600 mb-1">Population Distribution</div>
+//                         <div class="flex h-4 bg-gray-200 rounded-full overflow-hidden">
+//                             <div class="bg-green-500 transition-all duration-300" style="width: ${enrollment.percentPositive}%"></div>
+//                             <div class="bg-red-400 transition-all duration-300" style="width: ${enrollment.percentNegative}%"></div>
+//                         </div>
+//                         <div class="flex justify-between text-xs text-gray-500 mt-1">
+//                             <span>${enrollment.percentPositive}% Positive</span>
+//                             <span>${enrollment.percentNegative}% Negative</span>
+//                         </div>
+//                     </div>
+//                 ` : ''}
+//             </div>
+//         `;
+//     }
+    
+//     // Results for FDA approvals
+//     if (result.results && result.sourceType === 'fda_approval') {
+//         metrics += `
+//             <div class="mb-4">
+//                 <div class="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+//                     <i data-lucide="trending-up" class="w-4 h-4 text-green-600"></i>
+//                     Clinical Results
+//                 </div>
+                
+//                 <div class="space-y-2 text-sm">
+//                     ${result.results.biomarkerPositive ? `
+//                         <div class="bg-green-50 rounded p-3">
+//                             <div class="text-xs text-green-700 font-medium mb-1">Biomarker-Positive Results</div>
+//                             <div class="text-green-800">${escapeHtml(result.results.biomarkerPositive)}</div>
+//                         </div>
+//                     ` : ''}
+                    
+//                     ${result.results.biomarkerNegative ? `
+//                         <div class="bg-red-50 rounded p-3">
+//                             <div class="text-xs text-red-700 font-medium mb-1">Biomarker-Negative Results</div>
+//                             <div class="text-red-800">${escapeHtml(result.results.biomarkerNegative)}</div>
+//                         </div>
+//                     ` : ''}
+                    
+//                     ${result.results.pValue ? `
+//                         <div class="bg-blue-50 rounded p-2">
+//                             <div class="text-xs text-blue-700 font-medium">Statistical Significance: ${result.results.pValue}</div>
+//                         </div>
+//                     ` : ''}
+//                 </div>
+//             </div>
+//         `;
+//     }
+    
+//     return metrics;
+// }
+
+// // Create result actions section
+// function createResultActions(result) {
+//     return `
+//         <div class="flex items-center justify-between pt-4 border-t">
+//             <div class="flex items-center gap-3 text-sm text-gray-600">
+//                 ${result.fdaDivision ? `
+//                     <span class="flex items-center gap-1">
+//                         <i data-lucide="building" class="w-4 h-4"></i>
+//                         ${result.fdaDivision}
+//                     </span>
+//                 ` : ''}
+                
+//                 ${result.sponsor ? `
+//                     <span class="flex items-center gap-1">
+//                         <i data-lucide="briefcase" class="w-4 h-4"></i>
+//                         ${escapeHtml(result.sponsor)}
+//                     </span>
+//                 ` : ''}
+                
+//                 ${result.publicationDate || result.startDate ? `
+//                     <span class="flex items-center gap-1">
+//                         <i data-lucide="calendar" class="w-4 h-4"></i>
+//                         ${result.publicationDate || result.startDate}
+//                     </span>
+//                 ` : ''}
+//             </div>
+            
+//             <div class="flex items-center gap-2">
+//                 ${result.url ? `
+//                     <a href="${result.url}" target="_blank" 
+//                        class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+//                         <i data-lucide="external-link" class="w-4 h-4"></i>
+//                         View Source
+//                     </a>
+//                 ` : ''}
+                
+//                 <button onclick="analyzeResult('${result.id || result.nctId || result.pmid}')" 
+//                         class="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center gap-1">
+//                     <i data-lucide="bar-chart" class="w-4 h-4"></i>
+//                     Analyze
+//                 </button>
+//             </div>
+//         </div>
+//     `;
+// }
+
+// // Utility functions for result cards
+// function getSourceCardClass(sourceType) {
+//     switch (sourceType) {
+//         case 'literature': return 'border-l-green-500';
+//         case 'clinical_trial': return 'border-l-blue-500';
+//         case 'fda_approval': return 'border-l-purple-500';
+//         default: return 'border-l-gray-300';
+//     }
+// }
+
+// function getSourceIcon(sourceType) {
+//     switch (sourceType) {
+//         case 'literature': return 'book-open';
+//         case 'clinical_trial': return 'activity';
+//         case 'fda_approval': return 'shield-check';
+//         default: return 'file-text';
+//     }
+// }
+
+// function getSourceLabel(sourceType) {
+//     switch (sourceType) {
+//         case 'literature': return 'PubMed Literature';
+//         case 'clinical_trial': return 'Clinical Trial';
+//         case 'fda_approval': return 'FDA Precedent';
+//         default: return 'Unknown Source';
+//     }
+// }
+
+// function createPrecedentBadge(result) {
+//     if (!result.precedentStrength) return '';
+    
+//     const badgeClass = {
+//         'Maximum': 'bg-green-100 text-green-800',
+//         'High': 'bg-blue-100 text-blue-800',
+//         'Moderate': 'bg-yellow-100 text-yellow-800',
+//         'Low': 'bg-red-100 text-red-800'
+//     }[result.precedentStrength] || 'bg-gray-100 text-gray-800';
+    
+//     return `
+//         <span class="px-2 py-1 rounded-full text-xs font-medium ${badgeClass}">
+//             ${result.precedentStrength} Precedent
+//         </span>
+//     `;
+// }
+
+// function createPhaseBadge(result) {
+//     if (!result.phase) return '';
+    
+//     const phaseClass = {
+//         'Phase 1': 'bg-blue-100 text-blue-800',
+//         'Phase 2': 'bg-green-100 text-green-800',
+//         'Phase 3': 'bg-purple-100 text-purple-800',
+//         'Phase 4': 'bg-orange-100 text-orange-800'
+//     };
+    
+//     const matchedPhase = Object.keys(phaseClass).find(phase => 
+//         result.phase.includes(phase)
+//     );
+    
+//     if (matchedPhase) {
+//         return `
+//             <span class="trial-phase-badge text-white px-2 py-1 rounded-full text-xs font-medium ml-2">
+//                 ${matchedPhase}
+//             </span>
+//         `;
+//     }
+    
+//     return `
+//         <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium ml-2">
+//             ${result.phase}
+//         </span>
+//     `;
+// }
+
+// function getEnrichmentLevel(percentPositive) {
+//     if (percentPositive >= 90 || percentPositive <= 10) return 'High';
+//     if (percentPositive >= 70 || percentPositive <= 30) return 'Moderate';
+//     return 'Low';
+// }
+
+// // Update results summary
+// function updateResultsSummary(results) {
+//     const breakdown = getResultsBreakdown(results);
+    
+//     document.getElementById('pubmedCount').textContent = breakdown.pubmed;
+//     document.getElementById('clinicalTrialsCount').textContent = breakdown.clinicaltrials;
+//     document.getElementById('fdaCount').textContent = breakdown.fda;
+//     document.getElementById('totalCount').textContent = results.length;
+    
+//     document.getElementById('resultsCount').textContent = 
+//         `${results.length} results found${searchState.lastSearchTime ? 
+//         ` in ${Math.round((Date.now() - searchState.lastSearchTime) / 1000)}s` : ''}`;
+// }
+
+// function getResultsBreakdown(results) {
+//     return {
+//         pubmed: results.filter(r => r.sourceType === 'literature').length,
+//         clinicaltrials: results.filter(r => r.sourceType === 'clinical_trial').length,
+//         fda: results.filter(r => r.sourceType === 'fda_approval').length
+//     };
+// }
+
+// // Handle results sorting
+// function handleResultsSort() {
+//     const sortBy = document.getElementById('resultsSortSelect').value;
+//     console.log('[RESULTS] Sorting by:', sortBy);
+    
+//     const sortedResults = [...searchState.currentResults].sort((a, b) => {
+//         switch (sortBy) {
+//             case 'date':
+//                 const dateA = new Date(a.publicationDate || a.startDate || a.approvalYear || '1900');
+//                 const dateB = new Date(b.publicationDate || b.startDate || b.approvalYear || '1900');
+//                 return dateB - dateA;
+                
+//             case 'enrichment':
+//                 const enrichmentA = a.enrollment?.percentPositive || 0;
+//                 const enrichmentB = b.enrollment?.percentPositive || 0;
+//                 return enrichmentB - enrichmentA;
+                
+//             case 'precedent':
+//                 const precedentOrder = { 'Maximum': 4, 'High': 3, 'Moderate': 2, 'Low': 1 };
+//                 const precedentA = precedentOrder[a.precedentStrength] || 0;
+//                 const precedentB = precedentOrder[b.precedentStrength] || 0;
+//                 return precedentB - precedentA;
+                
+//             case 'relevance':
+//             default:
+//                 return (b.searchRelevance || 0) - (a.searchRelevance || 0);
+//         }
+//     });
+    
+//     searchState.currentResults = sortedResults;
+//     displaySearchResults(sortedResults);
+// }
+
+// // UI Control Functions
+// function showSearchProgress() {
+//     document.getElementById('searchStatus').classList.remove('hidden');
+//     document.getElementById('searchButton').disabled = true;
+//     document.getElementById('searchButton').innerHTML = `
+//         <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+//         Searching...
+//     `;
+// }
+
+// function hideSearchProgress() {
+//     document.getElementById('searchStatus').classList.add('hidden');
+//     document.getElementById('searchButton').disabled = false;
+//     document.getElementById('searchButton').innerHTML = `
+//         <i data-lucide="search" class="w-5 h-5"></i>
+//         Search All Sources
+//     `;
+//     lucide.createIcons();
+// }
+
+// function updateSearchProgress(message) {
+//     document.getElementById('searchProgress').textContent = message;
+// }
+
+// function switchToResultsSection() {
+//     // Switch navigation
+//     document.querySelectorAll('.nav-btn').forEach(btn => {
+//         btn.classList.remove('active', 'bg-blue-50', 'text-blue-700');
+//         btn.classList.add('text-gray-600');
+//     });
+    
+//     const resultsBtn = document.querySelector('[data-section="results"]');
+//     resultsBtn.classList.add('active', 'bg-blue-50', 'text-blue-700');
+//     resultsBtn.classList.remove('text-gray-600');
+    
+//     // Switch sections
+//     document.querySelectorAll('.content-section').forEach(section => {
+//         section.classList.add('hidden');
+//     });
+//     document.getElementById('results').classList.remove('hidden');
+// }
+
+// function clearSearchForm() {
+//     console.log('[SEARCH] Clearing search form');
+    
+//     document.getElementById('searchForm').reset();
+//     document.getElementById('searchResults').innerHTML = '';
+//     document.getElementById('resultsSummary').classList.add('hidden');
+    
+//     searchState.currentResults = [];
+//     searchState.currentQuery = {};
+    
+//     // Switch back to search section
+//     document.querySelectorAll('.nav-btn').forEach(btn => {
+//         btn.classList.remove('active', 'bg-blue-50', 'text-blue-700');
+//         btn.classList.add('text-gray-600');
+//     });
+    
+//     const searchBtn = document.querySelector('[data-section="search"]');
+//     searchBtn.classList.add('active', 'bg-blue-50', 'text-blue-700');
+//     searchBtn.classList.remove('text-gray-600');
+    
+//     document.querySelectorAll('.content-section').forEach(section => {
+//         section.classList.add('hidden');
+//     });
+//     document.getElementById('search').classList.remove('hidden');
+// }
+
+// function toggleAdvancedOptions() {
+//     // This could expand to show more advanced search options
+//     showNotification('Advanced options will be available in a future update', 'info');
+// }
+
+// function showSearchError(errorMessage) {
+//     const container = document.getElementById('searchResults');
+//     container.innerHTML = `
+//         <div class="text-center py-12">
+//             <i data-lucide="alert-circle" class="w-16 h-16 text-red-400 mx-auto mb-4"></i>
+//             <h3 class="text-lg font-medium text-gray-900 mb-2">Search Error</h3>
+//             <p class="text-gray-600 mb-4">${escapeHtml(errorMessage)}</p>
+//             <button onclick="clearSearchForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+//                 Try Again
+//             </button>
+//         </div>
+//     `;
+//     lucide.createIcons();
+// }
+
+// // Individual result analysis
+// async function analyzeResult(resultId) {
+//     console.log('[ANALYSIS] Analyzing result:', resultId);
+    
+//     try {
+//         // Show loading state
+//         showNotification('Analyzing result...', 'info');
+        
+//         // Find the result in current results
+//         const result = searchState.currentResults.find(r => 
+//             r.id === resultId || r.nctId === resultId || r.pmid === resultId
+//         );
+        
+//         if (!result) {
+//             throw new Error('Result not found');
+//         }
+        
+//         // Perform detailed analysis
+//         if (result.sourceType === 'clinical_trial' && result.nctId) {
+//             await analyzeTrialDetails(result);
+//         } else if (result.sourceType === 'fda_approval') {
+//             await analyzePrecedentDetails(result);
+//         } else {
+//             await analyzeLiteratureDetails(result);
+//         }
+        
+//     } catch (error) {
+//         console.error('[ANALYSIS] Analysis failed:', error);
+//         showNotification('Analysis failed. Please try again.', 'error');
+//     }
+// }
+
+// async function analyzeTrialDetails(trial) {
+//     // This could open a detailed analysis modal or navigate to a detailed view
+//     console.log('[ANALYSIS] Analyzing trial details for:', trial.nctId);
+    
+//     // For now, show a summary
+//     const analysisData = {
+//         trialId: trial.nctId,
+//         title: trial.title,
+//         biomarkerAnalysis: trial.biomarkerAnalysis,
+//         enrollment: trial.enrollment,
+//         estimatedCost: estimateTrialCost(trial),
+//         regulatoryPath: estimateRegulatoryPath(trial)
+//     };
+    
+//     showAnalysisModal(analysisData);
+// }
+
+// async function analyzePrecedentDetails(precedent) {
+//     console.log('[ANALYSIS] Analyzing precedent details for:', precedent.drug);
+    
+//     const analysisData = {
+//         precedentId: precedent.id,
+//         drug: precedent.drug,
+//         biomarker: precedent.biomarker,
+//         precedentStrength: precedent.precedentStrength,
+//         fdaOutcome: precedent.fdaOutcome,
+//         applicability: assessPrecedentApplicability(precedent, searchState.currentQuery)
+//     };
+    
+//     showAnalysisModal(analysisData);
+// }
+
+// async function analyzeLiteratureDetails(article) {
+//     console.log('[ANALYSIS] Analyzing literature details for:', article.pmid);
+    
+//     const analysisData = {
+//         articleId: article.pmid,
+//         title: article.title,
+//         journal: article.journal,
+//         biomarkerAnalysis: article.biomarkerAnalysis,
+//         relevanceScore: calculateRelevanceScore(article, searchState.currentQuery)
+//     };
+    
+//     showAnalysisModal(analysisData);
+// }
+
+// // Utility functions
+// function estimateTrialCost(trial) {
+//     const basePatientCost = 75000;
+//     const enrollmentCount = trial.enrollment?.count || 500;
+//     const estimatedCost = enrollmentCount * basePatientCost;
+    
+//     return {
+//         perPatient: basePatientCost,
+//         total: estimatedCost,
+//         formattedTotal: `$${Math.round(estimatedCost / 1000000)}M`
+//     };
+// }
+
+// function estimateRegulatoryPath(trial) {
+//     if (trial.phase?.includes('Phase 3')) {
+//         return 'Standard NDA/BLA pathway';
+//     } else if (trial.phase?.includes('Phase 2')) {
+//         return 'Potential accelerated pathway';
+//     } else {
+//         return 'Early development';
+//     }
+// }
+
+// function assessPrecedentApplicability(precedent, query) {
+//     let score = 0;
+//     let factors = [];
+    
+//     if (query.biomarker && precedent.biomarker.toLowerCase().includes(query.biomarker.toLowerCase())) {
+//         score += 40;
+//         factors.push('Similar biomarker');
+//     }
+    
+//     if (query.fdaDivision && precedent.division.toLowerCase().includes(query.fdaDivision.toLowerCase())) {
+//         score += 30;
+//         factors.push('Same FDA division');
+//     }
+    
+//     if (precedent.precedentStrength === 'Maximum') {
+//         score += 20;
+//         factors.push('Maximum precedent strength');
+//     }
+    
+//     return {
+//         score: score,
+//         level: score >= 70 ? 'High' : score >= 40 ? 'Moderate' : 'Low',
+//         factors: factors
+//     };
+// }
+
+// function calculateRelevanceScore(article, query) {
+//     let score = 0;
+    
+//     const searchableText = (article.title + ' ' + article.abstract).toLowerCase();
+    
+//     if (query.biomarker && searchableText.includes(query.biomarker.toLowerCase())) {
+//         score += 30;
+//     }
+    
+//     if (query.drug && searchableText.includes(query.drug.toLowerCase())) {
+//         score += 25;
+//     }
+    
+//     if (article.biomarkerAnalysis?.hasBiomarkerData) {
+//         score += 20;
+//     }
+    
+//     return score;
+// }
+
+// function showAnalysisModal(analysisData) {
+//     // Create and show a modal with detailed analysis
+//     // This is a simplified version - you could expand this significantly
+    
+//     const modalHTML = `
+//         <div id="analysisModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+//             <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+//                 <div class="p-6">
+//                     <div class="flex items-center justify-between mb-4">
+//                         <h3 class="text-lg font-bold">Detailed Analysis</h3>
+//                         <button onclick="closeAnalysisModal()" class="text-gray-400 hover:text-gray-600">
+//                             <i data-lucide="x" class="w-6 h-6"></i>
+//                         </button>
+//                     </div>
+                    
+//                     <div class="space-y-4">
+//                         ${Object.entries(analysisData).map(([key, value]) => `
+//                             <div>
+//                                 <div class="text-sm font-medium text-gray-700 capitalize">${key.replace(/([A-Z])/g, ' $1')}</div>
+//                                 <div class="text-sm text-gray-600 mt-1">${
+//                                     typeof value === 'object' ? JSON.stringify(value, null, 2) : escapeHtml(String(value))
+//                                 }</div>
+//                             </div>
+//                         `).join('')}
+//                     </div>
+                    
+//                     <div class="mt-6 flex justify-end">
+//                         <button onclick="closeAnalysisModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+//                             Close
+//                         </button>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+    
+//     document.body.insertAdjacentHTML('beforeend', modalHTML);
+//     lucide.createIcons();
+// }
+
+// function closeAnalysisModal() {
+//     const modal = document.getElementById('analysisModal');
+//     if (modal) {
+//         modal.remove();
+//     }
+// }
+
+
+
+
+
+// searchModule.js - Enhanced search functionality for biomarker enrichment analysis
+// This module replaces the search functionality in your old frontend
+
+// Global search state management
+const SearchState = {
+    isSearching: false,
+    currentResults: [],
+    currentQuery: {},
+    lastSearchTime: null,
+    resultsCache: new Map(),
+    activeFilters: {
+        sourceTypes: ['fda', 'clinicaltrials', 'pubmed'],
+        enrichmentLevel: null,
+        biomarkerType: null,
+        phase: null
+    }
+};
+
+// Initialize enhanced search when DOM is loaded
+function initializeEnhancedSearch() {
+    console.log('[SEARCH] Initializing enhanced biomarker search system...');
+    
+    // Replace old search section with enhanced version
+    const searchSection = document.getElementById('search');
+    if (searchSection) {
+        searchSection.innerHTML = createEnhancedSearchHTML();
+    }
+    
+    // Setup event listeners
+    setupSearchEventListeners();
+    
+    // Initialize UI components
+    initializeSearchUI();
+    
+    console.log('[SEARCH] Enhanced search system initialized successfully');
 }
 
-// Clear search
-function clearSearch() {
-    document.getElementById('searchBiomarker').value = '';
-    document.getElementById('searchDrug').value = '';
-    document.getElementById('searchDivision').value = '';
-    document.getElementById('searchEnrichment').value = '';
-    document.getElementById('searchResults').classList.add('hidden');
+// Create enhanced search HTML structure
+function createEnhancedSearchHTML() {
+    return `
+        <!-- Enhanced Search Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg mb-6 shadow-lg">
+            <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Comprehensive Biomarker Search
+            </h2>
+            <p class="text-blue-100">Search across FDA precedents, clinical trials, and scientific literature</p>
+        </div>
+
+        <!-- Quick Example Searches -->
+        <div class="mb-6">
+            <div class="text-sm font-medium text-gray-700 mb-2">Quick Examples:</div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="performExampleSearch('CFTR', 'Ivacaftor', 'complete')" 
+                        class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors">
+                    CFTR + Complete Enrichment
+                </button>
+                <button onclick="performExampleSearch('CYP2D6', null, 'stratified')" 
+                        class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200 transition-colors">
+                    CYP2D6 Metabolizer Studies
+                </button>
+                <button onclick="performExampleSearch('ALK', null, 'complete')" 
+                        class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200 transition-colors">
+                    ALK Rearrangement Trials
+                </button>
+                <button onclick="performExampleSearch(null, null, 'exclusion')" 
+                        class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm hover:bg-yellow-200 transition-colors">
+                    Biomarker Exclusion Strategies
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Search Form -->
+        <form id="enhancedSearchForm" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <!-- Biomarker Input -->
+                <div>
+                    <label for="biomarkerInput" class="block text-sm font-medium text-gray-700 mb-1">
+                        Biomarker <span class="text-gray-400">(e.g., CFTR, CYP2D6, ALK)</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                               id="biomarkerInput" 
+                               name="biomarker"
+                               placeholder="Enter biomarker name..."
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="off">
+                        <div id="biomarkerSuggestions" class="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Drug Input -->
+                <div>
+                    <label for="drugInput" class="block text-sm font-medium text-gray-700 mb-1">
+                        Drug Name <span class="text-gray-400">(optional)</span>
+                    </label>
+                    <input type="text" 
+                           id="drugInput" 
+                           name="drug"
+                           placeholder="Enter drug name..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- FDA Division -->
+                <div>
+                    <label for="divisionSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                        FDA Division
+                    </label>
+                    <select id="divisionSelect" 
+                            name="division"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Divisions</option>
+                        <option value="Oncology">Oncology</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Pulmonary">Pulmonary</option>
+                        <option value="Metabolic">Metabolic</option>
+                        <option value="Cardiology">Cardiology</option>
+                        <option value="Psychiatry">Psychiatry</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <details class="mb-4">
+                <summary class="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
+                    Advanced Filters
+                </summary>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Enrichment Strategy -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Enrichment Strategy
+                        </label>
+                        <select id="enrichmentFilter" name="enrichment" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">Any Strategy</option>
+                            <option value="complete">Complete (100%)</option>
+                            <option value="high">High (≥80%)</option>
+                            <option value="moderate">Moderate (50-79%)</option>
+                            <option value="minimal">Minimal (<50%)</option>
+                            <option value="exclusion">Exclusion Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Trial Phase -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Trial Phase
+                        </label>
+                        <select id="phaseFilter" name="phase" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">Any Phase</option>
+                            <option value="Phase 1">Phase 1</option>
+                            <option value="Phase 2">Phase 2</option>
+                            <option value="Phase 3">Phase 3</option>
+                            <option value="Phase 4">Phase 4</option>
+                        </select>
+                    </div>
+
+                    <!-- Biomarker Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Biomarker Type
+                        </label>
+                        <select id="biomarkerTypeFilter" name="biomarkerType" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">Any Type</option>
+                            <option value="genetic">Genetic/Mutation</option>
+                            <option value="protein">Protein Expression</option>
+                            <option value="metabolic">Metabolic/Enzyme</option>
+                            <option value="hla">HLA Type</option>
+                            <option value="chromosomal">Chromosomal</option>
+                        </select>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Data Sources -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Data Sources
+                </label>
+                <div class="flex flex-wrap gap-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="sourceFDA" name="sources" value="fda" checked
+                               class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                        <span class="text-sm">FDA Precedents</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="sourceClinicalTrials" name="sources" value="clinicaltrials" checked
+                               class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                        <span class="text-sm">ClinicalTrials.gov</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="sourcePubMed" name="sources" value="pubmed" checked
+                               class="mr-2 text-blue-600 rounded focus:ring-blue-500">
+                        <span class="text-sm">PubMed Literature</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Search Actions -->
+            <div class="flex gap-3">
+                <button type="submit" 
+                        id="searchButton"
+                        class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all flex items-center justify-center gap-2 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Search All Databases
+                </button>
+                <button type="button" 
+                        onclick="clearSearch()"
+                        class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    Clear
+                </button>
+                <button type="button"
+                        onclick="showSearchHelp()"
+                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    Help
+                </button>
+            </div>
+        </form>
+
+        <!-- Search Progress -->
+        <div id="searchProgress" class="hidden mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <div>
+                    <div class="font-medium text-blue-900">Searching databases...</div>
+                    <div id="searchStatus" class="text-sm text-blue-700 mt-1"></div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="bg-blue-200 rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-600 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Setup search event listeners
+function setupSearchEventListeners() {
+    // Main search form
+    const searchForm = document.getElementById('enhancedSearchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', handleSearchSubmit);
+    }
+    
+    // Biomarker autocomplete
+    const biomarkerInput = document.getElementById('biomarkerInput');
+    if (biomarkerInput) {
+        biomarkerInput.addEventListener('input', handleBiomarkerAutocomplete);
+        biomarkerInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                document.getElementById('biomarkerSuggestions').classList.add('hidden');
+            }, 200);
+        });
+    }
+    
+    // Results sorting and filtering
+    document.addEventListener('change', (e) => {
+        if (e.target.matches('#resultsSortSelect')) {
+            sortResults(e.target.value);
+        }
+        if (e.target.matches('.result-filter')) {
+            filterResults();
+        }
+    });
+}
+
+// Initialize search UI components
+function initializeSearchUI() {
+    // Add results section if not exists
+    if (!document.getElementById('searchResultsSection')) {
+        const resultsHTML = createResultsSectionHTML();
+        const mainContent = document.querySelector('main') || document.body;
+        const div = document.createElement('div');
+        div.innerHTML = resultsHTML;
+        mainContent.appendChild(div.firstElementChild);
+    }
+}
+
+// Create results section HTML
+function createResultsSectionHTML() {
+    return `
+        <section id="searchResultsSection" class="max-w-7xl mx-auto px-4 py-6 hidden">
+            <!-- Results Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Search Results
+                </h2>
+                <div class="flex items-center gap-3">
+                    <span id="resultsCount" class="text-sm text-gray-600"></span>
+                    <select id="resultsSortSelect" class="text-sm border rounded-lg px-3 py-2">
+                        <option value="relevance">Sort by Relevance</option>
+                        <option value="date">Sort by Date</option>
+                        <option value="enrichment">Sort by Enrichment Level</option>
+                        <option value="source">Sort by Source</option>
+                    </select>
+                    <button onclick="exportResults()" class="text-sm bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        Export Results
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Summary Cards -->
+            <div id="resultsSummary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600" id="fdaPrecedentsCount">0</div>
+                            <div class="text-sm text-gray-600">FDA Precedents</div>
+                        </div>
+                        <svg class="w-8 h-8 text-purple-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1a1 1 0 100-2 2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600" id="clinicalTrialsCount">0</div>
+                            <div class="text-sm text-gray-600">Clinical Trials</div>
+                        </div>
+                        <svg class="w-8 h-8 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-green-600" id="pubmedCount">0</div>
+                            <div class="text-sm text-gray-600">PubMed Articles</div>
+                        </div>
+                        <svg class="w-8 h-8 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900" id="totalResultsCount">0</div>
+                            <div class="text-sm text-gray-600">Total Results</div>
+                        </div>
+                        <svg class="w-8 h-8 text-gray-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 6.707 6.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l4-4z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Panel -->
+            <div id="insightsPanel" class="hidden mb-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    Key Insights
+                </h3>
+                <div id="insightsContent" class="space-y-3"></div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="searchResultsContainer" class="space-y-4"></div>
+
+            <!-- Load More -->
+            <div id="loadMoreContainer" class="hidden text-center mt-6">
+                <button onclick="loadMoreResults()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    Load More Results
+                </button>
+            </div>
+        </section>
+    `;
+}
+
+// Handle search form submission
+async function handleSearchSubmit(e) {
+    e.preventDefault();
+    
+    if (SearchState.isSearching) {
+        console.log('[SEARCH] Search already in progress');
+        return;
+    }
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    const searchParams = {
+        biomarker: formData.get('biomarker')?.trim() || '',
+        drug: formData.get('drug')?.trim() || '',
+        division: formData.get('division') || '',
+        enrichment: formData.get('enrichment') || '',
+        phase: formData.get('phase') || '',
+        biomarkerType: formData.get('biomarkerType') || '',
+        sources: Array.from(formData.getAll('sources'))
+    };
+    
+    // Validate input
+    if (!searchParams.biomarker && !searchParams.drug && !searchParams.division) {
+        showNotification('Please enter at least one search parameter', 'warning');
+        return;
+    }
+    
+    // Update state
+    SearchState.isSearching = true;
+    SearchState.currentQuery = searchParams;
+    
+    // Show progress
+    showSearchProgress();
+    
+    try {
+        // Perform comprehensive search
+        const results = await performComprehensiveSearch(searchParams);
+        
+        // Update state
+        SearchState.currentResults = results;
+        SearchState.isSearching = false;
+        
+        // Display results
+        displaySearchResults(results);
+        hideSearchProgress();
+        
+    } catch (error) {
+        console.error('[SEARCH] Search error:', error);
+        SearchState.isSearching = false;
+        hideSearchProgress();
+        showNotification('Search failed. Please try again.', 'error');
+    }
+}
+
+// Perform comprehensive search
+async function performComprehensiveSearch(params) {
+    console.log('[SEARCH] Starting comprehensive search:', params);
+    
+    updateSearchStatus('Searching FDA precedents...');
+    updateProgressBar(20);
+    
+    try {
+        const response = await fetch('/api/biomarkers/search/comprehensive', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: params.biomarker || params.drug || params.division,
+                biomarker: params.biomarker,
+                drug: params.drug,
+                sources: params.sources
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Search failed');
+        }
+        
+        updateSearchStatus('Processing results...');
+        updateProgressBar(90);
+        
+        // Process and enhance results
+        const enhancedResults = processSearchResults(data, params);
+        
+        updateProgressBar(100);
+        
+        return enhancedResults;
+        
+    } catch (error) {
+        console.error('[SEARCH] API error:', error);
+        throw error;
+    }
+}
+
+// Process search results
+function processSearchResults(data, params) {
+    const allResults = [];
+    
+    // Process FDA precedents
+    if (data.results.precedents) {
+        data.results.precedents.data.forEach(item => {
+            allResults.push({
+                ...item,
+                resultType: 'fda_precedent',
+                relevanceScore: calculateRelevanceScore(item, params),
+                displayPriority: 1
+            });
+        });
+    }
+    
+    // Process clinical trials
+    if (data.results.clinicalTrials) {
+        data.results.clinicalTrials.data.forEach(item => {
+            allResults.push({
+                ...item,
+                resultType: 'clinical_trial',
+                relevanceScore: calculateRelevanceScore(item, params),
+                displayPriority: 2
+            });
+        });
+    }
+    
+    // Process PubMed articles
+    if (data.results.pubmedArticles) {
+        data.results.pubmedArticles.data.forEach(item => {
+            allResults.push({
+                ...item,
+                resultType: 'pubmed_article',
+                relevanceScore: calculateRelevanceScore(item, params),
+                displayPriority: 3
+            });
+        });
+    }
+    
+    // Sort by relevance
+    allResults.sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    // Add insights
+    allResults.insights = data.insights;
+    
+    return allResults;
+}
+
+// Calculate relevance score
+function calculateRelevanceScore(result, params) {
+    let score = 0;
+    
+    // Biomarker match
+    if (params.biomarker && result.biomarker) {
+        if (result.biomarker.toLowerCase().includes(params.biomarker.toLowerCase())) {
+            score += 30;
+        }
+    }
+    
+    // Drug match
+    if (params.drug && result.drug) {
+        if (result.drug.toLowerCase().includes(params.drug.toLowerCase())) {
+            score += 20;
+        }
+    }
+    
+    // Enrichment level match
+    if (params.enrichment) {
+        const enrichmentLevel = result.enrichmentAnalysis?.level || result.estimatedEnrichment;
+        if (enrichmentLevel && enrichmentLevel.toLowerCase().includes(params.enrichment)) {
+            score += 25;
+        }
+    }
+    
+    // Result type weighting
+    if (result.resultType === 'fda_precedent') {
+        score += 20;
+    } else if (result.resultType === 'clinical_trial') {
+        score += 10;
+    }
+    
+    // Data quality
+    if (result.dataQuality === 'High' || result.precedentStrength === 'Maximum') {
+        score += 15;
+    }
+    
+    return score;
 }
 
 // Display search results
 function displaySearchResults(results) {
-    document.getElementById('searchResults').classList.remove('hidden');
-    document.getElementById('resultCount').textContent = `(${results.length} results found)`;
+    console.log('[SEARCH] Displaying', results.length, 'results');
     
-    const container = document.getElementById('resultsList');
+    // Show results section
+    document.getElementById('searchResultsSection').classList.remove('hidden');
     
-    if (results.length === 0) {
-        container.innerHTML = `
-            <div class="col-span-2 text-center py-8 text-gray-500">
-                <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
-                <p>No results found.</p>
-                <p class="text-sm mt-1">Try adjusting your search criteria or use the quick search examples.</p>
-            </div>
-        `;
-    } else {
-        container.innerHTML = results.map(trial => renderTrialCard(trial)).join('');
+    // Update summary counts
+    const fdaCount = results.filter(r => r.resultType === 'fda_precedent').length;
+    const ctCount = results.filter(r => r.resultType === 'clinical_trial').length;
+    const pmCount = results.filter(r => r.resultType === 'pubmed_article').length;
+    
+    document.getElementById('fdaPrecedentsCount').textContent = fdaCount;
+    document.getElementById('clinicalTrialsCount').textContent = ctCount;
+    document.getElementById('pubmedCount').textContent = pmCount;
+    document.getElementById('totalResultsCount').textContent = results.length;
+    document.getElementById('resultsCount').textContent = `${results.length} results found`;
+    
+    // Display insights if available
+    if (results.insights) {
+        displayInsights(results.insights);
     }
     
-    lucide.createIcons();
+    // Display results
+    const container = document.getElementById('searchResultsContainer');
+    container.innerHTML = '';
+    
+    if (results.length === 0) {
+        container.innerHTML = createNoResultsHTML();
+        return;
+    }
+    
+    // Group results by type for better organization
+    const groupedResults = groupResultsByType(results);
+    
+    // Display each group
+    Object.entries(groupedResults).forEach(([type, items]) => {
+        if (items.length > 0) {
+            const section = createResultsSection(type, items);
+            container.appendChild(section);
+        }
+    });
+    
+    // Scroll to results
+    document.getElementById('searchResultsSection').scrollIntoView({ behavior: 'smooth' });
 }
+
+// Group results by type
+function groupResultsByType(results) {
+    return results.reduce((acc, result) => {
+        const type = result.resultType || 'other';
+        if (!acc[type]) acc[type] = [];
+        acc[type].push(result);
+        return acc;
+    }, {});
+}
+
+// Create results section
+function createResultsSection(type, items) {
+    const section = document.createElement('div');
+    section.className = 'mb-8';
+    
+    const typeConfig = {
+        'fda_precedent': {
+            title: 'FDA Precedents',
+            icon: 'clipboard-check',
+            color: 'purple'
+        },
+        'clinical_trial': {
+            title: 'Clinical Trials',
+            icon: 'beaker',
+            color: 'blue'
+        },
+        'pubmed_article': {
+            title: 'Scientific Literature',
+            icon: 'book-open',
+            color: 'green'
+        }
+    };
+    
+    const config = typeConfig[type] || { title: 'Other Results', icon: 'document', color: 'gray' };
+    
+    section.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-${config.color}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            ${config.title} (${items.length})
+        </h3>
+        <div class="space-y-4">
+            ${items.map(item => createResultCard(item, type)).join('')}
+        </div>
+    `;
+    
+    return section;
+}
+
+// Create result card
+function createResultCard(result, type) {
+    if (type === 'fda_precedent') {
+        return createFDAPrecedentCard(result);
+    } else if (type === 'clinical_trial') {
+        return createClinicalTrialCard(result);
+    } else if (type === 'pubmed_article') {
+        return createPubMedCard(result);
+    }
+    return '';
+}
+
+// Create FDA precedent card
+function createFDAPrecedentCard(precedent) {
+    const enrichmentClass = precedent.enrollment?.percentPositive === 100 ? 'bg-green-100 text-green-800' :
+                           precedent.enrollment?.percentPositive >= 80 ? 'bg-blue-100 text-blue-800' :
+                           'bg-gray-100 text-gray-800';
+    
+    return `
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-900">${precedent.drug}</h4>
+                    <p class="text-sm text-gray-600">${precedent.division} Division • ${precedent.fdaApproval?.date || 'Date not specified'}</p>
+                </div>
+                <span class="px-3 py-1 text-xs font-medium rounded-full ${enrichmentClass}">
+                    ${precedent.enrichmentAnalysis?.level || 'Enrichment not specified'}
+                </span>
+            </div>
+            
+            <div class="mb-4">
+                <div class="text-sm text-gray-700">
+                    <span class="font-medium">Biomarker:</span> ${precedent.biomarker}
+                </div>
+                <div class="text-sm text-gray-700 mt-1">
+                    <span class="font-medium">Strategy:</span> ${precedent.biomarkerStrategy}
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-gray-50 rounded p-3">
+                    <div class="text-xs text-gray-600">Enrollment</div>
+                    <div class="text-sm font-medium">
+                        ${precedent.enrollment?.percentPositive}% biomarker-positive
+                        <span class="text-xs text-gray-500">(n=${precedent.enrollment?.total})</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                    <div class="text-xs text-gray-600">Primary Result</div>
+                    <div class="text-sm font-medium">
+                        ${precedent.results?.biomarkerPositive?.responseRate || 'Not specified'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <div class="flex gap-2">
+                    ${precedent.fdaApproval?.fdaReviewLink ? `
+                        <a href="${precedent.fdaApproval.fdaReviewLink}" target="_blank" 
+                           class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            FDA Review →
+                        </a>
+                    ` : ''}
+                    ${precedent.nctId ? `
+                        <a href="https://clinicaltrials.gov/study/${precedent.nctId}" target="_blank" 
+                           class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            Trial Details →
+                        </a>
+                    ` : ''}
+                </div>
+                <span class="text-xs text-gray-500">
+                    Relevance: ${precedent.relevanceScore}%
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+// Create clinical trial card
+function createClinicalTrialCard(trial) {
+    const statusClass = trial.status === 'RECRUITING' ? 'bg-green-100 text-green-800' :
+                       trial.status === 'COMPLETED' ? 'bg-gray-100 text-gray-800' :
+                       'bg-yellow-100 text-yellow-800';
+    
+    return `
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex-1">
+                    <h4 class="text-lg font-semibold text-gray-900 line-clamp-2">${trial.title}</h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                        ${trial.nctId} • ${trial.phase || 'Phase not specified'}
+                    </p>
+                </div>
+                <span class="px-3 py-1 text-xs font-medium rounded-full ${statusClass} ml-3">
+                    ${trial.status}
+                </span>
+            </div>
+            
+            ${trial.biomarkers && trial.biomarkers.length > 0 ? `
+                <div class="mb-3">
+                    <div class="text-sm text-gray-700 mb-1">Detected Biomarkers:</div>
+                    <div class="flex flex-wrap gap-1">
+                        ${trial.biomarkers.map(b => `
+                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                ${b.name}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-gray-50 rounded p-3">
+                    <div class="text-xs text-gray-600">Enrollment</div>
+                    <div class="text-sm font-medium">
+                        ${trial.enrollment || 'Not specified'}
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded p-3">
+                    <div class="text-xs text-gray-600">Enrichment</div>
+                    <div class="text-sm font-medium">
+                        ${trial.estimatedEnrichment || 'Unknown'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <a href="${trial.url}" target="_blank" 
+                   class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    View on ClinicalTrials.gov →
+                </a>
+                <span class="text-xs text-gray-500">
+                    Relevance: ${trial.relevanceScore}%
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+// Create PubMed article card
+function createPubMedCard(article) {
+    return `
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <h4 class="text-lg font-semibold text-gray-900 line-clamp-2 mb-2">${article.title}</h4>
+            <p class="text-sm text-gray-600 mb-3">
+                ${article.authors} • ${article.journal} (${article.year})
+            </p>
+            
+            <p class="text-sm text-gray-700 line-clamp-3 mb-3">${article.abstract}</p>
+            
+            ${article.biomarkers && article.biomarkers.length > 0 ? `
+                <div class="mb-3">
+                    <div class="flex flex-wrap gap-1">
+                        ${article.biomarkers.slice(0, 5).map(b => `
+                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                                ${b.name}
+                            </span>
+                        `).join('')}
+                        ${article.biomarkers.length > 5 ? `
+                            <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                                +${article.biomarkers.length - 5} more
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="flex justify-between items-center">
+                <a href="${article.url}" target="_blank" 
+                   class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    View on PubMed →
+                </a>
+                <span class="text-xs text-gray-500">
+                    Relevance: ${article.relevanceScore}%
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+// Display insights
+function displayInsights(insights) {
+    if (!insights || Object.keys(insights).length === 0) return;
+    
+    const panel = document.getElementById('insightsPanel');
+    const content = document.getElementById('insightsContent');
+    
+    panel.classList.remove('hidden');
+    content.innerHTML = '';
+    
+    // Display precedent patterns
+    if (insights.precedentPatterns && insights.precedentPatterns.length > 0) {
+        insights.precedentPatterns.forEach(pattern => {
+            content.innerHTML += `
+                <div class="bg-white rounded-lg p-4 border border-purple-200">
+                    <h4 class="font-medium text-gray-900 mb-1">${pattern.type}</h4>
+                    <p class="text-sm text-gray-700">${pattern.finding}</p>
+                    <p class="text-sm text-purple-600 mt-1">${pattern.implication}</p>
+                    ${pattern.examples ? `
+                        <div class="text-xs text-gray-500 mt-2">
+                            Examples: ${pattern.examples.join(', ')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    // Display recommendations
+    if (insights.recommendations && insights.recommendations.length > 0) {
+        const rec = insights.recommendations[0];
+        content.innerHTML += `
+            <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-4">
+                <h4 class="font-semibold mb-2">Key Recommendation</h4>
+                <p class="text-sm">${rec.recommendation}</p>
+                ${rec.actionItems ? `
+                    <ul class="text-xs mt-2 space-y-1">
+                        ${rec.actionItems.slice(0, 3).map(item => `<li>• ${item}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            </div>
+        `;
+    }
+}
+
+// Helper functions
+function showSearchProgress() {
+    document.getElementById('searchProgress').classList.remove('hidden');
+    document.getElementById('searchButton').disabled = true;
+    document.getElementById('searchButton').innerHTML = `
+        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+        <span>Searching...</span>
+    `;
+}
+
+function hideSearchProgress() {
+    document.getElementById('searchProgress').classList.add('hidden');
+    document.getElementById('searchButton').disabled = false;
+    document.getElementById('searchButton').innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Search All Databases
+    `;
+}
+
+function updateSearchStatus(message) {
+    document.getElementById('searchStatus').textContent = message;
+}
+
+function updateProgressBar(percent) {
+    document.getElementById('progressBar').style.width = `${percent}%`;
+}
+
+function createNoResultsHTML() {
+    return `
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+            <p class="text-gray-600 mb-4">Try adjusting your search parameters or using different keywords.</p>
+            <button onclick="clearSearch()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Start New Search
+            </button>
+        </div>
+    `;
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-md transform transition-all duration-300 ${
+        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+        type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
+        type === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+        'bg-blue-100 text-blue-800 border border-blue-200'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${
+                    type === 'success' ? 'M5 13l4 4L19 7' :
+                    type === 'error' ? 'M6 18L18 6M6 6l12 12' :
+                    type === 'warning' ? 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' :
+                    'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                }"></path>
+            </svg>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(500px)';
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Clear search
+function clearSearch() {
+    document.getElementById('enhancedSearchForm').reset();
+    document.getElementById('searchResultsSection').classList.add('hidden');
+    SearchState.currentResults = [];
+    SearchState.currentQuery = {};
+}
+
+// Perform example search
+function performExampleSearch(biomarker, drug, enrichment) {
+    if (biomarker) document.getElementById('biomarkerInput').value = biomarker;
+    if (drug) document.getElementById('drugInput').value = drug;
+    if (enrichment) document.getElementById('enrichmentFilter').value = enrichment;
+    
+    document.getElementById('enhancedSearchForm').dispatchEvent(new Event('submit'));
+}
+
+// Handle biomarker autocomplete
+function handleBiomarkerAutocomplete(e) {
+    const value = e.target.value.trim();
+    const suggestionsDiv = document.getElementById('biomarkerSuggestions');
+    
+    if (value.length < 2) {
+        suggestionsDiv.classList.add('hidden');
+        return;
+    }
+    
+    // Common biomarkers for suggestions
+    const commonBiomarkers = [
+        { name: 'CFTR', type: 'Genetic', description: 'Cystic Fibrosis Transmembrane Conductance Regulator' },
+        { name: 'CYP2D6', type: 'Metabolic', description: 'Cytochrome P450 2D6' },
+        { name: 'CYP2C9', type: 'Metabolic', description: 'Cytochrome P450 2C9' },
+        { name: 'CYP2C19', type: 'Metabolic', description: 'Cytochrome P450 2C19' },
+        { name: 'ALK', type: 'Genetic', description: 'Anaplastic Lymphoma Kinase' },
+        { name: 'EGFR', type: 'Protein', description: 'Epidermal Growth Factor Receptor' },
+        { name: 'HER2', type: 'Protein', description: 'Human Epidermal Growth Factor Receptor 2' },
+        { name: 'PD-L1', type: 'Protein', description: 'Programmed Death-Ligand 1' },
+        { name: 'BRAF', type: 'Genetic', description: 'B-Raf Proto-Oncogene' },
+        { name: 'HLA-B*5701', type: 'HLA', description: 'Human Leukocyte Antigen B*5701' },
+        { name: 'HLA-B*1502', type: 'HLA', description: 'Human Leukocyte Antigen B*1502' },
+        { name: 'TPMT', type: 'Metabolic', description: 'Thiopurine S-Methyltransferase' },
+        { name: 'DPYD', type: 'Metabolic', description: 'Dihydropyrimidine Dehydrogenase' },
+        { name: 'UGT1A1', type: 'Metabolic', description: 'UDP Glucuronosyltransferase 1A1' }
+    ];
+    
+    const filtered = commonBiomarkers.filter(b => 
+        b.name.toLowerCase().includes(value.toLowerCase()) ||
+        b.description.toLowerCase().includes(value.toLowerCase())
+    );
+    
+    if (filtered.length > 0) {
+        suggestionsDiv.innerHTML = filtered.map(b => `
+            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0" 
+                 onclick="selectBiomarker('${b.name}')">
+                <div class="font-medium text-sm">${b.name}</div>
+                <div class="text-xs text-gray-600">${b.type} - ${b.description}</div>
+            </div>
+        `).join('');
+        suggestionsDiv.classList.remove('hidden');
+    } else {
+        suggestionsDiv.classList.add('hidden');
+    }
+}
+
+// Select biomarker from suggestions
+function selectBiomarker(biomarker) {
+    document.getElementById('biomarkerInput').value = biomarker;
+    document.getElementById('biomarkerSuggestions').classList.add('hidden');
+}
+
+// Sort results
+function sortResults(sortBy) {
+    const results = [...SearchState.currentResults];
+    
+    switch(sortBy) {
+        case 'date':
+            results.sort((a, b) => {
+                const dateA = new Date(a.fdaApproval?.date || a.startDate || a.year || '1900');
+                const dateB = new Date(b.fdaApproval?.date || b.startDate || b.year || '1900');
+                return dateB - dateA;
+            });
+            break;
+            
+        case 'enrichment':
+            results.sort((a, b) => {
+                const enrichA = a.enrollment?.percentPositive || a.enrichmentAnalysis?.percentage || 0;
+                const enrichB = b.enrollment?.percentPositive || b.enrichmentAnalysis?.percentage || 0;
+                return enrichB - enrichA;
+            });
+            break;
+            
+        case 'source':
+            results.sort((a, b) => (a.displayPriority || 99) - (b.displayPriority || 99));
+            break;
+            
+        case 'relevance':
+        default:
+            results.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+            break;
+    }
+    
+    SearchState.currentResults = results;
+    displaySearchResults(results);
+}
+
+// Export results
+async function exportResults() {
+    if (SearchState.currentResults.length === 0) {
+        showNotification('No results to export', 'warning');
+        return;
+    }
+    
+    const exportData = {
+        searchQuery: SearchState.currentQuery,
+        searchDate: new Date().toISOString(),
+        totalResults: SearchState.currentResults.length,
+        results: SearchState.currentResults.map(r => ({
+            type: r.resultType,
+            title: r.drug || r.title || r.name,
+            biomarker: r.biomarker || r.biomarkers?.map(b => b.name).join(', '),
+            enrichment: r.enrichmentAnalysis?.level || r.estimatedEnrichment,
+            source: r.resultType === 'fda_precedent' ? 'FDA' : 
+                    r.resultType === 'clinical_trial' ? 'ClinicalTrials.gov' : 
+                    'PubMed',
+            url: r.fdaApproval?.fdaReviewLink || r.url || ''
+        }))
+    };
+    
+    // Create and download JSON file
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `biomarker-search-results-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('Results exported successfully!', 'success');
+}
+
+// Show search help
+function showSearchHelp() {
+    const helpModal = document.createElement('div');
+    helpModal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4';
+    helpModal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Search Help</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Search Tips</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>• Enter at least one search parameter (biomarker, drug, or FDA division)</li>
+                            <li>• Use biomarker autocomplete for common genetic markers</li>
+                            <li>• Select multiple data sources for comprehensive results</li>
+                            <li>• Use advanced filters to narrow down results</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Common Biomarkers</h4>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                                <strong>Genetic:</strong> CFTR, ALK, EGFR, BRAF, ROS1
+                            </div>
+                            <div>
+                                <strong>Metabolic:</strong> CYP2D6, CYP2C9, CYP2C19, TPMT
+                            </div>
+                            <div>
+                                <strong>Protein:</strong> HER2, PD-L1, CD20, VEGF
+                            </div>
+                            <div>
+                                <strong>HLA:</strong> HLA-B*5701, HLA-B*1502
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Enrichment Strategies</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li><strong>Complete (100%):</strong> Only biomarker-positive patients enrolled</li>
+                            <li><strong>High (≥80%):</strong> Predominantly biomarker-positive with small control</li>
+                            <li><strong>Moderate (50-79%):</strong> Balanced enrollment with enrichment</li>
+                            <li><strong>Minimal (<50%):</strong> Limited biomarker enrichment</li>
+                            <li><strong>Exclusion:</strong> Biomarker used to exclude patients only</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Data Sources</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li><strong>FDA Precedents:</strong> Curated database of FDA-approved drugs with biomarker strategies</li>
+                            <li><strong>ClinicalTrials.gov:</strong> Active and completed clinical trials with biomarker enrichment</li>
+                            <li><strong>PubMed:</strong> Scientific literature on biomarker-driven trial design</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Got it!
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(helpModal);
+}
+
+// Load more results (pagination)
+async function loadMoreResults() {
+    // This would implement pagination logic
+    showNotification('Loading more results...', 'info');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we're in the old frontend environment
+    if (document.getElementById('search') || document.querySelector('.content-section')) {
+        console.log('[SEARCH] Initializing enhanced search module...');
+        initializeEnhancedSearch();
+    }
+});
+
+// Export functions for integration
+window.EnhancedSearch = {
+    initialize: initializeEnhancedSearch,
+    performSearch: performExampleSearch,
+    clearSearch: clearSearch,
+    exportResults: exportResults,
+    showHelp: showSearchHelp
+};
+// Utility function for HTML escaping
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+
+
+
+
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+        type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
+        type === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+        'bg-blue-100 text-blue-800 border border-blue-200'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center gap-2">
+            <i data-lucide="${
+                type === 'success' ? 'check-circle' : 
+                type === 'error' ? 'x-circle' : 
+                type === 'warning' ? 'alert-triangle' : 'info'
+            }" class="w-5 h-5"></i>
+            <span>${escapeHtml(message)}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    lucide.createIcons();
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Export functionality
+function exportSearchResults() {
+    if (searchState.currentResults.length === 0) {
+        showNotification('No results to export', 'warning');
+        return;
+    }
+    
+    const exportData = {
+        searchQuery: searchState.currentQuery,
+        searchDate: new Date().toISOString(),
+        totalResults: searchState.currentResults.length,
+        results: searchState.currentResults.map(result => ({
+            ...result,
+            // Remove large text fields for cleaner export
+            briefSummary: result.briefSummary?.substring(0, 200) + '...',
+            abstract: result.abstract?.substring(0, 200) + '...'
+        }))
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `biomarker-search-results-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showNotification('Search results exported successfully!', 'success');
+}
+
+// Initialize enhanced search when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // initEnhancedSearch();
+    
+    // Add export functionality to existing export button
+    document.getElementById('exportBtn')?.addEventListener('click', exportSearchResults);
+    
+    console.log('[SEARCH] Enhanced search functionality loaded successfully');
+});
+
+// // Perform search
+// function performSearch() {
+//     const biomarker = document.getElementById('searchBiomarker').value.toLowerCase();
+//     const drug = document.getElementById('searchDrug').value.toLowerCase();
+//     const division = document.getElementById('searchDivision').value.toLowerCase();
+//     const enrichment = document.getElementById('searchEnrichment').value;
+    
+//     let results = appState.trials.filter(trial => {
+//         const matchesBiomarker = !biomarker || 
+//             trial.biomarker.toLowerCase().includes(biomarker) ||
+//             trial.trialDesign.toLowerCase().includes(biomarker) ||
+//             trial.results.biomarkerPositive.toLowerCase().includes(biomarker);
+        
+//         const matchesDrug = !drug || trial.drug.toLowerCase().includes(drug);
+//         const matchesDivision = !division || trial.division.toLowerCase().includes(division);
+//         const matchesEnrichment = !enrichment || trial.enrichmentCategory === enrichment;
+        
+//         return matchesBiomarker && matchesDrug && matchesDivision && matchesEnrichment;
+//     });
+    
+//     displaySearchResults(results);
+// }
+
+// // Clear search
+// function clearSearch() {
+//     document.getElementById('searchBiomarker').value = '';
+//     document.getElementById('searchDrug').value = '';
+//     document.getElementById('searchDivision').value = '';
+//     document.getElementById('searchEnrichment').value = '';
+//     document.getElementById('searchResults').classList.add('hidden');
+// }
+
+// // Display search results
+// function displaySearchResults(results) {
+//     document.getElementById('searchResults').classList.remove('hidden');
+//     document.getElementById('resultCount').textContent = `(${results.length} results found)`;
+    
+//     const container = document.getElementById('resultsList');
+    
+//     if (results.length === 0) {
+//         container.innerHTML = `
+//             <div class="col-span-2 text-center py-8 text-gray-500">
+//                 <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+//                 <p>No results found.</p>
+//                 <p class="text-sm mt-1">Try adjusting your search criteria or use the quick search examples.</p>
+//             </div>
+//         `;
+//     } else {
+//         container.innerHTML = results.map(trial => renderTrialCard(trial)).join('');
+//     }
+    
+//     lucide.createIcons();
+// }
+
+
+
 
 // Calculate trial burden
 function calculateTrialBurden() {

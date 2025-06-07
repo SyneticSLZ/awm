@@ -1,9 +1,1186 @@
+// biomarkerRoutes.js - Modular routes for biomarker enrichment analysis
+const express = require('express');
+const router = express.Router();
+const axios = require('axios');
+const xml2js = require('xml2js');
+const NodeCache = require('node-cache');
+
+// Initialize cache (30 min TTL)
+const cache = new NodeCache({ stdTTL: 1800 });
+
+// Enhanced Biomarker Detection Patterns
+const BIOMARKER_PATTERNS = {
+    genetic: {
+        patterns: [
+            /\b([A-Z0-9]{2,})[+-]?\s*(?:mutation|variant|polymorphism|deletion|insertion|amplification)/gi,
+            /\b(rs\d{4,})\b/gi,
+            /\b([A-Z0-9]{2,})[-\s]*(p\.[A-Z]\d+[A-Z])\b/gi,
+            /\b([A-Z0-9]{2,})[-\s]*(c\.\d+[A-Z]>[A-Z])\b/gi
+        ],
+        keywords: ['mutation', 'variant', 'deletion', 'amplification', 'gene', 'genetic']
+    },
+    protein: {
+        patterns: [
+            /\b(PD-?L?1|HER2|EGFR|ALK|ROS1|BRAF|MEK|mTOR|VEGF[R]?|CD\d+)\b/gi,
+            /\b([A-Z]{2,}[-\s]?\d*)\s*(?:positive|negative|expression|overexpression)/gi
+        ],
+        keywords: ['expression', 'positive', 'negative', 'receptor', 'protein']
+    },
+    metabolic: {
+        patterns: [
+            /\b(CYP[0-9][A-Z][0-9]+(?:\*\d+)?)\b/gi,
+            /\b(UGT[0-9][A-Z][0-9]+)\b/gi,
+            /\b(NAT[12])\b/gi,
+            /\b(TPMT|DPYD|G6PD)\b/gi
+        ],
+        keywords: ['metabolizer', 'metabolism', 'enzyme', 'pharmacogenetic']
+    },
+    hla: {
+        patterns: [
+            /HLA-[A-Z]\*?\d{2}:?\d{0,2}/gi,
+            /HLA-[A-Z][A-Z]?\d*/gi
+        ],
+        keywords: ['HLA', 'allele', 'haplotype']
+    },
+    chromosomal: {
+        patterns: [
+            /\b(?:trisomy|monosomy|chromosome)\s*\d+/gi,
+            /\b(?:t|inv|del|dup)\(\d+[pq]?[;\d]*\)/gi,
+            /\b\d+[pq]\d+(?:\.\d+)?/gi
+        ],
+        keywords: ['chromosomal', 'cytogenetic', 'karyotype', 'translocation']
+    }
+};
+
+// Enhanced FDA Precedent Database
+const precedentDatabase = [
+    {
+        id: 'ivacaftor-kalydeco',
+        drug: 'Ivacaftor (Kalydeco)',
+        biomarker: 'CFTR G551D mutation',
+        biomarkerType: 'genetic',
+        division: 'Pulmonary',
+        nctId: 'NCT00909532',
+        phase: 'Phase 3',
+        title: 'STRIVE: Study of VX-770 in CF Patients with G551D-CFTR',
+        enrollment: {
+            total: 161,
+            biomarkerPositive: 161,
+            biomarkerNegative: 0,
+            percentPositive: 100,
+            percentNegative: 0
+        },
+        trialDesign: {
+            type: 'Complete enrichment strategy',
+            description: 'Only patients with G551D mutation enrolled',
+            rationale: 'Drug mechanism requires specific CFTR gating mutation',
+            controlArm: 'Placebo (also G551D positive)'
+        },
+        biomarkerStrategy: '100% biomarker-positive enrichment',
+        results: {
+            primaryEndpoint: 'FEV1 improvement',
+            biomarkerPositive: {
+                fev1Improvement: '10.6%',
+                responseRate: '83%',
+                sweatChloride: '-47.9 mmol/L',
+                pValue: '<0.001'
+            },
+            biomarkerNegative: 'Not enrolled - drug ineffective without mutation'
+        },
+        fdaApproval: {
+            date: 'January 31, 2012',
+            nda: '203188',
+            summary: 'FDA approved for G551D mutation only',
+            expansions: 'Later expanded to 38 CFTR mutations',
+            fdaReviewLink: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/203188_kalydeco_toc.cfm'
+        },
+        dataQuality: 'High',
+        precedentStrength: 'Maximum'
+    },
+    {
+        id: 'crizotinib-xalkori',
+        drug: 'Crizotinib (Xalkori)',
+        biomarker: 'ALK gene rearrangement',
+        biomarkerType: 'genetic',
+        division: 'Oncology',
+        nctId: 'NCT00932451',
+        phase: 'Phase 2',
+        title: 'PROFILE 1001: Study of PF-02341066 in ALK-positive NSCLC',
+        enrollment: {
+            total: 149,
+            biomarkerPositive: 149,
+            biomarkerNegative: 0,
+            percentPositive: 100,
+            percentNegative: 0
+        },
+        trialDesign: {
+            type: 'Complete enrichment strategy',
+            description: 'Only ALK-positive patients enrolled',
+            rationale: 'Targeted inhibitor specific to ALK fusion protein',
+            controlArm: 'None - single arm study'
+        },
+        biomarkerStrategy: '100% biomarker-positive enrichment',
+        results: {
+            primaryEndpoint: 'Overall response rate',
+            biomarkerPositive: {
+                responseRate: '60.8%',
+                medianPFS: '9.7 months',
+                diseaseControl: '90.1%',
+                pValue: '<0.001'
+            },
+            biomarkerNegative: 'Not enrolled - no activity in ALK-negative'
+        },
+        fdaApproval: {
+            date: 'August 26, 2011',
+            nda: '202570',
+            summary: 'Accelerated approval for ALK-positive NSCLC',
+            fdaReviewLink: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2011/202570_xalkori_toc.cfm'
+        },
+        dataQuality: 'High',
+        precedentStrength: 'Maximum'
+    },
+    {
+        id: 'eliglustat-cerdelga',
+        drug: 'Eliglustat (Cerdelga)',
+        biomarker: 'CYP2D6 genotype',
+        biomarkerType: 'metabolic',
+        division: 'Metabolic',
+        nctId: 'NCT00358150',
+        phase: 'Phase 3',
+        title: 'ENGAGE: Eliglustat vs Imiglucerase in Gaucher Disease',
+        enrollment: {
+            total: 40,
+            biomarkerPositive: 35,
+            biomarkerNegative: 5,
+            percentPositive: 87.5,
+            percentNegative: 12.5
+        },
+        trialDesign: {
+            type: 'Stratified enrichment',
+            description: 'Enrollment stratified by CYP2D6 metabolizer status',
+            rationale: 'Drug metabolism heavily dependent on CYP2D6',
+            controlArm: 'Active comparator (imiglucerase)'
+        },
+        biomarkerStrategy: 'CYP2D6 stratified dosing strategy',
+        results: {
+            primaryEndpoint: 'Spleen volume reduction',
+            biomarkerPositive: {
+                spleenReduction: '-30.0%',
+                liverReduction: '-6.6%',
+                plateletIncrease: '32%',
+                pValue: '<0.001'
+            },
+            biomarkerNegative: 'Ultra-rapid metabolizers excluded from approval'
+        },
+        fdaApproval: {
+            date: 'August 19, 2014',
+            nda: '205494',
+            summary: 'Approved with CYP2D6 genotyping requirement',
+            restrictions: 'Not for CYP2D6 ultra-rapid or indeterminate metabolizers',
+            fdaReviewLink: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/205494Orig1s000TOC.cfm'
+        },
+        dataQuality: 'High',
+        precedentStrength: 'High'
+    },
+    {
+        id: 'valbenazine-ingrezza',
+        drug: 'Valbenazine (Ingrezza)',
+        biomarker: 'CYP2D6 genotype',
+        biomarkerType: 'metabolic',
+        division: 'Neurology',
+        nctId: 'NCT02274558',
+        phase: 'Phase 3',
+        title: 'KINECT 3: Valbenazine for Tardive Dyskinesia',
+        enrollment: {
+            total: 234,
+            biomarkerPositive: 210,
+            biomarkerNegative: 24,
+            percentPositive: 89.7,
+            percentNegative: 10.3
+        },
+        trialDesign: {
+            type: 'Dose adjustment by genotype',
+            description: 'CYP2D6 poor metabolizers received adjusted dosing',
+            rationale: 'Significant exposure differences by metabolizer status',
+            controlArm: 'Placebo'
+        },
+        biomarkerStrategy: 'Genotype-guided dosing',
+        results: {
+            primaryEndpoint: 'AIMS score improvement',
+            biomarkerPositive: {
+                aimsImprovement: '-3.2 points',
+                responseRate: '40%',
+                cgicResponse: '67%',
+                pValue: '<0.001'
+            },
+            biomarkerNegative: 'Poor metabolizers: -4.1 points with dose adjustment'
+        },
+        fdaApproval: {
+            date: 'April 11, 2017',
+            nda: '209241',
+            summary: 'Approved with CYP2D6 dosing recommendations',
+            fdaReviewLink: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2017/209241Orig1s000TOC.cfm'
+        },
+        dataQuality: 'High',
+        precedentStrength: 'High'
+    },
+    {
+        id: 'siponimod-mayzent',
+        drug: 'Siponimod (Mayzent)',
+        biomarker: 'CYP2C9 genotype',
+        biomarkerType: 'metabolic',
+        division: 'Neurology',
+        nctId: 'NCT01665144',
+        phase: 'Phase 3',
+        title: 'EXPAND: Siponimod in Secondary Progressive MS',
+        enrollment: {
+            total: 1651,
+            biomarkerPositive: 1568,
+            biomarkerNegative: 83,
+            percentPositive: 95,
+            percentNegative: 5
+        },
+        trialDesign: {
+            type: 'Genotype exclusion/dose adjustment',
+            description: 'CYP2C9*3/*3 excluded, other variants dose-adjusted',
+            rationale: 'Major impact on drug clearance',
+            controlArm: 'Placebo'
+        },
+        biomarkerStrategy: 'Mandatory CYP2C9 genotyping before treatment',
+        results: {
+            primaryEndpoint: 'Disability progression',
+            biomarkerPositive: {
+                disabilityReduction: '21%',
+                t2LesionReduction: '-81%',
+                brainAtrophyReduction: '15%',
+                pValue: '0.013'
+            },
+            biomarkerNegative: 'CYP2C9*3/*3 contraindicated'
+        },
+        fdaApproval: {
+            date: 'March 26, 2019',
+            nda: '209884',
+            summary: 'First oral drug for SPMS with mandatory genotyping',
+            fdaReviewLink: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/209884Orig1s000TOC.cfm'
+        },
+        dataQuality: 'High',
+        precedentStrength: 'Maximum'
+    }
+];
+
+// Enhanced biomarker detection function
+function detectBiomarkers(text) {
+    if (!text) return [];
+    
+    const detectedBiomarkers = new Map();
+    
+    for (const [type, config] of Object.entries(BIOMARKER_PATTERNS)) {
+        for (const pattern of config.patterns) {
+            const matches = text.matchAll(pattern);
+            for (const match of matches) {
+                const biomarker = match[0].toUpperCase();
+                if (!detectedBiomarkers.has(biomarker)) {
+                    detectedBiomarkers.set(biomarker, {
+                        name: biomarker,
+                        type: type,
+                        confidence: 'high'
+                    });
+                }
+            }
+        }
+        
+        // Check for keywords to increase confidence
+        const hasKeywords = config.keywords.some(keyword => 
+            text.toLowerCase().includes(keyword.toLowerCase())
+        );
+        
+        if (hasKeywords) {
+            for (const [biomarker, info] of detectedBiomarkers) {
+                if (info.type === type) {
+                    info.confidence = 'very high';
+                }
+            }
+        }
+    }
+    
+    return Array.from(detectedBiomarkers.values());
+}
+
+// Analyze enrichment strategy
+function analyzeEnrichmentStrategy(enrollment, trialDesign) {
+    if (!enrollment) return 'Unknown';
+    
+    const percentPositive = enrollment.percentPositive || 0;
+    
+    if (percentPositive === 100) {
+        return {
+            level: 'Complete Enrichment',
+            percentage: 100,
+            strategy: 'Only biomarker-positive patients enrolled',
+            fdaRelevance: 'Strong precedent for complete enrichment'
+        };
+    } else if (percentPositive >= 80) {
+        return {
+            level: 'High Enrichment',
+            percentage: percentPositive,
+            strategy: 'Predominantly biomarker-positive with small control',
+            fdaRelevance: 'Precedent for high enrichment strategies'
+        };
+    } else if (percentPositive >= 50) {
+        return {
+            level: 'Moderate Enrichment',
+            percentage: percentPositive,
+            strategy: 'Balanced enrollment with enrichment',
+            fdaRelevance: 'Standard enrichment approach'
+        };
+    } else if (percentPositive === 0) {
+        return {
+            level: 'Exclusion Strategy',
+            percentage: 0,
+            strategy: 'Biomarker used for exclusion only',
+            fdaRelevance: 'Precedent for safety-based exclusion'
+        };
+    } else {
+        return {
+            level: 'Minimal Enrichment',
+            percentage: percentPositive,
+            strategy: 'Limited biomarker enrichment',
+            fdaRelevance: 'May require larger sample size'
+        };
+    }
+}
+
+// Routes
+
+// Health check
+router.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        version: '3.0',
+        timestamp: new Date().toISOString(),
+        features: [
+            'Enhanced biomarker detection',
+            'Real FDA precedent database',
+            'Clinical trial enrichment analysis',
+            'Live API integration',
+            'Advanced search algorithms'
+        ]
+    });
+});
+
+// Get FDA precedents with advanced filtering
+router.get('/precedents', (req, res) => {
+    const { 
+        division, 
+        biomarkerType, 
+        enrichmentLevel,
+        minEnrichment,
+        precedentStrength 
+    } = req.query;
+    
+    let filtered = [...precedentDatabase];
+    
+    if (division) {
+        filtered = filtered.filter(p => 
+            p.division.toLowerCase() === division.toLowerCase()
+        );
+    }
+    
+    if (biomarkerType) {
+        filtered = filtered.filter(p => 
+            p.biomarkerType === biomarkerType.toLowerCase()
+        );
+    }
+    
+    if (enrichmentLevel) {
+        filtered = filtered.filter(p => {
+            const strategy = analyzeEnrichmentStrategy(p.enrollment, p.trialDesign);
+            return strategy.level.toLowerCase().includes(enrichmentLevel.toLowerCase());
+        });
+    }
+    
+    if (minEnrichment) {
+        filtered = filtered.filter(p => 
+            p.enrollment.percentPositive >= parseInt(minEnrichment)
+        );
+    }
+    
+    if (precedentStrength) {
+        filtered = filtered.filter(p => 
+            p.precedentStrength.toLowerCase() === precedentStrength.toLowerCase()
+        );
+    }
+    
+    res.json({
+        success: true,
+        count: filtered.length,
+        precedents: filtered.map(p => ({
+            ...p,
+            enrichmentAnalysis: analyzeEnrichmentStrategy(p.enrollment, p.trialDesign)
+        }))
+    });
+});
+
+// Search ClinicalTrials.gov with enhanced analysis
+router.post('/search/clinicaltrials', async (req, res) => {
+    const { 
+        query, 
+        biomarker, 
+        drug, 
+        phase,
+        status,
+        pageSize = 20,
+        pageToken 
+    } = req.body;
+    
+    try {
+        // Build search expression
+        let searchExpr = [];
+        if (query) searchExpr.push(query);
+        if (biomarker) searchExpr.push(biomarker);
+        if (drug) searchExpr.push(drug);
+        
+        const searchQuery = searchExpr.join(' AND ');
+        const cacheKey = `ct_${searchQuery}_${pageSize}_${pageToken || 'first'}`;
+        
+        const cached = cache.get(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+        
+        // ClinicalTrials.gov API v2
+        const params = {
+            'query.cond': searchQuery,
+            'pageSize': pageSize,
+            'fields': [
+                'NCTId',
+                'BriefTitle',
+                'OverallStatus',
+                'Phase',
+                'Condition',
+                'InterventionName',
+                'BriefSummary',
+                'DetailedDescription',
+                'EligibilityCriteria',
+                'EnrollmentCount',
+                'StudyType',
+                'StartDate',
+                'CompletionDate'
+            ].join('|')
+        };
+        
+        if (pageToken) params.pageToken = pageToken;
+        if (phase) params['query.phase'] = phase;
+        if (status) params['query.status'] = status;
+        
+        const response = await axios.get('https://clinicaltrials.gov/api/v2/studies', { params });
+        
+        const studies = response.data.studies || [];
+        const processedStudies = studies.map(study => {
+            const protocol = study.protocolSection || {};
+            const description = protocol.descriptionModule || {};
+            const eligibility = protocol.eligibilityModule || {};
+            const design = protocol.designModule || {};
+            
+            // Detect biomarkers
+            const fullText = [
+                description.briefSummary,
+                description.detailedDescription,
+                eligibility.eligibilityCriteria,
+                protocol.armsInterventionsModule?.interventions?.map(i => i.description).join(' ')
+            ].filter(Boolean).join(' ');
+            
+            const detectedBiomarkers = detectBiomarkers(fullText);
+            
+            // Analyze enrollment
+            const enrollment = design.enrollmentInfo?.count || 0;
+            const hasEnrichment = detectedBiomarkers.length > 0 && 
+                /enrichment|biomarker.{0,20}(positive|negative|stratif)/i.test(fullText);
+            
+            // Estimate enrichment level
+            let estimatedEnrichment = 'Unknown';
+            if (/only.{0,20}(positive|mutation|variant)/i.test(fullText)) {
+                estimatedEnrichment = 'Complete (100%)';
+            } else if (/predominantly|primarily|mostly/i.test(fullText)) {
+                estimatedEnrichment = 'High (>80%)';
+            } else if (/stratified|balanced/i.test(fullText)) {
+                estimatedEnrichment = 'Moderate (50-80%)';
+            }
+            
+            return {
+                nctId: protocol.identificationModule?.nctId,
+                title: protocol.identificationModule?.briefTitle,
+                status: protocol.statusModule?.overallStatus,
+                phase: design.phases?.join(', '),
+                enrollment: enrollment,
+                biomarkers: detectedBiomarkers,
+                hasEnrichment: hasEnrichment,
+                estimatedEnrichment: estimatedEnrichment,
+                conditions: protocol.conditionsModule?.conditions,
+                interventions: protocol.armsInterventionsModule?.interventions?.map(i => i.name),
+                startDate: protocol.statusModule?.startDateStruct?.date,
+                url: `https://clinicaltrials.gov/study/${protocol.identificationModule?.nctId}`
+            };
+        });
+        
+        const result = {
+            success: true,
+            count: processedStudies.length,
+            totalCount: response.data.totalCount,
+            nextPageToken: response.data.nextPageToken,
+            studies: processedStudies,
+            summary: {
+                withBiomarkers: processedStudies.filter(s => s.biomarkers.length > 0).length,
+                withEnrichment: processedStudies.filter(s => s.hasEnrichment).length,
+                byPhase: processedStudies.reduce((acc, s) => {
+                    const phase = s.phase || 'Not specified';
+                    acc[phase] = (acc[phase] || 0) + 1;
+                    return acc;
+                }, {})
+            }
+        };
+        
+        cache.set(cacheKey, result);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('ClinicalTrials.gov API error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to search ClinicalTrials.gov',
+            message: error.message
+        });
+    }
+});
+
+// Search PubMed for biomarker enrichment literature
+router.post('/search/pubmed', async (req, res) => {
+    const { query, biomarker, maxResults = 20 } = req.body;
+    
+    try {
+        // Build PubMed search query
+        let searchTerms = [];
+        if (query) searchTerms.push(query);
+        if (biomarker) searchTerms.push(`"${biomarker}"[All Fields]`);
+        searchTerms.push('("biomarker enrichment"[All Fields] OR "precision medicine"[All Fields] OR "targeted therapy"[All Fields])');
+        
+        const searchQuery = searchTerms.join(' AND ');
+        const cacheKey = `pubmed_${searchQuery}_${maxResults}`;
+        
+        const cached = cache.get(cacheKey);
+        if (cached) {
+            return res.json(cached);
+        }
+        
+        // Search PubMed
+        const searchResponse = await axios.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi', {
+            params: {
+                db: 'pubmed',
+                term: searchQuery,
+                retmax: maxResults,
+                retmode: 'json',
+                sort: 'relevance'
+            }
+        });
+        
+        const pmids = searchResponse.data.esearchresult?.idlist || [];
+        
+        if (pmids.length === 0) {
+            return res.json({
+                success: true,
+                count: 0,
+                articles: []
+            });
+        }
+        
+        // Fetch article details
+        const detailsResponse = await axios.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi', {
+            params: {
+                db: 'pubmed',
+                id: pmids.join(','),
+                retmode: 'xml'
+            }
+        });
+        
+        // Parse XML response
+        const parser = new xml2js.Parser();
+        const result = await parser.parseStringPromise(detailsResponse.data);
+        const articles = result.PubmedArticleSet?.PubmedArticle || [];
+        
+        const processedArticles = articles.map(article => {
+            const medline = article.MedlineCitation?.[0];
+            const articleData = medline?.Article?.[0];
+            
+            const pmid = medline?.PMID?.[0]._;
+            const title = articleData?.ArticleTitle?.[0];
+            const abstract = articleData?.Abstract?.[0]?.AbstractText?.[0]?._ || 
+                           articleData?.Abstract?.[0]?.AbstractText?.[0] || '';
+            const journal = articleData?.Journal?.[0]?.Title?.[0];
+            const year = articleData?.Journal?.[0]?.JournalIssue?.[0]?.PubDate?.[0]?.Year?.[0];
+            const authors = articleData?.AuthorList?.[0]?.Author?.slice(0, 3).map(a => 
+                `${a.LastName?.[0]} ${a.ForeName?.[0]?.[0] || ''}`
+            ).join(', ') + (articleData?.AuthorList?.[0]?.Author?.length > 3 ? ' et al.' : '');
+            
+            // Detect biomarkers in abstract
+            const detectedBiomarkers = detectBiomarkers(title + ' ' + abstract);
+            
+            // Calculate relevance score
+            const hasEnrichment = /enrichment|stratif|subset|population/i.test(abstract);
+            const hasBiomarker = detectedBiomarkers.length > 0;
+            const hasFDA = /FDA|regulatory|approval/i.test(abstract);
+            const hasTrial = /trial|study|clinical/i.test(abstract);
+            
+            const relevanceScore = 
+                (hasEnrichment ? 3 : 0) + 
+                (hasBiomarker ? 3 : 0) + 
+                (hasFDA ? 2 : 0) + 
+                (hasTrial ? 2 : 0);
+            
+            return {
+                pmid: pmid,
+                title: title,
+                abstract: abstract.substring(0, 500) + (abstract.length > 500 ? '...' : ''),
+                authors: authors,
+                journal: journal,
+                year: year,
+                biomarkers: detectedBiomarkers,
+                relevanceScore: relevanceScore,
+                url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+            };
+        });
+        
+        // Sort by relevance
+        processedArticles.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        
+        const response = {
+            success: true,
+            count: processedArticles.length,
+            totalFound: searchResponse.data.esearchresult?.count || processedArticles.length,
+            articles: processedArticles
+        };
+        
+        cache.set(cacheKey, response);
+        res.json(response);
+        
+    } catch (error) {
+        console.error('PubMed API error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to search PubMed',
+            message: error.message
+        });
+    }
+});
+
+// Comprehensive search across all sources
+router.post('/search/comprehensive', async (req, res) => {
+    const { query, biomarker, drug, sources = ['fda', 'clinicaltrials', 'pubmed'] } = req.body;
+    
+    try {
+        const results = {
+            precedents: { count: 0, data: [] },
+            clinicalTrials: { count: 0, data: [] },
+            pubmedArticles: { count: 0, data: [] }
+        };
+        
+        // Search FDA precedents
+        if (sources.includes('fda')) {
+            const precedents = precedentDatabase.filter(p => {
+                const searchText = JSON.stringify(p).toLowerCase();
+                return (!query || searchText.includes(query.toLowerCase())) &&
+                       (!biomarker || searchText.includes(biomarker.toLowerCase())) &&
+                       (!drug || searchText.includes(drug.toLowerCase()));
+            });
+            
+            results.precedents = {
+                count: precedents.length,
+                data: precedents.map(p => ({
+                    ...p,
+                    enrichmentAnalysis: analyzeEnrichmentStrategy(p.enrollment, p.trialDesign),
+                    sourceType: 'fda_approval'
+                }))
+            };
+        }
+        
+        // Search ClinicalTrials.gov
+        if (sources.includes('clinicaltrials')) {
+            try {
+                const ctResponse = await axios.post(
+                    `${req.protocol}://${req.get('host')}/api/biomarkers/search/clinicaltrials`,
+                    { query, biomarker, drug, pageSize: 10 }
+                );
+                
+                if (ctResponse.data.success) {
+                    results.clinicalTrials = {
+                        count: ctResponse.data.count,
+                        data: ctResponse.data.studies.map(s => ({
+                            ...s,
+                            sourceType: 'clinical_trial'
+                        }))
+                    };
+                }
+            } catch (error) {
+                console.error('Clinical trials search error:', error);
+            }
+        }
+        
+        // Search PubMed
+        if (sources.includes('pubmed')) {
+            try {
+                const pubmedResponse = await axios.post(
+                    `${req.protocol}://${req.get('host')}/api/biomarkers/search/pubmed`,
+                    { query, biomarker, maxResults: 10 }
+                );
+                
+                if (pubmedResponse.data.success) {
+                    results.pubmedArticles = {
+                        count: pubmedResponse.data.count,
+                        data: pubmedResponse.data.articles.map(a => ({
+                            ...a,
+                            sourceType: 'literature'
+                        }))
+                    };
+                }
+            } catch (error) {
+                console.error('PubMed search error:', error);
+            }
+        }
+        
+        // Combine all results
+        const allResults = [
+            ...results.precedents.data,
+            ...results.clinicalTrials.data,
+            ...results.pubmedArticles.data
+        ];
+        
+        // Generate insights
+        const insights = generateInsights(allResults, biomarker);
+        
+        res.json({
+            success: true,
+            totalResults: allResults.length,
+            results: results,
+            insights: insights,
+            searchParams: { query, biomarker, drug, sources }
+        });
+        
+    } catch (error) {
+        console.error('Comprehensive search error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to perform comprehensive search',
+            message: error.message
+        });
+    }
+});
+
+// Get FDA document links
+router.post('/search/fda-documents', async (req, res) => {
+    const { drugName, nda } = req.body;
+    
+    try {
+        const fdaLinks = {
+            reviews: [],
+            labels: [],
+            approvalLetters: []
+        };
+        
+        // Generate FDA document URLs
+        if (nda) {
+            fdaLinks.reviews.push({
+                title: 'FDA Review Documents',
+                url: `https://www.accessdata.fda.gov/drugsatfda_docs/nda/${nda.substring(0, 4)}/${nda}_toc.cfm`
+            });
+            
+            fdaLinks.labels.push({
+                title: 'Product Label',
+                url: `https://www.accessdata.fda.gov/drugsatfda_docs/label/${new Date().getFullYear()}/${nda}lbl.pdf`
+            });
+        }
+        
+        if (drugName) {
+            // Search FDA Orange Book
+            const orangeBookUrl = `https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=N&Appl_No=${nda}`;
+            fdaLinks.approvalLetters.push({
+                title: 'Orange Book Entry',
+                url: orangeBookUrl
+            });
+        }
+        
+        res.json({
+            success: true,
+            documents: fdaLinks,
+            note: 'These are direct FDA database links. Some may require navigation to find specific documents.'
+        });
+        
+    } catch (error) {
+        console.error('FDA document search error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate FDA document links'
+        });
+    }
+});
+
+// Trial design recommendations based on precedents
+router.post('/recommendations/trial-design', async (req, res) => {
+    const { 
+        biomarker, 
+        indication, 
+        targetPopulationSize,
+        biomarkerPrevalence 
+    } = req.body;
+    
+    try {
+        // Find relevant precedents
+        const relevantPrecedents = precedentDatabase.filter(p => {
+            const biomarkerMatch = biomarker && 
+                p.biomarker.toLowerCase().includes(biomarker.toLowerCase());
+            const indicationMatch = indication && 
+                (p.title.toLowerCase().includes(indication.toLowerCase()) ||
+                 p.drug.toLowerCase().includes(indication.toLowerCase()));
+            
+            return biomarkerMatch || indicationMatch;
+        });
+        
+        // Analyze precedent strategies
+        const strategies = relevantPrecedents.map(p => ({
+            drug: p.drug,
+            strategy: analyzeEnrichmentStrategy(p.enrollment, p.trialDesign),
+            outcome: p.fdaApproval.summary
+        }));
+        
+        // Generate recommendations
+        const recommendations = [];
+        
+        // Complete enrichment recommendation
+        const completeEnrichmentPrecedents = strategies.filter(s => 
+            s.strategy.level === 'Complete Enrichment'
+        );
+        
+        if (completeEnrichmentPrecedents.length > 0) {
+            recommendations.push({
+                strategy: 'Complete Enrichment (100% biomarker-positive)',
+                precedents: completeEnrichmentPrecedents.length,
+                rationale: 'Strong FDA precedent for complete enrichment in precision medicine',
+                examples: completeEnrichmentPrecedents.slice(0, 3).map(p => p.drug),
+                sampleSize: Math.ceil(targetPopulationSize * (biomarkerPrevalence / 100)),
+                pros: [
+                    'Maximizes treatment effect size',
+                    'Reduces sample size requirements',
+                    'Clear regulatory precedent',
+                    'Faster trial completion'
+                ],
+                cons: [
+                    'Limited to biomarker-positive population',
+                    'Requires upfront screening costs',
+                    'May limit market size'
+                ],
+                recommendationScore: 95
+            });
+        }
+        
+        // High enrichment recommendation
+        const highEnrichmentPrecedents = strategies.filter(s => 
+            s.strategy.level === 'High Enrichment'
+        );
+        
+        if (highEnrichmentPrecedents.length > 0 || biomarkerPrevalence > 20) {
+            recommendations.push({
+                strategy: 'High Enrichment (80-90% biomarker-positive)',
+                precedents: highEnrichmentPrecedents.length,
+                rationale: 'Allows small comparator arm while maintaining enrichment benefits',
+                examples: highEnrichmentPrecedents.slice(0, 3).map(p => p.drug),
+                sampleSize: Math.ceil(targetPopulationSize * 1.2),
+                pros: [
+                    'Strong treatment effect expected',
+                    'Some data on biomarker-negative patients',
+                    'Regulatory flexibility',
+                    'Broader label potential'
+                ],
+                cons: [
+                    'Larger sample size than complete enrichment',
+                    'Diluted treatment effect',
+                    'More complex analysis'
+                ],
+                recommendationScore: 85
+            });
+        }
+        
+        // Stratified enrollment recommendation
+        recommendations.push({
+            strategy: 'Stratified Enrollment (50/50 split)',
+            precedents: strategies.filter(s => s.strategy.level === 'Moderate Enrichment').length,
+            rationale: 'Balanced approach for biomarker validation',
+            sampleSize: targetPopulationSize * 2,
+            pros: [
+                'Full biomarker validation',
+                'Broader market opportunity',
+                'Satisfies conservative regulatory approach'
+            ],
+            cons: [
+                'Largest sample size requirement',
+                'Risk of diluted overall effect',
+                'Longer recruitment timeline'
+            ],
+            recommendationScore: 60
+        });
+        
+        // Sort by recommendation score
+        recommendations.sort((a, b) => b.recommendationScore - a.recommendationScore);
+        
+        res.json({
+            success: true,
+            recommendations: recommendations,
+            precedentSummary: {
+                totalRelevantPrecedents: relevantPrecedents.length,
+                byStrategy: strategies.reduce((acc, s) => {
+                    acc[s.strategy.level] = (acc[s.strategy.level] || 0) + 1;
+                    return acc;
+                }, {})
+            },
+            regulatoryConsiderations: [
+                'FDA has accepted complete enrichment strategies across multiple therapeutic areas',
+                'Enrichment strategies should align with mechanism of action',
+                'Consider companion diagnostic development timeline',
+                'Early FDA meeting recommended to discuss enrichment strategy'
+            ]
+        });
+        
+    } catch (error) {
+        console.error('Trial design recommendation error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate trial design recommendations'
+        });
+    }
+});
+
+// Statistical power calculation for enriched trials
+router.post('/calculate/power', async (req, res) => {
+    const {
+        sampleSize,
+        effectSizeBiomarkerPositive,
+        effectSizeBiomarkerNegative,
+        biomarkerPrevalence,
+        enrichmentLevel,
+        alpha = 0.05,
+        allocation = 0.5
+    } = req.body;
+    
+    try {
+        // Simple power calculation (would use proper stats library in production)
+        const calculatePower = (n, effectSize, alpha) => {
+            // Simplified calculation for demonstration
+            const z_alpha = 1.96; // for alpha = 0.05
+            const power = 1 - (1 / (1 + Math.exp(Math.sqrt(n) * effectSize - z_alpha)));
+            return Math.min(0.99, Math.max(0.01, power));
+        };
+        
+        // Calculate for different scenarios
+        const scenarios = [];
+        
+        // Complete enrichment
+        const nComplete = Math.floor(sampleSize * (enrichmentLevel / 100));
+        scenarios.push({
+            strategy: 'Complete Enrichment',
+            enrollmentBreakdown: {
+                biomarkerPositive: nComplete,
+                biomarkerNegative: 0,
+                total: nComplete
+            },
+            power: calculatePower(nComplete, effectSizeBiomarkerPositive, alpha),
+            expectedEffect: effectSizeBiomarkerPositive,
+            interpretation: 'Maximum power with smallest sample size'
+        });
+        
+        // High enrichment (90%)
+        const nHigh90 = Math.floor(sampleSize * 0.9);
+        const nHighNeg10 = sampleSize - nHigh90;
+        const weightedEffectHigh = (nHigh90 * effectSizeBiomarkerPositive + 
+                                    nHighNeg10 * effectSizeBiomarkerNegative) / sampleSize;
+        scenarios.push({
+            strategy: '90% Enrichment',
+            enrollmentBreakdown: {
+                biomarkerPositive: nHigh90,
+                biomarkerNegative: nHighNeg10,
+                total: sampleSize
+            },
+            power: calculatePower(sampleSize, weightedEffectHigh, alpha),
+            expectedEffect: weightedEffectHigh,
+            interpretation: 'High power with minimal dilution'
+        });
+        
+        // No enrichment
+        const nNoEnrichPos = Math.floor(sampleSize * (biomarkerPrevalence / 100));
+        const nNoEnrichNeg = sampleSize - nNoEnrichPos;
+        const weightedEffectNo = (nNoEnrichPos * effectSizeBiomarkerPositive + 
+                                  nNoEnrichNeg * effectSizeBiomarkerNegative) / sampleSize;
+        scenarios.push({
+            strategy: 'No Enrichment',
+            enrollmentBreakdown: {
+                biomarkerPositive: nNoEnrichPos,
+                biomarkerNegative: nNoEnrichNeg,
+                total: sampleSize
+            },
+            power: calculatePower(sampleSize, weightedEffectNo, alpha),
+            expectedEffect: weightedEffectNo,
+            interpretation: 'Natural prevalence - highest risk of failure'
+        });
+        
+        // Find required sample sizes for 80% power
+        const requiredSampleSizes = scenarios.map(scenario => {
+            let n = 100;
+            while (calculatePower(n, scenario.expectedEffect, alpha) < 0.8 && n < 10000) {
+                n += 50;
+            }
+            return {
+                strategy: scenario.strategy,
+                requiredN: n,
+                costMultiple: n / scenarios[0].enrollmentBreakdown.total
+            };
+        });
+        
+        res.json({
+            success: true,
+            powerAnalysis: scenarios,
+            requiredSampleSizes: requiredSampleSizes,
+            recommendations: {
+                preferred: scenarios[0],
+                rationale: 'Complete enrichment provides maximum statistical power with minimum sample size',
+                costBenefit: `${(requiredSampleSizes[2].costMultiple).toFixed(1)}x cost savings vs no enrichment`
+            }
+        });
+        
+    } catch (error) {
+        console.error('Power calculation error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to calculate statistical power'
+        });
+    }
+});
+
+// Export data in various formats
+router.post('/export', async (req, res) => {
+    const { data, format = 'json', filename = 'biomarker-analysis' } = req.body;
+    
+    try {
+        let exportData;
+        let contentType;
+        
+        switch (format) {
+            case 'csv':
+                // Convert to CSV (simplified)
+                const headers = Object.keys(data[0] || {});
+                const csv = [
+                    headers.join(','),
+                    ...data.map(row => 
+                        headers.map(h => JSON.stringify(row[h] || '')).join(',')
+                    )
+                ].join('\n');
+                exportData = csv;
+                contentType = 'text/csv';
+                break;
+                
+            case 'json':
+            default:
+                exportData = JSON.stringify(data, null, 2);
+                contentType = 'application/json';
+                break;
+        }
+        
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}.${format}"`);
+        res.send(exportData);
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to export data'
+        });
+    }
+});
+
+// Helper function to generate insights
+function generateInsights(results, biomarker) {
+    const insights = {
+        precedentPatterns: [],
+        enrichmentTrends: [],
+        regulatoryConsiderations: [],
+        recommendations: []
+    };
+    
+    // Analyze FDA precedents
+    const fdaPrecedents = results.filter(r => r.sourceType === 'fda_approval');
+    if (fdaPrecedents.length > 0) {
+        const completeEnrichment = fdaPrecedents.filter(p => 
+            p.enrichmentAnalysis?.percentage === 100
+        );
+        
+        insights.precedentPatterns.push({
+            type: 'Complete Enrichment Precedents',
+            finding: `${completeEnrichment.length} FDA-approved drugs used 100% biomarker-positive enrollment`,
+            implication: 'Strong regulatory precedent for complete enrichment strategies',
+            examples: completeEnrichment.slice(0, 3).map(p => p.drug)
+        });
+        
+        // Analyze by division
+        const divisionCounts = fdaPrecedents.reduce((acc, p) => {
+            acc[p.division] = (acc[p.division] || 0) + 1;
+            return acc;
+        }, {});
+        
+        insights.regulatoryConsiderations.push({
+            type: 'Division Consistency',
+            finding: `Enrichment strategies approved across ${Object.keys(divisionCounts).length} FDA divisions`,
+            divisions: divisionCounts,
+            recommendation: 'Reference cross-division precedents in FDA meetings'
+        });
+    }
+    
+    // Analyze clinical trials
+    const clinicalTrials = results.filter(r => r.sourceType === 'clinical_trial');
+    if (clinicalTrials.length > 0) {
+        const withBiomarkers = clinicalTrials.filter(t => 
+            t.biomarkers && t.biomarkers.length > 0
+        );
+        
+        insights.enrichmentTrends.push({
+            type: 'Current Trial Landscape',
+            finding: `${withBiomarkers.length}/${clinicalTrials.length} active trials use biomarker selection`,
+            trend: 'Increasing adoption of precision medicine approaches',
+            implication: 'Industry standard shifting toward biomarker-driven trials'
+        });
+    }
+    
+    // Generate recommendations
+    if (biomarker) {
+        insights.recommendations.push({
+            priority: 'High',
+            recommendation: `Consider complete enrichment strategy for ${biomarker}`,
+            rationale: 'Based on successful FDA precedents with similar biomarker-driven approaches',
+            actionItems: [
+                'Schedule Type B meeting with FDA to discuss enrichment strategy',
+                'Prepare precedent analysis highlighting cross-division approvals',
+                'Develop companion diagnostic in parallel',
+                'Consider adaptive trial design with interim biomarker analysis'
+            ]
+        });
+    }
+    
+    return insights;
+}
+
+module.exports = router;
 
 // const express = require('express');
 // const cors = require('cors');
-// const axios = require('axios');
 // const path = require('path');
-// const { v4: uuidv4 } = require('uuid');
+// const axios = require('axios');
+// const xml2js = require('xml2js');
+// const NodeCache = require('node-cache');
 
 // const app = express();
 // const PORT = process.env.PORT || 3000;
@@ -11,4208 +1188,1068 @@
 // // Middleware
 // app.use(cors());
 // app.use(express.json());
-// app.use(express.static('public'));
+// app.use(express.static(path.join(__dirname, 'public')));
 
-// // Store for caching search results
-// let searchCache = new Map();
-// const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+// // Initialize cache (30 min TTL)
+// const cache = new NodeCache({ stdTTL: 1800 });
 
-// // Updated precedent database
+// // Enhanced Precedent Database with Real FDA Approvals
 // const precedentDatabase = [
-//     // Neurology
 //     {
-//         id: 'carbamazepine-hla',
-//         drug: 'Carbamazepine',
-//         biomarker: 'HLA-B*15:02',
-//         division: 'Neurology',
-//         nctId: 'NCT00736671',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'Carbamazepine-Induced Severe Cutaneous Adverse Reactions Prevention Study',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 4877,
-//         sponsor: 'Chang Gung Memorial Hospital',
-//         primaryOutcome: 'Incidence of Stevens-Johnson syndrome/toxic epidermal necrolysis',
-//         biomarkerData: {
-//             biomarker: 'HLA-B*15:02',
-//             strategy: 'Exclusion of biomarker-positive patients',
-//             populationSplit: '92.3% negative (enrolled), 7.7% positive (excluded)',
-//             totalTested: 4877,
-//             biomarkerPositive: 376,
-//             biomarkerNegative: 4501,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 0,
-//             percentNegativeIncluded: 100
-//         },
-//         results: {
-//             primaryEndpoint: 'Zero SJS/TEN cases in HLA-B*15:02-negative vs 0.23% historical (10 expected cases)',
-//             historicalComparison: '0% vs 0.23% expected incidence',
-//             statisticalSignificance: 'p<0.001',
-//             sensitivity: '98.3%',
-//             specificity: '97%',
-//             npv: '100%',
-//             nnt: '13 patients screened to prevent 1 case'
-//         },
-//         fdaImpact: 'FDA mandated genetic testing before carbamazepine initiation in Asian patients',
-//         emaAlignment: 'EMA adopted similar genetic testing requirements',
-//         publications: [
-//             {
-//                 citation: 'Chen P et al. NEJM 2011;364:1126-1133',
-//                 pmid: '21428769',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1013297'
-//             },
-//             {
-//                 citation: 'Chung WH et al. Nature 2004;428:486',
-//                 pmid: '15057820',
-//                 link: 'https://www.nature.com/articles/428486a'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/016608s110lbl.pdf',
-//             fdaSafetyAlert: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-recommends-genetic-testing-patients-asian-ancestry-prior',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00736671',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/referral/carbamazepine-article-31-referral-annex-i-ii-iii_en.pdf'
-//         },
-//         dataSource: 'FDA Label Update, Published Literature'
-//     },
-//     {
-//         id: 'nusinersen-smn1',
-//         drug: 'Nusinersen (Spinraza)',
-//         biomarker: 'SMN1 gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT02193074',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'ENDEAR: Study of Nusinersen in Infants With SMA Type 1',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 121,
-//         sponsor: 'Biogen',
-//         primaryOutcome: 'Motor milestone response',
-//         biomarkerData: {
-//             biomarker: 'SMN1 gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (genetically confirmed SMA), 0% negative',
-//             totalTested: 121,
-//             biomarkerPositive: 121,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Motor milestone improvement: 51% vs 0% (p<0.001)',
-//             survivalBenefit: '47% reduction in risk of death or ventilation',
-//             durability: 'Benefits sustained through extension studies'
-//         },
-//         fdaImpact: 'First drug approved for SMA, approved for genetically defined population',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Finkel RS et al. NEJM 2017;377:1723-1732',
-//                 pmid: '29091570',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1702752'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-drug-spinal-muscular-atrophy',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/209531s028lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02193074',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/spinraza-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'patisiran-ttr',
-//         drug: 'Patisiran (Onpattro)',
-//         biomarker: 'TTR gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT01960348',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'APOLLO: Study of Patisiran in hATTR Amyloidosis',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 225,
-//         sponsor: 'Alnylam Pharmaceuticals',
-//         primaryOutcome: 'mNIS+7 score change',
-//         biomarkerData: {
-//             biomarker: 'TTR gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (genetically confirmed hATTR), 0% negative',
-//             totalTested: 225,
-//             biomarkerPositive: 225,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'mNIS+7: -6.0 vs +28.0 points (p<0.001)',
-//             qualityOfLife: 'Norfolk QoL-DN: -6.7 vs +14.4 points',
-//             cardiacBenefit: 'Improved cardiac parameters in 56% of patients'
-//         },
-//         fdaImpact: 'First RNAi therapeutic approved, for genetically defined population',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Adams D et al. NEJM 2018;379:11-21',
-//                 pmid: '29972757',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1716153'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-its-kind-targeted-rna-based-therapy-treat-rare-disease',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/210922s008lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01960348',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/onpattro-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'viltolarsen-dmd',
-//         drug: 'Viltolarsen (Viltepso)',
-//         biomarker: 'DMD gene exon 53 skipping',
-//         division: 'Neurology',
-//         nctId: 'NCT02740972',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'Study of Viltolarsen in DMD Patients Amenable to Exon 53 Skipping',
-//         phase: 'Phase 2',
-//         status: 'Completed',
-//         enrollment: 16,
-//         sponsor: 'NS Pharma',
-//         primaryOutcome: 'Dystrophin production increase',
-//         biomarkerData: {
-//             biomarker: 'DMD gene exon 53 skipping',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (DMD mutation carriers), 0% negative',
-//             totalTested: 16,
-//             biomarkerPositive: 16,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Dystrophin increase: 5.4% vs 0.3% baseline (p<0.01)',
-//             functionalOutcome: 'Improved time to stand in 50% of patients',
-//             durability: 'Benefits sustained over 24 weeks'
-//         },
-//         fdaImpact: 'Approved for DMD with specific genetic mutations',
-//         emaAlignment: 'EMA approved for identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Clemens PR et al. NEJM 2020;382:645-653',
-//                 pmid: '32053345',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1911623'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/212154s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02740972',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/viltepso-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'risdiplam-smn1',
-//         drug: 'Risdiplam (Evrysdi)',
-//         biomarker: 'SMN1 gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT02913482',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'FIREFISH: Study of Risdiplam in SMA Type 1',
-//         phase: 'Phase 2/3',
-//         status: 'Completed',
-//         enrollment: 41,
-//         sponsor: 'Roche',
-//         primaryOutcome: 'Motor function improvement',
-//         biomarkerData: {
-//             biomarker: 'SMN1 gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (SMA Type 1), 0% negative',
-//             totalTested: 41,
-//             biomarkerPositive: 41,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Motor milestone: 32% vs 0% (p<0.001)',
-//             survivalBenefit: '90% event-free survival at 12 months',
-//             durability: 'Sustained benefits in open-label extension'
-//         },
-//         fdaImpact: 'Approved for SMA with genetic confirmation',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Baranello G et al. Lancet Neurol 2021;20:39-48',
-//                 pmid: '33212066',
-//                 link: 'https://www.thelancet.com/journals/laneur/article/PIIS1474-4422(20)30374-7/fulltext'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-oral-treatment-spinal-muscular-atrophy',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/213535s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02913482',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/evrysdi-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, Lancet Neurol'
-//     },
-//     {
-//         id: 'onasemnogene-smn1',
-//         drug: 'Onasemnogene Abeparvovec (Zolgensma)',
-//         biomarker: 'SMN1 gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT02122952',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'STR1VE: Gene Therapy for SMA Type 1',
-//         phase: 'Phase 1',
-//         status: 'Completed',
-//         enrollment: 22,
-//         sponsor: 'Novartis Gene Therapies',
-//         primaryOutcome: 'Survival without permanent ventilation',
-//         biomarkerData: {
-//             biomarker: 'SMN1 gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (SMA Type 1), 0% negative',
-//             totalTested: 22,
-//             biomarkerPositive: 22,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Survival: 91% vs 26% historical (p<0.001)',
-//             motorFunction: '50% achieved sitting independently',
-//             durability: 'Benefits sustained over 5 years'
-//         },
-//         fdaImpact: 'First gene therapy for SMA, genetically defined population',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Mendell JR et al. NEJM 2017;377:1713-1722',
-//                 pmid: '29091557',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1706198'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-innovative-gene-therapy-treat-pediatric-patients-spinal-muscular-atrophy-rare-disease',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/125694s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02122952',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/zolgensma-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'tofersen-sod1',
-//         drug: 'Tofersen (Qalsody)',
-//         biomarker: 'SOD1 gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT02623699',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'VALOR: Study of Tofersen in ALS with SOD1 Mutations',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 108,
-//         sponsor: 'Biogen',
-//         primaryOutcome: 'ALSFRS-R score change',
-//         biomarkerData: {
-//             biomarker: 'SOD1 gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (SOD1 ALS), 0% negative',
-//             totalTested: 108,
-//             biomarkerPositive: 108,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'ALSFRS-R: -1.2 vs -6.7 (p=0.03)',
-//             biomarkerReduction: '60% reduction in SOD1 protein',
-//             durability: 'Sustained benefits in open-label extension'
-//         },
-//         fdaImpact: 'Approved for ALS with SOD1 mutations',
-//         emaAlignment: 'EMA granted conditional approval for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Miller TM et al. NEJM 2022;387:1099-1110',
-//                 pmid: '36129998',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2204705'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-treatment-amyotrophic-lateral-sclerosis-associated-mutation-sod1-gene',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/215887s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02623699',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/qalsody-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'eteplirsen-dmd',
-//         drug: 'Eteplirsen (Exondys 51)',
-//         biomarker: 'DMD gene exon 51 skipping',
-//         division: 'Neurology',
-//         nctId: 'NCT02255552',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'PROMOVI: Study of Eteplirsen in DMD Patients',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 126,
-//         sponsor: 'Sarepta Therapeutics',
-//         primaryOutcome: 'Dystrophin production',
-//         biomarkerData: {
-//             biomarker: 'DMD gene exon 51 skipping',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (DMD exon 51), 0% negative',
-//             totalTested: 126,
-//             biomarkerPositive: 126,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Dystrophin: 0.93% vs 0.22% (p<0.05)',
-//             functionalOutcome: 'Stabilized 6MWT in 67% of patients',
-//             durability: 'Benefits sustained over 48 weeks'
-//         },
-//         fdaImpact: 'Approved for DMD with specific genetic mutations',
-//         emaAlignment: 'EMA did not approve due to efficacy concerns',
-//         publications: [
-//             {
-//                 citation: 'Mendell JR et al. Ann Neurol 2018;83:832-843',
-//                 pmid: '29534205',
-//                 link: 'https://onlinelibrary.wiley.com/doi/full/10.1002/ana.25213'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-grants-accelerated-approval-first-drug-duchenne-muscular-dystrophy',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/206488lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02255552',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/withdrawal-report/withdrawal-assessment-report-exondys_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, Ann Neurol'
-//     },
-//     // Pulmonary
-//     {
-//         id: 'ivacaftor-cftr',
+//         id: 'ivacaftor-kalydeco',
 //         drug: 'Ivacaftor (Kalydeco)',
-//         biomarker: 'CFTR G551D',
+//         biomarker: 'CFTR G551D mutation',
 //         division: 'Pulmonary',
 //         nctId: 'NCT00909532',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'STRIVE: Study of Ivacaftor in CF Patients With G551D Mutation',
 //         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 161,
-//         sponsor: 'Vertex Pharmaceuticals',
-//         primaryOutcome: 'Change in FEV1 percent predicted',
-//         biomarkerData: {
-//             biomarker: 'CFTR G551D mutation',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (G551D carriers), 0% negative',
-//             totalTested: 161,
+//         title: 'STRIVE: Study of VX-770 in CF Patients with G551D-CFTR',
+//         enrollment: {
+//             total: 161,
 //             biomarkerPositive: 161,
 //             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
+//             percentPositive: 100,
+//             percentNegative: 0
 //         },
+//         trialDesign: {
+//             type: 'Complete enrichment strategy',
+//             description: 'Only patients with G551D mutation enrolled',
+//             rationale: 'Drug mechanism requires specific CFTR gating mutation',
+//             controlArm: 'Placebo (also G551D positive)'
+//         },
+//         biomarkerStrategy: '100% biomarker-positive enrichment',
 //         results: {
-//             primaryEndpoint: '10.6% improvement in FEV1 (p<0.001)',
-//             sweatChloride: '47.9 mmol/L reduction vs placebo',
-//             responseRate: '83% of G551D patients showed improvement',
-//             durability: 'Benefits sustained over 144 weeks'
-//         },
-//         fdaImpact: 'First precision medicine approval in CF for ~4% of patients, later expanded to 38 mutations',
-//         emaAlignment: 'EMA approved with identical mutation-specific indication',
-//         publications: [
-//             {
-//                 citation: 'Ramsey BW et al. NEJM 2011;365:1663-1672',
-//                 pmid: '22047557',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1105185'
+//             biomarkerPositive: {
+//                 fev1Improvement: '10.6%',
+//                 responseRate: '83%',
+//                 sweatChloride: '-47.9 mmol/L',
+//                 pValue: '<0.001'
 //             },
-//             {
-//                 citation: 'Davies JC et al. Lancet Respir Med 2013;1:630-638',
-//                 pmid: '24429127',
-//                 link: 'https://www.thelancet.com/journals/lanres/article/PIIS2213-2600(13)70138-8/fulltext'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-kalydeco-treat-rare-form-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/203188s035lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00909532',
-//             emaSummary: 'https://www.ema.europa.eu/en/documents/product-information/kalydeco-epar-product-information_en.pdf'
+//             biomarkerNegative: 'Not enrolled - drug ineffective without mutation',
+//             overallOutcome: 'First precision medicine for CF'
 //         },
-//         dataSource: 'ClinicalTrials.gov, FDA SBA'
+//         fdaApproval: {
+//             date: 'January 31, 2012',
+//             nda: '203188',
+//             summary: 'FDA approved for G551D mutation only',
+//             expansions: 'Later expanded to 38 CFTR mutations'
+//         },
+//         dataQuality: 'Excellent - Published in NEJM',
+//         precedentStrength: 'Maximum',
+//         sources: {
+//             pubmed: '22047557',
+//             clinicalTrials: 'https://clinicaltrials.gov/study/NCT00909532',
+//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/203188s038lbl.pdf'
+//         }
 //     },
 //     {
-//         id: 'lumacaftor-ivacaftor',
-//         drug: 'Lumacaftor/Ivacaftor (Orkambi)',
-//         biomarker: 'CFTR F508del homozygous',
-//         division: 'Pulmonary',
-//         nctId: 'NCT01807923',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'TRAFFIC: Study of Lumacaftor/Ivacaftor in CF',
+//         id: 'nusinersen-spinraza',
+//         drug: 'Nusinersen (Spinraza)',
+//         biomarker: 'SMN1 gene deletion/mutation',
+//         division: 'Neurology',
+//         nctId: 'NCT02193074',
 //         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 559,
-//         sponsor: 'Vertex Pharmaceuticals',
-//         primaryOutcome: 'FEV1 percent predicted improvement',
-//         biomarkerData: {
-//             biomarker: 'CFTR F508del homozygous',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (F508del homozygous), 0% negative',
-//             totalTested: 559,
-//             biomarkerPositive: 559,
+//         title: 'ENDEAR: Nusinersen in Infantile-Onset SMA',
+//         enrollment: {
+//             total: 121,
+//             biomarkerPositive: 121,
 //             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
+//             percentPositive: 100,
+//             percentNegative: 0
 //         },
+//         trialDesign: {
+//             type: 'Complete genetic enrichment',
+//             description: 'Only SMA patients with SMN1 mutations',
+//             rationale: 'Disease caused by SMN1 deficiency',
+//             controlArm: 'Sham procedure (also SMN1 positive)'
+//         },
+//         biomarkerStrategy: '100% genetic mutation carriers',
 //         results: {
-//             primaryEndpoint: 'FEV1: 3.3% improvement (p<0.001)',
-//             exacerbationRate: '30-39% reduction in pulmonary exacerbations',
-//             durability: 'Sustained benefits over 96 weeks'
-//         },
-//         fdaImpact: 'Approved for CF with F508del homozygous mutations',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Wainwright CE et al. NEJM 2015;373:220-231',
-//                 pmid: '25981758',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1409547'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-treatment-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/206038Orig1s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01807923',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/orkambi-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'tezacaftor-ivacaftor',
-//         drug: 'Tezacaftor/Ivacaftor (Symdeko)',
-//         biomarker: 'CFTR F508del homozygous/heterozygous',
-//         division: 'Pulmonary',
-//         nctId: 'NCT02347657',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'EVOLVE: Study of Tezacaftor/Ivacaftor in CF',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 510,
-//         sponsor: 'Vertex Pharmaceuticals',
-//         primaryOutcome: 'FEV1 percent predicted improvement',
-//         biomarkerData: {
-//             biomarker: 'CFTR F508del homozygous/heterozygous',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (F508del carriers), 0% negative',
-//             totalTested: 510,
-//             biomarkerPositive: 510,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'FEV1: 4.0% improvement (p<0.001)',
-//             exacerbationRate: '35% reduction in exacerbations',
-//             durability: 'Sustained benefits over 48 weeks'
-//         },
-//         fdaImpact: 'Approved for CF with specific F508del mutations',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Taylor-Cousar JL et al. NEJM 2017;377:2013-2023',
-//                 pmid: '29099344',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1709846'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-treatment-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210491s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02347657',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/symkevi-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'elexacaftor-tezacaftor-ivacaftor',
-//         drug: 'Elexacaftor/Tezacaftor/Ivacaftor (Trikafta)',
-//         biomarker: 'CFTR F508del',
-//         division: 'Pulmonary',
-//         nctId: 'NCT03525444',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'VX17-445-102: Study of Elexacaftor/Tezacaftor/Ivacaftor in CF',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 403,
-//         sponsor: 'Vertex Pharmaceuticals',
-//         primaryOutcome: 'FEV1 percent predicted improvement',
-//         biomarkerData: {
-//             biomarker: 'CFTR F508del',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (F508del carriers), 0% negative',
-//             totalTested: 403,
-//             biomarkerPositive: 403,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'FEV1: 14.3% improvement (p<0.001)',
-//             sweatChloride: '41.8 mmol/L reduction',
-//             exacerbationRate: '63% reduction in exacerbations'
-//         },
-//         fdaImpact: 'Approved for CF with at least one F508del mutation',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Middleton PG et al. NEJM 2019;381:1809-1819',
-//                 pmid: '31697873',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1908639'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-breakthrough-therapy-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/212273s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT03525444',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/trikafta-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'mannitol-cftr',
-//         drug: 'Mannitol (Bronchitol)',
-//         biomarker: 'CFTR mutations',
-//         division: 'Pulmonary',
-//         nctId: 'NCT02134353',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'CF303: Study of Mannitol in CF',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 423,
-//         sponsor: 'Chiesi USA',
-//         primaryOutcome: 'FEV1 improvement',
-//         biomarkerData: {
-//             biomarker: 'CFTR mutations',
-//             strategy: 'Stratified enrollment by mutation type',
-//             populationSplit: '80% F508del, 20% other CFTR mutations',
-//             totalTested: 423,
-//             biomarkerPositive: 423,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 80,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'FEV1: 2.4% improvement (p=0.02)',
-//             qualityOfLife: 'Improved CFQ-R respiratory domain',
-//             durability: 'Sustained benefits over 26 weeks'
-//         },
-//         fdaImpact: 'Approved for CF with stratified genetic analysis',
-//         emaAlignment: 'EMA approved with similar stratification',
-//         publications: [
-//             {
-//                 citation: 'Bilton D et al. J Cyst Fibros 2019;18:857-864',
-//                 pmid: '31377106',
-//                 link: 'https://www.journal-of-cystic-fibrosis.com/article/S1569-1993(19)30560-7/fulltext'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-treatment-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/202770s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02134353',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/bronchitol-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, J Cyst Fibros'
-//     },
-//     // Psychiatry
-//     {
-//         id: 'atomoxetine-cyp2d6',
-//         drug: 'Atomoxetine (Strattera)',
-//         biomarker: 'CYP2D6',
-//         division: 'Psychiatry',
-//         nctId: 'Multiple Phase 3 studies',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'Atomoxetine Efficacy and Safety in ADHD with CYP2D6 Genotyping',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 2977,
-//         sponsor: 'Eli Lilly',
-//         primaryOutcome: 'ADHD-RS-IV reduction by CYP2D6 genotype',
-//         biomarkerData: {
-//             biomarker: 'CYP2D6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype-guided analysis',
-//             populationSplit: '93% extensive metabolizers, 7% poor metabolizers',
-//             totalTested: 2977,
-//             biomarkerPositive: 208,
-//             biomarkerNegative: 2769,
-//             enrichmentLevel: 25,
-//             percentPositiveIncluded: 7,
-//             percentNegativeIncluded: 93
-//         },
-//         results: {
-//             primaryEndpoint: 'Poor metabolizers: 12.3-point reduction vs 8.9-point (extensive) (p<0.05)',
-//             pharmacokinetics: '10-fold higher AUC in poor metabolizers',
-//             safetyProfile: 'Higher cardiovascular effects in PMs, manageable',
-//             doseOptimization: 'Genotype-specific dosing recommendations developed'
-//         },
-//         fdaImpact: 'FDA added pharmacogenomic dosing guidance to label',
-//         emaAlignment: 'EMA developed similar pharmacogenomic guidance',
-//         publications: [
-//             {
-//                 citation: 'Michelson D et al. J Am Acad Child Adolesc Psychiatry 2007;46:242-251',
-//                 pmid: '17242626',
-//                 link: 'https://www.jaacap.org/article/S0890-8567(09)61847-2/fulltext'
+//             biomarkerPositive: {
+//                 motorMilestones: '51% achieved vs 0% control',
+//                 survivalBenefit: 'Significant improvement',
+//                 hineScore: '+5.9 points vs -1.9 control',
+//                 pValue: '<0.001'
 //             },
-//             {
-//                 citation: 'Trzepacz PT et al. Neuropsychopharmacology 2008;33:2551-2559',
-//                 pmid: '18172432',
-//                 link: 'https://www.nature.com/articles/npp200714'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/021411s053lbl.pdf',
-//             fdaReview: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-411_Strattera_ClinPharmR.pdf',
-//             pharmacogenomics: 'https://www.pharmgkb.org/chemical/PA448515/guidelineAnnotation/PA166104984'
+//             biomarkerNegative: 'Not applicable - disease specific',
+//             overallOutcome: 'First approved treatment for SMA'
 //         },
-//         dataSource: 'FDA Label, Published Literature'
+//         fdaApproval: {
+//             date: 'December 23, 2016',
+//             nda: '209531',
+//             summary: 'FDA approved for all SMA types with SMN1 mutation',
+//             fastTrack: 'Priority review, breakthrough therapy'
+//         },
+//         dataQuality: 'Excellent - Published in NEJM',
+//         precedentStrength: 'Maximum',
+//         sources: {
+//             pubmed: '29091570',
+//             clinicalTrials: 'https://clinicaltrials.gov/study/NCT02193074',
+//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-drug-spinal-muscular-atrophy'
+//         }
 //     },
 //     {
-//         id: 'vortioxetine-cyp2d6',
-//         drug: 'Vortioxetine (Trintellix)',
-//         biomarker: 'CYP2D6 metabolizer status',
-//         division: 'Psychiatry',
-//         nctId: 'NCT01140906',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'Study of Vortioxetine in MDD',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 495,
-//         sponsor: 'Takeda',
-//         primaryOutcome: 'MADRS score reduction',
-//         biomarkerData: {
-//             biomarker: 'CYP2D6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '90% extensive metabolizers, 10% poor metabolizers',
-//             totalTested: 495,
-//             biomarkerPositive: 49,
-//             biomarkerNegative: 446,
-//             enrichmentLevel: 30,
-//             percentPositiveIncluded: 10,
-//             percentNegativeIncluded: 90
-//         },
-//         results: {
-//             primaryEndpoint: 'MADRS: 14.5 vs 12.8 (p<0.05)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Adjustable dosing for poor metabolizers'
-//         },
-//         fdaImpact: 'FDA included pharmacogenomic dosing guidance',
-//         emaAlignment: 'EMA aligned with similar guidance',
-//         publications: [
-//             {
-//                 citation: 'Thase ME et al. J Clin Psychiatry 2014;75:1386-1393',
-//                 pmid: '25325531',
-//                 link: 'https://www.psychiatrist.com/jcp/article/view/17475'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204447s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01140906',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/brintellix-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Label, J Clin Psychiatry'
-//     },
-//     {
-//         id: 'escitalopram-cyp2c19',
-//         drug: 'Escitalopram (Lexapro)',
-//         biomarker: 'CYP2C19 metabolizer status',
-//         division: 'Psychiatry',
-//         nctId: 'NCT00399048',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'Study of Escitalopram in MDD with CYP2C19 Genotyping',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 2087,
-//         sponsor: 'Forest Laboratories',
-//         primaryOutcome: 'HAM-D score reduction',
-//         biomarkerData: {
-//             biomarker: 'CYP2C19 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '85% extensive metabolizers, 15% poor/ultrarapid',
-//             totalTested: 2087,
-//             biomarkerPositive: 313,
-//             biomarkerNegative: 1774,
-//             enrichmentLevel: 35,
-//             percentPositiveIncluded: 15,
-//             percentNegativeIncluded: 85
-//         },
-//         results: {
-//             primaryEndpoint: 'HAM-D: 13.1 vs 10.9 (p=0.03)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Dose adjustments for poor/ultrarapid metabolizers'
-//         },
-//         fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-//         emaAlignment: 'EMA aligned with similar dosing guidance',
-//         publications: [
-//             {
-//                 citation: 'Mrazek DA et al. Am J Psychiatry 2018;175:463-470',
-//                 pmid: '29325448',
-//                 link: 'https://ajp.psychiatryonline.org/doi/10.1176/appi.ajp.2017.17050565'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/021323s047lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00399048',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/cipralex-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'FDA Label, Am J Psychiatry'
-//     },
-//     {
-//         id: 'brexpiprazole-cyp2d6',
-//         drug: 'Brexpiprazole (Rexulti)',
-//         biomarker: 'CYP2D6 metabolizer status',
-//         division: 'Psychiatry',
-//         nctId: 'NCT01396421',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'BEACON: Study of Brexpiprazole in Schizophrenia',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 468,
-//         sponsor: 'Otsuka Pharmaceutical',
-//         primaryOutcome: 'PANSS score reduction',
-//         biomarkerData: {
-//             biomarker: 'CYP2D6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '92% extensive metabolizers, 8% poor metabolizers',
-//             totalTested: 468,
-//             biomarkerPositive: 37,
-//             biomarkerNegative: 431,
-//             enrichmentLevel: 30,
-//             percentPositiveIncluded: 8,
-//             percentNegativeIncluded: 92
-//         },
-//         results: {
-//             primaryEndpoint: 'PANSS: 12.0 vs 9.8 (p=0.04)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Dose adjustments for poor metabolizers'
-//         },
-//         fdaImpact: 'FDA included pharmacogenomic dosing guidance',
-//         emaAlignment: 'EMA aligned with similar guidance',
-//         publications: [
-//             {
-//                 citation: 'Kane JM et al. J Clin Psychiatry 2016;77:342-348',
-//                 pmid: '26963947',
-//                 link: 'https://www.psychiatrist.com/jcp/article/view/19349'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-drug-treat-schizophrenia-and-bipolar-disorder',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205422s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01396421',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/rexulti-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, J Clin Psychiatry'
-//     },
-//     {
-//         id: 'aripiprazole-cyp2d6',
-//         drug: 'Aripiprazole (Abilify)',
-//         biomarker: 'CYP2D6 metabolizer status',
-//         division: 'Psychiatry',
-//         nctId: 'NCT00036114',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'Study of Aripiprazole in Schizophrenia/Bipolar Disorder',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 567,
-//         sponsor: 'Otsuka Pharmaceutical',
-//         primaryOutcome: 'PANSS score reduction',
-//         biomarkerData: {
-//             biomarker: 'CYP2D6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '94% extensive metabolizers, 6% poor metabolizers',
-//             totalTested: 567,
-//             biomarkerPositive: 34,
-//             biomarkerNegative: 533,
-//             enrichmentLevel: 30,
-//             percentPositiveIncluded: 6,
-//             percentNegativeIncluded: 94
-//         },
-//         results: {
-//             primaryEndpoint: 'PANSS: 15.5 vs 13.2 (p<0.05)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Dose adjustments for poor metabolizers'
-//         },
-//         fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-//         emaAlignment: 'EMA aligned with similar dosing guidance',
-//         publications: [
-//             {
-//                 citation: 'Mallikaarjun S et al. Neuropsychopharmacology 2009;34:1871-1878',
-//                 pmid: '19156179',
-//                 link: 'https://www.nature.com/articles/npp200923'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/021436s046lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00036114',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/abilify-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'FDA Label, Neuropsychopharmacology'
-//     },
-//     // Cardiology
-//     {
-//         id: 'clopidogrel-cyp2c19',
-//         drug: 'Clopidogrel (Plavix)',
-//         biomarker: 'CYP2C19',
-//         division: 'Cardiology',
-//         nctId: 'Multiple CV outcome trials',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'Clopidogrel Efficacy in CYP2C19 Poor Metabolizers - Post-market Analysis',
-//         phase: 'Post-market',
-//         status: 'Completed',
-//         enrollment: 'Population-based analysis',
-//         sponsor: 'Multiple sponsors',
-//         primaryOutcome: 'Major adverse cardiovascular events by CYP2C19 genotype',
-//         biomarkerData: {
-//             biomarker: 'CYP2C19 loss-of-function alleles',
-//             strategy: 'Post-market recognition, genotype-guided alternatives',
-//             populationSplit: '70% normal metabolizers, 30% intermediate/poor',
-//             totalTested: 'Population-wide',
-//             biomarkerPositive: '30% (poor/intermediate metabolizers)',
-//             biomarkerNegative: '70% (normal metabolizers)',
-//             enrichmentLevel: 70,
-//             percentPositiveIncluded: 30,
-//             percentNegativeIncluded: 70
-//         },
-//         results: {
-//             primaryEndpoint: '1.53-3.69x higher CV events in poor metabolizers',
-//             populationImpact: '30% of patients with reduced efficacy',
-//             alternativeOptions: 'Prasugrel/ticagrelor unaffected by CYP2C19',
-//             economicImpact: '$3.8B annual market affected'
-//         },
-//         fdaImpact: 'FDA added black-box warning for CYP2C19 poor metabolizers',
-//         emaAlignment: 'EMA issued similar warnings and guidance',
-//         publications: [
-//             {
-//                 citation: 'Mega JL et al. NEJM 2010;363:1704-1714',
-//                 pmid: '20979470',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-//             },
-//             {
-//                 citation: 'Pare G et al. NEJM 2010;363:1704-1714',
-//                 pmid: '20979470',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-//             }
-//         ],
-//         sources: {
-//             fdaWarning: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-reduced-effectiveness-plavix-clopidogrel-patients-who-are-poor',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020839s074lbl.pdf',
-//             clinicalPharmacology: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2009/020839s044_ClinPharmR.pdf'
-//         },
-//         dataSource: 'FDA Safety Communication, Meta-analyses'
-//     },
-//     {
-//         id: 'warfarin-cyp2c9-vkorc1',
-//         drug: 'Warfarin',
-//         biomarker: 'CYP2C9 and VKORC1 variants',
-//         division: 'Cardiology',
-//         nctId: 'NCT00839657',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'COAG: Warfarin Pharmacogenetics Trial',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 1015,
-//         sponsor: 'University of Pennsylvania',
-//         primaryOutcome: 'Time in therapeutic INR range',
-//         biomarkerData: {
-//             biomarker: 'CYP2C9 and VKORC1 variants',
-//             strategy: 'Stratified enrollment with genotype-guided dosing',
-//             populationSplit: '65% normal metabolizers, 35% variant carriers',
-//             totalTested: 1015,
-//             biomarkerPositive: 355,
-//             biomarkerNegative: 660,
-//             enrichmentLevel: 50,
-//             percentPositiveIncluded: 35,
-//             percentNegativeIncluded: 65
-//         },
-//         results: {
-//             primaryEndpoint: 'INR range: 45.4% vs 45.2% (p=0.91)',
-//             bleedingRisk: 'Reduced bleeding in genotype-guided group (p=0.03)',
-//             doseAccuracy: 'Improved dosing precision in variant carriers'
-//         },
-//         fdaImpact: 'FDA updated label with pharmacogenomic dosing guidance',
-//         emaAlignment: 'EMA aligned with similar dosing guidance',
-//         publications: [
-//             {
-//                 citation: 'Kimmel SE et al. NEJM 2013;369:2283-2293',
-//                 pmid: '24251361',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1311386'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/009218s108lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00839657',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-pharmacogenomic-methodologies-development-medicinal-products_en.pdf'
-//         },
-//         dataSource: 'FDA Label, NEJM'
-//     },
-//     {
-//         id: 'prasugrel-cyp2c19',
-//         drug: 'Prasugrel (Effient)',
-//         biomarker: 'CYP2C19 metabolizer status',
-//         division: 'Cardiology',
-//         nctId: 'NCT00311402',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'TRITON-TIMI 38: Prasugrel in Acute Coronary Syndrome',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 13608,
-//         sponsor: 'Eli Lilly',
-//         primaryOutcome: 'CV death/MI/stroke',
-//         biomarkerData: {
-//             biomarker: 'CYP2C19 metabolizer status',
-//             strategy: 'Post-hoc genotype analysis',
-//             populationSplit: '73% normal metabolizers, 27% poor/intermediate',
-//             totalTested: 13608,
-//             biomarkerPositive: 3674,
-//             biomarkerNegative: 9934,
-//             enrichmentLevel: 60,
-//             percentPositiveIncluded: 27,
-//             percentNegativeIncluded: 73
-//         },
-//         results: {
-//             primaryEndpoint: 'CV events: 9.9% vs 12.1% (p<0.01)',
-//             bleedingRisk: 'Increased in poor metabolizers',
-//             efficacyConsistency: 'Consistent efficacy across genotypes'
-//         },
-//         fdaImpact: 'FDA included pharmacogenomic warnings',
-//         emaAlignment: 'EMA aligned with similar warnings',
-//         publications: [
-//             {
-//                 citation: 'Wiviott SD et al. NEJM 2007;357:2001-2015',
-//                 pmid: '17982182',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0706482'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-effient-reduce-risk-heart-attack-patients-receiving-stents',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2009/022307s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00311402',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/effient-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'ticagrelor-cyp2c19',
-//         drug: 'Ticagrelor (Brilinta)',
-//         biomarker: 'CYP2C19 metabolizer status',
-//         division: 'Cardiology',
-//         nctId: 'NCT00391872',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'PLATO: Ticagrelor in Acute Coronary Syndrome',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 18624,
-//         sponsor: 'AstraZeneca',
-//         primaryOutcome: 'CV death/MI/stroke',
-//         biomarkerData: {
-//             biomarker: 'CYP2C19 metabolizer status',
-//             strategy: 'Post-hoc genotype analysis',
-//             populationSplit: '70% normal metabolizers, 30% poor/intermediate',
-//             totalTested: 18624,
-//             biomarkerPositive: 5587,
-//             biomarkerNegative: 13037,
-//             enrichmentLevel: 60,
-//             percentPositiveIncluded: 30,
-//             percentNegativeIncluded: 70
-//         },
-//         results: {
-//             primaryEndpoint: 'CV events: 9.8% vs 11.7% (p=0.03)',
-//             bleedingRisk: 'No significant genotype effect on bleeding',
-//             efficacyConsistency: 'Consistent efficacy across genotypes'
-//         },
-//         fdaImpact: 'FDA included pharmacogenomic considerations',
-//         emaAlignment: 'EMA aligned with similar guidance',
-//         publications: [
-//             {
-//                 citation: 'Wallentin L et al. NEJM 2009;361:1045-1057',
-//                 pmid: '19717846',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0904327'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-blood-thinning-drug-brilinta-reduce-cardiovascular-death-heart-attack-stroke',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/022433s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00391872',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/brilique-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'atorvastatin-slco1b1',
-//         drug: 'Atorvastatin (Lipitor)',
-//         biomarker: 'SLCO1B1 variants',
-//         division: 'Cardiology',
-//         nctId: 'NCT00451828',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'SEARCH: Atorvastatin and Myopathy Risk',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 12064,
-//         sponsor: 'University of Oxford',
-//         primaryOutcome: 'Myopathy risk by SLCO1B1 genotype',
-//         biomarkerData: {
-//             biomarker: 'SLCO1B1 variants',
-//             strategy: 'Post-hoc genotype analysis',
-//             populationSplit: '85% normal, 15% variant carriers',
-//             totalTested: 12064,
-//             biomarkerPositive: 1810,
-//             biomarkerNegative: 10254,
-//             enrichmentLevel: 50,
-//             percentPositiveIncluded: 15,
-//             percentNegativeIncluded: 85
-//         },
-//         results: {
-//             primaryEndpoint: 'Myopathy: 0.6% vs 3.0% (p<0.001)',
-//             pharmacokinetics: 'Higher exposure in variant carriers',
-//             safetyProfile: 'Dose adjustments recommended for variant carriers'
-//         },
-//         fdaImpact: 'FDA updated label with myopathy risk warning',
-//         emaAlignment: 'EMA aligned with similar warnings',
-//         publications: [
-//             {
-//                 citation: 'SEARCH Collaborative Group. NEJM 2008;359:789-799',
-//                 pmid: '18650507',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0801936'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/020702s067lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00451828',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-pharmacogenomic-methodologies-development-medicinal-products_en.pdf'
-//         },
-//         dataSource: 'FDA Label, NEJM'
-//     },
-//     // Infectious Diseases
-//     {
-//         id: 'abacavir-hla',
-//         drug: 'Abacavir',
-//         biomarker: 'HLA-B*57:01',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00340080',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'PREDICT-1: Abacavir Hypersensitivity Prevention Study',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 1956,
-//         sponsor: 'GlaxoSmithKline',
-//         primaryOutcome: 'Clinically suspected hypersensitivity reactions',
-//         biomarkerData: {
-//             biomarker: 'HLA-B*57:01',
-//             strategy: 'Exclusion of biomarker-positive patients',
-//             populationSplit: '94.5% negative (included), 5.5% positive (excluded)',
-//             totalTested: 1956,
-//             biomarkerPositive: 108,
-//             biomarkerNegative: 1848,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 0,
-//             percentNegativeIncluded: 100
-//         },
-//         results: {
-//             primaryEndpoint: '0% immunologically confirmed HSR in HLA-B*57:01 negative',
-//             historicalComparison: '0% vs 7.8% expected HSR rate',
-//             preventionRate: '100% prevention of immunologically confirmed HSR',
-//             nnt: '13 patients screened to prevent 1 HSR'
-//         },
-//         fdaImpact: 'FDA mandated HLA-B*57:01 screening before abacavir use',
-//         emaAlignment: 'EMA adopted identical screening requirements',
-//         publications: [
-//             {
-//                 citation: 'Mallal S et al. NEJM 2008;358:568-579',
-//                 pmid: '18256392',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0706135'
-//             },
-//             {
-//                 citation: 'Saag M et al. Clin Infect Dis 2008;46:1111-1118',
-//                 pmid: '18462161',
-//                 link: 'https://academic.oup.com/cid/article/46/7/1111/291424'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020977s035lbl.pdf',
-//             fdaGuidance: 'https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-pharmacogenomics-premarket-evaluation-prescription-drug-labeling-and-postmarket-safety',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00340080',
-//             emaAssessment: 'https://www.ema.europa.eu/en/documents/product-information/ziagen-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'ClinicalTrials.gov, FDA Label'
-//     },
-//     {
-//         id: 'maraviroc-ccr5',
+//         id: 'maraviroc-selzentry',
 //         drug: 'Maraviroc (Selzentry)',
-//         biomarker: 'CCR5 tropism',
-//         division: 'Infectious Diseases',
+//         biomarker: 'CCR5 tropism (R5-tropic HIV)',
+//         division: 'Antiviral',
 //         nctId: 'NCT00098306',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'MOTIVATE: Maraviroc in CCR5-tropic HIV-1',
 //         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 1049,
-//         sponsor: 'Pfizer',
-//         primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-//         biomarkerData: {
-//             biomarker: 'CCR5 receptor tropism',
-//             strategy: '100% enrollment of CCR5-tropic patients',
-//             populationSplit: '100% CCR5-tropic, 0% CXCR4-tropic',
-//             totalTested: 1049,
-//             biomarkerPositive: 1049,
+//         title: 'MOTIVATE 1: Maraviroc in Treatment-Experienced Patients',
+//         enrollment: {
+//             total: 601,
+//             biomarkerPositive: 601,
 //             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
+//             percentPositive: 100,
+//             percentNegative: 0
 //         },
+//         trialDesign: {
+//             type: 'Tropism-based enrichment',
+//             description: 'Required Trofile assay to confirm CCR5 tropism',
+//             rationale: 'Drug only effective against R5-tropic virus',
+//             controlArm: 'Placebo + optimized background therapy'
+//         },
+//         biomarkerStrategy: 'Mandatory tropism testing pre-enrollment',
 //         results: {
-//             primaryEndpoint: '48.5% vs 23.0% viral suppression (p<0.001)',
-//             cd4Increase: '+124 cells/mm³ vs +61 cells/mm³',
-//             responseRate: 'Effective only in CCR5-tropic HIV',
-//             durability: 'Sustained through 96 weeks'
+//             biomarkerPositive: {
+//                 viralLoad: '<50 copies/mL in 46% vs 17% placebo',
+//                 cd4Increase: '+110 cells/μL',
+//                 viralReduction: '-1.84 log vs -0.78 log placebo',
+//                 pValue: '<0.001'
+//             },
+//             biomarkerNegative: 'Excluded - X4/dual tropic ineffective',
+//             overallOutcome: 'First CCR5 antagonist approved'
 //         },
-//         fdaImpact: 'FDA requires tropism testing before maraviroc use',
-//         emaAlignment: 'EMA mandates identical tropism testing',
-//         publications: [
-//             {
-//                 citation: 'Gulick RM et al. NEJM 2008;359:1429-1441',
-//                 pmid: '18832244',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0801282'
-//             }
-//         ],
+//         fdaApproval: {
+//             date: 'August 6, 2007',
+//             nda: '022128',
+//             summary: 'Requires tropism testing before use',
+//             blackBox: 'Hepatotoxicity warning'
+//         },
+//         dataQuality: 'High - Two Phase 3 trials',
+//         precedentStrength: 'Maximum',
 //         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-drug-treatment-experienced-patients',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022128s026lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00098306',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/celsentri-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'FDA Approval Letter, ClinicalTrials.gov'
+//             pubmed: '18832244',
+//             clinicalTrials: 'https://clinicaltrials.gov/study/NCT00098306',
+//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022128s026lbl.pdf'
+//         }
 //     },
 //     {
-//         id: 'efavirenz-cyp2b6',
-//         drug: 'Efavirenz (Sustiva)',
-//         biomarker: 'CYP2B6 metabolizer status',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00050895',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'ACTG 5095: Efavirenz in HIV Treatment',
+//         id: 'abacavir-ziagen',
+//         drug: 'Abacavir (Ziagen)',
+//         biomarker: 'HLA-B*5701 negative',
+//         division: 'Antiviral',
+//         nctId: 'NCT00736671',
 //         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 787,
-//         sponsor: 'NIAID',
-//         primaryOutcome: 'Virologic failure rate',
-//         biomarkerData: {
-//             biomarker: 'CYP2B6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '80% extensive metabolizers, 20% poor metabolizers',
-//             totalTested: 787,
-//             biomarkerPositive: 157,
-//             biomarkerNegative: 630,
-//             enrichmentLevel: 40,
-//             percentPositiveIncluded: 20,
-//             percentNegativeIncluded: 80
-//         },
-//         results: {
-//             primaryEndpoint: 'Virologic failure: 14% vs 24% (p=0.02)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Increased CNS side effects in poor metabolizers'
-//         },
-//         fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-//         emaAlignment: 'EMA aligned with similar guidance',
-//         publications: [
-//             {
-//                 citation: 'Haas DW et al. Clin Infect Dis 2008;47:1083-1090',
-//                 pmid: '18781879',
-//                 link: 'https://academic.oup.com/cid/article/47/8/1083/292737'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020972s057lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00050895',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/sustiva-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'FDA Label, Clin Infect Dis'
-//     },
-//     {
-//         id: 'dolutegravir-hla',
-//         drug: 'Dolutegravir (Tivicay)',
-//         biomarker: 'HLA-B*57:01',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00631527',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'SPRING-2: Dolutegravir in HIV Treatment',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 822,
-//         sponsor: 'ViiV Healthcare',
-//         primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-//         biomarkerData: {
-//             biomarker: 'HLA-B*57:01',
-//             strategy: 'Exclusion of biomarker-positive patients',
-//             populationSplit: '100% negative (HLA-B*57:01 negative), 0% positive',
-//             totalTested: 822,
+//         title: 'PREDICT-1: HLA-B*5701 Screening for Abacavir HSR',
+//         enrollment: {
+//             total: 1956,
 //             biomarkerPositive: 0,
-//             biomarkerNegative: 822,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 0,
-//             percentNegativeIncluded: 100
+//             biomarkerNegative: 1956,
+//             percentPositive: 0,
+//             percentNegative: 100
 //         },
+//         trialDesign: {
+//             type: 'Exclusion based on safety biomarker',
+//             description: 'HLA-B*5701 positive patients excluded',
+//             rationale: 'Prevent severe hypersensitivity reactions',
+//             controlArm: 'No screening (standard care)'
+//         },
+//         biomarkerStrategy: 'Screen and exclude HLA-B*5701 carriers',
 //         results: {
-//             primaryEndpoint: 'Viral suppression: 88% vs 85% (p=0.08)',
-//             cd4Increase: '+230 cells/mm³ vs +188 cells/mm³',
-//             safetyProfile: 'No hypersensitivity in HLA-B*57:01 negative'
+//             biomarkerPositive: 'Not treated - high HSR risk',
+//             biomarkerNegative: {
+//                 hsrRate: '0% vs 2.7% control',
+//                 safetyProfile: 'Dramatically improved',
+//                 clinicalBenefit: 'Eliminated immunologic HSR',
+//                 pValue: '<0.001'
+//             },
+//             overallOutcome: 'Mandatory genetic testing implemented'
 //         },
-//         fdaImpact: 'FDA requires HLA-B*57:01 screening',
-//         emaAlignment: 'EMA mandates identical screening',
-//         publications: [
-//             {
-//                 citation: 'Raffi F et al. Lancet 2013;382:700-708',
-//                 pmid: '23830355',
-//                 link: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(13)61221-0/fulltext'
-//             }
-//         ],
+//         fdaApproval: {
+//             date: 'July 2008',
+//             update: 'FDA safety communication',
+//             summary: 'Mandatory HLA-B*5701 testing before use',
+//             guideline: 'DHHS guidelines require testing'
+//         },
+//         dataQuality: 'Excellent - Published in NEJM',
+//         precedentStrength: 'Maximum',
 //         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-drug-treat-hiv-infection',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204790s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00631527',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/tivicay-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, Lancet'
+//             pubmed: '18256392',
+//             clinicalTrials: 'https://clinicaltrials.gov/study/NCT00736671',
+//             fdaSafety: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-safety-review-update-abacavir'
+//         }
 //     },
 //     {
-//         id: 'rilpivirine-cyp3a4',
-//         drug: 'Rilpivirine (Edurant)',
-//         biomarker: 'CYP3A4 metabolizer status',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00540449',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'ECHO: Rilpivirine in HIV Treatment',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 686,
-//         sponsor: 'Janssen Pharmaceuticals',
-//         primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-//         biomarkerData: {
-//             biomarker: 'CYP3A4 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype analysis',
-//             populationSplit: '82% extensive metabolizers, 18% poor/ultrarapid',
-//             totalTested: 686,
-//             biomarkerPositive: 123,
-//             biomarkerNegative: 563,
-//             enrichmentLevel: 40,
-//             percentPositiveIncluded: 18,
-//             percentNegativeIncluded: 82
+//         id: 'carbamazepine-tegretol',
+//         drug: 'Carbamazepine (Tegretol)',
+//         biomarker: 'HLA-B*1502 negative (Asian ancestry)',
+//         division: 'Neurology',
+//         phase: 'Post-market surveillance',
+//         title: 'FDA Safety Review: Carbamazepine and SJS/TEN Risk',
+//         enrollment: {
+//             description: 'Multiple studies in Asian populations',
+//             biomarkerStrategy: 'Screen Asian patients for HLA-B*1502'
+//         },
+//         trialDesign: {
+//             type: 'Safety-based exclusion',
+//             description: 'Exclude HLA-B*1502 carriers in Asians',
+//             rationale: 'Prevent Stevens-Johnson syndrome',
+//             implementation: 'FDA safety alert and label change'
 //         },
 //         results: {
-//             primaryEndpoint: 'Viral suppression: 84.3% vs 80.9% (p=0.09)',
-//             pharmacokinetics: 'Higher exposure in poor metabolizers',
-//             safetyProfile: 'Manageable side effects with dose adjustments'
+//             biomarkerPositive: 'High risk of SJS/TEN - contraindicated',
+//             biomarkerNegative: 'Safe to use with monitoring',
+//             overallOutcome: 'Genetic testing recommended for Asian patients'
 //         },
-//         fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-//         emaAlignment: 'EMA aligned with similar guidance',
-//         publications: [
-//             {
-//                 citation: 'Molina JM et al. Lancet 2011;377:229-237',
-//                 pmid: '21216044',
-//                 link: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(10)62036-7/fulltext'
-//             }
-//         ],
+//         fdaApproval: {
+//             date: 'December 2007',
+//             action: 'FDA Alert and label update',
+//             summary: 'Genetic testing strongly recommended',
+//             population: 'Asian ancestry patients'
+//         },
+//         precedentStrength: 'High',
 //         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-treatment',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/202022s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00540449',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/edurant-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, Lancet'
-//     },
-//     {
-//         id: 'tenofovir-hbv',
-//         drug: 'Tenofovir Alafenamide (Vemlidy)',
-//         biomarker: 'HBV polymerase mutations',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT01940471',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'GS-US-320-0110: Tenofovir Alafenamide in Hepatitis B',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 426,
-//         sponsor: 'Gilead Sciences',
-//         primaryOutcome: 'HBV DNA <29 IU/mL',
-//         biomarkerData: {
-//             biomarker: 'HBV polymerase mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (HBV polymerase mutations), 0% negative',
-//             totalTested: 426,
-//             biomarkerPositive: 426,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'HBV DNA <29 IU/mL: 94% vs 92.9% (p=0.47)',
-//             safetyProfile: 'Improved renal and bone safety vs TDF',
-//             durability: 'Sustained viral suppression over 96 weeks'
-//         },
-//         fdaImpact: 'Approved for HBV with genetic confirmation',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Buti M et al. Hepatology 2017;65:1444-1455',
-//                 pmid: '27770595',
-//                 link: 'https://aasldpubs.onlinelibrary.wiley.com/doi/10.1002/hep.28934'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-vemlidy-tenofovir-alafenamide-chronic-hepatitis-b-virus-infection',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/208464s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01940471',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/vemlidy-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, Hepatology'
-//     },
-//     {
-//         id: 'sofosbuvir-hcv',
-//         drug: 'Sofosbuvir (Sovaldi)',
-//         biomarker: 'HCV NS5B polymerase mutations',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT01497366',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'NEUTRINO: Sofosbuvir in HCV Genotype 1-6',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 327,
-//         sponsor: 'Gilead Sciences',
-//         primaryOutcome: 'SVR12 (sustained virologic response at 12 weeks)',
-//         biomarkerData: {
-//             biomarker: 'HCV NS5B polymerase mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (HCV genotype 1-6 with NS5B mutations), 0% negative',
-//             totalTested: 327,
-//             biomarkerPositive: 327,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'SVR12: 90% (p<0.001 vs historical control)',
-//             genotypeBreakdown: '92% genotype 1, 82% genotype 4, 80% genotype 5/6',
-//             safetyProfile: 'Well-tolerated, minimal adverse events'
-//         },
-//         fdaImpact: 'Approved for HCV with genetic confirmation of genotypes',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Lawitz E et al. NEJM 2013;368:1878-1887',
-//                 pmid: '23607594',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1214853'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-sovaldi-hepatitis-c',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204671s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01497366',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/sovaldi-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'ledipasvir-sofosbuvir-hcv',
-//         drug: 'Ledipasvir/Sofosbuvir (Harvoni)',
-//         biomarker: 'HCV NS5A/NS5B mutations',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT01701401',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'ION-1: Ledipasvir/Sofosbuvir in HCV Genotype 1',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 865,
-//         sponsor: 'Gilead Sciences',
-//         primaryOutcome: 'SVR12',
-//         biomarkerData: {
-//             biomarker: 'HCV NS5A/NS5B mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (HCV genotype 1 with NS5A/NS5B mutations), 0% negative',
-//             totalTested: 865,
-//             biomarkerPositive: 865,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'SVR12: 99% (p<0.001)',
-//             relapseRate: '<1% in treatment-naive patients',
-//             safetyProfile: 'Favorable safety profile across genotypes'
-//         },
-//         fdaImpact: 'Approved for HCV genotype 1 with genetic confirmation',
-//         emaAlignment: 'EMA approved for same genetic subset',
-//         publications: [
-//             {
-//                 citation: 'Afdhal N et al. NEJM 2014;370:1889-1898',
-//                 pmid: '24720702',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1402454'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-harvoni-hepatitis-c',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2014/205834s000lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01701401',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/harvoni-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
+//             fdaSafety: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-recommends-genetic-testing-patients-asian-ancestry-prior'
+//         }
 //     }
 // ];
 
-// // Updated Division Analysis
-// const divisionAnalysis = {
-//     neurology: {
-//         totalTrials: 8,
-//         biomarkerNegativeRequirement: 'Only carbamazepine requires exclusion of HLA-B*15:02-positive patients (100% negative enrollment). Others (e.g., nusinersen, patisiran, viltolarsen, risdiplam, onasemnogene, tofersen, eteplirsen) are 100% biomarker-positive.',
-//         averageEnrichmentLevel: (100 * 7 + 100) / 8, // 100% for all trials
-//         keyApprovals: [
-//             { drug: 'Carbamazepine', year: 2007, geneticTesting: 'Mandatory HLA-B*15:02 screening' },
-//             { drug: 'Nusinersen', year: 2016, geneticTesting: 'SMN1 mutation confirmation' },
-//             { drug: 'Patisiran', year: 2018, geneticTesting: 'TTR mutation confirmation' },
-//             { drug: 'Viltolarsen', year: 2020, geneticTesting: 'DMD exon 53 mutation' },
-//             { drug: 'Risdiplam', year: 2020, geneticTesting: 'SMN1 mutation confirmation' },
-//             { drug: 'Onasemnogene', year: 2019, geneticTesting: 'SMN1 mutation confirmation' },
-//             { drug: 'Tofersen', year: 2023, geneticTesting: 'SOD1 mutation confirmation' },
-//             { drug: 'Eteplirsen', year: 2016, geneticTesting: 'DMD exon 51 mutation' }
-//         ],
-//         consistency: 'Inconsistent: Neurology allows biomarker-positive only (e.g., nusinersen) and biomarker-negative only (carbamazepine).'
-//     },
-//     pulmonary: {
-//         totalTrials: 5,
-//         biomarkerNegativeRequirement: 'None require biomarker-negative enrollment. All trials (ivacaftor, lumacaftor/ivacaftor, tezacaftor/ivacaftor, elexacaftor/tezacaftor/ivacaftor, mannitol) focus on CFTR mutation carriers, with mannitol stratified by mutation type.',
-//         averageEnrichmentLevel: (100 * 4 + 80) / 5, // 96%
-//         keyApprovals: [
-//             { drug: 'Ivacaftor', year: 2012, geneticTesting: 'CFTR G551D mutation' },
-//             { drug: 'Lumacaftor/Ivacaftor', year: 2015, geneticTesting: 'CFTR F508del homozygous' },
-//             { drug: 'Tezacaftor/Ivacaftor', year: 2018, geneticTesting: 'CFTR F508del mutations' },
-//             { drug: 'Elexacaftor/Tezacaftor/Ivacaftor', year: 2019, geneticTesting: 'CFTR F508del' },
-//             { drug: 'Mannitol', year: 2020, geneticTesting: 'CFTR mutations with stratification' }
-//         ],
-//         consistency: 'Consistent: All approvals require CFTR mutation confirmation, with varying specificity.'
-//     },
-//     psychiatry: {
-//         totalTrials: 5,
-//         biomarkerNegativeRequirement: 'None require biomarker-negative enrollment. All trials (atomoxetine, vortioxetine, escitalopram, brexpiprazole, aripiprazole) use mixed populations with post-hoc genotype analysis.',
-//         averageEnrichmentLevel: (25 + 30 + 35 + 30 + 30) / 5, // 30%
-//         keyApprovals: [
-//             { drug: 'Atomoxetine', year: 2002, geneticTesting: 'CYP2D6 dosing guidance' },
-//             { drug: 'Vortioxetine', year: 2013, geneticTesting: 'CYP2D6 dosing guidance' },
-//             { drug: 'Escitalopram', year: 2002, geneticTesting: 'CYP2C19 dosing guidance' },
-//             { drug: 'Brexpiprazole', year: 2015, geneticTesting: 'CYP2D6 dosing guidance' },
-//             { drug: 'Aripiprazole', year: 2002, geneticTesting: 'CYP2D6 dosing guidance' }
-//         ],
-//         consistency: 'Consistent: All approvals use pharmacogenomic dosing guidance for CYP metabolizers.'
-//     },
-//     cardiology: {
-//         totalTrials: 5,
-//         biomarkerNegativeRequirement: 'Clopidogrel has warnings for CYP2C19 poor metabolizers. Others (warfarin, prasugrel, ticagrelor, atorvastatin) use mixed populations with post-hoc genotype analysis.',
-//         averageEnrichmentLevel: (70 + 50 + 60 + 60 + 50) / 5, // 58%
-//         keyApprovals: [
-//             { drug: 'Clopidogrel', year: 2010, geneticTesting: 'CYP2C19 warning' },
-//             { drug: 'Warfarin', year: 2007, geneticTesting: 'CYP2C9/VKORC1 dosing guidance' },
-//             { drug: 'Prasugrel', year: 2009, geneticTesting: 'CYP2C19 considerations' },
-//             { drug: 'Ticagrelor', year: 2011, geneticTesting: 'CYP2C19 considerations' },
-//             { drug: 'Atorvastatin', year: 2016, geneticTesting: 'SLCO1B1 myopathy risk' }
-//         ],
-//         consistency: 'Inconsistent: Clopidogrel emphasizes poor metabolizer warnings, while others use mixed populations.'
-//     },
-//     infectiousDiseases: {
-//         totalTrials: 7,
-//         biomarkerNegativeRequirement: 'Abacavir and dolutegravir require exclusion of HLA-B*57:01-positive patients. Others (maraviroc, efavirenz, rilpivirine, tenofovir, sofosbuvir) focus on biomarker-positive or mixed populations.',
-//         averageEnrichmentLevel: (100 + 100 + 40 + 100 + 40 + 100 + 100) / 7, // 83%
-//         keyApprovals: [
-//             { drug: 'Abacavir', year: 2008, geneticTesting: 'Mandatory HLA-B*57:01 screening' },
-//             { drug: 'Maraviroc', year: 2007, geneticTesting: 'CCR5 tropism testing' },
-//             { drug: 'Efavirenz', year: 2008, geneticTesting: 'CYP2B6 dosing guidance' },
-//             { drug: 'Dolutegravir', year: 2013, geneticTesting: 'HLA-B*57:01 screening' },
-//             { drug: 'Rilpivirine', year: 2011, geneticTesting: 'CYP3A4 dosing guidance' },
-//             { drug: 'Tenofovir Alafenamide', year: 2016, geneticTesting: 'HBV polymerase mutation confirmation' },
-//             { drug: 'Sofosbuvir', year: 2013, geneticTesting: 'HCV NS5B mutation confirmation' }
-//         ],
-//         consistency: 'Inconsistent: HLA-B*57:01 screening is mandatory for some (abacavir, dolutegravir), while others use mixed or positive-only populations.'
-//     }
+// // Enhanced biomarker patterns
+// const BIOMARKER_PATTERNS = {
+//     genetic: [
+//         'mutation', 'gene', 'variant', 'deletion', 'polymorphism', 'allele',
+//         'genotype', 'SNP', 'insertion', 'duplication', 'translocation'
+//     ],
+//     protein: [
+//         'receptor', 'expression', 'overexpression', 'amplification',
+//         'protein level', 'immunohistochemistry', 'IHC', 'FISH'
+//     ],
+//     pharmacogenomic: [
+//         'HLA-B', 'CYP2D6', 'CYP2C19', 'CYP2C9', 'TPMT', 'DPYD', 'UGT1A1'
+//     ],
+//     tropism: [
+//         'CCR5', 'CXCR4', 'tropism', 'R5-tropic', 'X4-tropic', 'dual-mixed'
+//     ]
 // };
 
-// // API Endpoints
-// app.get('/api/precedents', (req, res) => {
-//     res.json(precedentDatabase);
-// });
-
-// app.get('/api/division-analysis', (req, res) => {
-//     res.json(divisionAnalysis);
-// });
-
-// app.get('/api/precedent/:id', (req, res) => {
-//     const precedent = precedentDatabase.find(p => p.id === req.params.id);
-//     if (precedent) {
-//         res.json(precedent);
-//     } else {
-//         res.status(404).json({ error: 'Precedent not found' });
+// // Helper Functions
+// function extractBiomarkers(text) {
+//     const biomarkers = new Set();
+//     const lowerText = text.toLowerCase();
+    
+//     // Extract specific gene/mutation patterns
+//     const genePattern = /\b([A-Z][A-Z0-9]{1,6})\b/g;
+//     const mutationPattern = /\b([A-Z]\d{3,4}[A-Z]?)\b/g;
+//     const hlaPattern = /HLA-[A-Z]\*?\d{2}:?\d{0,2}/gi;
+//     const cypPattern = /CYP[0-9][A-Z][0-9]+/gi;
+    
+//     let match;
+//     while ((match = genePattern.exec(text)) !== null) {
+//         if (match[1].length > 2 && !['THE', 'FDA', 'USA', 'HIV'].includes(match[1])) {
+//             biomarkers.add(match[1]);
+//         }
 //     }
-// });
-
-// app.get('/api/search', async (req, res) => {
-//     const query = req.query.q?.toLowerCase();
-//     if (!query) {
-//         return res.status(400).json({ error: 'Query parameter is required' });
+    
+//     while ((match = mutationPattern.exec(text)) !== null) {
+//         biomarkers.add(match[1]);
 //     }
-
-//     const cacheKey = query;
-//     const cachedResult = searchCache.get(cacheKey);
-//     if (cachedResult && Date.now() - cachedResult.timestamp < CACHE_DURATION) {
-//         return res.json(cachedResult.data);
+    
+//     while ((match = hlaPattern.exec(text)) !== null) {
+//         biomarkers.add(match[0].toUpperCase());
 //     }
-
-//     try {
-//         const results = precedentDatabase.filter(p =>
-//             p.drug.toLowerCase().includes(query) ||
-//             p.biomarker.toLowerCase().includes(query) ||
-//             p.division.toLowerCase().includes(query)
-//         );
-
-//         const externalResults = await fetchExternalData(query);
-//         const combinedResults = [...results, ...externalResults];
-
-//         searchCache.set(cacheKey, { data: combinedResults, timestamp: Date.now() });
-//         res.json(combinedResults);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error fetching search results' });
+    
+//     while ((match = cypPattern.exec(text)) !== null) {
+//         biomarkers.add(match[0].toUpperCase());
 //     }
-// });
-
-// async function fetchExternalData(query) {
-//     try {
-//         const response = await axios.get(`https://api.clinicaltrials.gov/v2/studies?query.term=${query}`);
-//         return response.data.studies.map(study => ({
-//             id: `external-${study.nctId}`,
-//             drug: study.protocolSection?.identificationModule?.briefTitle || 'Unknown',
-//             biomarker: 'Not specified',
-//             division: 'External',
-//             nctId: study.nctId,
-//             title: study.protocolSection?.identificationModule?.briefTitle,
-//             phase: study.protocolSection?.designModule?.phase || 'Unknown',
-//             status: study.protocolSection?.statusModule?.overallStatus,
-//             enrollment: study.protocolSection?.designModule?.enrollmentInfo?.count || 0,
-//             sponsor: study.protocolSection?.sponsorCollaboratorsModule?.leadSponsor?.name || 'Unknown',
-//             primaryOutcome: study.protocolSection?.outcomesModule?.primaryOutcomes?.[0]?.description || 'Not specified'
-//         }));
-//     } catch (error) {
-//         console.error('Error fetching external data:', error);
-//         return [];
-//     }
+    
+//     return Array.from(biomarkers);
 // }
 
-// // Serve the frontend
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// function determineBiomarkerType(biomarkers, text) {
+//     const lowerText = text.toLowerCase();
+    
+//     for (const [type, patterns] of Object.entries(BIOMARKER_PATTERNS)) {
+//         if (patterns.some(pattern => lowerText.includes(pattern.toLowerCase()))) {
+//             return type;
+//         }
+//     }
+    
+//     return 'genetic'; // default
+// }
+
+// function calculateEnrichmentLevel(trial) {
+//     if (!trial.enrollment) return 'Unknown';
+    
+//     const percentPositive = trial.enrollment.percentPositive || 0;
+    
+//     if (percentPositive === 100) return 'Complete (100%)';
+//     if (percentPositive >= 80) return 'High (≥80%)';
+//     if (percentPositive >= 50) return 'Moderate (50-79%)';
+//     if (percentPositive >= 20) return 'Low (20-49%)';
+//     if (percentPositive === 0) return 'Exclusion strategy';
+//     return 'Minimal (<20%)';
+// }
+
+// // API Routes
+
+// // Health check
+// app.get('/api/health', (req, res) => {
+//     res.json({
+//         status: 'healthy',
+//         version: '2.0',
+//         timestamp: new Date().toISOString(),
+//         features: [
+//             'Enhanced biomarker detection',
+//             'Real FDA precedent database',
+//             'Clinical trial enrichment analysis',
+//             'Division comparison analytics',
+//             'Live data integration'
+//         ]
+//     });
 // });
 
-// // Start the server
+// // Get all precedents with filtering
+// app.get('/api/precedents', (req, res) => {
+//     const { division, biomarkerType, enrichmentLevel } = req.query;
+    
+//     let filtered = [...precedentDatabase];
+    
+//     if (division) {
+//         filtered = filtered.filter(p => 
+//             p.division.toLowerCase() === division.toLowerCase()
+//         );
+//     }
+    
+//     if (biomarkerType) {
+//         filtered = filtered.filter(p => {
+//             const type = determineBiomarkerType([p.biomarker], p.biomarker);
+//             return type === biomarkerType.toLowerCase();
+//         });
+//     }
+    
+//     if (enrichmentLevel) {
+//         filtered = filtered.filter(p => {
+//             const level = calculateEnrichmentLevel(p);
+//             return level.toLowerCase().includes(enrichmentLevel.toLowerCase());
+//         });
+//     }
+    
+//     res.json({
+//         success: true,
+//         count: filtered.length,
+//         precedents: filtered
+//     });
+// });
+
+// // Get specific trial details
+// app.get('/api/trial/:id', (req, res) => {
+//     const trial = precedentDatabase.find(p => p.id === req.params.id);
+    
+//     if (!trial) {
+//         return res.status(404).json({
+//             success: false,
+//             error: 'Trial not found'
+//         });
+//     }
+    
+//     res.json({
+//         success: true,
+//         trial
+//     });
+// });
+
+// // Search ClinicalTrials.gov with enhanced biomarker detection
+// app.post('/api/search/clinicaltrials', async (req, res) => {
+//     const { query, biomarker, drug, page = 1, pageSize = 20 } = req.body;
+    
+//     try {
+//         // Build search expression
+//         let searchExpr = query || '';
+//         if (biomarker) searchExpr += ` AND ${biomarker}`;
+//         if (drug) searchExpr += ` AND ${drug}`;
+        
+//         const cacheKey = `ct_${searchExpr}_${page}_${pageSize}`;
+//         const cached = cache.get(cacheKey);
+//         if (cached) {
+//             return res.json(cached);
+//         }
+        
+//         // ClinicalTrials.gov API v2
+//         const response = await axios.get('https://clinicaltrials.gov/api/v2/studies', {
+//             params: {
+//                 'query.cond': searchExpr,
+//                 pageSize,
+//                 pageToken: page > 1 ? `page${page}` : undefined,
+//                 format: 'json'
+//             }
+//         });
+        
+//         const studies = response.data.studies || [];
+        
+//         // Process and enrich studies
+//         const enrichedStudies = studies.map(study => {
+//             const protocol = study.protocolSection || {};
+//             const identification = protocol.identificationModule || {};
+//             const description = protocol.descriptionModule || {};
+//             const eligibility = protocol.eligibilityModule || {};
+//             const design = protocol.designModule || {};
+            
+//             // Extract all text for biomarker analysis
+//             const fullText = [
+//                 identification.briefTitle,
+//                 identification.officialTitle,
+//                 description.briefSummary,
+//                 description.detailedDescription,
+//                 eligibility.eligibilityCriteria
+//             ].filter(Boolean).join(' ');
+            
+//             // Enhanced biomarker detection
+//             const biomarkers = extractBiomarkers(fullText);
+//             const biomarkerType = determineBiomarkerType(biomarkers, fullText);
+            
+//             // Detect enrichment strategy
+//             const enrichmentKeywords = {
+//                 complete: ['100%', 'all patients', 'only patients with', 'exclusively'],
+//                 high: ['enriched', 'predominantly', 'primarily', 'mostly'],
+//                 exclusion: ['exclude', 'without', 'negative for', 'wild-type'],
+//                 stratified: ['stratified', 'randomized by', 'balanced for']
+//             };
+            
+//             let enrichmentStrategy = 'Standard';
+//             for (const [strategy, keywords] of Object.entries(enrichmentKeywords)) {
+//                 if (keywords.some(kw => fullText.toLowerCase().includes(kw))) {
+//                     enrichmentStrategy = strategy.charAt(0).toUpperCase() + strategy.slice(1);
+//                     break;
+//                 }
+//             }
+            
+//             return {
+//                 nctId: identification.nctId,
+//                 title: identification.briefTitle,
+//                 status: protocol.statusModule?.overallStatus,
+//                 phase: design.phases?.join(', ') || 'Not specified',
+//                 enrollment: design.enrollmentInfo?.count,
+//                 conditions: protocol.conditionsModule?.conditions || [],
+//                 interventions: protocol.armsInterventionsModule?.interventions?.map(i => i.name) || [],
+//                 sponsors: protocol.sponsorCollaboratorsModule?.leadSponsor?.name,
+//                 startDate: protocol.statusModule?.startDateStruct?.date,
+//                 completionDate: protocol.statusModule?.primaryCompletionDateStruct?.date,
+//                 biomarkers: biomarkers.length > 0 ? biomarkers : ['Not specified'],
+//                 biomarkerType,
+//                 enrichmentStrategy,
+//                 hasResults: protocol.hasResults || false,
+//                 url: `https://clinicaltrials.gov/study/${identification.nctId}`
+//             };
+//         });
+        
+//         const result = {
+//             success: true,
+//             totalCount: response.data.totalCount || studies.length,
+//             studies: enrichedStudies,
+//             page,
+//             pageSize,
+//             biomarkerSummary: {
+//                 totalWithBiomarkers: enrichedStudies.filter(s => s.biomarkers[0] !== 'Not specified').length,
+//                 byType: enrichedStudies.reduce((acc, s) => {
+//                     acc[s.biomarkerType] = (acc[s.biomarkerType] || 0) + 1;
+//                     return acc;
+//                 }, {}),
+//                 enrichmentStrategies: enrichedStudies.reduce((acc, s) => {
+//                     acc[s.enrichmentStrategy] = (acc[s.enrichmentStrategy] || 0) + 1;
+//                     return acc;
+//                 }, {})
+//             }
+//         };
+        
+//         cache.set(cacheKey, result);
+//         res.json(result);
+        
+//     } catch (error) {
+//         console.error('ClinicalTrials.gov API error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Failed to search clinical trials',
+//             message: error.message
+//         });
+//     }
+// });
+
+// // Search PubMed with biomarker focus
+// app.post('/api/search/pubmed', async (req, res) => {
+//     const { query, biomarker, drug, retmax = 20 } = req.body;
+    
+//     try {
+//         // Build search query
+//         let searchTerm = query || '';
+//         if (biomarker) searchTerm += ` AND "${biomarker}"[All Fields]`;
+//         if (drug) searchTerm += ` AND "${drug}"[All Fields]`;
+//         searchTerm += ' AND ("biomarker enrichment" OR "patient selection" OR "precision medicine")';
+        
+//         const cacheKey = `pubmed_${searchTerm}_${retmax}`;
+//         const cached = cache.get(cacheKey);
+//         if (cached) {
+//             return res.json(cached);
+//         }
+        
+//         // Search PubMed
+//         const searchResponse = await axios.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi', {
+//             params: {
+//                 db: 'pubmed',
+//                 term: searchTerm,
+//                 retmode: 'json',
+//                 retmax,
+//                 sort: 'relevance'
+//             }
+//         });
+        
+//         const pmids = searchResponse.data.esearchresult?.idlist || [];
+        
+//         if (pmids.length === 0) {
+//             return res.json({
+//                 success: true,
+//                 articles: [],
+//                 count: 0
+//             });
+//         }
+        
+//         // Fetch article details
+//         const detailsResponse = await axios.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi', {
+//             params: {
+//                 db: 'pubmed',
+//                 id: pmids.join(','),
+//                 retmode: 'xml'
+//             }
+//         });
+        
+//         // Parse XML
+//         const parser = new xml2js.Parser();
+//         const result = await parser.parseStringPromise(detailsResponse.data);
+        
+//         const articles = (result.PubmedArticleSet?.PubmedArticle || []).map(article => {
+//             const medline = article.MedlineCitation?.[0];
+//             const pubmed = article.PubmedData?.[0];
+            
+//             const pmid = medline.PMID?.[0]._;
+//             const articleData = medline.Article?.[0];
+//             const title = articleData.ArticleTitle?.[0];
+//             const abstract = articleData.Abstract?.AbstractText?.map(text => 
+//                 typeof text === 'string' ? text : text._
+//             ).join(' ') || '';
+            
+//             const journal = articleData.Journal?.[0];
+//             const journalTitle = journal.Title?.[0];
+//             const year = journal.JournalIssue?.[0].PubDate?.[0].Year?.[0];
+            
+//             const authors = articleData.AuthorList?.Author?.map(author => 
+//                 `${author.LastName?.[0]} ${author.ForeName?.[0]}`
+//             ).slice(0, 3).join(', ') + (articleData.AuthorList?.Author?.length > 3 ? ' et al.' : '');
+            
+//             // Extract biomarkers from title and abstract
+//             const fullText = `${title} ${abstract}`;
+//             const biomarkers = extractBiomarkers(fullText);
+            
+//             // Detect trial design elements
+//             const hasEnrichment = /enrichment|enriched|selection|selected/i.test(fullText);
+//             const hasBiomarker = biomarkers.length > 0 || /biomarker|mutation|gene|HLA|CCR5|CFTR/i.test(fullText);
+//             const relevanceScore = (hasEnrichment ? 2 : 0) + (hasBiomarker ? 2 : 0) + 
+//                                  (/FDA|approval|regulatory/i.test(fullText) ? 1 : 0);
+            
+//             return {
+//                 pmid,
+//                 title,
+//                 abstract: abstract.substring(0, 300) + (abstract.length > 300 ? '...' : ''),
+//                 authors,
+//                 journal: journalTitle,
+//                 year,
+//                 biomarkers,
+//                 relevanceScore,
+//                 hasEnrichment,
+//                 hasBiomarker,
+//                 url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+//             };
+//         });
+        
+//         // Sort by relevance
+//         articles.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        
+//         const response = {
+//             success: true,
+//             count: articles.length,
+//             totalFound: searchResponse.data.esearchresult?.count || articles.length,
+//             articles,
+//             searchSummary: {
+//                 withBiomarkers: articles.filter(a => a.hasBiomarker).length,
+//                 withEnrichment: articles.filter(a => a.hasEnrichment).length,
+//                 highRelevance: articles.filter(a => a.relevanceScore >= 4).length
+//             }
+//         };
+        
+//         cache.set(cacheKey, response);
+//         res.json(response);
+        
+//     } catch (error) {
+//         console.error('PubMed API error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Failed to search PubMed',
+//             message: error.message
+//         });
+//     }
+// });
+
+// // Comprehensive search across all sources
+// app.post('/api/search/comprehensive', async (req, res) => {
+//     const { query, biomarker, drug } = req.body;
+    
+//     try {
+//         // Search all sources in parallel
+//         const [precedents, clinicalTrials, pubmed] = await Promise.all([
+//             // Search precedents
+//             Promise.resolve(precedentDatabase.filter(p => {
+//                 const searchText = JSON.stringify(p).toLowerCase();
+//                 return (!query || searchText.includes(query.toLowerCase())) &&
+//                        (!biomarker || searchText.includes(biomarker.toLowerCase())) &&
+//                        (!drug || searchText.includes(drug.toLowerCase()));
+//             })),
+            
+//             // Search ClinicalTrials.gov
+//             axios.post(`http://localhost:${PORT}/api/search/clinicaltrials`, {
+//                 query, biomarker, drug, pageSize: 10
+//             }).then(r => r.data).catch(() => ({ studies: [] })),
+            
+//             // Search PubMed
+//             axios.post(`http://localhost:${PORT}/api/search/pubmed`, {
+//                 query, biomarker, drug, retmax: 10
+//             }).then(r => r.data).catch(() => ({ articles: [] }))
+//         ]);
+        
+//         // Generate comprehensive summary
+//         const summary = {
+//             query: { query, biomarker, drug },
+//             timestamp: new Date().toISOString(),
+//             results: {
+//                 precedents: {
+//                     count: precedents.length,
+//                     data: precedents.slice(0, 5)
+//                 },
+//                 clinicalTrials: {
+//                     count: clinicalTrials.totalCount || clinicalTrials.studies?.length || 0,
+//                     data: clinicalTrials.studies?.slice(0, 5) || []
+//                 },
+//                 pubmed: {
+//                     count: pubmed.totalFound || pubmed.articles?.length || 0,
+//                     data: pubmed.articles?.slice(0, 5) || []
+//                 }
+//             },
+//             insights: generateInsights(precedents, clinicalTrials, pubmed)
+//         };
+        
+//         res.json({
+//             success: true,
+//             ...summary
+//         });
+        
+//     } catch (error) {
+//         console.error('Comprehensive search error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Failed to perform comprehensive search',
+//             message: error.message
+//         });
+//     }
+// });
+
+// // Generate insights from search results
+// function generateInsights(precedents, clinicalTrials, pubmed) {
+//     const insights = {
+//         precedentPatterns: [],
+//         enrichmentTrends: [],
+//         regulatoryConsiderations: [],
+//         recommendations: []
+//     };
+    
+//     // Analyze precedent patterns
+//     if (precedents.length > 0) {
+//         const enrichmentLevels = precedents.map(p => calculateEnrichmentLevel(p));
+//         const enrichmentCounts = enrichmentLevels.reduce((acc, level) => {
+//             acc[level] = (acc[level] || 0) + 1;
+//             return acc;
+//         }, {});
+        
+//         insights.precedentPatterns.push({
+//             type: 'Enrichment Distribution',
+//             finding: `${enrichmentCounts['Complete (100%)'] || 0} precedents used complete enrichment`,
+//             implication: 'FDA has approved drugs with 100% biomarker-positive populations'
+//         });
+//     }
+    
+//     // Analyze clinical trials trends
+//     if (clinicalTrials.studies && clinicalTrials.studies.length > 0) {
+//         const withBiomarkers = clinicalTrials.studies.filter(s => 
+//             s.biomarkers && s.biomarkers[0] !== 'Not specified'
+//         ).length;
+        
+//         insights.enrichmentTrends.push({
+//             type: 'Biomarker Usage',
+//             finding: `${withBiomarkers}/${clinicalTrials.studies.length} trials use biomarkers`,
+//             trend: withBiomarkers / clinicalTrials.studies.length > 0.5 ? 'Increasing' : 'Moderate'
+//         });
+//     }
+    
+//     // Generate recommendations
+//     if (precedents.some(p => p.enrollment?.percentPositive === 100)) {
+//         insights.recommendations.push({
+//             priority: 'High',
+//             recommendation: 'Consider complete biomarker enrichment strategy',
+//             rationale: 'Multiple FDA precedents exist for 100% enrichment',
+//             examples: precedents.filter(p => p.enrollment?.percentPositive === 100)
+//                                .map(p => p.drug)
+//         });
+//     }
+    
+//     return insights;
+// }
+
+// // Division comparison analysis
+// app.get('/api/divisions/comparison', (req, res) => {
+//     const divisionAnalysis = {};
+    
+//     // Group precedents by division
+//     precedentDatabase.forEach(precedent => {
+//         const division = precedent.division;
+//         if (!divisionAnalysis[division]) {
+//             divisionAnalysis[division] = {
+//                 name: division,
+//                 trials: [],
+//                 avgEnrichment: 0,
+//                 strategies: {},
+//                 approachSummary: ''
+//             };
+//         }
+//         divisionAnalysis[division].trials.push(precedent);
+//     });
+    
+//     // Analyze each division
+//     Object.keys(divisionAnalysis).forEach(division => {
+//         const data = divisionAnalysis[division];
+//         const trials = data.trials;
+        
+//         // Calculate average enrichment
+//         const enrichmentValues = trials.map(t => t.enrollment?.percentPositive || 0);
+//         data.avgEnrichment = enrichmentValues.reduce((a, b) => a + b, 0) / enrichmentValues.length;
+        
+//         // Count strategies
+//         trials.forEach(trial => {
+//             const strategy = trial.biomarkerStrategy || 'Unknown';
+//             data.strategies[strategy] = (data.strategies[strategy] || 0) + 1;
+//         });
+        
+//         // Generate approach summary
+//         if (data.avgEnrichment >= 90) {
+//             data.approachSummary = 'Highly liberal - accepts complete enrichment';
+//         } else if (data.avgEnrichment >= 70) {
+//             data.approachSummary = 'Liberal - favors high enrichment';
+//         } else if (data.avgEnrichment >= 50) {
+//             data.approachSummary = 'Moderate - balanced approach';
+//         } else {
+//             data.approachSummary = 'Conservative - requires broad populations';
+//         }
+        
+//         // Add specific insights
+//         data.keyInsights = [];
+//         if (trials.some(t => t.enrollment?.percentPositive === 100)) {
+//             data.keyInsights.push('Has approved 100% biomarker-enriched trials');
+//         }
+//         if (trials.some(t => t.fdaApproval?.fastTrack)) {
+//             data.keyInsights.push('Uses expedited pathways for biomarker-driven drugs');
+//         }
+//     });
+    
+//     res.json({
+//         success: true,
+//         divisions: divisionAnalysis,
+//         summary: {
+//             mostLiberal: Object.entries(divisionAnalysis)
+//                 .sort((a, b) => b[1].avgEnrichment - a[1].avgEnrichment)[0]?.[0],
+//             completeEnrichmentDivisions: Object.entries(divisionAnalysis)
+//                 .filter(([_, data]) => data.trials.some(t => t.enrollment?.percentPositive === 100))
+//                 .map(([name]) => name)
+//         }
+//     });
+// });
+
+// // Statistical power calculation
+// app.post('/api/calculate/power', (req, res) => {
+//     const {
+//         biomarkerPrevalence = 0.1,
+//         effectSizePositive = 0.8,
+//         effectSizeNegative = 0.2,
+//         alpha = 0.05,
+//         power = 0.8
+//     } = req.body;
+    
+//     // Z-scores
+//     const zAlpha = 1.96; // Two-tailed, alpha = 0.05
+//     const zBeta = 0.84;  // Power = 0.8
+    
+//     // Traditional approach (mixed population)
+//     const overallEffect = (biomarkerPrevalence * effectSizePositive) + 
+//                          ((1 - biomarkerPrevalence) * effectSizeNegative);
+//     const traditionalSample = Math.ceil((2 * Math.pow(zAlpha + zBeta, 2)) / Math.pow(overallEffect, 2));
+    
+//     // Enriched approach (biomarker-positive only)
+//     const enrichedSample = Math.ceil((2 * Math.pow(zAlpha + zBeta, 2)) / Math.pow(effectSizePositive, 2));
+    
+//     // Calculate savings
+//     const sampleReduction = ((traditionalSample - enrichedSample) / traditionalSample * 100).toFixed(1);
+//     const costPerPatient = 75000; // Average trial cost per patient
+//     const monthsPerPatient = 0.03; // Enrollment rate impact
+    
+//     const response = {
+//         success: true,
+//         inputs: {
+//             biomarkerPrevalence,
+//             effectSizePositive,
+//             effectSizeNegative,
+//             alpha,
+//             power
+//         },
+//         traditional: {
+//             sampleSize: traditionalSample,
+//             effectSize: overallEffect.toFixed(3),
+//             estimatedCost: `$${(traditionalSample * costPerPatient / 1000000).toFixed(1)}M`,
+//             estimatedTimeline: `${Math.round(traditionalSample * monthsPerPatient + 24)} months`,
+//             successProbability: 'Moderate - diluted effect'
+//         },
+//         enriched: {
+//             sampleSize: enrichedSample,
+//             effectSize: effectSizePositive.toFixed(3),
+//             estimatedCost: `$${(enrichedSample * costPerPatient / 1000000).toFixed(1)}M`,
+//             estimatedTimeline: `${Math.round(enrichedSample * monthsPerPatient + 18)} months`,
+//             successProbability: 'High - concentrated effect'
+//         },
+//         savings: {
+//             sampleSizeReduction: `${sampleReduction}%`,
+//             costSavings: `$${((traditionalSample - enrichedSample) * costPerPatient / 1000000).toFixed(1)}M`,
+//             timelineSavings: `${Math.round((traditionalSample - enrichedSample) * monthsPerPatient)} months`,
+//             riskReduction: 'Significant - higher success probability'
+//         },
+//         recommendation: sampleReduction > 50 ? 
+//             'Strong recommendation for biomarker enrichment' : 
+//             'Consider biomarker enrichment based on feasibility'
+//     };
+    
+//     res.json(response);
+// });
+
+// // Generate trial design recommendations
+// app.post('/api/recommendations/trial-design', (req, res) => {
+//     const { biomarker, indication, phase, currentApproach } = req.body;
+    
+//     // Find relevant precedents
+//     const relevantPrecedents = precedentDatabase.filter(p => {
+//         const biomarkerMatch = !biomarker || 
+//             p.biomarker.toLowerCase().includes(biomarker.toLowerCase()) ||
+//             determineBiomarkerType([p.biomarker], p.biomarker) === 
+//             determineBiomarkerType([biomarker], biomarker);
+        
+//         const phaseMatch = !phase || p.phase?.includes(phase);
+        
+//         return biomarkerMatch || phaseMatch;
+//     });
+    
+//     // Generate recommendations
+//     const recommendations = {
+//         primaryStrategy: '',
+//         enrollmentCriteria: [],
+//         regulatoryConsiderations: [],
+//         precedentSupport: [],
+//         potentialChallenges: [],
+//         mitigationStrategies: []
+//     };
+    
+//     // Determine primary strategy
+//     if (relevantPrecedents.some(p => p.enrollment?.percentPositive === 100)) {
+//         recommendations.primaryStrategy = 'Complete Biomarker Enrichment (100%)';
+//         recommendations.enrollmentCriteria.push(
+//             'Require confirmed biomarker-positive status for enrollment',
+//             'Consider central laboratory confirmation',
+//             'No biomarker-negative control arm needed based on precedents'
+//         );
+//     } else if (relevantPrecedents.some(p => p.enrollment?.percentPositive >= 80)) {
+//         recommendations.primaryStrategy = 'High Enrichment Strategy (80-95%)';
+//         recommendations.enrollmentCriteria.push(
+//             'Prioritize biomarker-positive enrollment',
+//             'Allow limited biomarker-negative patients for safety',
+//             'Stratify randomization by biomarker status'
+//         );
+//     } else {
+//         recommendations.primaryStrategy = 'Stratified Enrichment Strategy';
+//         recommendations.enrollmentCriteria.push(
+//             'Enroll both biomarker-positive and negative patients',
+//             'Pre-specify primary analysis in biomarker-positive',
+//             'Power for subgroup analysis'
+//         );
+//     }
+    
+//     // Add regulatory considerations
+//     recommendations.regulatoryConsiderations = [
+//         'FDA Biomarker Qualification Program consultation recommended',
+//         'Consider Breakthrough Therapy Designation if biomarker defines high unmet need',
+//         'Companion diagnostic co-development required',
+//         'European parallel scientific advice recommended'
+//     ];
+    
+//     // Add precedent support
+//     recommendations.precedentSupport = relevantPrecedents.slice(0, 3).map(p => ({
+//         drug: p.drug,
+//         strategy: p.biomarkerStrategy,
+//         outcome: p.fdaApproval?.summary || 'Approved',
+//         relevance: 'Direct precedent for enrichment strategy'
+//     }));
+    
+//     // Identify challenges and mitigations
+//     if (recommendations.primaryStrategy.includes('100%')) {
+//         recommendations.potentialChallenges.push(
+//             'Enrollment may be slower due to biomarker screening',
+//             'Diagnostic test must be available and validated'
+//         );
+//         recommendations.mitigationStrategies.push(
+//             'Implement pre-screening programs',
+//             'Partner with diagnostic company early',
+//             'Consider expanded access for screen failures'
+//         );
+//     }
+    
+//     res.json({
+//         success: true,
+//         recommendations,
+//         supportingEvidence: {
+//             precedentCount: relevantPrecedents.length,
+//             averageEnrichment: relevantPrecedents.reduce((sum, p) => 
+//                 sum + (p.enrollment?.percentPositive || 0), 0) / relevantPrecedents.length,
+//             successRate: relevantPrecedents.filter(p => 
+//                 p.fdaApproval).length / relevantPrecedents.length
+//         }
+//     });
+// });
+
+// // Export functionality
+// app.post('/api/export', async (req, res) => {
+//     const { format = 'json', dataTypes = ['precedents', 'analysis'] } = req.body;
+    
+//     try {
+//         const exportData = {
+//             metadata: {
+//                 exportDate: new Date().toISOString(),
+//                 version: '2.0',
+//                 dataTypes
+//             }
+//         };
+        
+//         if (dataTypes.includes('precedents')) {
+//             exportData.precedents = precedentDatabase;
+//         }
+        
+//         if (dataTypes.includes('analysis')) {
+//             // Get division analysis
+//             const divisionsResponse = await axios.get(`http://localhost:${PORT}/api/divisions/comparison`);
+//             exportData.divisionAnalysis = divisionsResponse.data.divisions;
+//         }
+        
+//         if (format === 'json') {
+//             res.json({
+//                 success: true,
+//                 data: exportData
+//             });
+//         } else {
+//             res.status(400).json({
+//                 success: false,
+//                 error: 'Unsupported export format'
+//             });
+//         }
+        
+//     } catch (error) {
+//         console.error('Export error:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Failed to export data'
+//         });
+//     }
+// });
+
+// // Summary endpoint for dashboard
+// app.get('/api/summary', (req, res) => {
+//     const summary = {
+//         totalPrecedents: precedentDatabase.length,
+//         divisions: [...new Set(precedentDatabase.map(p => p.division))],
+//         enrichmentStrategies: {
+//             complete: precedentDatabase.filter(p => p.enrollment?.percentPositive === 100).length,
+//             high: precedentDatabase.filter(p => p.enrollment?.percentPositive >= 80).length,
+//             exclusion: precedentDatabase.filter(p => p.enrollment?.percentPositive === 0).length
+//         },
+//         biomarkerTypes: precedentDatabase.reduce((acc, p) => {
+//             const type = determineBiomarkerType([p.biomarker], p.biomarker);
+//             acc[type] = (acc[type] || 0) + 1;
+//             return acc;
+//         }, {}),
+//         recentApprovals: precedentDatabase
+//             .filter(p => p.fdaApproval?.date)
+//             .sort((a, b) => new Date(b.fdaApproval.date) - new Date(a.fdaApproval.date))
+//             .slice(0, 5)
+//             .map(p => ({
+//                 drug: p.drug,
+//                 date: p.fdaApproval.date,
+//                 strategy: p.biomarkerStrategy
+//             }))
+//     };
+    
+//     res.json({
+//         success: true,
+//         summary
+//     });
+// });
+
+// // Error handling middleware
+// app.use((error, req, res, next) => {
+//     console.error('Server error:', error);
+//     res.status(500).json({
+//         success: false,
+//         error: 'Internal server error',
+//         message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+//     });
+// });
+
+// // Start server
 // app.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
+//     console.log('='.repeat(80));
+//     console.log('FDA BIOMARKER ENRICHMENT ANALYSIS SERVER v2.0');
+//     console.log('='.repeat(80));
+//     console.log(`🚀 Server running on port ${PORT}`);
+//     console.log(`📊 Frontend: http://localhost:${PORT}`);
+//     console.log(`🔬 ${precedentDatabase.length} FDA precedents loaded`);
+//     console.log('');
+//     console.log('Key Features:');
+//     console.log('  ✓ Enhanced biomarker detection algorithms');
+//     console.log('  ✓ Real FDA approval precedents database');
+//     console.log('  ✓ Clinical trial enrichment analysis');
+//     console.log('  ✓ Division comparison analytics');
+//     console.log('  ✓ Statistical power calculations');
+//     console.log('  ✓ Trial design recommendations');
+//     console.log('');
+//     console.log('API Endpoints:');
+//     console.log('  GET  /api/health                    - System health check');
+//     console.log('  GET  /api/summary                   - Dashboard summary data');
+//     console.log('  GET  /api/precedents                - FDA precedent cases');
+//     console.log('  GET  /api/trial/:id                 - Specific trial details');
+//     console.log('  GET  /api/divisions/comparison      - Division analysis');
+//     console.log('  POST /api/search/clinicaltrials     - Search ClinicalTrials.gov');
+//     console.log('  POST /api/search/pubmed             - Search PubMed');
+//     console.log('  POST /api/search/comprehensive      - Multi-source search');
+//     console.log('  POST /api/calculate/power           - Statistical power analysis');
+//     console.log('  POST /api/recommendations/trial-design - Get trial recommendations');
+//     console.log('  POST /api/export                    - Export data');
+//     console.log('='.repeat(80));
 // });
 
-
-
-
-
-// // Verified and updated precedent database
-// const precedentDatabase = [
-//     {
-//         id: 'carbamazepine-hla',
-//         drug: 'Carbamazepine',
-//         biomarker: 'HLA-B*15:02',
-//         division: 'Neurology',
-//         nctId: 'NCT00736671',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'Carbamazepine-Induced Severe Cutaneous Adverse Reactions Prevention Study',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 4877,
-//         sponsor: 'Chang Gung Memorial Hospital',
-//         primaryOutcome: 'Incidence of Stevens-Johnson syndrome/toxic epidermal necrolysis',
-//         biomarkerData: {
-//             biomarker: 'HLA-B*15:02',
-//             strategy: 'Exclusion of biomarker-positive patients',
-//             populationSplit: '92.3% negative (enrolled), 7.7% positive (excluded)',
-//             totalTested: 4877,
-//             biomarkerPositive: 376,
-//             biomarkerNegative: 4501,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 0,
-//             percentNegativeIncluded: 100
-//         },
-//         results: {
-//             primaryEndpoint: 'Zero SJS/TEN cases in HLA-B*15:02-negative vs 0.23% historical (10 expected cases)',
-//             historicalComparison: '0% vs 0.23% expected incidence',
-//             statisticalSignificance: 'p<0.001',
-//             sensitivity: '98.3%',
-//             specificity: '97%',
-//             npv: '100%',
-//             nnt: '13 patients screened to prevent 1 case'
-//         },
-//         fdaImpact: 'FDA mandated genetic testing before carbamazepine initiation in Asian patients',
-//         emaAlignment: 'EMA adopted similar genetic testing requirements',
-//         publications: [
-//             {
-//                 citation: 'Chen P et al. NEJM 2011;364:1126-1133',
-//                 pmid: '21428769',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1013297'
-//             },
-//             {
-//                 citation: 'Chung WH et al. Nature 2004;428:486',
-//                 pmid: '15057820',
-//                 link: 'https://www.nature.com/articles/428486a'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/016608s110lbl.pdf',
-//             fdaSafetyAlert: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-recommends-genetic-testing-patients-asian-ancestry-prior',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00736671',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/referral/carbamazepine-article-31-referral-annex-i-ii-iii_en.pdf'
-//         },
-//         dataSource: 'FDA Label Update, Published Literature'
-//     },
-//     {
-//         id: 'nusinersen-smn1',
-//         drug: 'Nusinersen (Spinraza)',
-//         biomarker: 'SMN1 gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT02193074',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'ENDEAR: Study of Nusinersen in Infants With SMA Type 1',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 121,
-//         sponsor: 'Biogen',
-//         primaryOutcome: 'Motor milestone response',
-//         biomarkerData: {
-//             biomarker: 'SMN1 gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (genetically confirmed SMA), 0% negative',
-//             totalTested: 121,
-//             biomarkerPositive: 121,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'Motor milestone improvement: 51% vs 0% (p<0.001)',
-//             survivalBenefit: '47% reduction in risk of death or ventilation',
-//             durability: 'Benefits sustained through extension studies'
-//         },
-//         fdaImpact: 'First drug approved for SMA, approved for genetically defined population',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Finkel RS et al. NEJM 2017;377:1723-1732',
-//                 pmid: '29091570',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1702752'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-drug-spinal-muscular-atrophy',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/209531s028lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02193074',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/spinraza-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'patisiran-ttr',
-//         drug: 'Patisiran (Onpattro)',
-//         biomarker: 'TTR gene mutations',
-//         division: 'Neurology',
-//         nctId: 'NCT01960348',
-//         fdaSection: 'CDER I - Neurology Division',
-//         title: 'APOLLO: Study of Patisiran in hATTR Amyloidosis',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 225,
-//         sponsor: 'Alnylam Pharmaceuticals',
-//         primaryOutcome: 'mNIS+7 score change',
-//         biomarkerData: {
-//             biomarker: 'TTR gene mutations',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (genetically confirmed hATTR), 0% negative',
-//             totalTested: 225,
-//             biomarkerPositive: 225,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: 'mNIS+7: -6.0 vs +28.0 points (p<0.001)',
-//             qualityOfLife: 'Norfolk QoL-DN: -6.7 vs +14.4 points',
-//             cardiacBenefit: 'Improved cardiac parameters in 56% of patients'
-//         },
-//         fdaImpact: 'First RNAi therapeutic approved, for genetically defined population',
-//         emaAlignment: 'EMA approved with identical genetic indication',
-//         publications: [
-//             {
-//                 citation: 'Adams D et al. NEJM 2018;379:11-21',
-//                 pmid: '29972757',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1716153'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-its-kind-targeted-rna-based-therapy-treat-rare-disease',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/210922s008lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01960348',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/onpattro-epar-public-assessment-report_en.pdf'
-//         },
-//         dataSource: 'FDA Approval, NEJM'
-//     },
-//     {
-//         id: 'ivacaftor-cftr',
-//         drug: 'Ivacaftor (Kalydeco)',
-//         biomarker: 'CFTR G551D',
-//         division: 'Pulmonary',
-//         nctId: 'NCT00909532',
-//         fdaSection: 'CDER V - Pulmonary Division',
-//         title: 'STRIVE: Study of Ivacaftor in CF Patients With G551D Mutation',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 161,
-//         sponsor: 'Vertex Pharmaceuticals',
-//         primaryOutcome: 'Change in FEV1 percent predicted',
-//         biomarkerData: {
-//             biomarker: 'CFTR G551D mutation',
-//             strategy: '100% enrollment of mutation carriers',
-//             populationSplit: '100% positive (G551D carriers), 0% negative',
-//             totalTested: 161,
-//             biomarkerPositive: 161,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: '10.6% improvement in FEV1 (p<0.001)',
-//             sweatChloride: '47.9 mmol/L reduction vs placebo',
-//             responseRate: '83% of G551D patients showed improvement',
-//             durability: 'Benefits sustained over 144 weeks'
-//         },
-//         fdaImpact: 'First precision medicine approval in CF for ~4% of patients, later expanded to 38 mutations',
-//         emaAlignment: 'EMA approved with identical mutation-specific indication',
-//         publications: [
-//             {
-//                 citation: 'Ramsey BW et al. NEJM 2011;365:1663-1672',
-//                 pmid: '22047557',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1105185'
-//             },
-//             {
-//                 citation: 'Davies JC et al. Lancet Respir Med 2013;1:630-638',
-//                 pmid: '24429127',
-//                 link: 'https://www.thelancet.com/journals/lanres/article/PIIS2213-2600(13)70138-8/fulltext'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-kalydeco-treat-rare-form-cystic-fibrosis',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/203188s035lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00909532',
-//             emaSummary: 'https://www.ema.europa.eu/en/documents/product-information/kalydeco-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'ClinicalTrials.gov, FDA SBA'
-//     },
-//     {
-//         id: 'atomoxetine-cyp2d6',
-//         drug: 'Atomoxetine (Strattera)',
-//         biomarker: 'CYP2D6',
-//         division: 'Psychiatry',
-//         nctId: 'Multiple Phase 3 studies',
-//         fdaSection: 'CDER I - Psychiatry Division',
-//         title: 'Atomoxetine Efficacy and Safety in ADHD with CYP2D6 Genotyping',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 2977,
-//         sponsor: 'Eli Lilly',
-//         primaryOutcome: 'ADHD-RS-IV reduction by CYP2D6 genotype',
-//         biomarkerData: {
-//             biomarker: 'CYP2D6 metabolizer status',
-//             strategy: 'Stratified enrollment with genotype-guided analysis',
-//             populationSplit: '93% extensive metabolizers, 7% poor metabolizers',
-//             totalTested: 2977,
-//             biomarkerPositive: 208, // Poor metabolizers
-//             biomarkerNegative: 2769, // Extensive metabolizers
-//             enrichmentLevel: 25,
-//             percentPositiveIncluded: 7,
-//             percentNegativeIncluded: 93
-//         },
-//         results: {
-//             primaryEndpoint: 'Poor metabolizers: 12.3-point reduction vs 8.9-point (extensive) (p<0.05)',
-//             pharmacokinetics: '10-fold higher AUC in poor metabolizers',
-//             safetyProfile: 'Higher cardiovascular effects in PMs, manageable',
-//             doseOptimization: 'Genotype-specific dosing recommendations developed'
-//         },
-//         fdaImpact: 'FDA added pharmacogenomic dosing guidance to label',
-//         emaAlignment: 'EMA developed similar pharmacogenomic guidance',
-//         publications: [
-//             {
-//                 citation: 'Michelson D et al. J Am Acad Child Adolesc Psychiatry 2007;46:242-251',
-//                 pmid: '17242626',
-//                 link: 'https://www.jaacap.org/article/S0890-8567(09)61847-2/fulltext'
-//             },
-//             {
-//                 citation: 'Trzepacz PT et al. Neuropsychopharmacology 2008;33:2551-2559',
-//                 pmid: '18172432',
-//                 link: 'https://www.nature.com/articles/npp200714'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/021411s053lbl.pdf',
-//             fdaReview: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-411_Strattera_ClinPharmR.pdf',
-//             pharmacogenomics: 'https://www.pharmgkb.org/chemical/PA448515/guidelineAnnotation/PA166104984'
-//         },
-//         dataSource: 'FDA Label, Published Literature'
-//     },
-//     {
-//         id: 'clopidogrel-cyp2c19',
-//         drug: 'Clopidogrel (Plavix)',
-//         biomarker: 'CYP2C19',
-//         division: 'Cardiology',
-//         nctId: 'Multiple CV outcome trials',
-//         fdaSection: 'CDER II - Cardiology Division',
-//         title: 'Clopidogrel Efficacy in CYP2C19 Poor Metabolizers - Post-market Analysis',
-//         phase: 'Post-market',
-//         status: 'Completed',
-//         enrollment: 'Population-based analysis',
-//         sponsor: 'Multiple sponsors',
-//         primaryOutcome: 'Major adverse cardiovascular events by CYP2C19 genotype',
-//         biomarkerData: {
-//             biomarker: 'CYP2C19 loss-of-function alleles',
-//             strategy: 'Post-market recognition, genotype-guided alternatives',
-//             populationSplit: '70% normal metabolizers, 30% intermediate/poor',
-//             totalTested: 'Population-wide',
-//             biomarkerPositive: '30% (poor/intermediate metabolizers)',
-//             biomarkerNegative: '70% (normal metabolizers)',
-//             enrichmentLevel: 70,
-//             percentPositiveIncluded: 30,
-//             percentNegativeIncluded: 70
-//         },
-//         results: {
-//             primaryEndpoint: '1.53-3.69x higher CV events in poor metabolizers',
-//             populationImpact: '30% of patients with reduced efficacy',
-//             alternativeOptions: 'Prasugrel/ticagrelor unaffected by CYP2C19',
-//             economicImpact: '$3.8B annual market affected'
-//         },
-//         fdaImpact: 'FDA added black-box warning for CYP2C19 poor metabolizers',
-//         emaAlignment: 'EMA issued similar warnings and guidance',
-//         publications: [
-//             {
-//                 citation: 'Mega JL et al. NEJM 2010;363:1704-1714',
-//                 pmid: '20979470',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-//             },
-//             {
-//                 citation: 'Pare G et al. NEJM 2010;363:1704-1714',
-//                 pmid: '20979470',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-//             }
-//         ],
-//         sources: {
-//             fdaWarning: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-reduced-effectiveness-plavix-clopidogrel-patients-who-are-poor',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020839s074lbl.pdf',
-//             clinicalPharmacology: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2009/020839s044_ClinPharmR.pdf'
-//         },
-//         dataSource: 'FDA Safety Communication, Meta-analyses'
-//     },
-//     {
-//         id: 'abacavir-hla',
-//         drug: 'Abacavir',
-//         biomarker: 'HLA-B*57:01',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00340080',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'PREDICT-1: Abacavir Hypersensitivity Prevention Study',
-//         phase: 'Phase 4',
-//         status: 'Completed',
-//         enrollment: 1956,
-//         sponsor: 'GlaxoSmithKline',
-//         primaryOutcome: 'Clinically suspected hypersensitivity reactions',
-//         biomarkerData: {
-//             biomarker: 'HLA-B*57:01',
-//             strategy: 'Exclusion of biomarker-positive patients',
-//             populationSplit: '94.5% negative (included), 5.5% positive (excluded)',
-//             totalTested: 1956,
-//             biomarkerPositive: 108,
-//             biomarkerNegative: 1848,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 0,
-//             percentNegativeIncluded: 100
-//         },
-//         results: {
-//             primaryEndpoint: '0% immunologically confirmed HSR in HLA-B*57:01 negative',
-//             historicalComparison: '0% vs 7.8% expected HSR rate',
-//             preventionRate: '100% prevention of immunologically confirmed HSR',
-//             nnt: '13 patients screened to prevent 1 HSR'
-//         },
-//         fdaImpact: 'FDA mandated HLA-B*57:01 screening before abacavir use',
-//         emaAlignment: 'EMA adopted identical screening requirements',
-//         publications: [
-//             {
-//                 citation: 'Mallal S et al. NEJM 2008;358:568-579',
-//                 pmid: '18256392',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0706135'
-//             },
-//             {
-//                 citation: 'Saag M et al. Clin Infect Dis 2008;46:1111-1118',
-//                 pmid: '18462161',
-//                 link: 'https://academic.oup.com/cid/article/46/7/1111/291424'
-//             }
-//         ],
-//         sources: {
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020977s035lbl.pdf',
-//             fdaGuidance: 'https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-pharmacogenomics-premarket-evaluation-prescription-drug-labeling-and-postmarket-safety',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00340080',
-//             emaAssessment: 'https://www.ema.europa.eu/en/documents/product-information/ziagen-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'ClinicalTrials.gov, FDA Label'
-//     },
-//     {
-//         id: 'maraviroc-ccr5',
-//         drug: 'Maraviroc (Selzentry)',
-//         biomarker: 'CCR5 tropism',
-//         division: 'Infectious Diseases',
-//         nctId: 'NCT00098306',
-//         fdaSection: 'CDER IV - Infectious Diseases Division',
-//         title: 'MOTIVATE: Maraviroc in CCR5-tropic HIV-1',
-//         phase: 'Phase 3',
-//         status: 'Completed',
-//         enrollment: 1049,
-//         sponsor: 'Pfizer',
-//         primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-//         biomarkerData: {
-//             biomarker: 'CCR5 receptor tropism',
-//             strategy: '100% enrollment of CCR5-tropic patients',
-//             populationSplit: '100% CCR5-tropic, 0% CXCR4-tropic',
-//             totalTested: 1049,
-//             biomarkerPositive: 1049,
-//             biomarkerNegative: 0,
-//             enrichmentLevel: 100,
-//             percentPositiveIncluded: 100,
-//             percentNegativeIncluded: 0
-//         },
-//         results: {
-//             primaryEndpoint: '48.5% vs 23.0% viral suppression (p<0.001)',
-//             cd4Increase: '+124 cells/mm³ vs +61 cells/mm³',
-//             responseRate: 'Effective only in CCR5-tropic HIV',
-//             durability: 'Sustained through 96 weeks'
-//         },
-//         fdaImpact: 'FDA requires tropism testing before maraviroc use',
-//         emaAlignment: 'EMA mandates identical tropism testing',
-//         publications: [
-//             {
-//                 citation: 'Gulick RM et al. NEJM 2008;359:1429-1441',
-//                 pmid: '18832244',
-//                 link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0801282'
-//             }
-//         ],
-//         sources: {
-//             fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-drug-treatment-experienced-patients',
-//             fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022128s026lbl.pdf',
-//             clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00098306',
-//             emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/celsentri-epar-product-information_en.pdf'
-//         },
-//         dataSource: 'FDA Approval Letter, ClinicalTrials.gov'
-//     }
-// ];
-
-// // Updated division analysis
-// const divisionAnalysis = {
-//     'Neurology': {
-//         approach: 'Very Liberal',
-//         biomarkerNegativeReq: '0-10%',
-//         avgEnrichment: 95,
-//         approvalSpeed: 'Fast',
-//         precedentCount: 3,
-//         riskTolerance: 'High for safety biomarkers',
-//         examples: ['Carbamazepine: 0% positive', 'Nusinersen: 100% positive', 'Patisiran: 100% positive'],
-//         rationale: 'Safety-focused (exclusion) or efficacy-driven (inclusion) for genetic biomarkers',
-//         keyApprovals: [
-//             {
-//                 drug: 'Carbamazepine',
-//                 enrichment: '100% biomarker-negative',
-//                 source: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-recommends-genetic-testing-patients-asian-ancestry-prior'
-//             },
-//             {
-//                 drug: 'Nusinersen',
-//                 enrichment: '100% biomarker-positive',
-//                 source: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-drug-spinal-muscular-atrophy'
-//             }
-//         ]
-//     },
-//     'Pulmonary': {
-//         approach: 'Extremely Liberal',
-//         biomarkerNegativeReq: '0%',
-//         avgEnrichment: 100,
-//         approvalSpeed: 'Very Fast',
-//         precedentCount: 1,
-//         riskTolerance: 'Very high for genetic targeting',
-//         examples: ['Ivacaftor: 100% positive'],
-//         rationale: 'Mutation-specific targeting universally accepted',
-//         keyApprovals: [
-//             {
-//                 drug: 'Ivacaftor',
-//                 enrichment: '100% biomarker-positive',
-//                 source: 'https://www.fda.gov/news-events/press-announcements/fda-approves-kalydeco-treat-rare-form-cystic-fibrosis'
-//             }
-//         ]
-//     },
-//     'Psychiatry': {
-//         approach: 'Moderate-Liberal',
-//         biomarkerNegativeReq: '10-30%',
-//         avgEnrichment: 75,
-//         approvalSpeed: 'Moderate',
-//         precedentCount: 1,
-//         riskTolerance: 'Moderate for pharmacogenomics',
-//         examples: ['Atomoxetine: 93% negative'],
-//         rationale: 'Pharmacogenomic dosing emphasis, safety monitoring',
-//         keyApprovals: [
-//             {
-//                 drug: 'Atomoxetine',
-//                 enrichment: 'Stratified by CYP2D6',
-//                 source: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/021411s053lbl.pdf'
-//             }
-//         ]
-//     },
-//     'Cardiology': {
-//         approach: 'Moderate',
-//         biomarkerNegativeReq: '20-40%',
-//         avgEnrichment: 65,
-//         approvalSpeed: 'Moderate',
-//         precedentCount: 1,
-//         riskTolerance: 'Outcomes-focused',
-//         examples: ['Clopidogrel: 70% negative'],
-//         rationale: 'Risk-benefit post-market adjustments',
-//         keyApprovals: [
-//             {
-//                 drug: 'Clopidogrel',
-//                 enrichment: 'Post-market PGx warning',
-//                 source: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-reduced-effectiveness-plavix-clopidogrel-patients-who-are-poor'
-//             }
-//         ]
-//     },
-//     'Infectious Diseases': {
-//         approach: 'Liberal',
-//         biomarkerNegativeReq: '0-15%',
-//         avgEnrichment: 85,
-//         approvalSpeed: 'Fast',
-//         precedentCount: 2,
-//         riskTolerance: 'High for safety biomarkers',
-//         examples: ['Abacavir: 0% positive', 'Maraviroc: 100% positive'],
-//         rationale: 'Resistance/safety biomarkers critical',
-//         keyApprovals: [
-//             {
-//                 drug: 'Abacavir',
-//                 enrichment: '100% biomarker-negative',
-//                 source: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020977s035lbl.pdf'
-//             },
-//             {
-//                 drug: 'Maraviroc',
-//                 enrichment: '100% biomarker-positive',
-//                 source: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-drug-treatment-experienced-patients'
-//             }
-//         ]
-//     }
-// };
-
-
-
-
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
-
-// Store for caching search results
-let searchCache = new Map();
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-
-
-
-
-// Updated precedent database
-const precedentDatabase = [
-    // Neurology
-    {
-        id: 'carbamazepine-hla',
-        drug: 'Carbamazepine',
-        biomarker: 'HLA-B*15:02',
-        division: 'Neurology',
-        nctId: 'NCT00736671',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'Carbamazepine-Induced Severe Cutaneous Adverse Reactions Prevention Study',
-        phase: 'Phase 4',
-        status: 'Completed',
-        enrollment: 4877,
-        sponsor: 'Chang Gung Memorial Hospital',
-        primaryOutcome: 'Incidence of Stevens-Johnson syndrome/toxic epidermal necrolysis',
-        biomarkerData: {
-            biomarker: 'HLA-B*15:02',
-            strategy: 'Exclusion of biomarker-positive patients',
-            populationSplit: '92.3% negative (enrolled), 7.7% positive (excluded)',
-            totalTested: 4877,
-            biomarkerPositive: 376,
-            biomarkerNegative: 4501,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 0,
-            percentNegativeIncluded: 100
-        },
-        results: {
-            primaryEndpoint: 'Zero SJS/TEN cases in HLA-B*15:02-negative vs 0.23% historical (10 expected cases)',
-            historicalComparison: '0% vs 0.23% expected incidence',
-            statisticalSignificance: 'p<0.001',
-            sensitivity: '98.3%',
-            specificity: '97%',
-            npv: '100%',
-            nnt: '13 patients screened to prevent 1 case'
-        },
-        fdaImpact: 'FDA mandated genetic testing before carbamazepine initiation in Asian patients',
-        emaAlignment: 'EMA adopted similar genetic testing requirements',
-        publications: [
-            {
-                citation: 'Chen P et al. NEJM 2011;364:1126-1133',
-                pmid: '21428769',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1013297'
-            },
-            {
-                citation: 'Chung WH et al. Nature 2004;428:486',
-                pmid: '15057820',
-                link: 'https://www.nature.com/articles/428486a'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/016608s110lbl.pdf',
-            fdaSafetyAlert: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-recommends-genetic-testing-patients-asian-ancestry-prior',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00736671',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/referral/carbamazepine-article-31-referral-annex-i-ii-iii_en.pdf'
-        },
-        dataSource: 'FDA Label Update, Published Literature'
-    },
-    {
-        id: 'nusinersen-smn1',
-        drug: 'Nusinersen (Spinraza)',
-        biomarker: 'SMN1 gene mutations',
-        division: 'Neurology',
-        nctId: 'NCT02193074',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'ENDEAR: Study of Nusinersen in Infants With SMA Type 1',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 121,
-        sponsor: 'Biogen',
-        primaryOutcome: 'Motor milestone response',
-        biomarkerData: {
-            biomarker: 'SMN1 gene mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (genetically confirmed SMA), 0% negative',
-            totalTested: 121,
-            biomarkerPositive: 121,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'Motor milestone improvement: 51% vs 0% (p<0.001)',
-            survivalBenefit: '47% reduction in risk of death or ventilation',
-            durability: 'Benefits sustained through extension studies'
-        },
-        fdaImpact: 'First drug approved for SMA, approved for genetically defined population',
-        emaAlignment: 'EMA approved with identical genetic indication',
-        publications: [
-            {
-                citation: 'Finkel RS et al. NEJM 2017;377:1723-1732',
-                pmid: '29091570',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1702752'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-drug-spinal-muscular-atrophy',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/209531s028lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02193074',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/spinraza-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'patisiran-ttr',
-        drug: 'Patisiran (Onpattro)',
-        biomarker: 'TTR gene mutations',
-        division: 'Neurology',
-        nctId: 'NCT01960348',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'APOLLO: Study of Patisiran in hATTR Amyloidosis',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 225,
-        sponsor: 'Alnylam Pharmaceuticals',
-        primaryOutcome: 'mNIS+7 score change',
-        biomarkerData: {
-            biomarker: 'TTR gene mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (genetically confirmed hATTR), 0% negative',
-            totalTested: 225,
-            biomarkerPositive: 225,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'mNIS+7: -6.0 vs +28.0 points (p<0.001)',
-            qualityOfLife: 'Norfolk QoL-DN: -6.7 vs +14.4 points',
-            cardiacBenefit: 'Improved cardiac parameters in 56% of patients'
-        },
-        fdaImpact: 'First RNAi therapeutic approved, for genetically defined population',
-        emaAlignment: 'EMA approved with identical genetic indication',
-        publications: [
-            {
-                citation: 'Adams D et al. NEJM 2018;379:11-21',
-                pmid: '29972757',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1716153'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-first-its-kind-targeted-rna-based-therapy-treat-rare-disease',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/210922s008lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01960348',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/onpattro-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'viltolarsen-dmd',
-        drug: 'Viltolarsen (Viltepso)',
-        biomarker: 'DMD gene exon 53 skipping',
-        division: 'Neurology',
-        nctId: 'NCT02740972',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'Study of Viltolarsen in DMD Patients Amenable to Exon 53 Skipping',
-        phase: 'Phase 2',
-        status: 'Completed',
-        enrollment: 16,
-        sponsor: 'NS Pharma',
-        primaryOutcome: 'Dystrophin production increase',
-        biomarkerData: {
-            biomarker: 'DMD gene exon 53 skipping',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (DMD mutation carriers), 0% negative',
-            totalTested: 16,
-            biomarkerPositive: 16,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'Dystrophin increase: 5.4% vs 0.3% baseline (p<0.01)',
-            functionalOutcome: 'Improved time to stand in 50% of patients',
-            durability: 'Benefits sustained over 24 weeks'
-        },
-        fdaImpact: 'Approved for DMD with specific genetic mutations',
-        emaAlignment: 'EMA approved for identical genetic indication',
-        publications: [
-            {
-                citation: 'Clemens PR et al. NEJM 2020;382:645-653',
-                pmid: '32053345',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1911623'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/212154s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02740972',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/viltepso-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'risdiplam-smn1',
-        drug: 'Risdiplam (Evrysdi)',
-        biomarker: 'SMN1 gene mutations',
-        division: 'Neurology',
-        nctId: 'NCT02913482',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'FIREFISH: Study of Risdiplam in SMA Type 1',
-        phase: 'Phase 2/3',
-        status: 'Completed',
-        enrollment: 41,
-        sponsor: 'Roche',
-        primaryOutcome: 'Motor function improvement',
-        biomarkerData: {
-            biomarker: 'SMN1 gene mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (SMA Type 1), 0% negative',
-            totalTested: 41,
-            biomarkerPositive: 41,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'Motor milestone: 32% vs 0% (p<0.001)',
-            survivalBenefit: '90% event-free survival at 12 months',
-            durability: 'Sustained benefits in open-label extension'
-        },
-        fdaImpact: 'Approved for SMA with genetic confirmation',
-        emaAlignment: 'EMA approved with identical genetic indication',
-        publications: [
-            {
-                citation: 'Baranello G et al. Lancet Neurol 2021;20:39-48',
-                pmid: '33212066',
-                link: 'https://www.thelancet.com/journals/laneur/article/PIIS1474-4422(20)30374-7/fulltext'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-oral-treatment-spinal-muscular-atrophy',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/213535s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02913482',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/evrysdi-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, Lancet Neurol'
-    },
-    {
-        id: 'onasemnogene-smn1',
-        drug: 'Onasemnogene Abeparvovec (Zolgensma)',
-        biomarker: 'SMN1 gene mutations',
-        division: 'Neurology',
-        nctId: 'NCT02122952',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'STR1VE: Gene Therapy for SMA Type 1',
-        phase: 'Phase 1',
-        status: 'Completed',
-        enrollment: 22,
-        sponsor: 'Novartis Gene Therapies',
-        primaryOutcome: 'Survival without permanent ventilation',
-        biomarkerData: {
-            biomarker: 'SMN1 gene mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (SMA Type 1), 0% negative',
-            totalTested: 22,
-            biomarkerPositive: 22,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'Survival: 91% vs 26% historical (p<0.001)',
-            motorFunction: '50% achieved sitting independently',
-            durability: 'Benefits sustained over 5 years'
-        },
-        fdaImpact: 'First gene therapy for SMA, genetically defined population',
-        emaAlignment: 'EMA approved with identical genetic indication',
-        publications: [
-            {
-                citation: 'Mendell JR et al. NEJM 2017;377:1713-1722',
-                pmid: '29091557',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1706198'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-innovative-gene-therapy-treat-pediatric-patients-spinal-muscular-atrophy-rare-disease',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/125694s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02122952',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/zolgensma-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'tofersen-sod1',
-        drug: 'Tofersen (Qalsody)',
-        biomarker: 'SOD1 gene mutations',
-        division: 'Neurology',
-        nctId: 'NCT02623699',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'VALOR: Study of Tofersen in ALS with SOD1 Mutations',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 108,
-        sponsor: 'Biogen',
-        primaryOutcome: 'ALSFRS-R score change',
-        biomarkerData: {
-            biomarker: 'SOD1 gene mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (SOD1 ALS), 0% negative',
-            totalTested: 108,
-            biomarkerPositive: 108,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'ALSFRS-R: -1.2 vs -6.7 (p=0.03)',
-            biomarkerReduction: '60% reduction in SOD1 protein',
-            durability: 'Sustained benefits in open-label extension'
-        },
-        fdaImpact: 'Approved for ALS with SOD1 mutations',
-        emaAlignment: 'EMA granted conditional approval for same genetic subset',
-        publications: [
-            {
-                citation: 'Miller TM et al. NEJM 2022;387:1099-1110',
-                pmid: '36129998',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2204705'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-treatment-amyotrophic-lateral-sclerosis-associated-mutation-sod1-gene',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/215887s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02623699',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/qalsody-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'eteplirsen-dmd',
-        drug: 'Eteplirsen (Exondys 51)',
-        biomarker: 'DMD gene exon 51 skipping',
-        division: 'Neurology',
-        nctId: 'NCT02255552',
-        fdaSection: 'CDER I - Neurology Division',
-        title: 'PROMOVI: Study of Eteplirsen in DMD Patients',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 126,
-        sponsor: 'Sarepta Therapeutics',
-        primaryOutcome: 'Dystrophin production',
-        biomarkerData: {
-            biomarker: 'DMD gene exon 51 skipping',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (DMD exon 51), 0% negative',
-            totalTested: 126,
-            biomarkerPositive: 126,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'Dystrophin: 0.93% vs 0.22% (p<0.05)',
-            functionalOutcome: 'Stabilized 6MWT in 67% of patients',
-            durability: 'Benefits sustained over 48 weeks'
-        },
-        fdaImpact: 'Approved for DMD with specific genetic mutations',
-        emaAlignment: 'EMA did not approve due to efficacy concerns',
-        publications: [
-            {
-                citation: 'Mendell JR et al. Ann Neurol 2018;83:832-843',
-                pmid: '29534205',
-                link: 'https://onlinelibrary.wiley.com/doi/full/10.1002/ana.25213'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-grants-accelerated-approval-first-drug-duchenne-muscular-dystrophy',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/206488lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02255552',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/withdrawal-report/withdrawal-assessment-report-exondys_en.pdf'
-        },
-        dataSource: 'FDA Approval, Ann Neurol'
-    },
-    // Pulmonary
-    {
-        id: 'ivacaftor-cftr',
-        drug: 'Ivacaftor (Kalydeco)',
-        biomarker: 'CFTR G551D',
-        division: 'Pulmonary',
-        nctId: 'NCT00909532',
-        fdaSection: 'CDER V - Pulmonary Division',
-        title: 'STRIVE: Study of Ivacaftor in CF Patients With G551D Mutation',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 161,
-        sponsor: 'Vertex Pharmaceuticals',
-        primaryOutcome: 'Change in FEV1 percent predicted',
-        biomarkerData: {
-            biomarker: 'CFTR G551D mutation',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (G551D carriers), 0% negative',
-            totalTested: 161,
-            biomarkerPositive: 161,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: '10.6% improvement in FEV1 (p<0.001)',
-            sweatChloride: '47.9 mmol/L reduction vs placebo',
-            responseRate: '83% of G551D patients showed improvement',
-            durability: 'Benefits sustained over 144 weeks'
-        },
-        fdaImpact: 'First precision medicine approval in CF for ~4% of patients, later expanded to 38 mutations',
-        emaAlignment: 'EMA approved with identical mutation-specific indication',
-        publications: [
-            {
-                citation: 'Ramsey BW et al. NEJM 2011;365:1663-1672',
-                pmid: '22047557',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1105185'
-            },
-            {
-                citation: 'Davies JC et al. Lancet Respir Med 2013;1:630-638',
-                pmid: '24429127',
-                link: 'https://www.thelancet.com/journals/lanres/article/PIIS2213-2600(13)70138-8/fulltext'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-kalydeco-treat-rare-form-cystic-fibrosis',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/203188s035lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00909532',
-            emaSummary: 'https://www.ema.europa.eu/en/documents/product-information/kalydeco-epar-product-information_en.pdf'
-        },
-        dataSource: 'ClinicalTrials.gov, FDA SBA'
-    },
-    {
-        id: 'lumacaftor-ivacaftor',
-        drug: 'Lumacaftor/Ivacaftor (Orkambi)',
-        biomarker: 'CFTR F508del homozygous',
-        division: 'Pulmonary',
-        nctId: 'NCT01807923',
-        fdaSection: 'CDER V - Pulmonary Division',
-        title: 'TRAFFIC: Study of Lumacaftor/Ivacaftor in CF',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 559,
-        sponsor: 'Vertex Pharmaceuticals',
-        primaryOutcome: 'FEV1 percent predicted improvement',
-        biomarkerData: {
-            biomarker: 'CFTR F508del homozygous',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (F508del homozygous), 0% negative',
-            totalTested: 559,
-            biomarkerPositive: 559,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'FEV1: 3.3% improvement (p<0.001)',
-            exacerbationRate: '30-39% reduction in pulmonary exacerbations',
-            durability: 'Sustained benefits over 96 weeks'
-        },
-        fdaImpact: 'Approved for CF with F508del homozygous mutations',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Wainwright CE et al. NEJM 2015;373:220-231',
-                pmid: '25981758',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1409547'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-treatment-cystic-fibrosis',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/206038Orig1s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01807923',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/orkambi-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'tezacaftor-ivacaftor',
-        drug: 'Tezacaftor/Ivacaftor (Symdeko)',
-        biomarker: 'CFTR F508del homozygous/heterozygous',
-        division: 'Pulmonary',
-        nctId: 'NCT02347657',
-        fdaSection: 'CDER V - Pulmonary Division',
-        title: 'EVOLVE: Study of Tezacaftor/Ivacaftor in CF',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 510,
-        sponsor: 'Vertex Pharmaceuticals',
-        primaryOutcome: 'FEV1 percent predicted improvement',
-        biomarkerData: {
-            biomarker: 'CFTR F508del homozygous/heterozygous',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (F508del carriers), 0% negative',
-            totalTested: 510,
-            biomarkerPositive: 510,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'FEV1: 4.0% improvement (p<0.001)',
-            exacerbationRate: '35% reduction in exacerbations',
-            durability: 'Sustained benefits over 48 weeks'
-        },
-        fdaImpact: 'Approved for CF with specific F508del mutations',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Taylor-Cousar JL et al. NEJM 2017;377:2013-2023',
-                pmid: '29099344',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1709846'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-treatment-cystic-fibrosis',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210491s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02347657',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/symkevi-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'elexacaftor-tezacaftor-ivacaftor',
-        drug: 'Elexacaftor/Tezacaftor/Ivacaftor (Trikafta)',
-        biomarker: 'CFTR F508del',
-        division: 'Pulmonary',
-        nctId: 'NCT03525444',
-        fdaSection: 'CDER V - Pulmonary Division',
-        title: 'VX17-445-102: Study of Elexacaftor/Tezacaftor/Ivacaftor in CF',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 403,
-        sponsor: 'Vertex Pharmaceuticals',
-        primaryOutcome: 'FEV1 percent predicted improvement',
-        biomarkerData: {
-            biomarker: 'CFTR F508del',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (F508del carriers), 0% negative',
-            totalTested: 403,
-            biomarkerPositive: 403,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'FEV1: 14.3% improvement (p<0.001)',
-            sweatChloride: '41.8 mmol/L reduction',
-            exacerbationRate: '63% reduction in exacerbations'
-        },
-        fdaImpact: 'Approved for CF with at least one F508del mutation',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Middleton PG et al. NEJM 2019;381:1809-1819',
-                pmid: '31697873',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1908639'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-breakthrough-therapy-cystic-fibrosis',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/212273s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT03525444',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/trikafta-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'mannitol-cftr',
-        drug: 'Mannitol (Bronchitol)',
-        biomarker: 'CFTR mutations',
-        division: 'Pulmonary',
-        nctId: 'NCT02134353',
-        fdaSection: 'CDER V - Pulmonary Division',
-        title: 'CF303: Study of Mannitol in CF',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 423,
-        sponsor: 'Chiesi USA',
-        primaryOutcome: 'FEV1 improvement',
-        biomarkerData: {
-            biomarker: 'CFTR mutations',
-            strategy: 'Stratified enrollment by mutation type',
-            populationSplit: '80% F508del, 20% other CFTR mutations',
-            totalTested: 423,
-            biomarkerPositive: 423,
-            biomarkerNegative: 0,
-            enrichmentLevel: 80,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'FEV1: 2.4% improvement (p=0.02)',
-            qualityOfLife: 'Improved CFQ-R respiratory domain',
-            durability: 'Sustained benefits over 26 weeks'
-        },
-        fdaImpact: 'Approved for CF with stratified genetic analysis',
-        emaAlignment: 'EMA approved with similar stratification',
-        publications: [
-            {
-                citation: 'Bilton D et al. J Cyst Fibros 2019;18:857-864',
-                pmid: '31377106',
-                link: 'https://www.journal-of-cystic-fibrosis.com/article/S1569-1993(19)30560-7/fulltext'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-treatment-cystic-fibrosis',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/202770s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT02134353',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/bronchitol-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, J Cyst Fibros'
-    },
-    // Psychiatry
-    {
-        id: 'atomoxetine-cyp2d6',
-        drug: 'Atomoxetine (Strattera)',
-        biomarker: 'CYP2D6',
-        division: 'Psychiatry',
-        nctId: 'Multiple Phase 3 studies',
-        fdaSection: 'CDER I - Psychiatry Division',
-        title: 'Atomoxetine Efficacy and Safety in ADHD with CYP2D6 Genotyping',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 2977,
-        sponsor: 'Eli Lilly',
-        primaryOutcome: 'ADHD-RS-IV reduction by CYP2D6 genotype',
-        biomarkerData: {
-            biomarker: 'CYP2D6 metabolizer status',
-            strategy: 'Stratified enrollment with genotype-guided analysis',
-            populationSplit: '93% extensive metabolizers, 7% poor metabolizers',
-            totalTested: 2977,
-            biomarkerPositive: 208,
-            biomarkerNegative: 2769,
-            enrichmentLevel: 25,
-            percentPositiveIncluded: 7,
-            percentNegativeIncluded: 93
-        },
-        results: {
-            primaryEndpoint: 'Poor metabolizers: 12.3-point reduction vs 8.9-point (extensive) (p<0.05)',
-            pharmacokinetics: '10-fold higher AUC in poor metabolizers',
-            safetyProfile: 'Higher cardiovascular effects in PMs, manageable',
-            doseOptimization: 'Genotype-specific dosing recommendations developed'
-        },
-        fdaImpact: 'FDA added pharmacogenomic dosing guidance to label',
-        emaAlignment: 'EMA developed similar pharmacogenomic guidance',
-        publications: [
-            {
-                citation: 'Michelson D et al. J Am Acad Child Adolesc Psychiatry 2007;46:242-251',
-                pmid: '17242626',
-                link: 'https://www.jaacap.org/article/S0890-8567(09)61847-2/fulltext'
-            },
-            {
-                citation: 'Trzepacz PT et al. Neuropsychopharmacology 2008;33:2551-2559',
-                pmid: '18172432',
-                link: 'https://www.nature.com/articles/npp200714'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/021411s053lbl.pdf',
-            fdaReview: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-411_Strattera_ClinPharmR.pdf',
-            pharmacogenomics: 'https://www.pharmgkb.org/chemical/PA448515/guidelineAnnotation/PA166104984'
-        },
-        dataSource: 'FDA Label, Published Literature'
-    },
-    {
-        id: 'vortioxetine-cyp2d6',
-        drug: 'Vortioxetine (Trintellix)',
-        biomarker: 'CYP2D6 metabolizer status',
-        division: 'Psychiatry',
-        nctId: 'NCT01140906',
-        fdaSection: 'CDER I - Psychiatry Division',
-        title: 'Study of Vortioxetine in MDD',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 495,
-        sponsor: 'Takeda',
-        primaryOutcome: 'MADRS score reduction',
-        biomarkerData: {
-            biomarker: 'CYP2D6 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '90% extensive metabolizers, 10% poor metabolizers',
-            totalTested: 495,
-            biomarkerPositive: 49,
-            biomarkerNegative: 446,
-            enrichmentLevel: 30,
-            percentPositiveIncluded: 10,
-            percentNegativeIncluded: 90
-        },
-        results: {
-            primaryEndpoint: 'MADRS: 14.5 vs 12.8 (p<0.05)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Adjustable dosing for poor metabolizers'
-        },
-        fdaImpact: 'FDA included pharmacogenomic dosing guidance',
-        emaAlignment: 'EMA aligned with similar guidance',
-        publications: [
-            {
-                citation: 'Thase ME et al. J Clin Psychiatry 2014;75:1386-1393',
-                pmid: '25325531',
-                link: 'https://www.psychiatrist.com/jcp/article/view/17475'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204447s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01140906',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/brintellix-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Label, J Clin Psychiatry'
-    },
-    {
-        id: 'escitalopram-cyp2c19',
-        drug: 'Escitalopram (Lexapro)',
-        biomarker: 'CYP2C19 metabolizer status',
-        division: 'Psychiatry',
-        nctId: 'NCT00399048',
-        fdaSection: 'CDER I - Psychiatry Division',
-        title: 'Study of Escitalopram in MDD with CYP2C19 Genotyping',
-        phase: 'Phase 4',
-        status: 'Completed',
-        enrollment: 2087,
-        sponsor: 'Forest Laboratories',
-        primaryOutcome: 'HAM-D score reduction',
-        biomarkerData: {
-            biomarker: 'CYP2C19 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '85% extensive metabolizers, 15% poor/ultrarapid',
-            totalTested: 2087,
-            biomarkerPositive: 313,
-            biomarkerNegative: 1774,
-            enrichmentLevel: 35,
-            percentPositiveIncluded: 15,
-            percentNegativeIncluded: 85
-        },
-        results: {
-            primaryEndpoint: 'HAM-D: 13.1 vs 10.9 (p=0.03)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Dose adjustments for poor/ultrarapid metabolizers'
-        },
-        fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-        emaAlignment: 'EMA aligned with similar dosing guidance',
-        publications: [
-            {
-                citation: 'Mrazek DA et al. Am J Psychiatry 2018;175:463-470',
-                pmid: '29325448',
-                link: 'https://ajp.psychiatryonline.org/doi/10.1176/appi.ajp.2017.17050565'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/021323s047lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00399048',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/cipralex-epar-product-information_en.pdf'
-        },
-        dataSource: 'FDA Label, Am J Psychiatry'
-    },
-    {
-        id: 'brexpiprazole-cyp2d6',
-        drug: 'Brexpiprazole (Rexulti)',
-        biomarker: 'CYP2D6 metabolizer status',
-        division: 'Psychiatry',
-        nctId: 'NCT01396421',
-        fdaSection: 'CDER I - Psychiatry Division',
-        title: 'BEACON: Study of Brexpiprazole in Schizophrenia',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 468,
-        sponsor: 'Otsuka Pharmaceutical',
-        primaryOutcome: 'PANSS score reduction',
-        biomarkerData: {
-            biomarker: 'CYP2D6 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '92% extensive metabolizers, 8% poor metabolizers',
-            totalTested: 468,
-            biomarkerPositive: 37,
-            biomarkerNegative: 431,
-            enrichmentLevel: 30,
-            percentPositiveIncluded: 8,
-            percentNegativeIncluded: 92
-        },
-        results: {
-            primaryEndpoint: 'PANSS: 12.0 vs 9.8 (p=0.04)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Dose adjustments for poor metabolizers'
-        },
-        fdaImpact: 'FDA included pharmacogenomic dosing guidance',
-        emaAlignment: 'EMA aligned with similar guidance',
-        publications: [
-            {
-                citation: 'Kane JM et al. J Clin Psychiatry 2016;77:342-348',
-                pmid: '26963947',
-                link: 'https://www.psychiatrist.com/jcp/article/view/19349'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-drug-treat-schizophrenia-and-bipolar-disorder',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205422s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01396421',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/rexulti-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, J Clin Psychiatry'
-    },
-    {
-        id: 'aripiprazole-cyp2d6',
-        drug: 'Aripiprazole (Abilify)',
-        biomarker: 'CYP2D6 metabolizer status',
-        division: 'Psychiatry',
-        nctId: 'NCT00036114',
-        fdaSection: 'CDER I - Psychiatry Division',
-        title: 'Study of Aripiprazole in Schizophrenia/Bipolar Disorder',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 567,
-        sponsor: 'Otsuka Pharmaceutical',
-        primaryOutcome: 'PANSS score reduction',
-        biomarkerData: {
-            biomarker: 'CYP2D6 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '94% extensive metabolizers, 6% poor metabolizers',
-            totalTested: 567,
-            biomarkerPositive: 34,
-            biomarkerNegative: 533,
-            enrichmentLevel: 30,
-            percentPositiveIncluded: 6,
-            percentNegativeIncluded: 94
-        },
-        results: {
-            primaryEndpoint: 'PANSS: 15.5 vs 13.2 (p<0.05)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Dose adjustments for poor metabolizers'
-        },
-        fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-        emaAlignment: 'EMA aligned with similar dosing guidance',
-        publications: [
-            {
-                citation: 'Mallikaarjun S et al. Neuropsychopharmacology 2009;34:1871-1878',
-                pmid: '19156179',
-                link: 'https://www.nature.com/articles/npp200923'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/021436s046lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00036114',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/abilify-epar-product-information_en.pdf'
-        },
-        dataSource: 'FDA Label, Neuropsychopharmacology'
-    },
-    // Cardiology
-    {
-        id: 'clopidogrel-cyp2c19',
-        drug: 'Clopidogrel (Plavix)',
-        biomarker: 'CYP2C19',
-        division: 'Cardiology',
-        nctId: 'Multiple CV outcome trials',
-        fdaSection: 'CDER II - Cardiology Division',
-        title: 'Clopidogrel Efficacy in CYP2C19 Poor Metabolizers - Post-market Analysis',
-        phase: 'Post-market',
-        status: 'Completed',
-        enrollment: 'Population-based analysis',
-        sponsor: 'Multiple sponsors',
-        primaryOutcome: 'Major adverse cardiovascular events by CYP2C19 genotype',
-        biomarkerData: {
-            biomarker: 'CYP2C19 loss-of-function alleles',
-            strategy: 'Post-market recognition, genotype-guided alternatives',
-            populationSplit: '70% normal metabolizers, 30% intermediate/poor',
-            totalTested: 'Population-wide',
-            biomarkerPositive: '30% (poor/intermediate metabolizers)',
-            biomarkerNegative: '70% (normal metabolizers)',
-            enrichmentLevel: 70,
-            percentPositiveIncluded: 30,
-            percentNegativeIncluded: 70
-        },
-        results: {
-            primaryEndpoint: '1.53-3.69x higher CV events in poor metabolizers',
-            populationImpact: '30% of patients with reduced efficacy',
-            alternativeOptions: 'Prasugrel/ticagrelor unaffected by CYP2C19',
-            economicImpact: '$3.8B annual market affected'
-        },
-        fdaImpact: 'FDA added black-box warning for CYP2C19 poor metabolizers',
-        emaAlignment: 'EMA issued similar warnings and guidance',
-        publications: [
-            {
-                citation: 'Mega JL et al. NEJM 2010;363:1704-1714',
-                pmid: '20979470',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-            },
-            {
-                citation: 'Pare G et al. NEJM 2010;363:1704-1714',
-                pmid: '20979470',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1000480'
-            }
-        ],
-        sources: {
-            fdaWarning: 'https://www.fda.gov/drugs/drug-safety-and-availability/fda-drug-safety-communication-reduced-effectiveness-plavix-clopidogrel-patients-who-are-poor',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020839s074lbl.pdf',
-            clinicalPharmacology: 'https://www.accessdata.fda.gov/drugsatfda_docs/nda/2009/020839s044_ClinPharmR.pdf'
-        },
-        dataSource: 'FDA Safety Communication, Meta-analyses'
-    },
-    {
-        id: 'warfarin-cyp2c9-vkorc1',
-        drug: 'Warfarin',
-        biomarker: 'CYP2C9 and VKORC1 variants',
-        division: 'Cardiology',
-        nctId: 'NCT00839657',
-        fdaSection: 'CDER II - Cardiology Division',
-        title: 'COAG: Warfarin Pharmacogenetics Trial',
-        phase: 'Phase 4',
-        status: 'Completed',
-        enrollment: 1015,
-        sponsor: 'University of Pennsylvania',
-        primaryOutcome: 'Time in therapeutic INR range',
-        biomarkerData: {
-            biomarker: 'CYP2C9 and VKORC1 variants',
-            strategy: 'Stratified enrollment with genotype-guided dosing',
-            populationSplit: '65% normal metabolizers, 35% variant carriers',
-            totalTested: 1015,
-            biomarkerPositive: 355,
-            biomarkerNegative: 660,
-            enrichmentLevel: 50,
-            percentPositiveIncluded: 35,
-            percentNegativeIncluded: 65
-        },
-        results: {
-            primaryEndpoint: 'INR range: 45.4% vs 45.2% (p=0.91)',
-            bleedingRisk: 'Reduced bleeding in genotype-guided group (p=0.03)',
-            doseAccuracy: 'Improved dosing precision in variant carriers'
-        },
-        fdaImpact: 'FDA updated label with pharmacogenomic dosing guidance',
-        emaAlignment: 'EMA aligned with similar dosing guidance',
-        publications: [
-            {
-                citation: 'Kimmel SE et al. NEJM 2013;369:2283-2293',
-                pmid: '24251361',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1311386'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/009218s108lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00839657',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-pharmacogenomic-methodologies-development-medicinal-products_en.pdf'
-        },
-        dataSource: 'FDA Label, NEJM'
-    },
-    {
-        id: 'prasugrel-cyp2c19',
-        drug: 'Prasugrel (Effient)',
-        biomarker: 'CYP2C19 metabolizer status',
-        division: 'Cardiology',
-        nctId: 'NCT00311402',
-        fdaSection: 'CDER II - Cardiology Division',
-        title: 'TRITON-TIMI 38: Prasugrel in Acute Coronary Syndrome',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 13608,
-        sponsor: 'Eli Lilly',
-        primaryOutcome: 'CV death/MI/stroke',
-        biomarkerData: {
-            biomarker: 'CYP2C19 metabolizer status',
-            strategy: 'Post-hoc genotype analysis',
-            populationSplit: '73% normal metabolizers, 27% poor/intermediate',
-            totalTested: 13608,
-            biomarkerPositive: 3674,
-            biomarkerNegative: 9934,
-            enrichmentLevel: 60,
-            percentPositiveIncluded: 27,
-            percentNegativeIncluded: 73
-        },
-        results: {
-            primaryEndpoint: 'CV events: 9.9% vs 12.1% (p<0.01)',
-            bleedingRisk: 'Increased in poor metabolizers',
-            efficacyConsistency: 'Consistent efficacy across genotypes'
-        },
-        fdaImpact: 'FDA included pharmacogenomic warnings',
-        emaAlignment: 'EMA aligned with similar warnings',
-        publications: [
-            {
-                citation: 'Wiviott SD et al. NEJM 2007;357:2001-2015',
-                pmid: '17982182',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0706482'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-effient-reduce-risk-heart-attack-patients-receiving-stents',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2009/022307s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00311402',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/effient-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'ticagrelor-cyp2c19',
-        drug: 'Ticagrelor (Brilinta)',
-        biomarker: 'CYP2C19 metabolizer status',
-        division: 'Cardiology',
-        nctId: 'NCT00391872',
-        fdaSection: 'CDER II - Cardiology Division',
-        title: 'PLATO: Ticagrelor in Acute Coronary Syndrome',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 18624,
-        sponsor: 'AstraZeneca',
-        primaryOutcome: 'CV death/MI/stroke',
-        biomarkerData: {
-            biomarker: 'CYP2C19 metabolizer status',
-            strategy: 'Post-hoc genotype analysis',
-            populationSplit: '70% normal metabolizers, 30% poor/intermediate',
-            totalTested: 18624,
-            biomarkerPositive: 5587,
-            biomarkerNegative: 13037,
-            enrichmentLevel: 60,
-            percentPositiveIncluded: 30,
-            percentNegativeIncluded: 70
-        },
-        results: {
-            primaryEndpoint: 'CV events: 9.8% vs 11.7% (p=0.03)',
-            bleedingRisk: 'No significant genotype effect on bleeding',
-            efficacyConsistency: 'Consistent efficacy across genotypes'
-        },
-        fdaImpact: 'FDA included pharmacogenomic considerations',
-        emaAlignment: 'EMA aligned with similar guidance',
-        publications: [
-            {
-                citation: 'Wallentin L et al. NEJM 2009;361:1045-1057',
-                pmid: '19717846',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0904327'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-blood-thinning-drug-brilinta-reduce-cardiovascular-death-heart-attack-stroke',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/022433s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00391872',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/brilique-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'atorvastatin-slco1b1',
-        drug: 'Atorvastatin (Lipitor)',
-        biomarker: 'SLCO1B1 variants',
-        division: 'Cardiology',
-        nctId: 'NCT00451828',
-        fdaSection: 'CDER II - Cardiology Division',
-        title: 'SEARCH: Atorvastatin and Myopathy Risk',
-        phase: 'Phase 4',
-        status: 'Completed',
-        enrollment: 12064,
-        sponsor: 'University of Oxford',
-        primaryOutcome: 'Myopathy risk by SLCO1B1 genotype',
-        biomarkerData: {
-            biomarker: 'SLCO1B1 variants',
-            strategy: 'Post-hoc genotype analysis',
-            populationSplit: '85% normal, 15% variant carriers',
-            totalTested: 12064,
-            biomarkerPositive: 1810,
-            biomarkerNegative: 10254,
-            enrichmentLevel: 50,
-            percentPositiveIncluded: 15,
-            percentNegativeIncluded: 85
-        },
-        results: {
-            primaryEndpoint: 'Myopathy: 0.6% vs 3.0% (p<0.001)',
-            pharmacokinetics: 'Higher exposure in variant carriers',
-            safetyProfile: 'Dose adjustments recommended for variant carriers'
-        },
-        fdaImpact: 'FDA updated label with myopathy risk warning',
-        emaAlignment: 'EMA aligned with similar warnings',
-        publications: [
-            {
-                citation: 'SEARCH Collaborative Group. NEJM 2008;359:789-799',
-                pmid: '18650507',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0801936'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/020702s067lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00451828',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/scientific-guideline/guideline-pharmacogenomic-methodologies-development-medicinal-products_en.pdf'
-        },
-        dataSource: 'FDA Label, NEJM'
-    },
-    // Infectious Diseases
-    {
-        id: 'abacavir-hla',
-        drug: 'Abacavir',
-        biomarker: 'HLA-B*57:01',
-        division: 'Infectious Diseases',
-        nctId: 'NCT00340080',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'PREDICT-1: Abacavir Hypersensitivity Prevention Study',
-        phase: 'Phase 4',
-        status: 'Completed',
-        enrollment: 1956,
-        sponsor: 'GlaxoSmithKline',
-        primaryOutcome: 'Clinically suspected hypersensitivity reactions',
-        biomarkerData: {
-            biomarker: 'HLA-B*57:01',
-            strategy: 'Exclusion of biomarker-positive patients',
-            populationSplit: '94.5% negative (included), 5.5% positive (excluded)',
-            totalTested: 1956,
-            biomarkerPositive: 108,
-            biomarkerNegative: 1848,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 0,
-            percentNegativeIncluded: 100
-        },
-        results: {
-            primaryEndpoint: '0% immunologically confirmed HSR in HLA-B*57:01 negative',
-            historicalComparison: '0% vs 7.8% expected HSR rate',
-            preventionRate: '100% prevention of immunologically confirmed HSR',
-            nnt: '13 patients screened to prevent 1 HSR'
-        },
-        fdaImpact: 'FDA mandated HLA-B*57:01 screening before abacavir use',
-        emaAlignment: 'EMA adopted identical screening requirements',
-        publications: [
-            {
-                citation: 'Mallal S et al. NEJM 2008;358:568-579',
-                pmid: '18256392',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0706135'
-            },
-            {
-                citation: 'Saag M et al. Clin Infect Dis 2008;46:1111-1118',
-                pmid: '18462161',
-                link: 'https://academic.oup.com/cid/article/46/7/1111/291424'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/020977s035lbl.pdf',
-            fdaGuidance: 'https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-pharmacogenomics-premarket-evaluation-prescription-drug-labeling-and-postmarket-safety',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00340080',
-            emaAssessment: 'https://www.ema.europa.eu/en/documents/product-information/ziagen-epar-product-information_en.pdf'
-        },
-        dataSource: 'ClinicalTrials.gov, FDA Label'
-    },
-    {
-        id: 'maraviroc-ccr5',
-        drug: 'Maraviroc (Selzentry)',
-        biomarker: 'CCR5 tropism',
-        division: 'Infectious Diseases',
-        nctId: 'NCT00098306',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'MOTIVATE: Maraviroc in CCR5-tropic HIV-1',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 1049,
-        sponsor: 'Pfizer',
-        primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-        biomarkerData: {
-            biomarker: 'CCR5 receptor tropism',
-            strategy: '100% enrollment of CCR5-tropic patients',
-            populationSplit: '100% CCR5-tropic, 0% CXCR4-tropic',
-            totalTested: 1049,
-            biomarkerPositive: 1049,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: '48.5% vs 23.0% viral suppression (p<0.001)',
-            cd4Increase: '+124 cells/mm³ vs +61 cells/mm³',
-            responseRate: 'Effective only in CCR5-tropic HIV',
-            durability: 'Sustained through 96 weeks'
-        },
-        fdaImpact: 'FDA requires tropism testing before maraviroc use',
-        emaAlignment: 'EMA mandates identical tropism testing',
-        publications: [
-            {
-                citation: 'Gulick RM et al. NEJM 2008;359:1429-1441',
-                pmid: '18832244',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0801282'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-drug-treatment-experienced-patients',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/022128s026lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00098306',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/celsentri-epar-product-information_en.pdf'
-        },
-        dataSource: 'FDA Approval Letter, ClinicalTrials.gov'
-    },
-    {
-        id: 'efavirenz-cyp2b6',
-        drug: 'Efavirenz (Sustiva)',
-        biomarker: 'CYP2B6 metabolizer status',
-        division: 'Infectious Diseases',
-        nctId: 'NCT00050895',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'ACTG 5095: Efavirenz in HIV Treatment',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 787,
-        sponsor: 'NIAID',
-        primaryOutcome: 'Virologic failure rate',
-        biomarkerData: {
-            biomarker: 'CYP2B6 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '80% extensive metabolizers, 20% poor metabolizers',
-            totalTested: 787,
-            biomarkerPositive: 157,
-            biomarkerNegative: 630,
-            enrichmentLevel: 40,
-            percentPositiveIncluded: 20,
-            percentNegativeIncluded: 80
-        },
-        results: {
-            primaryEndpoint: 'Virologic failure: 14% vs 24% (p=0.02)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Increased CNS side effects in poor metabolizers'
-        },
-        fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-        emaAlignment: 'EMA aligned with similar guidance',
-        publications: [
-            {
-                citation: 'Haas DW et al. Clin Infect Dis 2008;47:1083-1090',
-                pmid: '18781879',
-                link: 'https://academic.oup.com/cid/article/47/8/1083/292737'
-            }
-        ],
-        sources: {
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020972s057lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00050895',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/product-information/sustiva-epar-product-information_en.pdf'
-        },
-        dataSource: 'FDA Label, Clin Infect Dis'
-    },
-    {
-        id: 'dolutegravir-hla',
-        drug: 'Dolutegravir (Tivicay)',
-        biomarker: 'HLA-B*57:01',
-        division: 'Infectious Diseases',
-        nctId: 'NCT00631527',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'SPRING-2: Dolutegravir in HIV Treatment',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 822,
-        sponsor: 'ViiV Healthcare',
-        primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-        biomarkerData: {
-            biomarker: 'HLA-B*57:01',
-            strategy: 'Exclusion of biomarker-positive patients',
-            populationSplit: '100% negative (HLA-B*57:01 negative), 0% positive',
-            totalTested: 822,
-            biomarkerPositive: 0,
-            biomarkerNegative: 822,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 0,
-            percentNegativeIncluded: 100
-        },
-        results: {
-            primaryEndpoint: 'Viral suppression: 88% vs 85% (p=0.08)',
-            cd4Increase: '+230 cells/mm³ vs +188 cells/mm³',
-            safetyProfile: 'No hypersensitivity in HLA-B*57:01 negative'
-        },
-        fdaImpact: 'FDA requires HLA-B*57:01 screening',
-        emaAlignment: 'EMA mandates identical screening',
-        publications: [
-            {
-                citation: 'Raffi F et al. Lancet 2013;382:700-708',
-                pmid: '23830355',
-                link: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(13)61221-0/fulltext'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-drug-treat-hiv-infection',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204790s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00631527',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/tivicay-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, Lancet'
-    },
-    {
-        id: 'rilpivirine-cyp3a4',
-        drug: 'Rilpivirine (Edurant)',
-        biomarker: 'CYP3A4 metabolizer status',
-        division: 'Infectious Diseases',
-        nctId: 'NCT00540449',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'ECHO: Rilpivirine in HIV Treatment',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 686,
-        sponsor: 'Janssen Pharmaceuticals',
-        primaryOutcome: 'HIV-1 RNA <50 copies/mL at Week 48',
-        biomarkerData: {
-            biomarker: 'CYP3A4 metabolizer status',
-            strategy: 'Stratified enrollment with genotype analysis',
-            populationSplit: '82% extensive metabolizers, 18% poor/ultrarapid',
-            totalTested: 686,
-            biomarkerPositive: 123,
-            biomarkerNegative: 563,
-            enrichmentLevel: 40,
-            percentPositiveIncluded: 18,
-            percentNegativeIncluded: 82
-        },
-        results: {
-            primaryEndpoint: 'Viral suppression: 84.3% vs 80.9% (p=0.09)',
-            pharmacokinetics: 'Higher exposure in poor metabolizers',
-            safetyProfile: 'Manageable side effects with dose adjustments'
-        },
-        fdaImpact: 'FDA updated label with pharmacogenomic guidance',
-        emaAlignment: 'EMA aligned with similar guidance',
-        publications: [
-            {
-                citation: 'Molina JM et al. Lancet 2011;377:229-237',
-                pmid: '21216044',
-                link: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(10)62036-7/fulltext'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-hiv-treatment',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2011/202022s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT00540449',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/edurant-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, Lancet'
-    },
-    {
-        id: 'tenofovir-hbv',
-        drug: 'Tenofovir Alafenamide (Vemlidy)',
-        biomarker: 'HBV polymerase mutations',
-        division: 'Infectious Diseases',
-        nctId: 'NCT01940471',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'GS-US-320-0110: Tenofovir Alafenamide in Hepatitis B',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 426,
-        sponsor: 'Gilead Sciences',
-        primaryOutcome: 'HBV DNA <29 IU/mL',
-        biomarkerData: {
-            biomarker: 'HBV polymerase mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (HBV polymerase mutations), 0% negative',
-            totalTested: 426,
-            biomarkerPositive: 426,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'HBV DNA <29 IU/mL: 94% vs 92.9% (p=0.47)',
-            safetyProfile: 'Improved renal and bone safety vs TDF',
-            durability: 'Sustained viral suppression over 96 weeks'
-        },
-        fdaImpact: 'Approved for HBV with genetic confirmation',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Buti M et al. Hepatology 2017;65:1444-1455',
-                pmid: '27770595',
-                link: 'https://aasldpubs.onlinelibrary.wiley.com/doi/10.1002/hep.28934'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-vemlidy-tenofovir-alafenamide-chronic-hepatitis-b-virus-infection',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2016/208464s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01940471',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/vemlidy-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, Hepatology'
-    },
-    {
-        id: 'sofosbuvir-hcv',
-        drug: 'Sofosbuvir (Sovaldi)',
-        biomarker: 'HCV NS5B polymerase mutations',
-        division: 'Infectious Diseases',
-        nctId: 'NCT01497366',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'NEUTRINO: Sofosbuvir in HCV Genotype 1-6',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 327,
-        sponsor: 'Gilead Sciences',
-        primaryOutcome: 'SVR12 (sustained virologic response at 12 weeks)',
-        biomarkerData: {
-            biomarker: 'HCV NS5B polymerase mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (HCV genotype 1-6 with NS5B mutations), 0% negative',
-            totalTested: 327,
-            biomarkerPositive: 327,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'SVR12: 90% (p<0.001 vs historical control)',
-            genotypeBreakdown: '92% genotype 1, 82% genotype 4, 80% genotype 5/6',
-            safetyProfile: 'Well-tolerated, minimal adverse events'
-        },
-        fdaImpact: 'Approved for HCV with genetic confirmation of genotypes',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Lawitz E et al. NEJM 2013;368:1878-1887',
-                pmid: '23607594',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1214853'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-sovaldi-hepatitis-c',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204671s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01497366',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/sovaldi-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    },
-    {
-        id: 'ledipasvir-sofosbuvir-hcv',
-        drug: 'Ledipasvir/Sofosbuvir (Harvoni)',
-        biomarker: 'HCV NS5A/NS5B mutations',
-        division: 'Infectious Diseases',
-        nctId: 'NCT01701401',
-        fdaSection: 'CDER IV - Infectious Diseases Division',
-        title: 'ION-1: Ledipasvir/Sofosbuvir in HCV Genotype 1',
-        phase: 'Phase 3',
-        status: 'Completed',
-        enrollment: 865,
-        sponsor: 'Gilead Sciences',
-        primaryOutcome: 'SVR12',
-        biomarkerData: {
-            biomarker: 'HCV NS5A/NS5B mutations',
-            strategy: '100% enrollment of mutation carriers',
-            populationSplit: '100% positive (HCV genotype 1 with NS5A/NS5B mutations), 0% negative',
-            totalTested: 865,
-            biomarkerPositive: 865,
-            biomarkerNegative: 0,
-            enrichmentLevel: 100,
-            percentPositiveIncluded: 100,
-            percentNegativeIncluded: 0
-        },
-        results: {
-            primaryEndpoint: 'SVR12: 99% (p<0.001)',
-            relapseRate: '<1% in treatment-naive patients',
-            safetyProfile: 'Favorable safety profile across genotypes'
-        },
-        fdaImpact: 'Approved for HCV genotype 1 with genetic confirmation',
-        emaAlignment: 'EMA approved for same genetic subset',
-        publications: [
-            {
-                citation: 'Afdhal N et al. NEJM 2014;370:1889-1898',
-                pmid: '24720702',
-                link: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1402454'
-            }
-        ],
-        sources: {
-            fdaApproval: 'https://www.fda.gov/news-events/press-announcements/fda-approves-harvoni-hepatitis-c',
-            fdaLabel: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2014/205834s000lbl.pdf',
-            clinicalTrialsGov: 'https://clinicaltrials.gov/study/NCT01701401',
-            emaDoc: 'https://www.ema.europa.eu/en/documents/assessment-report/harvoni-epar-public-assessment-report_en.pdf'
-        },
-        dataSource: 'FDA Approval, NEJM'
-    }
-];
-
-// Updated Division Analysis
-const divisionAnalysis = {
-    neurology: {
-        totalTrials: 8,
-        biomarkerNegativeRequirement: 'Only carbamazepine requires exclusion of HLA-B*15:02-positive patients (100% negative enrollment). Others (e.g., nusinersen, patisiran, viltolarsen, risdiplam, onasemnogene, tofersen, eteplirsen) are 100% biomarker-positive.',
-        averageEnrichmentLevel: (100 * 7 + 100) / 8, // 100% for all trials
-        keyApprovals: [
-            { drug: 'Carbamazepine', year: 2007, geneticTesting: 'Mandatory HLA-B*15:02 screening' },
-            { drug: 'Nusinersen', year: 2016, geneticTesting: 'SMN1 mutation confirmation' },
-            { drug: 'Patisiran', year: 2018, geneticTesting: 'TTR mutation confirmation' },
-            { drug: 'Viltolarsen', year: 2020, geneticTesting: 'DMD exon 53 mutation' },
-            { drug: 'Risdiplam', year: 2020, geneticTesting: 'SMN1 mutation confirmation' },
-            { drug: 'Onasemnogene', year: 2019, geneticTesting: 'SMN1 mutation confirmation' },
-            { drug: 'Tofersen', year: 2023, geneticTesting: 'SOD1 mutation confirmation' },
-            { drug: 'Eteplirsen', year: 2016, geneticTesting: 'DMD exon 51 mutation' }
-        ],
-        consistency: 'Inconsistent: Neurology allows biomarker-positive only (e.g., nusinersen) and biomarker-negative only (carbamazepine).'
-    },
-    pulmonary: {
-        totalTrials: 5,
-        biomarkerNegativeRequirement: 'None require biomarker-negative enrollment. All trials (ivacaftor, lumacaftor/ivacaftor, tezacaftor/ivacaftor, elexacaftor/tezacaftor/ivacaftor, mannitol) focus on CFTR mutation carriers, with mannitol stratified by mutation type.',
-        averageEnrichmentLevel: (100 * 4 + 80) / 5, // 96%
-        keyApprovals: [
-            { drug: 'Ivacaftor', year: 2012, geneticTesting: 'CFTR G551D mutation' },
-            { drug: 'Lumacaftor/Ivacaftor', year: 2015, geneticTesting: 'CFTR F508del homozygous' },
-            { drug: 'Tezacaftor/Ivacaftor', year: 2018, geneticTesting: 'CFTR F508del mutations' },
-            { drug: 'Elexacaftor/Tezacaftor/Ivacaftor', year: 2019, geneticTesting: 'CFTR F508del' },
-            { drug: 'Mannitol', year: 2020, geneticTesting: 'CFTR mutations with stratification' }
-        ],
-        consistency: 'Consistent: All approvals require CFTR mutation confirmation, with varying specificity.'
-    },
-    psychiatry: {
-        totalTrials: 5,
-        biomarkerNegativeRequirement: 'None require biomarker-negative enrollment. All trials (atomoxetine, vortioxetine, escitalopram, brexpiprazole, aripiprazole) use mixed populations with post-hoc genotype analysis.',
-        averageEnrichmentLevel: (25 + 30 + 35 + 30 + 30) / 5, // 30%
-        keyApprovals: [
-            { drug: 'Atomoxetine', year: 2002, geneticTesting: 'CYP2D6 dosing guidance' },
-            { drug: 'Vortioxetine', year: 2013, geneticTesting: 'CYP2D6 dosing guidance' },
-            { drug: 'Escitalopram', year: 2002, geneticTesting: 'CYP2C19 dosing guidance' },
-            { drug: 'Brexpiprazole', year: 2015, geneticTesting: 'CYP2D6 dosing guidance' },
-            { drug: 'Aripiprazole', year: 2002, geneticTesting: 'CYP2D6 dosing guidance' }
-        ],
-        consistency: 'Consistent: All approvals use pharmacogenomic dosing guidance for CYP metabolizers.'
-    },
-    cardiology: {
-        totalTrials: 5,
-        biomarkerNegativeRequirement: 'Clopidogrel has warnings for CYP2C19 poor metabolizers. Others (warfarin, prasugrel, ticagrelor, atorvastatin) use mixed populations with post-hoc genotype analysis.',
-        averageEnrichmentLevel: (70 + 50 + 60 + 60 + 50) / 5, // 58%
-        keyApprovals: [
-            { drug: 'Clopidogrel', year: 2010, geneticTesting: 'CYP2C19 warning' },
-            { drug: 'Warfarin', year: 2007, geneticTesting: 'CYP2C9/VKORC1 dosing guidance' },
-            { drug: 'Prasugrel', year: 2009, geneticTesting: 'CYP2C19 considerations' },
-            { drug: 'Ticagrelor', year: 2011, geneticTesting: 'CYP2C19 considerations' },
-            { drug: 'Atorvastatin', year: 2016, geneticTesting: 'SLCO1B1 myopathy risk' }
-        ],
-        consistency: 'Inconsistent: Clopidogrel emphasizes poor metabolizer warnings, while others use mixed populations.'
-    },
-    infectiousDiseases: {
-        totalTrials: 7,
-        biomarkerNegativeRequirement: 'Abacavir and dolutegravir require exclusion of HLA-B*57:01-positive patients. Others (maraviroc, efavirenz, rilpivirine, tenofovir, sofosbuvir) focus on biomarker-positive or mixed populations.',
-        averageEnrichmentLevel: (100 + 100 + 40 + 100 + 40 + 100 + 100) / 7, // 83%
-        keyApprovals: [
-            { drug: 'Abacavir', year: 2008, geneticTesting: 'Mandatory HLA-B*57:01 screening' },
-            { drug: 'Maraviroc', year: 2007, geneticTesting: 'CCR5 tropism testing' },
-            { drug: 'Efavirenz', year: 2008, geneticTesting: 'CYP2B6 dosing guidance' },
-            { drug: 'Dolutegravir', year: 2013, geneticTesting: 'HLA-B*57:01 screening' },
-            { drug: 'Rilpivirine', year: 2011, geneticTesting: 'CYP3A4 dosing guidance' },
-            { drug: 'Tenofovir Alafenamide', year: 2016, geneticTesting: 'HBV polymerase mutation confirmation' },
-            { drug: 'Sofosbuvir', year: 2013, geneticTesting: 'HCV NS5B mutation confirmation' }
-        ],
-        consistency: 'Inconsistent: HLA-B*57:01 screening is mandatory for some (abacavir, dolutegravir), while others use mixed or positive-only populations.'
-    }
-};
-
-// API Routes
-
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'healthy', 
-        timestamp: new Date().toISOString(),
-        version: '2.0.1'
-    });
-});
-
-// Get all precedent cases
-app.get('/api/precedents', (req, res) => {
-    try {
-        const { division, strength, biomarkerType } = req.query;
-        
-        let filteredCases = precedentDatabase;
-        
-        if (division && division !== 'all') {
-            filteredCases = filteredCases.filter(case_ => 
-                case_.division.toLowerCase() === division.toLowerCase()
-            );
-        }
-        
-        if (biomarkerType && biomarkerType !== 'all') {
-            filteredCases = filteredCases.filter(case_ => 
-                case_.biomarker.toLowerCase().includes(biomarkerType.toLowerCase())
-            );
-        }
-
-        filteredCases = filteredCases.map(case_ => ({
-            ...case_,
-            strength: calculateCaseStrength(case_)
-        }));
-
-        if (strength && strength !== 'all') {
-            filteredCases = filteredCases.filter(case_ => 
-                case_.strength.toLowerCase() === strength.toLowerCase()
-            );
-        }
-
-        res.json({
-            success: true,
-            count: filteredCases.length,
-            data: filteredCases
-        });
-    } catch (error) {
-        console.error('Error fetching precedents:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch precedent cases'
-        });
-    }
-});
-
-// Get division analysis
-app.get('/api/divisions', (req, res) => {
-    try {
-        res.json({
-            success: true,
-            data: divisionAnalysis
-        });
-    } catch (error) {
-        console.error('Error fetching division analysis:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch division analysis'
-        });
-    }
-});
-
-// Search clinical trials using ClinicalTrials.gov API v2
-app.post('/api/search/clinicaltrials', async (req, res) => {
-    try {
-        const { biomarker, drug, condition, phase } = req.body;
-        
-        const queryParams = new URLSearchParams();
-        let queryParts = [];
-        if (biomarker) queryParts.push(biomarker);
-        if (drug) queryParts.push(drug);
-        if (condition) queryParts.push(condition);
-        queryParts.push('NOT (cancer OR oncology OR tumor)');
-        
-        queryParams.append('query.term', queryParts.join(' AND '));
-        queryParams.append('countTotal', 'true');
-        queryParams.append('pageSize', '50');
-        
-        const url = `https://clinicaltrials.gov/api/v2/studies?${queryParams}`;
-        
-        try {
-            const response = await axios.get(url, { 
-                timeout: 10000,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            const data = response.data;
-            
-            if (!data.studies || data.studies.length === 0) {
-                return res.json({
-                    success: true,
-                    source: 'ClinicalTrials.gov',
-                    count: 0,
-                    data: []
-                });
-            }
-            
-            const results = data.studies.map(study => {
-                const protocolSection = study.protocolSection || {};
-                const identificationModule = protocolSection.identificationModule || {};
-                const designModule = protocolSection.designModule || {};
-                const statusModule = protocolSection.statusModule || {};
-                const sponsorCollaboratorsModule = protocolSection.sponsorCollaboratorsModule || {};
-                
-                return {
-                    nctId: identificationModule.nctId,
-                    title: identificationModule.briefTitle,
-                    phase: designModule.phases?.[0] || 'N/A',
-                    status: statusModule.overallStatus,
-                    enrollment: statusModule.enrollmentInfo?.count || 0,
-                    sponsor: sponsorCollaboratorsModule.leadSponsor?.name || 'Unknown',
-                    primaryOutcome: protocolSection.outcomesModule?.primaryOutcomes?.[0]?.measure || 'Not specified',
-                    url: `https://clinicaltrials.gov/study/${identificationModule.nctId}`,
-                    dataSource: 'ClinicalTrials.gov',
-                    biomarkerData: extractBiomarkerData(study, biomarker)
-                };
-            });
-            
-            res.json({
-                success: true,
-                source: 'ClinicalTrials.gov',
-                count: results.length,
-                data: results
-            });
-            
-        } catch (apiError) {
-            console.error('ClinicalTrials.gov API error:', apiError.message);
-            res.json({
-                success: true,
-                source: 'ClinicalTrials.gov (No data)',
-                count: 0,
-                data: []
-            });
-        }
-        
-    } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'ClinicalTrials.gov search failed'
-        });
-    }
-});
-
-// Search all sources
-app.post('/api/search', async (req, res) => {
-    try {
-        const searchParams = req.body;
-        const results = [];
-        
-        const precedentMatches = searchPrecedentDatabase(searchParams);
-        results.push(...precedentMatches);
-        
-        if (searchParams.dataSource === 'all' || searchParams.dataSource === 'clinicaltrials') {
-            try {
-                const ctResponse = await axios.post(`http://localhost:${PORT}/api/search/clinicaltrials`, {
-                    biomarker: searchParams.biomarkerType,
-                    drug: searchParams.drugName,
-                    condition: searchParams.therapeuticArea
-                });
-                if (ctResponse.data.success) {
-                    results.push(...ctResponse.data.data);
-                }
-            } catch (ctError) {
-                console.error('ClinicalTrials search failed:', ctError.message);
-            }
-        }
-        
-        res.json({
-            success: true,
-            count: results.length,
-            data: results
-        });
-        
-    } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Search failed',
-            details: error.message
-        });
-    }
-});
-
-// Statistical power analysis
-app.post('/api/statistics/power', (req, res) => {
-    try {
-        const { biomarkerPrevalence, effectSizePositive, effectSizeNegative, alpha = 0.05, power = 0.8 } = req.body;
-        
-        const analysis = calculateStatisticalPower(
-            biomarkerPrevalence, 
-            effectSizePositive, 
-            effectSizeNegative, 
-            alpha, 
-            power
-        );
-        
-        res.json({
-            success: true,
-            analysis
-        });
-    } catch (error) {
-        console.error('Statistical analysis error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Statistical analysis failed'
-        });
-    }
-});
-
-// New endpoint for biomarker enrichment report
-app.post('/api/report/biomarker-enrichment', async (req, res) => {
-    try {
-        const { division, biomarkerType } = req.body;
-        
-        const report = await generateBiomarkerEnrichmentReport(division, biomarkerType);
-        
-        res.json({
-            success: true,
-            data: report
-        });
-    } catch (error) {
-        console.error('Report generation error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to generate biomarker enrichment report'
-        });
-    }
-});
-
-// Export report data
-app.post('/api/export', async (req, res) => {
-    try {
-        const { reportType, includeData } = req.body;
-        
-        let reportData = {
-            generatedAt: new Date().toISOString(),
-            reportType: reportType || 'full',
-            disclaimer: 'All data sourced from FDA documents, ClinicalTrials.gov, EMA documents, and peer-reviewed publications'
-        };
-
-        if (includeData.precedents) {
-            reportData.precedentCases = precedentDatabase;
-        }
-        
-        if (includeData.divisions) {
-            reportData.divisionAnalysis = divisionAnalysis;
-        }
-        
-        if (includeData.statistics) {
-            reportData.statisticalComparison = {
-                traditional: {
-                    sampleSize: '2,500-4,000',
-                    timeline: '48-60 months',
-                    cost: '$200-350M',
-                    successRate: '45-60%'
-                },
-                enriched: {
-                    sampleSize: '400-800',
-                    timeline: '24-36 months',
-                    cost: '$80-150M',
-                    successRate: '75-90%'
-                }
-            };
-        }
-
-        res.json({
-            success: true,
-            data: reportData
-        });
-    } catch (error) {
-        console.error('Export error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Export failed'
-        });
-    }
-});
-
-// Utility Functions
-
-function calculateCaseStrength(case_) {
-    let score = 0;
-    
-    if (case_.biomarkerData.enrichmentLevel >= 95) score += 40;
-    else if (case_.biomarkerData.enrichmentLevel >= 80) score += 30;
-    else if (case_.biomarkerData.enrichmentLevel >= 60) score += 20;
-    else score += 10;
-    
-    if (case_.fdaImpact.includes('mandated') || case_.fdaImpact.includes('required')) score += 30;
-    else if (case_.fdaImpact.includes('warning') || case_.fdaImpact.includes('label')) score += 20;
-    else score += 10;
-    
-    if (case_.emaAlignment.includes('identical') || case_.emaAlignment.includes('adopted')) score += 20;
-    else if (case_.emaAlignment.includes('similar')) score += 15;
-    else score += 5;
-    
-    if (case_.publications && case_.publications.length >= 2) score += 10;
-    else if (case_.publications && case_.publications.length >= 1) score += 5;
-    
-    if (score >= 85) return 'Bulletproof';
-    if (score >= 70) return 'Excellent';
-    if (score >= 55) return 'Strong';
-    return 'Moderate';
-}
-
-function searchPrecedentDatabase(params) {
-    return precedentDatabase.filter(case_ => {
-        const matchesBiomarker = !params.biomarkerType || 
-            case_.biomarker.toLowerCase().includes(params.biomarkerType.toLowerCase());
-        
-        const matchesDrug = !params.drugName || 
-            case_.drug.toLowerCase().includes(params.drugName.toLowerCase());
-        
-        const matchesArea = !params.therapeuticArea || 
-            case_.division.toLowerCase().includes(params.therapeuticArea.toLowerCase());
-        
-        const matchesDivision = !params.fdaDivision || 
-            case_.fdaSection.toLowerCase().includes(params.fdaDivision.toLowerCase());
-        
-        return matchesBiomarker && matchesDrug && matchesArea && matchesDivision;
-    }).map(case_ => ({
-        ...case_,
-        strength: calculateCaseStrength(case_)
-    }));
-}
-
-function extractBiomarkerData(study, searchBiomarker) {
-    const protocolSection = study.protocolSection || {};
-    const descriptionModule = protocolSection.descriptionModule || {};
-    const eligibilityModule = protocolSection.eligibilityModule || {};
-    
-    const briefSummary = descriptionModule.briefSummary || '';
-    const detailedDescription = descriptionModule.detailedDescription || '';
-    const eligibilityCriteria = eligibilityModule.eligibilityCriteria || '';
-    
-    const allText = `${briefSummary} ${detailedDescription} ${eligibilityCriteria}`.toLowerCase();
-    
-    const hasBiomarkerEnrichment = allText.includes('biomarker') || 
-                                  allText.includes('mutation') ||
-                                  allText.includes('genetic') ||
-                                  allText.includes('genotype');
-    
-    if (hasBiomarkerEnrichment) {
-        const exclusionMatch = allText.match(/exclud.*biomarker.*positive/i) || 
-                              allText.match(/biomarker.*negative.*only/i);
-        const inclusionMatch = allText.match(/biomarker.*positive.*only/i) ||
-                              allText.match(/mutation.*carrier/i);
-        
-        return {
-            biomarker: searchBiomarker || 'Genetic/biomarker strategy detected',
-            strategy: exclusionMatch ? 'Exclusion of biomarker-positive' : 
-                     inclusionMatch ? 'Inclusion of biomarker-positive only' : 
-                     'Biomarker-guided enrollment',
-            populationSplit: 'See trial protocol for details',
-            evidenceLevel: 'Clinical trial protocol'
-        };
-    }
-    
-    return null;
-}
-
-function calculateStatisticalPower(biomarkerPrevalence, effectSizePositive, effectSizeNegative, alpha, power) {
-    const zAlpha = 1.96; // For alpha = 0.05 (two-tailed)
-    const zBeta = 0.84;  // For power = 0.8
-    
-    const overallEffect = (biomarkerPrevalence * effectSizePositive) + 
-                         ((1 - biomarkerPrevalence) * effectSizeNegative);
-    const traditionalSample = Math.ceil((2 * Math.pow(zAlpha + zBeta, 2)) / Math.pow(overallEffect, 2));
-    
-    const enrichedSample = Math.ceil((2 * Math.pow(zAlpha + zBeta, 2)) / Math.pow(effectSizePositive, 2));
-    
-    const sampleSizeReduction = ((traditionalSample - enrichedSample) / traditionalSample * 100).toFixed(1);
-    const timelineSavings = Math.round((traditionalSample - enrichedSample) / 100 * 2);
-    const costSavings = Math.round((traditionalSample - enrichedSample) * 50000);
-    
-    return {
-        traditional: {
-            sampleSize: traditionalSample,
-            timeline: `${Math.round(traditionalSample / 100 * 3) + 24} months`,
-            cost: `${Math.round(traditionalSample * 75000 / 1000000)}M`,
-            effectSize: overallEffect.toFixed(3)
-        },
-        enriched: {
-            sampleSize: enrichedSample,
-            timeline: `${Math.round(enrichedSample / 100 * 3) + 18} months`,
-            cost: `${Math.round(enrichedSample * 75000 / 1000000)}M`,
-            effectSize: effectSizePositive.toFixed(3)
-        },
-        savings: {
-            sampleSizeReduction: `${sampleSizeReduction}%`,
-            timelineSavings: `${timelineSavings} months`,
-            costSavings: `${Math.round(costSavings / 1000000)}M`
-        }
-    };
-}
-
-async function generateBiomarkerEnrichmentReport(division, biomarkerType) {
-    const report = {
-        generatedAt: new Date().toISOString(),
-        disclaimer: 'Data sourced from FDA documents, EMA documents, ClinicalTrials.gov, and peer-reviewed literature',
-        summary: {
-            objective: 'Analyze FDA Biomarker Enrichment Guidance application across review divisions, focusing on non-oncology genetic biomarkers',
-            focus: 'Precedents with minimal or no biomarker-negative patients vs. divisions requiring higher non-responder inclusion'
-        },
-        precedents: [],
-        divisionComparison: divisionAnalysis,
-        statisticalEvidence: null
-    };
-    
-    // Filter precedents
-    let filteredPrecedents = precedentDatabase.filter(case_ => {
-        const isNonOncology = !case_.division.toLowerCase().includes('oncology');
-        const isGenetic = case_.biomarker.toLowerCase().includes('gene') || 
-                         case_.biomarker.toLowerCase().includes('mutation') ||
-                         case_.biomarker.toLowerCase().includes('hla') ||
-                         case_.biomarker.toLowerCase().includes('cyp');
-        const matchesDivision = !division || case_.division.toLowerCase() === division.toLowerCase();
-        const matchesBiomarker = !biomarkerType || case_.biomarker.toLowerCase().includes(biomarkerType.toLowerCase());
-        return isNonOncology && isGenetic && matchesDivision && matchesBiomarker;
-    }).map(case_ => ({
-        id: case_.id,
-        drug: case_.drug,
-        biomarker: case_.biomarker,
-        division: case_.division,
-        trial: case_.title,
-        enrollment: case_.enrollment,
-        biomarkerData: case_.biomarkerData,
-        results: case_.results,
-        fdaImpact: case_.fdaImpact,
-        emaAlignment: case_.emaAlignment,
-        sources: case_.sources,
-        strength: calculateCaseStrength(case_)
-    }));
-    
-    report.precedents = filteredPrecedents;
-    
-    // Statistical evidence example
-    const samplePowerAnalysis = calculateStatisticalPower(
-        0.1, // 10% biomarker prevalence
-        0.8, // Effect size in biomarker-positive
-        0.2, // Effect size in biomarker-negative
-        0.05,
-        0.8
-    );
-    
-    report.statisticalEvidence = {
-        scenario: 'Biomarker prevalence: 10%, Positive effect size: 0.8, Negative effect size: 0.2',
-        analysis: samplePowerAnalysis,
-        conclusion: 'Including biomarker-negative patients increases sample size by ~5-10x, extends timelines by 12-24 months, and reduces statistical power due to diluted effect sizes.'
-    };
-    
-    // Summary of biomarker-negative inclusion
-    report.summary.biomarkerNegativeInclusion = {
-        minimalInclusion: filteredPrecedents.filter(p => p.biomarkerData.percentNegativeIncluded <= 10).map(p => ({
-            drug: p.drug,
-            biomarker: p.biomarker,
-            division: p.division,
-            percentNegative: p.biomarkerData.percentNegativeIncluded,
-            fdaImpact: p.fdaImpact
-        })),
-        highInclusion: filteredPrecedents.filter(p => p.biomarkerData.percentNegativeIncluded > 10).map(p => ({
-            drug: p.drug,
-            biomarker: p.biomarker,
-            division: p.division,
-            percentNegative: p.biomarkerData.percentNegativeIncluded,
-            fdaImpact: p.fdaImpact
-        })),
-        conclusion: 'Neurology, Pulmonary, and Infectious Diseases divisions frequently approve drugs with 0-10% biomarker-negative patients (e.g., Ivacaftor, Nusinersen, Abacavir), aligning with oncology’s approach. Cardiology and Psychiatry divisions often require 20-93% biomarker-negative patients (e.g., Clopidogrel, Atomoxetine), increasing trial burden without clear efficacy benefits.'
-    };
-    
-    return report;
-}
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Serve the main HTML file
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Error handling middleware
-app.use((error, req, res, next) => {
-    console.error('Server error:', error);
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
-    });
-});
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`FDA Biomarker Analysis Server running on port ${PORT}`);
-    console.log(`Frontend available at: http://localhost:${PORT}`);
-    console.log(`API endpoints available at: http://localhost:${PORT}/api/`);
-    console.log('');
-    console.log('Available endpoints:');
-    console.log('  GET  /api/health              - Health check');
-    console.log('  GET  /api/precedents          - Get precedent cases');
-    console.log('  GET  /api/divisions           - Get division analysis');
-    console.log('  POST /api/search              - Comprehensive search');
-    console.log('  POST /api/search/clinicaltrials - Search ClinicalTrials.gov');
-    console.log('  POST /api/statistics/power    - Statistical power analysis');
-    console.log('  POST /api/report/biomarker-enrichment - Biomarker enrichment report');
-    console.log('  POST /api/export              - Export report data');
-});
-
-module.exports = app;
+// module.exports = app;
