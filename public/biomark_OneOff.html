@@ -5354,7 +5354,7 @@ function renderDivisionAnalysis() {
         const enrichmentLevels = divisions.map(div => {
             // For Psychiatry, show 30 as the ghost bar (pre-2019 data)
             if (div === 'Psychiatry') {
-                return 30;
+                return 10;
             }
             return appState.divisions[div].avgEnrichment;
         });
@@ -5409,7 +5409,7 @@ function renderDivisionAnalysis() {
                                 
                                 if (division === 'Psychiatry') {
                                     return [
-                                        'Historical Enrichment: 30% (Pre-2019)',
+                                        'Historical Enrichment: 10% (Pre-2019)',
                                         'Current Enrichment: 0% (Post-2019)',
                                         'Note: Complete shift to biomarker-negative trials',
                                         'Based on historical analysis vs current practice'
