@@ -60,7 +60,10 @@ const DRUGS_FDA_DOCS_BASE = 'https://www.accessdata.fda.gov/drugsatfda_docs';
 const DAILYMED_API_URL = 'https://dailymed.nlm.nih.gov/dailymed/services/v2';
 const ORANGE_BOOK_API_URL = 'https://api.fda.gov/drug/orangebook.json'; // Live FDA Orange Book API
 const GUIDANCE_API_URL = 'https://api.fda.gov/guidance/guidances.json'; // Live FDA Guidance API
+const emailuser = process.env.smtppassword
+const emailhost = process.env.smtphost
 
+require('dotenv').config();
 // Add this at the beginning of your server.js file, after the initial require statements 
 // but before defining the Express app
 
@@ -1422,16 +1425,29 @@ const calculateTrialEndDate = () => {
   });
 };
 
+
+
 // Function to send welcome email
 const sendWelcomeEmail = async (user) => {
   // Set up email transporter with your credentials
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'syneticslz@gmail.com',
-    pass: 'gble ksdb ntdq hqlx'
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.smtphost,
+//     pass: process.env.smtppassword
+//   }
+// });
+        host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
   }
-});
+      });
+
+        // this.emailTransporter = nodemailer.createTransport({
+
 
   if (!emailTemplate) {
     console.error('Email template not loaded');
@@ -2123,15 +2139,24 @@ app.post('/api/contact', async (req, res) => {
     
     await newLead.save();
     console.log(`Created lead in database with ID: ${newLead._id}`);
-    
+    const emailuser = process.env.smtppassword
+const emailhost = process.env.smtphost
     // Create email transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'syneticslz@gmail.com',
-        pass: 'gble ksdb ntdq hqlx'
-      }
-    });
+    //   service: 'gmail',
+    //   auth: {
+    // user: process.env.smtphost,
+    // pass: process.env.smtppassword
+    //   }
+    // });
+            host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
+  }
+      });
     
     // Prepare HTML email
     const htmlEmail = `
@@ -2380,12 +2405,20 @@ app.post('/api/demo', async (req, res) => {
     console.log(`Received demo booking from ${firstName} ${lastName} at ${email}`);
     // Create email transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.smtphost,
+//     pass: process.env.smtppassword
+//   }
+// });
+        host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
     user: process.env.smtphost,
     pass: process.env.smtppassword
   }
-});
+      });
 
     // Validate required fields
     if (!firstName || !lastName || !email) {
@@ -2930,14 +2963,27 @@ app.post('/api/wl/email-summary', async (req, res) => {
       ? `FDA Regulatory Summary for ${companies.join(', ')}`
       : 'FDA Regulatory Summary';
     
+
+      const emailuser = process.env.smtppassword
+const emailhost = process.env.smtphost
+
     // Create email transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'syneticslz@gmail.com',
-        pass: 'gble ksdb ntdq hqlx'
-      }
-    });
+              host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
+  }
+      });
+    //   service: 'gmail',
+    //   auth: {
+
+    // user: process.env.smtphost,
+    // pass: process.env.smtppassword
+    //   }
+    // });
     
     // Prepare HTML email
     const htmlEmail = `
@@ -3634,16 +3680,26 @@ app.post('/api/email-summary', async (req, res) => {
     const { email, name, subject, content, drugName } = req.body;
     
     console.log(`Sending summary email to ${email} for ${drugName}`);
-    
+    const emailuser = process.env.smtppassword
+    const emailhost = process.env.smtphost
+
     // Create email transporter
     const transporter = nodemailer.createTransport({
       // Your email service configuration
-      service: 'gmail',
-      auth: {
-        user: 'syneticslz@gmail.com',
-        pass: 'gble ksdb ntdq hqlx'
-      }
-    });
+              host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
+  }
+      });
+    //   service: 'gmail',
+    //   auth: {
+    // user: process.env.smtphost,
+    // pass: process.env.smtppassword
+    //   }
+    // });
     
     // Clean up the HTML content to ensure it's email-friendly
     let cleanContent = content;
