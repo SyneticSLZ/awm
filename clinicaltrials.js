@@ -33,7 +33,7 @@ const { User } = require('./db');
 const { Lead } = require('./db');
 const pubmedRoutes = require('./pubmed-routes.js');
 const biomarkerRoutes = require('./bioserver.js');
-
+const dotenv = require('dotenv')
 const { UserSession } = require('./db');
 
 const { router: drugWatchRouter, initializeDrugWatchService } = require('./watch.js');
