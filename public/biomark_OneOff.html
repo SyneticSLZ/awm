@@ -5289,7 +5289,7 @@ function renderDivisionAnalysis() {
         const enrichmentLevels = divisions.map(div => {
             // For Psychiatry, show 30 as the ghost bar (pre-2019 data)
             if (div === 'Psychiatry') {
-                return 10;
+                return 0;
             }
             return appState.divisions[div].avgEnrichment;
         });
