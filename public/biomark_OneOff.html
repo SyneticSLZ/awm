@@ -168,8 +168,8 @@
                     <h2 class="font-semibold text-red-900">CRITICAL GUIDANCE APPLICATION INCONSISTENCY DETECTED</h2>
                     <p class="text-red-800 text-sm mt-1">
                         <span class="font-semibold">Analysis of 68 FDA approvals shows:</span> 
-                        <span class="font-semibold text-green-700">Neurology/Pulmonary/Infectious Disease: 0-10% biomarker-negative enrollment</span> vs 
-                        <span class="font-semibold text-red-700">Psychiatry/Cardiology: 70-95% biomarker-negative required</span>. 
+                        <span class="font-semibold text-green-700">Neurology/Pulmonary/Infectious Disease: 0-10% biomarker-negative enrollment</span> 
+                        
                         Same biomarker guidance, different enforcement creates 5-10x trial burden differences.
                     </p>
                 </div>
@@ -194,7 +194,7 @@
                 <button class="nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="divisions">
                     Division Analysis
                 </button>
-                  <button class="nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="Psychiatry">
+                  <button class="hidden nav-btn flex-shrink-0 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-colors" data-section="Psychiatry">
                     Psychiatry
                 </button>
                 
@@ -222,7 +222,7 @@
                     <i data-lucide="brain" class="w-5 h-5"></i>
                     <h3 class="font-bold">AI INSIGHT: Business Problem Analysis</h3>
                 </div>
-                <p class="text-sm">FDA review divisions are applying identical biomarker enrichment guidance inconsistently, creating 5-10x trial burden differences. Efficient divisions (Neurology, Pulmonary) approve drugs with 0-10% biomarker-negative patients, while inefficient divisions (Psychiatry, Cardiology) require 70-95% biomarker-negative enrollment. This creates $50-150M additional costs and 18-24 month delays without improving drug safety or efficacy.</p>
+                <p class="text-sm">FDA review divisions are applying identical biomarker enrichment guidance inconsistently, creating 5-10x trial burden differences. Efficient divisions (Neurology, Pulmonary) approve drugs with 0-10% biomarker-negative patients, while inefficient divisions (Cardiology) require 70-95% biomarker-negative enrollment. This creates $50-150M additional costs and 18-24 month delays without improving drug safety or efficacy.</p>
             </div>
 
             <!-- Key Problem Statement -->
@@ -290,10 +290,7 @@
                         <h3 class="font-bold text-lg">MODERATE DIVISIONS</h3>
                         <p class="text-sm mb-3">10-50% biomarker-negative</p>
                         <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span>Psychiatry</span>
-                                <span class="font-bold">5 approvals</span>
-                            </div>
+                            
                             <div class="flex justify-between">
                                 <span>Cardiology</span>
                                 <span class="font-bold">5 approvals</span>
@@ -314,7 +311,7 @@
                         <div class="text-xs space-y-1">
                             <div>• Neurology: Excludes ALL at-risk patients (HLA screening)</div>
                             <div>• Pulmonary: 100% mutation-specific enrollment</div>
-                            <div>• Psychiatry: Requires majority non-responders</div>
+                           
                             <div>• No scientific rationale for differences</div>
                         </div>
                     </div>
@@ -614,7 +611,7 @@
             </div>
 
             <!-- Inefficient Division - Psychiatry -->
-            <div class="cost-card gradient-red rounded-2xl p-8 border border-red-200 pulse-glow">
+            <div class="hidden cost-card gradient-red rounded-2xl p-8 border border-red-200 pulse-glow">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
@@ -695,7 +692,7 @@
         </div>
 
         <!-- Cost Comparison Chart -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/20">
+        <div class="hidden bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/20">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
                 Cost Comparison Overview
@@ -5393,58 +5390,39 @@ function renderDivisionAnalysis() {
                         <h3 class="font-bold text-gray-900 text-lg">${division}</h3>
                         <div class="text-right">
                             <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                ${data.precedentStrength} Precedent
+                                0 Trials 
                             </span>
                         </div>
                     </div>
                     
-                    <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded">
-                        <div class="text-sm font-medium text-amber-800 mb-2">
-                            ⚠️ Temporal Shift in Approach
-                        </div>
-                        <div class="text-xs text-amber-700">
-                            <strong>Pre-2019:</strong> ~30% biomarker enrichment (mixed approaches)<br>
-                            <strong>Post-2019:</strong> 0% biomarker enrichment (explicit biomarker-negative trials)
-                        </div>
-                    </div>
+                    
                     
                     <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Current Approach</span>
-                            <span class="font-medium">${data.approach}</span>
+                            <span class="font-medium">N/A</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Biomarker-Neg Req</span>
-                            <span class="font-medium">${data.biomarkerNegativeReq}</span>
+                            <span class="font-medium">N/A</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Current Enrichment</span>
-                            <span class="font-medium">${data.avgEnrichment}%</span>
+                            <span class="font-medium">N/A</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Approval Speed</span>
-                            <span class="font-medium">${data.approvalSpeed}</span>
+                            <span class="font-medium">N/A</span>
                         </div>
                     </div>
                     
                     <div class="mb-4">
                         <div class="text-sm font-medium text-gray-700 mb-2">Strategy & Rationale</div>
-                        <div class="text-sm text-gray-600 bg-gray-50 rounded p-2 mb-2">${data.keyStrategy}</div>
+                        <div class="text-sm text-gray-600 bg-gray-50 rounded p-2 mb-2">No post 2019 trials found </div>
                         <div class="text-xs text-gray-500">${data.rationale}</div>
                     </div>
                     
-                    <div class="mb-4">
-                        <div class="text-sm font-medium text-gray-700 mb-2">Key Examples (Post-2019)</div>
-                        <div class="space-y-1">
-                            ${data.examples.map(ex => `
-                                <div class="text-xs bg-white rounded p-2 border">
-                                    <div class="font-medium">${ex.drug}:</div>
-                                    <div class="text-gray-600">${ex.strategy}</div>
-                                    <div class="text-green-600 mt-1">→ ${ex.outcome}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+        
                     
                     <div class="text-xs text-gray-500 border-t pt-2">
                         <strong>Data Source:</strong> ${data.dataSource}
