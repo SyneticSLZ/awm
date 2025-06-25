@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AOC-1044 (Delpacibart Zotadirsen) - Comprehensive Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @media print {
+            body { font-size: 12pt; }
+            .no-print { display: none; }
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            position: relative;
+        }
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: #e5e7eb;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 20px;
+        }
+        .timeline-item:last-child .timeline-dot::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">AOC-1044 (Delpacibart Zotadirsen)</h1>
+                    <p class="text-xl opacity-90">Comprehensive Clinical & Regulatory Analysis</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm opacity-75">Prepared for</p>
+                    <p class="text-lg font-semibold">Avidity Biosciences</p>
+                    <p class="text-sm opacity-75">June 2025</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-8 overflow-x-auto">
+                <a href="#executive-summary" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Executive Summary</a>
+                <a href="#drug-overview" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Drug Overview</a>
+                <a href="#dmd-background" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">DMD Background</a>
+                <a href="#clinical-data" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Clinical Data</a>
+                <a href="#regulatory-status" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Regulatory Status</a>
+                <a href="#market-analysis" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Market Analysis</a>
+                <a href="#timeline" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">Timeline</a>
+                <a href="#references" class="py-4 px-2 border-b-2 border-transparent hover:border-blue-600 transition-colors">References</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Executive Summary -->
+        <section id="executive-summary" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Executive Summary
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-3">Key Highlights</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong>25% increase</strong> in dystrophin production (32% average expression)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong>37% exon 44 skipping</strong> (up to 66% in some patients)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong>>80% reduction</strong> in creatine kinase levels</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong>BLA submission</strong> planned for end of 2025</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-900 mb-3">Regulatory Achievements</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Orphan Drug Designation</strong> (August 2023)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Fast Track Designation</strong> (April 2023)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Rare Pediatric Disease</strong> (February 2024)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>EMA <strong>Orphan Drug Designation</strong></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg">
+                    <h3 class="text-lg font-semibold text-amber-900 mb-2">Critical Milestone</h3>
+                    <p class="text-gray-700">
+                        <strong>Biologics License Application (BLA)</strong> submission to FDA planned for <strong>end of 2025</strong>, 
+                        with FDA confirming accelerated approval pathway based on dystrophin as surrogate endpoint. This positions 
+                        AOC-1044 as potentially the <strong>first approved therapy for exon 44 skipping</strong> in DMD.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Drug Overview -->
+        <section id="drug-overview" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                    Drug Overview
+                </h2>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="border rounded-lg p-6">
+                        <h3 class="font-semibold text-gray-700 mb-2">Drug Name</h3>
+                        <p class="text-2xl font-bold text-indigo-600">AOC-1044</p>
+                        <p class="text-sm text-gray-600 mt-1">Delpacibart Zotadirsen (del-zota)</p>
+                    </div>
+                    <div class="border rounded-lg p-6">
+                        <h3 class="font-semibold text-gray-700 mb-2">Developer</h3>
+                        <p class="text-2xl font-bold text-indigo-600">Avidity Biosciences</p>
+                        <p class="text-sm text-gray-600 mt-1">San Diego, CA</p>
+                    </div>
+                    <div class="border rounded-lg p-6">
+                        <h3 class="font-semibold text-gray-700 mb-2">Target Indication</h3>
+                        <p class="text-2xl font-bold text-indigo-600">DMD44</p>
+                        <p class="text-sm text-gray-600 mt-1">Exon 44 skipping mutations</p>
+                    </div>
+                </div>
+
+<div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Mechanism of Action</h3>
+                    <div class="grid md:grid-cols-3 gap-6 mb-6">
+                        <!-- Step 1: Targeting -->
+                        <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">1. Muscle Targeting</h4>
+                            <p class="text-sm text-gray-600">Monoclonal antibody binds to transferrin receptor 1 (TfR1) on muscle cells for specific delivery</p>
+                        </div>
+
+                        <!-- Step 2: Internalization -->
+                        <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">2. Cellular Uptake</h4>
+                            <p class="text-sm text-gray-600">AOC-1044 is internalized into muscle cells via receptor-mediated endocytosis</p>
+                        </div>
+
+                        <!-- Step 3: Action -->
+                        <div class="bg-white rounded-lg p-6 shadow-md text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">3. Exon Skipping</h4>
+                            <p class="text-sm text-gray-600">PMO component binds to pre-mRNA, causing exon 44 to be skipped during splicing</p>
+                        </div>
+                    </div>
+
+                    <!-- Flow diagram with arrows -->
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-center">
+                                <div class="w-20 h-12 bg-red-100 rounded flex items-center justify-center">
+                                    <span class="text-xs font-semibold text-red-800">Dystrophin Gene</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">with Exon 44 mutation</p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <div class="text-center">
+                                <div class="w-20 h-12 bg-blue-100 rounded flex items-center justify-center">
+                                    <span class="text-xs font-semibold text-blue-800">AOC-1044</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">PMO + Antibody</p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <div class="text-center">
+                                <div class="w-20 h-12 bg-green-100 rounded flex items-center justify-center">
+                                    <span class="text-xs font-semibold text-green-800">Functional Dystrophin</span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Restored protein</p>
+                            </div>
+                        </div>
+                    </div>
+                            <section class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="space-y-4 text-gray-700">
+                    <p class="leading-relaxed">
+                        AOC-1044 utilizes Avidity's proprietary <strong>Antibody Oligonucleotide Conjugate (AOC)</strong> platform, combining:
+                    </p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li><strong>Monoclonal antibody</strong> targeting transferrin receptor 1 (TfR1) for muscle-specific delivery</li>
+                        <li><strong>Phosphorodiamidate morpholino oligomer (PMO)</strong> designed to skip exon 44</li>
+                        <li><strong>Proprietary linker</strong> optimizing drug delivery and stability</li>
+                    </ul>
+                    <p class="leading-relaxed">
+                        This innovative approach achieves <strong>50-fold greater PMO concentrations</strong> in skeletal muscle compared to 
+                        unconjugated PMOs, enabling effective exon skipping and dystrophin restoration.
+                    </p>
+                </div>
+
+                <!-- AOC Platform Components Table -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">AOC Platform Components</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Component</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Characteristics</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Engineering Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Monoclonal Antibody</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Well-established safety profiles, high specificity, long half-lives</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Effector function null, optimized epitope selection</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Linker</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Known linker, applicable to multiple oligo modalities</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Enhanced durability, optimized oligo-to-antibody ratio</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">PMO</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Attractive safety, potency in nanomolar range</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Engineered for efficient muscle delivery, increased drug-to-antibody ratio</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DMD Background -->
+        <section id="dmd-background" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    Duchenne Muscular Dystrophy Background
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Disease Overview</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Duchenne muscular dystrophy (DMD) is a severe, progressive neuromuscular disorder caused by mutations 
+                            in the dystrophin gene. It is characterized by:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700">
+                            <li>Progressive muscle weakness and degeneration</li>
+                            <li>Loss of ambulation typically by age 12</li>
+                            <li>Respiratory and cardiac complications</li>
+                            <li>Life expectancy typically in the 20s-30s</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Epidemiology</h3>
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">Global Prevalence:</span>
+                                    <span class="font-bold text-purple-600">7.1 per 100,000 males</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">Birth Prevalence:</span>
+                                    <span class="font-bold text-purple-600">19.8 per 100,000 live male births</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">General Population:</span>
+                                    <span class="font-bold text-purple-600">2.8 per 100,000</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">US/Europe Prevalence:</span>
+                                    <span class="font-bold text-purple-600">~6 per 100,000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exon 44 Skipping Target Population -->
+                <div class="bg-indigo-50 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-indigo-900 mb-4">Exon 44 Skipping Target Population</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-3xl font-bold text-indigo-600">~7%</p>
+                            <p class="text-sm text-gray-600 mt-2">of DMD patients amenable to exon 44 skipping</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-3xl font-bold text-indigo-600">~900</p>
+                            <p class="text-sm text-gray-600 mt-2">patients in the United States</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-3xl font-bold text-indigo-600">~10,000</p>
+                            <p class="text-sm text-gray-600 mt-2">patients globally</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clinical Data -->
+        <section id="clinical-data" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Clinical Trial Data
+                </h2>
+
+                <!-- EXPLORE44 Trial Overview -->
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-green-900 mb-4">EXPLORE44™ Phase 1/2 Trial</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Trial Design</h4>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• Randomized, placebo-controlled, double-blind</li>
+                                <li>• 40 healthy volunteers + 24 DMD44 patients</li>
+                                <li>• Ages 7-27 years (ambulatory and non-ambulatory)</li>
+                                <li>• 5 mg/kg or 10 mg/kg doses every 6-8 weeks</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Key Endpoints</h4>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• Dystrophin production levels</li>
+                                <li>• Exon 44 skipping efficiency</li>
+                                <li>• Creatine kinase reduction</li>
+                                <li>• Safety and tolerability</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinical Results Charts -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white border rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Dystrophin Production</h4>
+                        <canvas id="dystrophinChart"></canvas>
+                    </div>
+                    <div class="bg-white border rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Creatine Kinase Reduction</h4>
+                        <canvas id="ckChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Key Results Summary -->
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-blue-900 mb-4">Key Clinical Results (5 mg/kg cohort)</h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-2xl font-bold text-blue-600">25%</p>
+                            <p class="text-sm text-gray-600 mt-1">Increase in dystrophin</p>
+                            <p class="text-xs text-gray-500 mt-1">(32% average expression)</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-2xl font-bold text-blue-600">37%</p>
+                            <p class="text-sm text-gray-600 mt-1">Exon 44 skipping</p>
+                            <p class="text-xs text-gray-500 mt-1">(up to 66% in some)</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-2xl font-bold text-blue-600">>80%</p>
+                            <p class="text-sm text-gray-600 mt-1">CK reduction</p>
+                            <p class="text-xs text-gray-500 mt-1">(near normal levels)</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center">
+                            <p class="text-2xl font-bold text-blue-600">200 nM</p>
+                            <p class="text-sm text-gray-600 mt-1">PMO concentration</p>
+                            <p class="text-xs text-gray-500 mt-1">(in muscle tissue)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXPLORE44-OLE -->
+                <div class="mt-8 border-t pt-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">EXPLORE44-OLE™ Open-Label Extension</h3>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Enrollment completed February 2025 with 39 participants</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>2-year treatment duration with 3-month follow-up</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>5 mg/kg every 6 weeks selected as optimal dose for BLA</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Supporting data for BLA submission end of 2025</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Regulatory Status -->
+        <section id="regulatory-status" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Regulatory Status
+                </h2>
+
+                <!-- FDA Designations Timeline -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">FDA Regulatory Milestones</h3>
+                    <div class="relative">
+                        <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                        <div class="space-y-8">
+                            <div class="relative flex items-start">
+                                <div class="absolute left-0 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-24">
+                                    <h4 class="text-lg font-semibold text-gray-900">Fast Track Designation</h4>
+                                    <p class="text-gray-600">April 27, 2023</p>
+                                    <p class="text-sm text-gray-500 mt-1">Expedites development and review for serious conditions</p>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex items-start">
+                                <div class="absolute left-0 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-24">
+                                    <h4 class="text-lg font-semibold text-gray-900">Orphan Drug Designation</h4>
+                                    <p class="text-gray-600">August 16, 2023</p>
+                                    <p class="text-sm text-gray-500 mt-1">7-year market exclusivity, tax credits, fee waivers</p>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex items-start">
+                                <div class="absolute left-0 w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-24">
+                                    <h4 class="text-lg font-semibold text-gray-900">Rare Pediatric Disease Designation</h4>
+                                    <p class="text-gray-600">February 20, 2024</p>
+                                    <p class="text-sm text-gray-500 mt-1">Priority review voucher eligibility upon approval</p>
+                                </div>
+                            </div>
+                            
+                            <div class="relative flex items-start">
+                                <div class="absolute left-0 w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-24">
+                                    <h4 class="text-lg font-semibold text-gray-900">BLA Submission Planned</h4>
+                                    <p class="text-gray-600">End of 2025</p>
+                                    <p class="text-sm text-gray-500 mt-1">FDA confirmed accelerated approval pathway available</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Global Regulatory Status -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Global Regulatory Status</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">European Union (EMA)</h4>
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                <li>• Orphan Drug Designation granted</li>
+                                <li>• 10-year market exclusivity upon approval</li>
+                                <li>• Protocol assistance and fee reductions</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Other Regions</h4>
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                <li>• Canada: Active trial sites, Health Canada oversight</li>
+                                <li>• Japan: Potential future expansion post-BLA</li>
+                                <li>• UK/Australia: Monitoring for future submissions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Analysis -->
+        <section id="market-analysis" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Market Analysis
+                </h2>
+
+                <!-- Market Opportunity -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Market Opportunity</h3>
+                        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-lg">
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="text-emerald-600 mr-2">•</span>
+                                    <span><strong>First-in-class</strong> therapy for exon 44 skipping</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-emerald-600 mr-2">•</span>
+                                    <span><strong>No direct competition</strong> in exon 44 segment</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-emerald-600 mr-2">•</span>
+                                    <span><strong>Premium pricing</strong> expected ($300K-$750K annually)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-emerald-600 mr-2">•</span>
+                                    <span><strong>Orphan exclusivity</strong> protections in US and EU</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Competitive Landscape</h3>
+                        <div class="bg-white border rounded-lg p-4">
+                            <canvas id="competitiveLandscapeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+ <!-- Regional Market Breakdown -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Regional Market Breakdown</h3>
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <h4 class="font-semibold text-blue-900">United States</h4>
+                            <p class="text-2xl font-bold text-blue-600 mt-2">~900</p>
+                            <p class="text-sm text-gray-600">patients</p>
+                            <p class="text-xs text-gray-500 mt-2">Largest single market</p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <h4 class="font-semibold text-green-900">Europe</h4>
+                            <p class="text-2xl font-bold text-green-600 mt-2">~1,200</p>
+                            <p class="text-sm text-gray-600">patients</p>
+                            <p class="text-xs text-gray-500 mt-2">EMA orphan designation</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4 text-center">
+                            <h4 class="font-semibold text-purple-900">Japan</h4>
+                            <p class="text-2xl font-bold text-purple-600 mt-2">~600</p>
+                            <p class="text-sm text-gray-600">patients</p>
+                            <p class="text-xs text-gray-500 mt-2">Future expansion</p>
+                        </div>
+                        <div class="bg-amber-50 rounded-lg p-4 text-center">
+                            <h4 class="font-semibold text-amber-900">Rest of World</h4>
+                            <p class="text-2xl font-bold text-amber-600 mt-2">~7,300</p>
+                            <p class="text-sm text-gray-600">patients</p>
+                            <p class="text-xs text-gray-500 mt-2">Long-term opportunity</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Access Considerations -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Market Access Considerations</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Facilitating Factors</h4>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Strong clinical efficacy data</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>No alternative treatments for exon 44</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Established DMD treatment infrastructure</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Strong patient advocacy support</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Potential Challenges</h4>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-amber-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>High treatment costs</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-amber-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Small patient population</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-amber-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Genetic testing requirements</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <svg class="w-4 h-4 text-amber-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Reimbursement negotiations</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Timeline -->
+        <section id="timeline" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Development Timeline
+                </h2>
+
+                <div class="relative">
+                    <canvas id="timelineChart" height="300"></canvas>
+                </div>
+
+                <!-- Key Upcoming Milestones -->
+                <div class="mt-8 bg-indigo-50 rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-indigo-900 mb-4">Key Upcoming Milestones</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between bg-white rounded-lg p-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">BLA Submission</h4>
+                                <p class="text-sm text-gray-600">Biologics License Application to FDA</p>
+                            </div>
+                            <span class="text-lg font-bold text-indigo-600">End 2025</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-white rounded-lg p-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Potential FDA Approval</h4>
+                                <p class="text-sm text-gray-600">Based on accelerated approval pathway</p>
+                            </div>
+                            <span class="text-lg font-bold text-indigo-600">2026</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-white rounded-lg p-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Commercial Launch</h4>
+                                <p class="text-sm text-gray-600">First patients treated commercially</p>
+                            </div>
+                            <span class="text-lg font-bold text-indigo-600">2026</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-lg shadow-lg p-8 text-white">
+                <h2 class="text-3xl font-bold mb-6">Key Investment Highlights</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Clinical Excellence</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Best-in-class efficacy data for exon skipping</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Favorable safety profile demonstrated</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Novel AOC platform with proven delivery</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3">Commercial Opportunity</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>First-to-market for exon 44 skipping</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Clear regulatory pathway to approval</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Strong IP protection and market exclusivity</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- References -->
+        <section id="references" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    Data Sources & References
+                </h2>
+
+                <div class="space-y-6">
+                    <!-- Clinical Trial Data -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Clinical Trial Data</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• ClinicalTrials.gov: NCT05670730 (EXPLORE44), NCT06244082 (EXPLORE44-OLE)</li>
+                            <li>• Avidity Biosciences Press Release, August 9, 2024: Positive AOC 1044 Data</li>
+                            <li>• Avidity Biosciences Press Release, March 2025: Topline del-zota data</li>
+                            <li>• NeurologyLive, August 13, 2024: New Phase 1/2 EXPLORE44 Trial Data</li>
+                        </ul>
+                    </div>
+
+                    <!-- Regulatory Information -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Regulatory Information</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• FDA Orphan Drug Designation: August 16, 2023</li>
+                            <li>• FDA Fast Track Designation: April 27, 2023</li>
+                            <li>• FDA Rare Pediatric Disease Designation: February 20, 2024</li>
+                            <li>• Parent Project Muscular Dystrophy, January 9, 2025: BLA Announcement</li>
+                        </ul>
+                    </div>
+
+                    <!-- Scientific Publications -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Scientific Publications</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• PubMed PMID: 40183632 - AOC 1044 induces exon 44 skipping in preclinical models</li>
+                            <li>• Orphanet Journal of Rare Diseases: Global epidemiology of DMD meta-analysis</li>
+                            <li>• Molecular Therapy Nucleic Acids: NS-089/NCNP-02 exon 44 skipping</li>
+                        </ul>
+                    </div>
+
+                    <!-- Market Data -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Market & Epidemiology Data</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• Global DMD prevalence: 7.1 per 100,000 males</li>
+                            <li>• DMD birth prevalence: 19.8 per 100,000 live male births</li>
+                            <li>• Exon 44 skipping applicable: ~7% of DMD patients</li>
+                            <li>• CDC Muscular Dystrophy Surveillance data</li>
+                        </ul>
+                    </div>
+
+                    <!-- Company Resources -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Company Resources</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• Avidity Biosciences: www.aviditybiosciences.com</li>
+                            <li>• EXPLORE44 Study Website</li>
+                            <li>• World Muscle Society Conference Presentations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 text-center">
+                        <strong>Disclaimer:</strong> This report is for informational purposes only and does not constitute investment advice. 
+                        All data sourced from publicly available information as of June 2025.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript for Charts -->
+    <script>
+        // Dystrophin Production Chart
+        const dystrophinCtx = document.getElementById('dystrophinChart');
+        if (dystrophinCtx) {
+            new Chart(dystrophinCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Baseline', 'After Treatment'],
+                    datasets: [{
+                        label: 'Dystrophin Expression (%)',
+                        data: [7, 32],
+                        backgroundColor: ['#e5e7eb', '#3b82f6'],
+                        borderColor: ['#9ca3af', '#2563eb'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 40,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '25% Increase in Dystrophin Production'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Creatine Kinase Chart
+        const ckCtx = document.getElementById('ckChart');
+        if (ckCtx) {
+            new Chart(ckCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Baseline', 'Week 6', 'Week 12', 'Week 18'],
+                    datasets: [{
+                        label: 'Creatine Kinase Levels',
+                        data: [100, 60, 30, 18],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 120,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '>80% Reduction to Near Normal Levels'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Competitive Landscape Chart
+        const competitiveCtx = document.getElementById('competitiveLandscapeChart');
+        if (competitiveCtx) {
+            new Chart(competitiveCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['AOC-1044 (Exon 44)', 'Eteplirsen (Exon 51)', 'Golodirsen (Exon 53)', 'Viltolarsen (Exon 53)', 'Casimersen (Exon 45)', 'Other/Untreated'],
+                    datasets: [{
+                        data: [7, 14, 8, 8, 8, 55],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#ef4444',
+                            '#f59e0b',
+                            '#10b981',
+                            '#8b5cf6',
+                            '#e5e7eb'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'DMD Market by Exon Skipping Target (%)'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Timeline Chart
+        const timelineCtx = document.getElementById('timelineChart');
+        if (timelineCtx) {
+            new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2023 Q2', '2023 Q3', '2024 Q1', '2024 Q3', '2025 Q1', '2025 Q4', '2026'],
+                    datasets: [{
+                        label: 'Key Milestones',
+                        data: [
+                            {x: '2023 Q2', y: 1, label: 'Fast Track'},
+                            {x: '2023 Q3', y: 2, label: 'Orphan Drug'},
+                            {x: '2024 Q1', y: 3, label: 'Rare Pediatric'},
+                            {x: '2024 Q3', y: 4, label: 'Phase 1/2 Data'},
+                            {x: '2025 Q1', y: 5, label: 'OLE Enrollment'},
+                            {x: '2025 Q4', y: 6, label: 'BLA Submission'},
+                            {x: '2026', y: 7, label: 'Approval Target'}
+                        ],
+                        borderColor: '#6366f1',
+                        backgroundColor: '#6366f1',
+                        pointRadius: 8,
+                        pointHoverRadius: 10,
+                        showLine: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            display: false
+                        }
+                    },
+                     plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw.label;
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'AOC-1044 Development Timeline'
+            },
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+}
+
+// Add smooth scrolling for navigation links
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+
+// Print functionality
+function printReport() {
+    window.print();
+}
+
+// Add animation to key metrics when they come into view
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Observe all metric cards
+document.querySelectorAll('.metric-card').forEach(card => {
+    observer.observe(card);
+});
+    </script>
+
+    <style>
+        /* Additional CSS for animations and print styles */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @media print {
+            body {
+                font-size: 11pt;
+                line-height: 1.5;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-break-after {
+                page-break-after: always;
+            }
+            
+            .page-break-before {
+                page-break-before: always;
+            }
+            
+            /* Ensure charts print properly */
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            /* Adjust margins for print */
+            section {
+                margin-bottom: 30px;
+            }
+            
+            /* Ensure backgrounds print */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        /* Hover effects for interactive elements */
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Loading animation for charts */
+        .chart-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+
+        .chart-loading::after {
+            content: "";
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Complete HTML Structure Summary -->
+    <div style="display: none;">
+        <!-- This hidden section provides a summary of the complete document structure -->
+        <h1>Complete AOC-1044 Report Structure</h1>
+        <ol>
+            <li>Header with company branding</li>
+            <li>Navigation menu (sticky)</li>
+            <li>Executive Summary
+                <ul>
+                    <li>Key Highlights</li>
+                    <li>Regulatory Achievements</li>
+                    <li>Critical Milestone (BLA)</li>
+                </ul>
+            </li>
+            <li>Drug Overview
+                <ul>
+                    <li>Basic Information</li>
+                    <li>Mechanism of Action</li>
+                    <li>AOC Platform Components</li>
+                </ul>
+            </li>
+            <li>DMD Background
+                <ul>
+                    <li>Disease Overview</li>
+                    <li>Epidemiology</li>
+                    <li>Target Population</li>
+                </ul>
+            </li>
+            <li>Clinical Data
+                <ul>
+                    <li>EXPLORE44 Trial</li>
+                    <li>Results Charts</li>
+                    <li>Key Results Summary</li>
+                    <li>EXPLORE44-OLE</li>
+                </ul>
+            </li>
+            <li>Regulatory Status
+                <ul>
+                    <li>FDA Milestones Timeline</li>
+                    <li>Global Regulatory Status</li>
+                </ul>
+            </li>
+            <li>Market Analysis
+                <ul>
+                    <li>Market Opportunity</li>
+                    <li>Competitive Landscape</li>
+                    <li>Regional Breakdown</li>
+                    <li>Market Access</li>
+                </ul>
+            </li>
+            <li>Development Timeline</li>
+            <li>Key Investment Highlights</li>
+            <li>References and Data Sources</li>
+        </ol>
+    </div>
+
+    <!-- Data Summary for Quick Reference -->
+    <div id="data-summary" style="display: none;">
+        <h2>Quick Data Reference</h2>
+        <ul>
+            <li>Drug: AOC-1044 (Delpacibart Zotadirsen)</li>
+            <li>Developer: Avidity Biosciences</li>
+            <li>Indication: DMD with exon 44 skipping mutations</li>
+            <li>Target Population: ~7% of DMD patients (~900 US, ~10,000 global)</li>
+            <li>Key Results: 25% dystrophin increase, 37% exon skipping, >80% CK reduction</li>
+            <li>Regulatory: FDA Orphan, Fast Track, Rare Pediatric; EMA Orphan</li>
+            <li>Timeline: BLA submission end 2025, potential approval 2026</li>
+            <li>Clinical Trials: NCT05670730 (EXPLORE44), NCT06244082 (EXPLORE44-OLE)</li>
+        </ul>
+    </div>
+</body>
+</html>
