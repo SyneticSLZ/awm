@@ -6,6 +6,11 @@
     <title>AOC-1044 (Delpacibart Zotadirsen) - Comprehensive Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- Fallback for browsers that don't support SVG favicons -->
+<link rel="alternate icon" href="favicon.ico">
+<!-- Apple Touch Icon for iOS devices -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
     <style>
         @media print {
             body { font-size: 12pt; }
@@ -174,7 +179,7 @@
                     
                     <!-- Subtitle -->
                     <p class="text-lg text-slate-200 mb-3">
-                        Enhanced Comprehensive Clinical & Regulatory Analysis
+                         Comprehensive Clinical & Regulatory Analysis
                     </p>
                     
                     <!-- Data validation info -->
@@ -215,12 +220,6 @@
     <nav class="sticky top-0 z-50 no-print backdrop-blur-xl bg-white/80 border-b border-gray-200/50 shadow-lg shadow-gray-900/5">
         <div class="container mx-auto px-6">
             <div class="flex space-x-2 overflow-x-auto scrollbar-hide">
-                <a href="#executive-summary" class="group relative py-4 px-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition-all duration-300 whitespace-nowrap">
-                    <span class="relative z-10">Executive Summary</span>
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-300"></div>
-                    <div class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
-                </a>
-                
                 <a href="#drug-overview" class="group relative py-4 px-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition-all duration-300 whitespace-nowrap">
                     <span class="relative z-10">Drug Overview</span>
                     <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-300"></div>
@@ -259,7 +258,11 @@
                     <div class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
                 </a>
                 
-
+                <a href="#executive-summary" class="group relative py-4 px-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition-all duration-300 whitespace-nowrap">
+                    <span class="relative z-10">Executive Summary</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-300"></div>
+                    <div class="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
+                </a>
                 
                 <a href="#references" class="group relative py-4 px-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition-all duration-300 whitespace-nowrap">
                     <span class="relative z-10">References</span>
@@ -273,372 +276,7 @@
 
     <!-- Main Content -->
     <main class="container mx-auto px-6 py-8">
-        <!-- Executive Summary -->
-        <section id="executive-summary" class="mb-12">
-            <div class="bg-white rounded-lg shadow-lg p-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Executive Summary
-                </h2>
-                
-                <!-- <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold text-blue-900 mb-3">Validated Clinical Highlights</h3>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span><strong class="metric-highlight">25% dystrophin increase</strong> (32% average expression, peaks to 58% of normal) <a href="https://investors.aviditybiosciences.com/news-releases/news-release-details/avidity-biosciences-announces-positive-topline-data-aoc-1044" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span><strong class="metric-highlight">~40% exon 44 skipping</strong> (updated from March 2025 data, up to 66% in individual patients) <a href="https://www.parentprojectmd.org/aoc-1044-delpacibart-zotadirsen/" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span><strong class="metric-highlight">>80% CK reduction</strong> to near-normal levels <a href="https://www.neurologylive.com/view/avidity-biosciences-reports-positive-phase-1-2-data-aoc-1044-duchenne-muscular-dystrophy" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span><strong class="metric-highlight">50× muscle PMO concentration</strong> vs unconjugated oligonucleotides <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-data-from-part-a-of-explore44-phase-12-trial-of-aoc-1044-302022741.html" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold text-green-900 mb-3">Validated Regulatory Achievements</h3>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>FDA <strong>Fast Track</strong> (April 24, 2023) <a href="https://www.drug-dev.com/avidity-biosciences-receives-fda-fast-track-designation-for-aoc-1044/" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>FDA <strong>Orphan Drug</strong> (August 15, 2023) <a href="https://www.nasdaq.com/articles/avidity-biosciences-receives-fda-orphan-drug-designation-for-aoc-1044" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>FDA <strong>Rare Pediatric Disease</strong> (February 20, 2024) <a href="https://www.neurologylive.com/view/avidity-biosciences-aoc-1044-rare-pediatric-disease-designation" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>EMA <strong>Orphan Designation</strong> (April 16, 2025, EU/3/25/3047) <a href="https://www.ema.europa.eu/en/medicines/human/orphan-designations/eu-3-25-3047" class="source-link" target="_blank">Source</a></span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
-                <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg mb-6">
-                    <h3 class="text-lg font-semibold text-amber-900 mb-2">Critical BLA Milestone</h3>
-                    <p class="text-gray-700">
-                        <strong>Biologics License Application (BLA)</strong> submission to FDA confirmed for <strong>end of 2025</strong>, 
-                        with FDA confirming accelerated approval pathway available on <strong>January 8, 2025</strong>. This positions 
-                        AOC-1044 as potentially the <strong>first approved therapy for exon 44 skipping</strong> in DMD, addressing ~900 US patients with no current treatment options.
-                        <a href="https://www.parentprojectmd.org/avidity-biosciences-announces-plan-to-file-bla-for-aoc-1044/" class="source-link ml-2" target="_blank">Source</a>
-                    </p>
-                </div> -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
-                <h3 class="text-lg font-semibold text-blue-900 mb-4">Validated Clinical Highlights</h3>
-                <div class="space-y-4">
-                    <!-- Dystrophin Increase -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span><strong class="metric-highlight">25% dystrophin increase</strong> (32% average, peaks to 58%)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Dystrophin is the missing protein in DMD patients. Normal levels are 100%. This treatment achieved:<br>
-                                    • 25% increase from baseline (statistically significant)<br>
-                                    • Average 32% of normal dystrophin levels<br>
-                                    • Some patients reached 58% of normal levels<br>
-                                    • Measured after 3 doses of either 5mg/kg or 10mg/kg<br><br>
-                                    <strong>Why it matters:</strong> Higher dystrophin = stronger muscles and slower disease progression
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-del-zota-data-demonstrating-consistent-statistically-significant-improvements-in-dystrophin-exon-skipping-and-creatine-kinase-in-people-living-with-duchenne-muscular-dystrophy-amena-302402470.html" class="source-link" target="_blank">Avidity Press Release (March 17, 2025)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Exon Skipping -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span><strong class="metric-highlight">~40% exon 44 skipping</strong> (up to 66% in individuals)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Exon skipping is the mechanism that allows dystrophin production. The drug causes cells to "skip over" the faulty exon 44 during protein creation:<br>
-                                    • Average 40% of cells successfully skip exon 44<br>
-                                    • Some patients achieved up to 66% skipping<br>
-                                    • Improved from 37% in August 2024 to 40% in March 2025<br><br>
-                                    <strong>Why it matters:</strong> More exon skipping = more functional dystrophin protein made
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-del-zota-data-demonstrating-consistent-statistically-significant-improvements-in-dystrophin-exon-skipping-and-creatine-kinase-in-people-living-with-duchenne-muscular-dystrophy-amena-302402470.html" class="source-link" target="_blank">Avidity Biosciences press release (March 17, 2025)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CK Reduction -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span><strong class="metric-highlight">>80% CK reduction</strong> to near-normal levels</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Creatine Kinase (CK) is a blood marker that indicates muscle damage. High CK = muscles breaking down:<br>
-                                    • DMD patients typically have CK levels 50-100x higher than normal<br>
-                                    • Treatment reduced CK by over 80% from baseline<br>
-                                    • Brought levels close to normal healthy ranges<br>
-                                    • Consistent across both 5mg/kg and 10mg/kg dose groups<br><br>
-                                    <strong>Why it matters:</strong> Lower CK = less muscle damage and better muscle health
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-aoc-1044-data-demonstrated-significant-increase-of-25-in-dystrophin-production-and-reduction-of-creatine-kinase-levels-to-near-normal-in-people-living-with-duchenne-muscular-dystrophy-amenab-302218647.html" class="source-link" target="_blank">Avidity Biosciences press release (August 9, 2024, and March 17, 2025)</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PMO Concentration -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span><strong class="metric-highlight">50× muscle PMO concentration</strong> vs unconjugated oligos</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    PMO = Phosphorodiamidate Morpholino Oligomers (the active drug component). AOC-1044's delivery system:<br>
-                                    • Delivers 50x more drug to muscle tissue<br>
-                                    • Achieved 200 nM concentration in skeletal muscle after 3 doses<br>
-                                    • Uses transferrin receptor targeting for better delivery<br>
-                                    • Much more efficient than peptide-conjugated PMOs<br><br>
-                                    <strong>Why it matters:</strong> Better drug delivery = more effective treatment with potentially lower doses
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-reports-positive-data-demonstrating-aoc-1044-delivers-unprecedented-concentrations-of-pmo-in-muscle-following-a-single-dose-in-healthy-volunteers-from-phase-12-explore44-trial-for-duchenne-muscular-dystrophy-302013456.html" class="source-link" target="_blank">PR Newswire (Dec 2023)</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
-                <h3 class="text-lg font-semibold text-green-900 mb-4">Validated Regulatory Achievements</h3>
-                <div class="space-y-4">
-                    <!-- Fast Track -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span>FDA <strong>Fast Track</strong> (April 24, 2023)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Fast Track designation from FDA provides:<br>
-                                    • More frequent meetings with FDA<br>
-                                    • Rolling review of application components<br>
-                                    • Potentially accelerated approval timeline<br>
-                                    • Priority review consideration<br><br>
-                                    <strong>Why it matters:</strong> Speeds up the path to approval for patients with urgent medical needs
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-granted-fda-fast-track-designation-for-aoc-1044-for-treatment-of-duchenne-muscular-dystrophy-mutations-amenable-to-exon-44-skipping-301804651.html" class="source-link" target="_blank">NewsWire</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Orphan Drug -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span>FDA <strong>Orphan Drug</strong> (August 15, 2023)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Orphan Drug designation provides:<br>
-                                    • 7 years of market exclusivity after approval<br>
-                                    • Tax credits for clinical trial costs<br>
-                                    • Waived FDA application fees (~$3.2M)<br>
-                                    • Enhanced FDA support throughout development<br><br>
-                                    <strong>Why it matters:</strong> Significant financial incentives and protections for treating rare diseases affecting 200,000 US patients
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.neurologylive.com/view/exon-44-skipping-aoc-1044-fda-orphan-drug-designation-dmd" class="source-link" target="_blank">NeurologyLive</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Rare Pediatric Disease -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span>FDA <strong>Rare Pediatric Disease</strong> (February 20, 2024)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    Rare Pediatric Disease designation provides:<br>
-                                    • Priority Review Voucher upon approval<br>
-                                    • Voucher can be sold to other companies (~$100M+ value)<br>
-                                    • Applies to diseases affecting 200,000 patients under 18<br>
-                                    • Additional FDA guidance and support<br><br>
-                                    <strong>Why it matters:</strong> Significant financial incentive for developing pediatric rare disease treatments
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.neurologylive.com/view/fda-grants-rare-pediatric-disease-designation-dmd-agent-aoc-1044-mutations-amenable-exon-44-skipping" class="source-link" target="_blank">NeurologyLive</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- EMA Orphan -->
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <div class="flex-1">
-                            <div class="tooltip-trigger relative">
-                                <span>EMA <strong>Orphan Designation</strong> (April 16, 2025)</span>
-                                <span class="info-icon">i</span>
-                                <div class="tooltip">
-                                    <strong>What this means:</strong><br>
-                                    European Medicines Agency Orphan designation (EU/3/25/3047) provides:<br>
-                                    • 10 years of market exclusivity in EU<br>
-                                    • Reduced regulatory fees<br>
-                                    • Scientific advice and protocol assistance<br>
-                                    • Access to centralized approval procedure<br><br>
-                                    <strong>Why it matters:</strong> Opens European market access with commercial protections for rare disease treatment
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <a href="https://www.ema.europa.eu/en/medicines/human/orphan-designations/eu-3-25-3047" class="source-link" target="_blank">EMA Official Registry</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="detail-section p-6 rounded-lg mb-6">
-            <div class="tooltip-trigger relative inline-block">
-                <h3 class="text-lg font-semibold text-amber-900 mb-2">Critical BLA Milestone</h3>
-                <span class="info-icon">i</span>
-                <div class="tooltip">
-                    <strong>What is a BLA?</strong><br>
-                    Biologics License Application (BLA) is the formal application to FDA for approval of biological products like AOC-1044. It contains:<br>
-                    • Complete clinical trial data<br>
-                    • Manufacturing information<br>
-                    • Proposed labeling<br>
-                    • Risk evaluation plans<br><br>
-                    <strong>Accelerated Approval:</strong> FDA pathway that allows approval based on surrogate endpoints (like dystrophin levels) rather than waiting for full clinical benefit data.
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-lg mt-4">
-                <p class="text-gray-700 mb-4">
-                    <strong>Biologics License Application (BLA)</strong> submission to FDA confirmed for <strong>end of 2025</strong>, 
-                    with FDA confirming accelerated approval pathway available on <strong>January 8, 2025</strong>.
-                </p>
-                <div class="grid md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Market Impact:</h4>
-                        <ul class="text-gray-700 space-y-1">
-                            <li>• First approved therapy for exon 44 skipping</li>
-                            <li>• ~900 US patients with no current options</li>
-                            <li>• 8-10% of all DMD patients worldwide</li>
-                            <li>• Estimated $1.5B+ peak sales potential</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-2">Timeline:</h4>
-                        <ul class="text-gray-700 space-y-1">
-                            <li>• BLA submission: End of 2025</li>
-                            <li>• FDA review: 6-12 months</li>
-                            <li>• Potential approval: Mid-2026</li>
-                            <li>• Commercial launch: 2026-2027</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <a href="https://investors.aviditybiosciences.com/" class="source-link" target="_blank">Avidity Biosciences: Press releases dated January 8, 2025, and March 17, 2025</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-blue-50 p-6 rounded-lg">
-            <h3 class="text-lg font-semibold text-blue-900 mb-3">Understanding DMD and Exon 44 Skipping</h3>
-            <div class="grid md:grid-cols-3 gap-6 text-sm">
-                <div class="bg-white p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-900 mb-2">What is DMD?</h4>
-                    <p class="text-gray-700">
-                        Duchenne Muscular Dystrophy is a genetic disorder causing progressive muscle degeneration. 
-                        It affects 1 in 3,500-5,000 male births and is caused by mutations in the dystrophin gene.
-                    </p>
-                </div>
-                <div class="bg-white p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-900 mb-2">How Exon Skipping Works</h4>
-                    <p class="text-gray-700">
-                        AOC-1044 uses antisense oligonucleotides to "skip" the faulty exon 44 during protein production, 
-                        allowing cells to make shortened but functional dystrophin protein.
-                    </p>
-                </div>
-                <div class="bg-white p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-900 mb-2">Why This Matters</h4>
-                    <p class="text-gray-700">
-                        Currently, patients with exon 44-amenable mutations have no specific treatments. 
-                        AOC-1044 could be the first targeted therapy for this subset of DMD patients.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-            </div>
-        </section>
 
         <!-- Drug Overview -->
         <section id="drug-overview" class="mb-12">
@@ -3526,7 +3164,372 @@
     </section>
                                 
                                 
+        <!-- Executive Summary -->
+        <section id="executive-summary" class="mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Executive Summary
+                </h2>
+                
+                <!-- <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-3">Validated Clinical Highlights</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong class="metric-highlight">25% dystrophin increase</strong> (32% average expression, peaks to 58% of normal) <a href="https://investors.aviditybiosciences.com/news-releases/news-release-details/avidity-biosciences-announces-positive-topline-data-aoc-1044" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong class="metric-highlight">~40% exon 44 skipping</strong> (updated from March 2025 data, up to 66% in individual patients) <a href="https://www.parentprojectmd.org/aoc-1044-delpacibart-zotadirsen/" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong class="metric-highlight">>80% CK reduction</strong> to near-normal levels <a href="https://www.neurologylive.com/view/avidity-biosciences-reports-positive-phase-1-2-data-aoc-1044-duchenne-muscular-dystrophy" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span><strong class="metric-highlight">50× muscle PMO concentration</strong> vs unconjugated oligonucleotides <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-data-from-part-a-of-explore44-phase-12-trial-of-aoc-1044-302022741.html" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-900 mb-3">Validated Regulatory Achievements</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Fast Track</strong> (April 24, 2023) <a href="https://www.drug-dev.com/avidity-biosciences-receives-fda-fast-track-designation-for-aoc-1044/" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Orphan Drug</strong> (August 15, 2023) <a href="https://www.nasdaq.com/articles/avidity-biosciences-receives-fda-orphan-drug-designation-for-aoc-1044" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>FDA <strong>Rare Pediatric Disease</strong> (February 20, 2024) <a href="https://www.neurologylive.com/view/avidity-biosciences-aoc-1044-rare-pediatric-disease-designation" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>EMA <strong>Orphan Designation</strong> (April 16, 2025, EU/3/25/3047) <a href="https://www.ema.europa.eu/en/medicines/human/orphan-designations/eu-3-25-3047" class="source-link" target="_blank">Source</a></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg mb-6">
+                    <h3 class="text-lg font-semibold text-amber-900 mb-2">Critical BLA Milestone</h3>
+                    <p class="text-gray-700">
+                        <strong>Biologics License Application (BLA)</strong> submission to FDA confirmed for <strong>end of 2025</strong>, 
+                        with FDA confirming accelerated approval pathway available on <strong>January 8, 2025</strong>. This positions 
+                        AOC-1044 as potentially the <strong>first approved therapy for exon 44 skipping</strong> in DMD, addressing ~900 US patients with no current treatment options.
+                        <a href="https://www.parentprojectmd.org/avidity-biosciences-announces-plan-to-file-bla-for-aoc-1044/" class="source-link ml-2" target="_blank">Source</a>
+                    </p>
+                </div> -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-blue-900 mb-4">Clinical Highlights</h3>
+                <div class="space-y-4">
+                    <!-- Dystrophin Increase -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span><strong class="metric-highlight">25% dystrophin increase</strong> (32% average, peaks to 58%)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Dystrophin is the missing protein in DMD patients. Normal levels are 100%. This treatment achieved:<br>
+                                    • 25% increase from baseline (statistically significant)<br>
+                                    • Average 32% of normal dystrophin levels<br>
+                                    • Some patients reached 58% of normal levels<br>
+                                    • Measured after 3 doses of either 5mg/kg or 10mg/kg<br><br>
+                                    <strong>Why it matters:</strong> Higher dystrophin = stronger muscles and slower disease progression
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-del-zota-data-demonstrating-consistent-statistically-significant-improvements-in-dystrophin-exon-skipping-and-creatine-kinase-in-people-living-with-duchenne-muscular-dystrophy-amena-302402470.html" class="source-link" target="_blank">Avidity Press Release (March 17, 2025)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exon Skipping -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span><strong class="metric-highlight">~40% exon 44 skipping</strong> (up to 66% in individuals)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Exon skipping is the mechanism that allows dystrophin production. The drug causes cells to "skip over" the faulty exon 44 during protein creation:<br>
+                                    • Average 40% of cells successfully skip exon 44<br>
+                                    • Some patients achieved up to 66% skipping<br>
+                                    • Improved from 37% in August 2024 to 40% in March 2025<br><br>
+                                    <strong>Why it matters:</strong> More exon skipping = more functional dystrophin protein made
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-topline-del-zota-data-demonstrating-consistent-statistically-significant-improvements-in-dystrophin-exon-skipping-and-creatine-kinase-in-people-living-with-duchenne-muscular-dystrophy-amena-302402470.html" class="source-link" target="_blank">Avidity Biosciences press release (March 17, 2025)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CK Reduction -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span><strong class="metric-highlight">>80% CK reduction</strong> to near-normal levels</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Creatine Kinase (CK) is a blood marker that indicates muscle damage. High CK = muscles breaking down:<br>
+                                    • DMD patients typically have CK levels 50-100x higher than normal<br>
+                                    • Treatment reduced CK by over 80% from baseline<br>
+                                    • Brought levels close to normal healthy ranges<br>
+                                    • Consistent across both 5mg/kg and 10mg/kg dose groups<br><br>
+                                    <strong>Why it matters:</strong> Lower CK = less muscle damage and better muscle health
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-announces-positive-aoc-1044-data-demonstrated-significant-increase-of-25-in-dystrophin-production-and-reduction-of-creatine-kinase-levels-to-near-normal-in-people-living-with-duchenne-muscular-dystrophy-amenab-302218647.html" class="source-link" target="_blank">Avidity Biosciences press release (August 9, 2024, and March 17, 2025)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PMO Concentration -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span><strong class="metric-highlight">50× muscle PMO concentration</strong> vs unconjugated oligos</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    PMO = Phosphorodiamidate Morpholino Oligomers (the active drug component). AOC-1044's delivery system:<br>
+                                    • Delivers 50x more drug to muscle tissue<br>
+                                    • Achieved 200 nM concentration in skeletal muscle after 3 doses<br>
+                                    • Uses transferrin receptor targeting for better delivery<br>
+                                    • Much more efficient than peptide-conjugated PMOs<br><br>
+                                    <strong>Why it matters:</strong> Better drug delivery = more effective treatment with potentially lower doses
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-reports-positive-data-demonstrating-aoc-1044-delivers-unprecedented-concentrations-of-pmo-in-muscle-following-a-single-dose-in-healthy-volunteers-from-phase-12-explore44-trial-for-duchenne-muscular-dystrophy-302013456.html" class="source-link" target="_blank">PR Newswire (Dec 2023)</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold text-green-900 mb-4">Regulatory Achievements</h3>
+                <div class="space-y-4">
+                    <!-- Fast Track -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span>FDA <strong>Fast Track</strong> (April 24, 2023)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Fast Track designation from FDA provides:<br>
+                                    • More frequent meetings with FDA<br>
+                                    • Rolling review of application components<br>
+                                    • Potentially accelerated approval timeline<br>
+                                    • Priority review consideration<br><br>
+                                    <strong>Why it matters:</strong> Speeds up the path to approval for patients with urgent medical needs
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.prnewswire.com/news-releases/avidity-biosciences-granted-fda-fast-track-designation-for-aoc-1044-for-treatment-of-duchenne-muscular-dystrophy-mutations-amenable-to-exon-44-skipping-301804651.html" class="source-link" target="_blank">NewsWire</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orphan Drug -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span>FDA <strong>Orphan Drug</strong> (August 15, 2023)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Orphan Drug designation provides:<br>
+                                    • 7 years of market exclusivity after approval<br>
+                                    • Tax credits for clinical trial costs<br>
+                                    • Waived FDA application fees (~$3.2M)<br>
+                                    • Enhanced FDA support throughout development<br><br>
+                                    <strong>Why it matters:</strong> Significant financial incentives and protections for treating rare diseases affecting 200,000 US patients
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.neurologylive.com/view/exon-44-skipping-aoc-1044-fda-orphan-drug-designation-dmd" class="source-link" target="_blank">NeurologyLive</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rare Pediatric Disease -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span>FDA <strong>Rare Pediatric Disease</strong> (February 20, 2024)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    Rare Pediatric Disease designation provides:<br>
+                                    • Priority Review Voucher upon approval<br>
+                                    • Voucher can be sold to other companies (~$100M+ value)<br>
+                                    • Applies to diseases affecting 200,000 patients under 18<br>
+                                    • Additional FDA guidance and support<br><br>
+                                    <strong>Why it matters:</strong> Significant financial incentive for developing pediatric rare disease treatments
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.neurologylive.com/view/fda-grants-rare-pediatric-disease-designation-dmd-agent-aoc-1044-mutations-amenable-exon-44-skipping" class="source-link" target="_blank">NeurologyLive</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMA Orphan -->
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <div class="tooltip-trigger relative">
+                                <span>EMA <strong>Orphan Designation</strong> (April 16, 2025)</span>
+                                <span class="info-icon">i</span>
+                                <div class="tooltip">
+                                    <strong>What this means:</strong><br>
+                                    European Medicines Agency Orphan designation (EU/3/25/3047) provides:<br>
+                                    • 10 years of market exclusivity in EU<br>
+                                    • Reduced regulatory fees<br>
+                                    • Scientific advice and protocol assistance<br>
+                                    • Access to centralized approval procedure<br><br>
+                                    <strong>Why it matters:</strong> Opens European market access with commercial protections for rare disease treatment
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <a href="https://www.ema.europa.eu/en/medicines/human/orphan-designations/eu-3-25-3047" class="source-link" target="_blank">EMA Official Registry</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section p-6 rounded-lg mb-6">
+            <div class="tooltip-trigger relative inline-block">
+                <h3 class="text-lg font-semibold text-amber-900 mb-2">Critical BLA Milestone</h3>
+                <span class="info-icon">i</span>
+                <div class="tooltip">
+                    <strong>What is a BLA?</strong><br>
+                    Biologics License Application (BLA) is the formal application to FDA for approval of biological products like AOC-1044. It contains:<br>
+                    • Complete clinical trial data<br>
+                    • Manufacturing information<br>
+                    • Proposed labeling<br>
+                    • Risk evaluation plans<br><br>
+                    <strong>Accelerated Approval:</strong> FDA pathway that allows approval based on surrogate endpoints (like dystrophin levels) rather than waiting for full clinical benefit data.
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg mt-4">
+                <p class="text-gray-700 mb-4">
+                    <strong>Biologics License Application (BLA)</strong> submission to FDA confirmed for <strong>end of 2025</strong>, 
+                    with FDA confirming accelerated approval pathway available on <strong>January 8, 2025</strong>.
+                </p>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Market Impact:</h4>
+                        <ul class="text-gray-700 space-y-1">
+                            <li>• First approved therapy for exon 44 skipping</li>
+                            <li>• ~900 US patients with no current options</li>
+                            <li>• 8-10% of all DMD patients worldwide</li>
+                            <li>• Estimated $1.5B+ peak sales potential</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Timeline:</h4>
+                        <ul class="text-gray-700 space-y-1">
+                            <li>• BLA submission: End of 2025</li>
+                            <li>• FDA review: 6-12 months</li>
+                            <li>• Potential approval: Mid-2026</li>
+                            <li>• Commercial launch: 2026-2027</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="https://investors.aviditybiosciences.com/" class="source-link" target="_blank">Avidity Biosciences: Press releases dated January 8, 2025, and March 17, 2025</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-900 mb-3">Understanding DMD and Exon 44 Skipping</h3>
+            <div class="grid md:grid-cols-3 gap-6 text-sm">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">What is DMD?</h4>
+                    <p class="text-gray-700">
+                        Duchenne Muscular Dystrophy is a genetic disorder causing progressive muscle degeneration. 
+                        It affects 1 in 3,500-5,000 male births and is caused by mutations in the dystrophin gene.
+                    </p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">How Exon Skipping Works</h4>
+                    <p class="text-gray-700">
+                        AOC-1044 uses antisense oligonucleotides to "skip" the faulty exon 44 during protein production, 
+                        allowing cells to make shortened but functional dystrophin protein.
+                    </p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">Why This Matters</h4>
+                    <p class="text-gray-700">
+                        Currently, patients with exon 44-amenable mutations have no specific treatments. 
+                        AOC-1044 could be the first targeted therapy for this subset of DMD patients.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+            </div>
+        </section>
 
     <!-- Enhanced References Section -->
     <section id="references" class="mb-12">
