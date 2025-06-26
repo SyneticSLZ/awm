@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trials Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+        .success-badge { @apply bg-green-100 text-green-800; }
+        .warning-badge { @apply bg-yellow-100 text-yellow-800; }
+        .info-badge { @apply bg-blue-100 text-blue-800; }
+        .danger-badge { @apply bg-red-100 text-red-800; }
+        .progress-badge { @apply bg-purple-100 text-purple-800; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .trial-detail-section { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; }
+        .trial-detail-section.expanded { max-height: 2000px; padding: 1.5rem 0; }
+        .ai-summary-box { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .chart-container { position: relative; height: 300px; }
+        .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="gradient-bg text-white p-6 rounded-lg shadow-lg mb-6">
+            <h1 class="text-3xl font-bold mb-2">Clinical Trials Intelligence Platform</h1>
+            <p class="text-blue-100">Comprehensive analysis and insights from clinical research data</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <input type="text" id="drugSearch" placeholder="Enter drug name..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input type="text" id="conditionSearch" placeholder="Enter condition..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button id="searchBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    🔍 Search Trials
+                </button>
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm">
+                <label class="flex items-center"><input type="checkbox" id="hasResultsOnly" class="mr-2"> Results Available</label>
+                <label class="flex items-center"><input type="checkbox" id="completedOnly" class="mr-2"> Completed Only</label>
+                <label class="flex items-center">Years Back: <input type="range" id="yearsSlider" min="1" max="20" value="5" class="mx-2"><span id="yearsValue">5</span></label>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="bg-white rounded-t-lg shadow-md">
+            <div class="flex flex-wrap border-b border-gray-200">
+                <button class="tab-btn px-6 py-4 font-medium text-blue-600 border-b-2 border-blue-500 focus:outline-none" data-tab="home">
+                    🏠 Home
+                </button>
+                <button class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent focus:outline-none" data-tab="trials">
+                    🧪 Clinical Trials <span class="trials-count ml-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                </button>
+                <button class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent focus:outline-none" data-tab="fda">
+                    📋 FDA Data <span class="fda-count ml-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                </button>
+                <button class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent focus:outline-none" data-tab="ema">
+                    🇪🇺 EMA Data <span class="ema-count ml-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                </button>
+                <button class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent focus:outline-none" data-tab="pubmed">
+                    📚 PubMed <span class="pubmed-count ml-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content Container -->
+        <div class="bg-white rounded-b-lg shadow-md">
+            <!-- Home Tab -->
+            <div id="home-content" class="tab-content active p-6">
+                <!-- AI Summary Section -->
+                <div class="ai-summary-box rounded-lg p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold flex items-center">
+                            🤖 AI-Powered Insights
+                        </h2>
+                        <button id="generateHomeSummary" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors font-medium">
+                            ✨ Generate Summary
+                        </button>
+                    </div>
+                    <div id="homeSummaryContent" class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <p class="text-center text-blue-100">Click "Generate Summary" to get AI insights across all data sources</p>
+                    </div>
+                </div>
+
+                <!-- Overview Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card text-white p-6 rounded-lg card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-blue-100 text-sm">Total Trials</p>
+                                <p class="text-2xl font-bold" id="homeTrialsCount">0</p>
+                            </div>
+                            <div class="text-3xl opacity-80">🧪</div>
+                        </div>
+                    </div>
+                    <div class="bg-green-500 text-white p-6 rounded-lg card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-green-100 text-sm">FDA Approvals</p>
+                                <p class="text-2xl font-bold" id="homeFdaCount">0</p>
+                            </div>
+                            <div class="text-3xl opacity-80">📋</div>
+                        </div>
+                    </div>
+                    <div class="bg-purple-500 text-white p-6 rounded-lg card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-purple-100 text-sm">EMA Records</p>
+                                <p class="text-2xl font-bold" id="homeEmaCount">0</p>
+                            </div>
+                            <div class="text-3xl opacity-80">🇪🇺</div>
+                        </div>
+                    </div>
+                    <div class="bg-orange-500 text-white p-6 rounded-lg card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-orange-100 text-sm">Publications</p>
+                                <p class="text-2xl font-bold" id="homePubmedCount">0</p>
+                            </div>
+                            <div class="text-3xl opacity-80">📚</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Insights Dashboard -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Phase Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="homePhaseChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Success Rate Trends</h3>
+                        <div class="chart-container">
+                            <canvas id="homeSuccessChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clinical Trials Tab -->
+            <div id="trials-content" class="tab-content p-6">
+                <!-- AI Summary Section for Trials -->
+                <div class="ai-summary-box rounded-lg p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold">🤖 AI Trial Analysis</h2>
+                        <button id="generateTrialsSummary" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors font-medium">
+                            ✨ Analyze Trials
+                        </button>
+                    </div>
+                    <div id="trialsSummaryContent" class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <p class="text-center text-blue-100">Generate AI insights from clinical trial data</p>
+                    </div>
+                </div>
+
+                <!-- Timeline Section (First) -->
+                <div id="timelineSection" class="mb-8">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            📈 Trial Timeline
+                        </h3>
+                        <div id="trialTimeline" class="min-h-[300px] flex items-center justify-center text-gray-500">
+                            Search for trials to view timeline visualization
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Insights Section (Second) -->
+                <div id="keyInsightsSection" class="mb-8">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4 flex items-center">
+                            💡 Key Insights
+                        </h3>
+                        <div id="keyInsights" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center text-gray-500">Generate insights from trial data</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trial Results Section (Third) -->
+                <div id="trialResultsSection">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-semibold">🔬 Trial Results</h3>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">Found: <span id="trialCount">0</span> trials</span>
+                            <select id="sortTrials" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <option value="phase">Sort by Phase</option>
+                                <option value="date">Sort by Date</option>
+                                <option value="status">Sort by Status</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="trialsContainer" class="space-y-4">
+                        <!-- Trial cards will be dynamically inserted here -->
+                    </div>
+                    <!-- Individual Trial Detail Section -->
+                    <div id="individualTrialSection" class="trial-detail-section mt-8">
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-semibold text-blue-900" id="detailTrialTitle">Trial Details</h3>
+                                <button id="closeTrialDetail" class="text-blue-600 hover:text-blue-800">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="detailTrialContent" class="space-y-6">
+                                <!-- Detailed trial information and charts will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FDA Data Tab -->
+            <div id="fda-content" class="tab-content p-6">
+                <!-- AI Summary Section for FDA -->
+                <div class="ai-summary-box rounded-lg p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold">🤖 AI FDA Analysis</h2>
+                        <button id="generateFdaSummary" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors font-medium">
+                            ✨ Analyze FDA Data
+                        </button>
+                    </div>
+                    <div id="fdaSummaryContent" class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <p class="text-center text-blue-100">Generate AI insights from FDA regulatory data</p>
+                    </div>
+                </div>
+
+                <div id="fdaDataContainer" class="text-center text-gray-500 py-12">
+                    <div class="text-6xl mb-4">📋</div>
+                    <p class="text-lg">FDA data will appear here after searching</p>
+                </div>
+            </div>
+
+            <!-- EMA Data Tab -->
+            <div id="ema-content" class="tab-content p-6">
+                <!-- AI Summary Section for EMA -->
+                <div class="ai-summary-box rounded-lg p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold">🤖 AI EMA Analysis</h2>
+                        <button id="generateEmaSummary" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors font-medium">
+                            ✨ Analyze EMA Data
+                        </button>
+                    </div>
+                    <div id="emaSummaryContent" class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <p class="text-center text-blue-100">Generate AI insights from EMA regulatory data</p>
+                    </div>
+                </div>
+
+                <div id="emaDataContainer" class="text-center text-gray-500 py-12">
+                    <div class="text-6xl mb-4">🇪🇺</div>
+                    <p class="text-lg">EMA data will appear here after searching</p>
+                </div>
+            </div>
+
+            <!-- PubMed Tab -->
+            <div id="pubmed-content" class="tab-content p-6">
+                <!-- AI Summary Section for PubMed -->
+                <div class="ai-summary-box rounded-lg p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold">🤖 AI Literature Analysis</h2>
+                        <button id="generatePubmedSummary" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-colors font-medium">
+                            ✨ Analyze Literature
+                        </button>
+                    </div>
+                    <div id="pubmedSummaryContent" class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <p class="text-center text-blue-100">Generate AI insights from published literature</p>
+                    </div>
+                </div>
+
+                <div id="pubmedDataContainer" class="text-center text-gray-500 py-12">
+                    <div class="text-6xl mb-4">📚</div>
+                    <p class="text-lg">PubMed literature will appear here after searching</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state management
+        const appState = {
+            currentTab: 'home',
+            allTrials: [],
+            filteredTrials: [],
+            fdaData: [],
+            emaData: [],
+            pubmedData: [],
+            charts: {}
+        };
+
+        // Sample data for demonstration
+        const sampleTrials = [
+            {
+                nctId: "NCT12345678",
+                title: "Phase 3 Study of Drug X for Depression Treatment",
+                phase: "PHASE3",
+                status: "COMPLETED",
+                sponsor: "Pharma Corp",
+                condition: "Major Depressive Disorder",
+                drug: "Drug X",
+                startDate: "2020-01-15",
+                completionDate: "2023-08-30",
+                enrollment: 450,
+                primaryOutcome: "Change in HAM-D score",
+                successScore: 0.75,
+                effectSize: 0.65,
+                results: {
+                    primaryEndpointMet: true,
+                    significantImprovement: true,
+                    adverseEvents: ["Nausea", "Headache", "Dizziness"]
+                }
+            },
+            {
+                nctId: "NCT87654321",
+                title: "Phase 2 Trial of Novel Compound Y in Alzheimer's Disease",
+                phase: "PHASE2",
+                status: "RECRUITING",
+                sponsor: "BioTech Inc",
+                condition: "Alzheimer's Disease",
+                drug: "Compound Y",
+                startDate: "2023-03-01",
+                completionDate: "2025-12-31",
+                enrollment: 200,
+                primaryOutcome: "Cognitive Assessment Score",
+                successScore: 0.45,
+                effectSize: null,
+                results: null
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            initializeEventListeners();
+            initializeCharts();
+            loadSampleData();
+        });
+
+        // Tab management
+        function initializeTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    switchTab(targetTab);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabName) {
+                    btn.classList.remove('text-gray-600', 'border-transparent');
+                    btn.classList.add('text-blue-600', 'border-blue-500');
+                } else {
+                    btn.classList.remove('text-blue-600', 'border-blue-500');
+                    btn.classList.add('text-gray-600', 'border-transparent');
+                }
+            });
+
+            // Show/hide tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                if (content.id === tabName + '-content') {
+                    content.classList.add('active');
+                    content.style.display = 'block';
+                } else {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                }
+            });
+
+            appState.currentTab = tabName;
+        }
+
+        // Event listeners
+        function initializeEventListeners() {
+            // Search functionality
+            document.getElementById('searchBtn').addEventListener('click', performSearch);
+            
+            // Years slider
+            const yearsSlider = document.getElementById('yearsSlider');
+            const yearsValue = document.getElementById('yearsValue');
+            yearsSlider.addEventListener('input', function() {
+                yearsValue.textContent = this.value;
+            });
+
+            // AI Summary buttons
+            document.getElementById('generateHomeSummary').addEventListener('click', () => generateAISummary('home'));
+            document.getElementById('generateTrialsSummary').addEventListener('click', () => generateAISummary('trials'));
+            document.getElementById('generateFdaSummary').addEventListener('click', () => generateAISummary('fda'));
+            document.getElementById('generateEmaSummary').addEventListener('click', () => generateAISummary('ema'));
+            document.getElementById('generatePubmedSummary').addEventListener('click', () => generateAISummary('pubmed'));
+
+            // Close trial detail
+            document.getElementById('closeTrialDetail').addEventListener('click', closeTrialDetail);
+
+            // Sort trials
+            document.getElementById('sortTrials').addEventListener('change', function() {
+                sortTrials(this.value);
+            });
+        }
+
+        // Search functionality
+        function performSearch() {
+            const drug = document.getElementById('drugSearch').value.trim();
+            const condition = document.getElementById('conditionSearch').value.trim();
+            const hasResultsOnly = document.getElementById('hasResultsOnly').checked;
+            const completedOnly = document.getElementById('completedOnly').checked;
+
+            if (!drug && !condition) {
+                alert('Please enter a drug name or condition to search');
+                return;
+            }
+
+            // Show loading state
+            showLoadingState();
+
+            // Simulate API call delay
+            setTimeout(() => {
+                // Filter sample data based on search criteria
+                let filteredTrials = sampleTrials.filter(trial => {
+                    let matches = true;
+                    
+                    if (drug && !trial.drug.toLowerCase().includes(drug.toLowerCase())) {
+                        matches = false;
+                    }
+                    
+                    if (condition && !trial.condition.toLowerCase().includes(condition.toLowerCase())) {
+                        matches = false;
+                    }
+                    
+                    if (hasResultsOnly && !trial.results) {
+                        matches = false;
+                    }
+                    
+                    if (completedOnly && trial.status !== 'COMPLETED') {
+                        matches = false;
+                    }
+                    
+                    return matches;
+                });
+
+                // Update application state
+                appState.allTrials = filteredTrials;
+                appState.filteredTrials = filteredTrials;
+
+                // Update UI
+                updateTabCounts();
+                renderTrials();
+                renderTimeline();
+                renderKeyInsights();
+                updateHomeMetrics();
+                hideLoadingState();
+
+                // Switch to trials tab if we have results
+                if (filteredTrials.length > 0) {
+                    switchTab('trials');
+                }
+            }, 1000);
+        }
+
+        // Show/hide loading states
+        function showLoadingState() {
+            const containers = ['trialsContainer', 'trialTimeline', 'keyInsights'];
+            containers.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `
+                        <div class="flex items-center justify-center py-12">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                            <span class="ml-4 text-gray-600">Searching clinical trials...</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function hideLoadingState() {
+            // Loading states are replaced by actual content in render functions
+        }
+
+        // Update tab counts
+        function updateTabCounts() {
+            document.querySelector('.trials-count').textContent = appState.allTrials.length;
+            document.querySelector('.fda-count').textContent = appState.fdaData.length;
+            document.querySelector('.ema-count').textContent = appState.emaData.length;
+            document.querySelector('.pubmed-count').textContent = appState.pubmedData.length;
+        }
+
+        // Render trials
+        function renderTrials() {
+            const container = document.getElementById('trialsContainer');
+            const countElement = document.getElementById('trialCount');
+            
+            countElement.textContent = appState.filteredTrials.length;
+
+            if (appState.filteredTrials.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <p class="text-lg">No trials found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const trialsHTML = appState.filteredTrials.map(trial => createTrialCard(trial)).join('');
+            container.innerHTML = trialsHTML;
+        }
+
+        // Create trial card
+        function createTrialCard(trial) {
+            const statusBadge = getStatusBadge(trial.status);
+            const phaseBadge = getPhaseBadge(trial.phase);
+            
+            return `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 card-hover fade-in">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">${trial.nctId}</span>
+                                ${phaseBadge}
+                                ${statusBadge}
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">${trial.title}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div><strong>Drug:</strong> ${trial.drug}</div>
+                                <div><strong>Condition:</strong> ${trial.condition}</div>
+                                <div><strong>Sponsor:</strong> ${trial.sponsor}</div>
+                                <div><strong>Enrollment:</strong> ${trial.enrollment} participants</div>
+                                <div><strong>Primary Outcome:</strong> ${trial.primaryOutcome}</div>
+                                <div><strong>Success Score:</strong> ${(trial.successScore * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 lg:mt-0 lg:ml-6 flex flex-col space-y-2">
+                            <button onclick="viewTrialDetails('${trial.nctId}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                📊 View Details
+                            </button>
+                            <button onclick="copyTrialData('${trial.nctId}')" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                                📋 Copy Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+// Get status badge
+        function getStatusBadge(status) {
+            const badges = {
+                'COMPLETED': '<span class="status-badge success-badge">✅ Completed</span>',
+                'RECRUITING': '<span class="status-badge info-badge">👥 Recruiting</span>',
+                'ACTIVE_NOT_RECRUITING': '<span class="status-badge warning-badge">⏳ Active</span>',
+                'TERMINATED': '<span class="status-badge danger-badge">❌ Terminated</span>',
+                'SUSPENDED': '<span class="status-badge warning-badge">⏸️ Suspended</span>',
+                'WITHDRAWN': '<span class="status-badge danger-badge">🚫 Withdrawn</span>'
+            };
+            return badges[status] || '<span class="status-badge info-badge">📋 Unknown</span>';
+        }
+
+        // Get phase badge
+        function getPhaseBadge(phase) {
+            const badges = {
+                'PHASE1': '<span class="status-badge info-badge">Phase 1</span>',
+                'PHASE2': '<span class="status-badge warning-badge">Phase 2</span>',
+                'PHASE3': '<span class="status-badge progress-badge">Phase 3</span>',
+                'PHASE4': '<span class="status-badge success-badge">Phase 4</span>',
+                'PRE_PHASE': '<span class="status-badge info-badge">Pre-Phase</span>'
+            };
+            return badges[phase] || '<span class="status-badge info-badge">Unknown</span>';
+        }
+
+        // View trial details function
+        function viewTrialDetails(nctId) {
+            const trial = appState.allTrials.find(t => t.nctId === nctId);
+            if (!trial) return;
+
+            const detailSection = document.getElementById('individualTrialSection');
+            const titleElement = document.getElementById('detailTrialTitle');
+            const contentElement = document.getElementById('detailTrialContent');
+
+            titleElement.textContent = `${trial.nctId} - ${trial.title}`;
+            
+            // Generate detailed content
+            contentElement.innerHTML = generateTrialDetailContent(trial);
+            
+            // Show the detail section with animation
+            detailSection.classList.add('expanded');
+            
+            // Scroll to the detail section
+            setTimeout(() => {
+                detailSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 300);
+
+            // Generate charts after content is rendered
+            setTimeout(() => {
+                generateTrialCharts(trial);
+            }, 500);
+        }
+
+        // Generate trial detail content
+        function generateTrialDetailContent(trial) {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Trial Information -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-blue-900">Trial Information</h4>
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <dl class="space-y-3">
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">NCT ID:</dt>
+                                    <dd class="text-gray-900 font-mono">${trial.nctId}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Phase:</dt>
+                                    <dd>${getPhaseBadge(trial.phase)}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Status:</dt>
+                                    <dd>${getStatusBadge(trial.status)}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Sponsor:</dt>
+                                    <dd class="text-gray-900">${trial.sponsor}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Enrollment:</dt>
+                                    <dd class="text-gray-900">${trial.enrollment} participants</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Start Date:</dt>
+                                    <dd class="text-gray-900">${formatDate(trial.startDate)}</dd>
+                                </div>
+                                ${trial.completionDate ? `
+                                <div class="flex justify-between">
+                                    <dt class="font-medium text-gray-700">Completion:</dt>
+                                    <dd class="text-gray-900">${formatDate(trial.completionDate)}</dd>
+                                </div>
+                                ` : ''}
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Outcomes & Results -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-blue-900">Outcomes & Analysis</h4>
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="font-medium text-gray-700">Primary Outcome:</label>
+                                    <p class="text-gray-900 mt-1">${trial.primaryOutcome}</p>
+                                </div>
+                                <div>
+                                    <label class="font-medium text-gray-700">Success Score:</label>
+                                    <div class="mt-2">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm text-gray-600">Probability of Success</span>
+                                            <span class="text-sm font-medium">${(trial.successScore * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${trial.successScore * 100}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${trial.effectSize ? `
+                                <div>
+                                    <label class="font-medium text-gray-700">Effect Size (Cohen's d):</label>
+                                    <p class="text-gray-900 mt-1 text-lg font-semibold">${trial.effectSize.toFixed(2)}</p>
+                                    <p class="text-sm text-gray-600">${interpretEffectSize(trial.effectSize)}</p>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${trial.results ? `
+                <!-- Results Section -->
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-blue-900 mb-4">Trial Results</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h5 class="font-medium text-gray-700 mb-3">Primary Endpoint</h5>
+                            <div class="flex items-center space-x-2">
+                                ${trial.results.primaryEndpointMet ? 
+                                    '<span class="text-green-600 text-2xl">✅</span><span class="text-green-700 font-medium">Met</span>' : 
+                                    '<span class="text-red-600 text-2xl">❌</span><span class="text-red-700 font-medium">Not Met</span>'
+                                }
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h5 class="font-medium text-gray-700 mb-3">Clinical Significance</h5>
+                            <div class="flex items-center space-x-2">
+                                ${trial.results.significantImprovement ? 
+                                    '<span class="text-green-600 text-2xl">✅</span><span class="text-green-700 font-medium">Significant</span>' : 
+                                    '<span class="text-yellow-600 text-2xl">⚠️</span><span class="text-yellow-700 font-medium">Not Significant</span>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    ${trial.results.adverseEvents ? `
+                    <div class="mt-4 bg-white rounded-lg p-4 border border-blue-200">
+                        <h5 class="font-medium text-gray-700 mb-3">Common Adverse Events</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${trial.results.adverseEvents.map(event => 
+                                `<span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">${event}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                ` : ''}
+
+                <!-- Charts Section -->
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-blue-900 mb-4">Data Visualization</h4>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h5 class="font-medium text-gray-700 mb-3">Success Probability</h5>
+                            <div class="chart-container">
+                                <canvas id="trialSuccessChart_${trial.nctId}"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h5 class="font-medium text-gray-700 mb-3">Timeline Progress</h5>
+                            <div class="chart-container">
+                                <canvas id="trialTimelineChart_${trial.nctId}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate trial charts
+        function generateTrialCharts(trial) {
+            generateSuccessChart(trial);
+            generateTimelineChart(trial);
+        }
+
+        // Generate success probability chart
+        function generateSuccessChart(trial) {
+            const ctx = document.getElementById(`trialSuccessChart_${trial.nctId}`);
+            if (!ctx) return;
+
+            const successScore = trial.successScore * 100;
+            const failureScore = 100 - successScore;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Success Probability', 'Risk'],
+                    datasets: [{
+                        data: [successScore, failureScore],
+                        backgroundColor: ['#10B981', '#EF4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Generate timeline chart
+        function generateTimelineChart(trial) {
+            const ctx = document.getElementById(`trialTimelineChart_${trial.nctId}`);
+            if (!ctx) return;
+
+            const startDate = new Date(trial.startDate);
+            const endDate = trial.completionDate ? new Date(trial.completionDate) : new Date();
+            const currentDate = new Date();
+            
+            const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const elapsedDays = Math.ceil((currentDate - startDate) / (1000 * 60 * 60 * 24));
+            const progress = Math.min((elapsedDays / totalDays) * 100, 100);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Trial Progress'],
+                    datasets: [{
+                        label: 'Completed (%)',
+                        data: [progress],
+                        backgroundColor: '#3B82F6',
+                        borderColor: '#1D4ED8',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Close trial detail section
+        function closeTrialDetail() {
+            const detailSection = document.getElementById('individualTrialSection');
+            detailSection.classList.remove('expanded');
+        }
+
+        // Copy trial data to clipboard
+        function copyTrialData(nctId) {
+            const trial = appState.allTrials.find(t => t.nctId === nctId);
+            if (!trial) return;
+
+            const data = `
+Trial: ${trial.title}
+NCT ID: ${trial.nctId}
+Phase: ${trial.phase}
+Status: ${trial.status}
+Drug: ${trial.drug}
+Condition: ${trial.condition}
+Sponsor: ${trial.sponsor}
+Enrollment: ${trial.enrollment}
+Success Score: ${(trial.successScore * 100).toFixed(1)}%
+Primary Outcome: ${trial.primaryOutcome}
+Start Date: ${formatDate(trial.startDate)}
+${trial.completionDate ? `Completion Date: ${formatDate(trial.completionDate)}` : ''}
+            `.trim();
+
+            navigator.clipboard.writeText(data).then(() => {
+                // Show success message
+                showNotification('Trial data copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('Failed to copy data', 'error');
+            });
+        }
+
+        // Sort trials
+        function sortTrials(sortBy) {
+            let sorted = [...appState.filteredTrials];
+            
+            switch(sortBy) {
+                case 'phase':
+                    const phaseOrder = { 'PRE_PHASE': 0, 'PHASE1': 1, 'PHASE2': 2, 'PHASE3': 3, 'PHASE4': 4 };
+                    sorted.sort((a, b) => (phaseOrder[a.phase] || 0) - (phaseOrder[b.phase] || 0));
+                    break;
+                case 'date':
+                    sorted.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+                    break;
+                case 'status':
+                    sorted.sort((a, b) => a.status.localeCompare(b.status));
+                    break;
+            }
+            
+            appState.filteredTrials = sorted;
+            renderTrials();
+        }
+
+        // Render timeline
+        function renderTimeline() {
+            const container = document.getElementById('trialTimeline');
+            
+            if (appState.filteredTrials.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500 py-8">No trials to display in timeline</div>';
+                return;
+            }
+
+            // Create timeline visualization
+            const timelineHTML = `
+                <div class="relative">
+                    <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                    ${appState.filteredTrials.map((trial, index) => `
+                        <div class="relative flex items-center mb-6">
+                            <div class="absolute left-2 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
+                            <div class="ml-10 bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex-1">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">${trial.title}</h4>
+                                        <p class="text-sm text-gray-600 mt-1">${trial.nctId} • ${trial.phase}</p>
+                                        <p class="text-xs text-gray-500 mt-1">${formatDate(trial.startDate)}</p>
+                                    </div>
+                                    <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${trial.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = timelineHTML;
+        }
+
+        // Render key insights
+        function renderKeyInsights() {
+            const container = document.getElementById('keyInsights');
+            
+            if (appState.filteredTrials.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500">No insights available</div>';
+                return;
+            }
+
+            const insights = generateInsights(appState.filteredTrials);
+            
+            const insightsHTML = insights.map(insight => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 text-center">
+                    <div class="text-2xl mb-2">${insight.icon}</div>
+                    <h4 class="font-semibold text-gray-900 mb-1">${insight.title}</h4>
+                    <p class="text-sm text-gray-600">${insight.description}</p>
+                    <div class="text-lg font-bold text-blue-600 mt-2">${insight.value}</div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = insightsHTML;
+        }
+
+        // Generate insights from trial data
+        function generateInsights(trials) {
+            const completedTrials = trials.filter(t => t.status === 'COMPLETED');
+            const avgSuccessScore = trials.reduce((sum, t) => sum + t.successScore, 0) / trials.length;
+            const phase3Trials = trials.filter(t => t.phase === 'PHASE3');
+            
+            return [
+                {
+                    icon: '✅',
+                    title: 'Completion Rate',
+                    description: 'Trials that have completed',
+                    value: `${Math.round((completedTrials.length / trials.length) * 100)}%`
+                },
+                {
+                    icon: '📊',
+                    title: 'Avg Success Score',
+                    description: 'Overall success probability',
+                    value: `${Math.round(avgSuccessScore * 100)}%`
+                },
+                {
+                    icon: '🏆',
+                    title: 'Phase 3 Trials',
+                    description: 'Advanced stage trials',
+                    value: phase3Trials.length.toString()
+                }
+            ];
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Initialize home charts with empty data
+            initializeHomeCharts();
+        }
+
+        // Initialize home tab charts
+        function initializeHomeCharts() {
+            // Phase distribution chart
+            const phaseCtx = document.getElementById('homePhaseChart');
+            if (phaseCtx) {
+                appState.charts.homePhase = new Chart(phaseCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Success rate chart
+            const successCtx = document.getElementById('homeSuccessChart');
+            if (successCtx) {
+                appState.charts.homeSuccess = new Chart(successCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Success Rate',
+                            data: [],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Update home metrics
+        function updateHomeMetrics() {
+            document.getElementById('homeTrialsCount').textContent = appState.allTrials.length;
+            document.getElementById('homeFdaCount').textContent = appState.fdaData.length;
+            document.getElementById('homeEmaCount').textContent = appState.emaData.length;
+            document.getElementById('homePubmedCount').textContent = appState.pubmedData.length;
+
+            // Update charts
+            updateHomeCharts();
+        }
+
+        // Update home charts with current data
+        function updateHomeCharts() {
+            if (appState.allTrials.length === 0) return;
+
+            // Update phase distribution
+            const phaseCounts = {
+                'PHASE1': 0, 'PHASE2': 0, 'PHASE3': 0, 'PHASE4': 0
+            };
+            
+            appState.allTrials.forEach(trial => {
+                if (phaseCounts.hasOwnProperty(trial.phase)) {
+                    phaseCounts[trial.phase]++;
+                }
+            });
+
+            if (appState.charts.homePhase) {
+                appState.charts.homePhase.data.datasets[0].data = Object.values(phaseCounts);
+                appState.charts.homePhase.update();
+            }
+
+            // Update success rate trend (mock data for demo)
+            if (appState.charts.homeSuccess) {
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const successRates = appState.allTrials.map(t => t.successScore * 100);
+                
+                appState.charts.homeSuccess.data.labels = months.slice(0, successRates.length);
+                appState.charts.homeSuccess.data.datasets[0].data = successRates;
+                appState.charts.homeSuccess.update();
+            }
+        }
+
+        // Generate AI Summary
+        function generateAISummary(tabType) {
+            const summaryContentId = `${tabType}SummaryContent`;
+            const summaryElement = document.getElementById(summaryContentId);
+            
+            if (!summaryElement) return;
+
+            // Show loading state
+            summaryElement.innerHTML = `
+                <div class="flex items-center justify-center py-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    <span class="ml-3 text-white">Generating AI insights...</span>
+                </div>
+            `;
+
+            // Simulate AI processing
+            setTimeout(() => {
+                const summary = generateSummaryContent(tabType);
+                summaryElement.innerHTML = summary;
+            }, 2000);
+        }
+
+        // Generate summary content based on tab type
+        function generateSummaryContent(tabType) {
+            switch(tabType) {
+                case 'home':
+                    return generateHomeSummary();
+                case 'trials':
+                    return generateTrialsSummary();
+                case 'fda':
+                    return generateFdaSummary();
+                case 'ema':
+                    return generateEmaSummary();
+                case 'pubmed':
+                    return generatePubmedSummary();
+                default:
+                    return '<p class="text-white">Summary not available</p>';
+            }
+        }
+
+        // Generate home summary
+        function generateHomeSummary() {
+            const totalTrials = appState.allTrials.length;
+            const avgSuccess = totalTrials > 0 ? 
+                Math.round((appState.allTrials.reduce((sum, t) => sum + t.successScore, 0) / totalTrials) * 100) : 0;
+            
+            return `
+                <div class="text-white space-y-3">
+                    <h3 class="font-semibold text-lg">📊 Executive Summary</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-white bg-opacity-10 rounded p-3">
+                            <p class="font-medium">Clinical Trials Overview</p>
+                            <p class="opacity-90">Analyzing ${totalTrials} trials with ${avgSuccess}% average success probability</p>
+                        </div>
+                        <div class="bg-white bg-opacity-10 rounded p-3">
+                            <p class="font-medium">Key Insights</p>
+                            <p class="opacity-90">Phase 3 trials show highest completion rates with promising efficacy signals</p>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">🎯 Strategic Recommendations</p>
+                        <ul class="list-disc list-inside opacity-90 space-y-1">
+                            <li>Focus on Phase 2-3 trials with >70% success scores</li>
+                            <li>Monitor completed trials for regulatory approval patterns</li>
+                            <li>Track adverse event profiles for safety insights</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate trials summary
+        function generateTrialsSummary() {
+            const completedTrials = appState.allTrials.filter(t => t.status === 'COMPLETED');
+            const successfulTrials = appState.allTrials.filter(t => t.successScore > 0.7);
+            
+            return `
+                <div class="text-white space-y-3">
+                    <h3 class="font-semibold text-lg">🔬 Clinical Trial Analysis</h3>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">Trial Portfolio Insights</p>
+                        <p class="opacity-90 mb-2">${completedTrials.length} of ${appState.allTrials.length} trials completed. ${successfulTrials.length} trials show high success probability (>70%).</p>
+                        <p class="opacity-90">Phase distribution suggests balanced pipeline with strong Phase 3 representation indicating mature development programs.</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">🎯 Clinical Development Strategy</p>
+                        <ul class="list-disc list-inside opacity-90 space-y-1">
+                            <li>Prioritize trials with established safety profiles</li>
+                            <li>Consider combination therapy approaches for enhanced efficacy</li>
+                            <li>Monitor biomarker-driven patient selection strategies</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate FDA summary
+        function generateFdaSummary() {
+            return `
+                <div class="text-white space-y-3">
+                    <h3 class="font-semibold text-lg">📋 FDA Regulatory Analysis</h3>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">Regulatory Landscape</p>
+                        <p class="opacity-90">FDA approval pathways show accelerated review trends for breakthrough therapies. Recent guidance emphasizes real-world evidence integration.</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">🎯 Regulatory Strategy</p>
+                        <ul class="list-disc list-inside opacity-90 space-y-1">
+                            <li>Leverage Fast Track designation for unmet medical needs</li>
+                            <li>Prepare comprehensive risk evaluation strategies</li>
+                            <li>Align endpoint selection with FDA preferences</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate EMA summary
+        function generateEmaSummary() {
+            return `
+                <div class="text-white space-y-3">
+                    <h3 class="font-semibold text-lg">🇪🇺 EMA Regulatory Analysis</h3>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">European Regulatory Environment</p>
+                        <p class="opacity-90">EMA emphasizes adaptive trial designs and patient-centric approaches. Strong focus on benefit-risk assessment framework.</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">🎯 European Strategy</p>
+                        <ul class="list-disc list-inside opacity-90 space-y-1">
+                            <li>Consider PRIME designation for promising therapies</li>
+                            <li>Implement patient reported outcome measures</li>
+                            <li>Align with HTA requirements early in development</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+// Generate PubMed summary (continued)
+        function generatePubmedSummary() {
+            return `
+                <div class="text-white space-y-3">
+                    <h3 class="font-semibold text-lg">📚 Literature Analysis</h3>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">Scientific Evidence Base</p>
+                        <p class="opacity-90">Recent publications show convergence on biomarker-driven approaches. Meta-analyses support combination therapy strategies.</p>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded p-3 text-sm">
+                        <p class="font-medium mb-2">🎯 Research Strategy</p>
+                        <ul class="list-disc list-inside opacity-90 space-y-1">
+                            <li>Focus on precision medicine approaches</li>
+                            <li>Investigate novel drug combinations</li>
+                            <li>Leverage real-world data for evidence generation</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function interpretEffectSize(effectSize) {
+            if (effectSize < 0.2) return "Small effect";
+            if (effectSize < 0.5) return "Small to medium effect";
+            if (effectSize < 0.8) return "Medium to large effect";
+            return "Large effect";
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            // Extended sample data for better demonstration
+            const extendedSampleTrials = [
+                {
+                    nctId: "NCT12345678",
+                    title: "Phase 3 Study of Drug X for Depression Treatment",
+                    phase: "PHASE3",
+                    status: "COMPLETED",
+                    sponsor: "Pharma Corp",
+                    condition: "Major Depressive Disorder",
+                    drug: "Drug X",
+                    startDate: "2020-01-15",
+                    completionDate: "2023-08-30",
+                    enrollment: 450,
+                    primaryOutcome: "Change in HAM-D score from baseline",
+                    successScore: 0.75,
+                    effectSize: 0.65,
+                    results: {
+                        primaryEndpointMet: true,
+                        significantImprovement: true,
+                        adverseEvents: ["Nausea", "Headache", "Dizziness"]
+                    }
+                },
+                {
+                    nctId: "NCT87654321",
+                    title: "Phase 2 Trial of Novel Compound Y in Alzheimer's Disease",
+                    phase: "PHASE2",
+                    status: "RECRUITING",
+                    sponsor: "BioTech Inc",
+                    condition: "Alzheimer's Disease",
+                    drug: "Compound Y",
+                    startDate: "2023-03-01",
+                    completionDate: "2025-12-31",
+                    enrollment: 200,
+                    primaryOutcome: "Cognitive Assessment Scale Change",
+                    successScore: 0.45,
+                    effectSize: null,
+                    results: null
+                },
+                {
+                    nctId: "NCT11223344",
+                    title: "Phase 1 Safety Study of Therapeutic Z in Healthy Volunteers",
+                    phase: "PHASE1",
+                    status: "COMPLETED",
+                    sponsor: "Research Institute",
+                    condition: "Healthy Volunteers",
+                    drug: "Therapeutic Z",
+                    startDate: "2022-06-01",
+                    completionDate: "2023-02-28",
+                    enrollment: 80,
+                    primaryOutcome: "Safety and tolerability assessment",
+                    successScore: 0.85,
+                    effectSize: 0.3,
+                    results: {
+                        primaryEndpointMet: true,
+                        significantImprovement: false,
+                        adverseEvents: ["Mild fatigue", "Transient nausea"]
+                    }
+                },
+                {
+                    nctId: "NCT55667788",
+                    title: "Phase 4 Post-Marketing Study of Approved Drug W",
+                    phase: "PHASE4",
+                    status: "ACTIVE_NOT_RECRUITING",
+                    sponsor: "Global Pharma",
+                    condition: "Hypertension",
+                    drug: "Drug W",
+                    startDate: "2021-09-15",
+                    completionDate: "2024-09-15",
+                    enrollment: 1200,
+                    primaryOutcome: "Long-term cardiovascular outcomes",
+                    successScore: 0.68,
+                    effectSize: 0.45,
+                    results: {
+                        primaryEndpointMet: true,
+                        significantImprovement: true,
+                        adverseEvents: ["Dizziness", "Cough", "Peripheral edema"]
+                    }
+                },
+                {
+                    nctId: "NCT99887766",
+                    title: "Phase 2/3 Adaptive Design Study for Cancer Therapy V",
+                    phase: "PHASE2",
+                    status: "SUSPENDED",
+                    sponsor: "Oncology Partners",
+                    condition: "Non-Small Cell Lung Cancer",
+                    drug: "Therapy V",
+                    startDate: "2022-11-01",
+                    completionDate: null,
+                    enrollment: 350,
+                    primaryOutcome: "Overall survival",
+                    successScore: 0.35,
+                    effectSize: null,
+                    results: null
+                }
+            ];
+
+            // Sample FDA data
+            const sampleFdaData = [
+                {
+                    drug: "Drug X",
+                    approvalDate: "2023-09-15",
+                    indication: "Major Depressive Disorder",
+                    type: "New Drug Application",
+                    priority: "Standard Review"
+                },
+                {
+                    drug: "Drug W",
+                    approvalDate: "2020-03-22",
+                    indication: "Hypertension",
+                    type: "New Drug Application",
+                    priority: "Priority Review"
+                }
+            ];
+
+            // Sample EMA data
+            const sampleEmaData = [
+                {
+                    drug: "Drug X",
+                    authorisationDate: "2024-01-10",
+                    indication: "Major Depressive Disorder",
+                    procedure: "Centralised Procedure",
+                    status: "Authorised"
+                }
+            ];
+
+            // Sample PubMed data
+            const samplePubmedData = [
+                {
+                    pmid: "12345678",
+                    title: "Efficacy of Drug X in Treatment-Resistant Depression: A Meta-Analysis",
+                    authors: "Smith J, Johnson A, Williams B",
+                    journal: "Journal of Clinical Psychiatry",
+                    year: "2023",
+                    abstract: "This meta-analysis evaluates the efficacy of Drug X in treatment-resistant depression..."
+                },
+                {
+                    pmid: "87654321",
+                    title: "Safety Profile of Compound Y in Alzheimer's Disease: Systematic Review",
+                    authors: "Brown C, Davis E, Miller F",
+                    journal: "Neurology Today",
+                    year: "2023",
+                    abstract: "A comprehensive review of safety data for Compound Y in Alzheimer's disease trials..."
+                }
+            ];
+
+            // Update application state
+            appState.allTrials = extendedSampleTrials;
+            appState.filteredTrials = extendedSampleTrials;
+            appState.fdaData = sampleFdaData;
+            appState.emaData = sampleEmaData;
+            appState.pubmedData = samplePubmedData;
+
+            // Update UI
+            updateTabCounts();
+            updateHomeMetrics();
+        }
+
+        // Enhanced search with filters
+        function performAdvancedSearch() {
+            const drug = document.getElementById('drugSearch').value.trim().toLowerCase();
+            const condition = document.getElementById('conditionSearch').value.trim().toLowerCase();
+            const hasResultsOnly = document.getElementById('hasResultsOnly').checked;
+            const completedOnly = document.getElementById('completedOnly').checked;
+            const yearsBack = parseInt(document.getElementById('yearsSlider').value);
+
+            if (!drug && !condition) {
+                showNotification('Please enter a drug name or condition to search', 'error');
+                return;
+            }
+
+            // Show loading state
+            showLoadingState();
+
+            // Simulate API call with realistic delay
+            setTimeout(() => {
+                const currentDate = new Date();
+                const cutoffDate = new Date();
+                cutoffDate.setFullYear(currentDate.getFullYear() - yearsBack);
+
+                // Filter trials based on all criteria
+                let filteredTrials = appState.allTrials.filter(trial => {
+                    let matches = true;
+                    
+                    // Drug filter
+                    if (drug && !trial.drug.toLowerCase().includes(drug)) {
+                        matches = false;
+                    }
+                    
+                    // Condition filter
+                    if (condition && !trial.condition.toLowerCase().includes(condition)) {
+                        matches = false;
+                    }
+                    
+                    // Results filter
+                    if (hasResultsOnly && !trial.results) {
+                        matches = false;
+                    }
+                    
+                    // Completion filter
+                    if (completedOnly && trial.status !== 'COMPLETED') {
+                        matches = false;
+                    }
+                    
+                    // Date filter
+                    const trialDate = new Date(trial.startDate);
+                    if (trialDate < cutoffDate) {
+                        matches = false;
+                    }
+                    
+                    return matches;
+                });
+
+                // Update application state
+                appState.filteredTrials = filteredTrials;
+
+                // Update UI
+                renderTrials();
+                renderTimeline();
+                renderKeyInsights();
+                updateTabCounts();
+                hideLoadingState();
+
+                // Show results message
+                if (filteredTrials.length > 0) {
+                    showNotification(`Found ${filteredTrials.length} matching trials`, 'success');
+                    switchTab('trials');
+                } else {
+                    showNotification('No trials found matching your criteria', 'info');
+                }
+            }, 1500);
+        }
+
+        // Export functionality
+        function exportTrialData(format = 'csv') {
+            if (appState.filteredTrials.length === 0) {
+                showNotification('No trial data to export', 'error');
+                return;
+            }
+
+            let content = '';
+            let filename = '';
+            let mimeType = '';
+
+            if (format === 'csv') {
+                // CSV format
+                const headers = ['NCT ID', 'Title', 'Phase', 'Status', 'Drug', 'Condition', 'Sponsor', 'Success Score', 'Start Date'];
+                content = headers.join(',') + '\n';
+                
+                appState.filteredTrials.forEach(trial => {
+                    const row = [
+                        trial.nctId,
+                        `"${trial.title}"`,
+                        trial.phase,
+                        trial.status,
+                        trial.drug,
+                        trial.condition,
+                        trial.sponsor,
+                        (trial.successScore * 100).toFixed(1) + '%',
+                        trial.startDate
+                    ];
+                    content += row.join(',') + '\n';
+                });
+                
+                filename = 'clinical_trials_export.csv';
+                mimeType = 'text/csv';
+            } else if (format === 'json') {
+                // JSON format
+                content = JSON.stringify(appState.filteredTrials, null, 2);
+                filename = 'clinical_trials_export.json';
+                mimeType = 'application/json';
+            }
+
+            // Create and download file
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification(`Exported ${appState.filteredTrials.length} trials as ${format.toUpperCase()}`, 'success');
+        }
+
+        // Add export buttons to the UI
+        function addExportFunctionality() {
+            const trialsHeader = document.querySelector('#trialResultsSection .flex.items-center.justify-between');
+            if (trialsHeader) {
+                const exportContainer = document.createElement('div');
+                exportContainer.className = 'flex items-center space-x-2';
+                exportContainer.innerHTML = `
+                    <button onclick="exportTrialData('csv')" class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors">
+                        📊 Export CSV
+                    </button>
+                    <button onclick="exportTrialData('json')" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors">
+                        📄 Export JSON
+                    </button>
+                `;
+                trialsHeader.appendChild(exportContainer);
+            }
+        }
+
+        // Enhanced filter functionality
+        function addAdvancedFilters() {
+            const searchSection = document.querySelector('.bg-white.rounded-lg.shadow-md.p-6.mb-6');
+            if (searchSection) {
+                const advancedFilters = document.createElement('div');
+                advancedFilters.className = 'mt-4 p-4 bg-gray-50 rounded-lg';
+                advancedFilters.innerHTML = `
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Advanced Filters</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Phase</label>
+                            <select id="phaseFilter" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                                <option value="">All Phases</option>
+                                <option value="PHASE1">Phase 1</option>
+                                <option value="PHASE2">Phase 2</option>
+                                <option value="PHASE3">Phase 3</option>
+                                <option value="PHASE4">Phase 4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Sponsor Type</label>
+                            <select id="sponsorFilter" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                                <option value="">All Sponsors</option>
+                                <option value="industry">Industry</option>
+                                <option value="academic">Academic</option>
+                                <option value="government">Government</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Min Success Score</label>
+                            <select id="successFilter" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+                                <option value="0">Any Score</option>
+                                <option value="0.5">≥ 50%</option>
+                                <option value="0.7">≥ 70%</option>
+                                <option value="0.8">≥ 80%</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                searchSection.appendChild(advancedFilters);
+            }
+        }
+
+        // Initialize enhanced features
+        function initializeEnhancedFeatures() {
+            // Update search button to use advanced search
+            const searchBtn = document.getElementById('searchBtn');
+            if (searchBtn) {
+                searchBtn.removeEventListener('click', performSearch);
+                searchBtn.addEventListener('click', performAdvancedSearch);
+            }
+
+            // Add export functionality
+            setTimeout(() => {
+                addExportFunctionality();
+            }, 100);
+
+            // Add advanced filters
+            addAdvancedFilters();
+        }
+
+        // Update the DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            initializeEventListeners();
+            initializeCharts();
+            loadSampleData();
+            initializeEnhancedFeatures();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K for search focus
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('drugSearch').focus();
+            }
+            
+            // Tab navigation with Alt + number
+            if (e.altKey && e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                const tabs = ['home', 'trials', 'fda', 'ema', 'pubmed'];
+                const tabIndex = parseInt(e.key) - 1;
+                if (tabs[tabIndex]) {
+                    switchTab(tabs[tabIndex]);
+                }
+            }
+        });
+
+        // Auto-save search preferences
+        function saveSearchPreferences() {
+            const preferences = {
+                hasResultsOnly: document.getElementById('hasResultsOnly').checked,
+                completedOnly: document.getElementById('completedOnly').checked,
+                yearsBack: document.getElementById('yearsSlider').value
+            };
+            localStorage.setItem('clinicalTrialsPreferences', JSON.stringify(preferences));
+        }
+
+        function loadSearchPreferences() {
+            try {
+                const saved = localStorage.getItem('clinicalTrialsPreferences');
+                if (saved) {
+                    const preferences = JSON.parse(saved);
+                    document.getElementById('hasResultsOnly').checked = preferences.hasResultsOnly || false;
+                    document.getElementById('completedOnly').checked = preferences.completedOnly || false;
+                    document.getElementById('yearsSlider').value = preferences.yearsBack || 5;
+                    document.getElementById('yearsValue').textContent = preferences.yearsBack || 5;
+                }
+            } catch (e) {
+                console.log('Could not load search preferences');
+            }
+        }
+
+        // Add preference saving to relevant controls
+        function initializePreferenceSaving() {
+            ['hasResultsOnly', 'completedOnly', 'yearsSlider'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', saveSearchPreferences);
+                }
+            });
+        }
+
+        // Update initialization to include preferences
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTabs();
+            initializeEventListeners();
+            initializeCharts();
+            loadSampleData();
+            initializeEnhancedFeatures();
+            loadSearchPreferences();
+            initializePreferenceSaving();
+        });
+
+        // Make functions globally available for HTML onclick handlers
+        window.viewTrialDetails = viewTrialDetails;
+        window.copyTrialData = copyTrialData;
+        window.exportTrialData = exportTrialData;
+    </script>
+</body>
+</html>
