@@ -37,8 +37,7 @@ const dotenv = require('dotenv')
 const { UserSession } = require('./db');
 
 const { router: drugWatchRouter, initializeDrugWatchService } = require('./watch.js');
-
-
+const fdaRoutes = require('./devices'); // Adjust path as needed
 
 
 const { 
@@ -349,6 +348,8 @@ initializeDrugWatchService();
 // Use the drug watch routes
 app.use('/api', drugWatchRouter);
 app.use('/api/biomarkers', biomarkerRoutes);
+app.use('/api/device', fdaRoutes);
+
 
 // Grok API Configuration
 const GROK_API = 'https://api.grok.ai/v1';
