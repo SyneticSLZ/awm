@@ -1662,16 +1662,9 @@
     </div>
 </div>
 
-        <!-- Loading State -->
-        <div id="loadingState" class="hidden">
-            <div class="flex justify-center items-center p-10">
-                <svg class="animate-spin h-10 w-10 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span class="ml-3 text-lg font-medium">Loading studies...</span>
-            </div>
-        </div>
+
+
+
 
         <!-- Placeholder Message -->
         <div id="placeholderMessage" class="bg-white rounded-lg shadow-md p-10 text-center text-gray-500">
@@ -2020,7 +2013,17 @@
   </div>
 </div>
 
-
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden">
+            <div class="flex justify-center items-center p-10">
+                <svg class="animate-spin h-10 w-10 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-3 text-lg font-medium">Loading studies...</span>
+            </div>
+        </div>
+        
         <!-- PubMed Section (Initially Hidden) -->
 <!-- Enhanced PubMed Section -->
  <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
@@ -31310,130 +31313,491 @@ function collectAllFdaData(drugName) {
 }
 
 // Function to generate a local summary while waiting for OpenAI
+// function generateLocalSummary(allData) {
+//   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
+  
+//   // Handle empty data case
+//   if (!fdaData) {
+//     return `<div class="p-4 text-center">No FDA data found for "${drugName}".</div>`;
+//   }
+  
+//   // Extract endpoint data
+//   const endpointsData = fdaData.raw?.endpoints || {};
+  
+//   // Initialize summary sections
+//   let summary = `<div class="text-xl font-semibold mb-4">Quick Summary for ${drugName}</div>`;
+// //   summary += `<div class="text-sm text-gray-600 mb-4">Generating comprehensive AI summary...</div>`;
+  
+//   // Applications summary
+//   let applicationSummary = "";
+//   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+//     // Count applications and forms
+//     let allProducts = [];
+//     let manufacturers = new Set();
+//     let dosageForms = new Set();
+    
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           allProducts.push({...product, strength});
+//           if (product.manufacturerName) manufacturers.add(product.manufacturerName);
+//           if (product.sponsorName) manufacturers.add(product.sponsorName);
+//           if (product.dosageForm) dosageForms.add(product.dosageForm);
+//         });
+//       });
+//     });
+    
+//     applicationSummary = `
+//       <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//         <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
+//         <p class="text-gray-700">
+//           ${allProducts.length} total application${allProducts.length !== 1 ? 's' : ''} found.
+//           ${manufacturers.size > 0 ? `Made by ${manufacturers.size} different manufacturer${manufacturers.size > 1 ? 's' : ''}.` : ''}
+//           ${dosageForms.size > 0 ? `Available in ${dosageForms.size} dosage form${dosageForms.size > 1 ? 's' : ''}.` : ''}
+//         </p>
+//       </div>
+//     `;
+//   }
+  
+//   // Label summary
+//   let labelSummary = "";
+//   const labelData = endpointsData.label?.data || [];
+//   if (labelData.length > 0) {
+//     // Extract key information from labels
+//     const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
+    
+//     labelSummary = `
+//       <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//         <h3 class="text-lg font-medium text-gray-800 mb-2">Labeling</h3>
+//         <p class="text-gray-700">
+//           ${labelData.length} drug label${labelData.length > 1 ? 's' : ''} found.
+//           ${hasBoxedWarning ? '<span class="text-red-600 font-medium">Contains boxed warnings.</span>' : ''}
+//         </p>
+//       </div>
+//     `;
+//   }
+  
+//   // Orange Book summary
+//   let orangeBookSummary = "";
+//   if (orangeBookData && orangeBookData.results) {
+//     const orangeBookCount = document.getElementById('orangeBookCount')?.textContent || '0 entries';
+    
+//     orangeBookSummary = `
+//       <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//         <h3 class="text-lg font-medium text-gray-800 mb-2">Orange Book</h3>
+//         <p class="text-gray-700">
+//           ${orangeBookCount}
+//         </p>
+//       </div>
+//     `;
+//   }
+  
+//   // DailyMed summary
+//   let dailyMedSummary = "";
+//   if (dailyMedData && dailyMedData.label_info) {
+//     const dailyMedCount = document.getElementById('dailyMedCount')?.textContent || '0 entries';
+    
+//     dailyMedSummary = `
+//       <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//         <h3 class="text-lg font-medium text-gray-800 mb-2">DailyMed</h3>
+//         <p class="text-gray-700">
+//           ${dailyMedCount}
+//         </p>
+//       </div>
+//     `;
+//   }
+  
+//   // Warning Letters summary
+//   let warningLettersSummary = "";
+//   if (warningLettersData && warningLettersData.length > 0) {
+//     const warningLettersCount = document.getElementById('warningLettersCount')?.textContent || '0 letters';
+    
+//     warningLettersSummary = `
+//       <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
+//         <h3 class="text-lg font-medium text-red-800 mb-2">Warning Letters</h3>
+//         <p class="text-gray-700">
+//           ${warningLettersCount}
+//         </p>
+//       </div>
+//     `;
+//   }
+  
+//   // Combine all summaries
+//   summary += `
+//     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//       ${applicationSummary}
+//       ${labelSummary}
+//       ${orangeBookSummary}
+//       ${dailyMedSummary}
+//       ${warningLettersSummary}
+//     </div>
+    
+//   `;
+  
+//   return summary;
+// }
+// Enhanced FDA Summary Generator with Modern UI
 function generateLocalSummary(allData) {
   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
   
   // Handle empty data case
   if (!fdaData) {
-    return `<div class="p-4 text-center">No FDA data found for "${drugName}".</div>`;
+    return `
+      <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-8 text-center border border-gray-200">
+        <div class="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">No FDA Data Available</h3>
+        <p class="text-gray-500">No regulatory data found for "${drugName}"</p>
+      </div>
+    `;
   }
   
   // Extract endpoint data
   const endpointsData = fdaData.raw?.endpoints || {};
   
-  // Initialize summary sections
-  let summary = `<div class="text-xl font-semibold mb-4">Quick Summary for ${drugName}</div>`;
-//   summary += `<div class="text-sm text-gray-600 mb-4">Generating comprehensive AI summary...</div>`;
+  // Build comprehensive summary with modern design
+  let summary = `
+    <div class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-xl shadow-lg border border-blue-100 overflow-hidden">
+      <!-- Header Section -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">${drugName}</h2>
+            <p class="text-blue-100 text-sm">FDA Regulatory Summary</p>
+          </div>
+          <div class="bg-white/20 rounded-lg px-3 py-2 backdrop-blur-sm">
+            <div class="text-xs text-blue-100">Generated</div>
+            <div class="text-sm font-semibold">${new Date().toLocaleDateString()}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+  `;
   
-  // Applications summary
-  let applicationSummary = "";
+  // Quick Stats Dashboard
+  let totalApplications = 0;
+  let manufacturers = new Set();
+  let dosageForms = new Set();
+  let approvalStatuses = new Set();
+  let allProducts = [];
+  
   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
-    // Count applications and forms
-    let allProducts = [];
-    let manufacturers = new Set();
-    let dosageForms = new Set();
-    
     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
       Object.entries(strengths).forEach(([strength, products]) => {
         products.forEach(product => {
-          allProducts.push({...product, strength});
+          allProducts.push({...product, strength, brandName});
+          totalApplications++;
           if (product.manufacturerName) manufacturers.add(product.manufacturerName);
           if (product.sponsorName) manufacturers.add(product.sponsorName);
           if (product.dosageForm) dosageForms.add(product.dosageForm);
+          if (product.marketingStatus) approvalStatuses.add(product.marketingStatus);
         });
       });
     });
-    
-    applicationSummary = `
-      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-        <h3 class="text-lg font-medium text-gray-800 mb-2">Applications</h3>
-        <p class="text-gray-700">
-          ${allProducts.length} total application${allProducts.length !== 1 ? 's' : ''} found.
-          ${manufacturers.size > 0 ? `Made by ${manufacturers.size} different manufacturer${manufacturers.size > 1 ? 's' : ''}.` : ''}
-          ${dosageForms.size > 0 ? `Available in ${dosageForms.size} dosage form${dosageForms.size > 1 ? 's' : ''}.` : ''}
-        </p>
-      </div>
-    `;
   }
   
-  // Label summary
-  let labelSummary = "";
-  const labelData = endpointsData.label?.data || [];
-  if (labelData.length > 0) {
-    // Extract key information from labels
-    const hasBoxedWarning = labelData.some(label => label.boxed_warning && label.boxed_warning.length > 0);
-    
-    labelSummary = `
-      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-        <h3 class="text-lg font-medium text-gray-800 mb-2">Labeling</h3>
-        <p class="text-gray-700">
-          ${labelData.length} drug label${labelData.length > 1 ? 's' : ''} found.
-          ${hasBoxedWarning ? '<span class="text-red-600 font-medium">Contains boxed warnings.</span>' : ''}
-        </p>
-      </div>
-    `;
-  }
-  
-  // Orange Book summary
-  let orangeBookSummary = "";
-  if (orangeBookData && orangeBookData.results) {
-    const orangeBookCount = document.getElementById('orangeBookCount')?.textContent || '0 entries';
-    
-    orangeBookSummary = `
-      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-        <h3 class="text-lg font-medium text-gray-800 mb-2">Orange Book</h3>
-        <p class="text-gray-700">
-          ${orangeBookCount}
-        </p>
-      </div>
-    `;
-  }
-  
-  // DailyMed summary
-  let dailyMedSummary = "";
-  if (dailyMedData && dailyMedData.label_info) {
-    const dailyMedCount = document.getElementById('dailyMedCount')?.textContent || '0 entries';
-    
-    dailyMedSummary = `
-      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-        <h3 class="text-lg font-medium text-gray-800 mb-2">DailyMed</h3>
-        <p class="text-gray-700">
-          ${dailyMedCount}
-        </p>
-      </div>
-    `;
-  }
-  
-  // Warning Letters summary
-  let warningLettersSummary = "";
-  if (warningLettersData && warningLettersData.length > 0) {
-    const warningLettersCount = document.getElementById('warningLettersCount')?.textContent || '0 letters';
-    
-    warningLettersSummary = `
-      <div class="p-4 bg-white rounded-lg shadow-sm mb-4 hover-card">
-        <h3 class="text-lg font-medium text-red-800 mb-2">Warning Letters</h3>
-        <p class="text-gray-700">
-          ${warningLettersCount}
-        </p>
-      </div>
-    `;
-  }
-  
-  // Combine all summaries
+  // Stats Cards
   summary += `
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      ${applicationSummary}
-      ${labelSummary}
-      ${orangeBookSummary}
-      ${dailyMedSummary}
-      ${warningLettersSummary}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-green-800">${totalApplications}</div>
+            <div class="text-xs text-green-600 font-medium">Applications</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-blue-800">${manufacturers.size}</div>
+            <div class="text-xs text-blue-600 font-medium">Manufacturers</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-4 border border-purple-200">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10l.94 11.33a1 1 0 01-1 1.07H7.06a1 1 0 01-1-1.07L7 4z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-purple-800">${dosageForms.size}</div>
+            <div class="text-xs text-purple-600 font-medium">Dosage Forms</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-4 border border-orange-200">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-orange-800">${approvalStatuses.size}</div>
+            <div class="text-xs text-orange-600 font-medium">Status Types</div>
+          </div>
+        </div>
+      </div>
     </div>
+  `;
+  
+  // Applications Details Section
+  if (totalApplications > 0) {
+    const approvedCount = allProducts.filter(p => 
+      p.marketingStatus && p.marketingStatus.toLowerCase().includes('approved')).length;
+    const discontinuedCount = allProducts.filter(p => 
+      p.marketingStatus && p.marketingStatus.toLowerCase().includes('discontinued')).length;
     
+    summary += `
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Application Details
+          </h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-3">
+              <h4 class="font-medium text-gray-700 text-sm uppercase tracking-wide">Status Breakdown</h4>
+              <div class="space-y-2">
+                ${approvedCount > 0 ? `
+                  <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-sm text-green-700">Approved</span>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${approvedCount}</span>
+                  </div>
+                ` : ''}
+                ${discontinuedCount > 0 ? `
+                  <div class="flex items-center justify-between bg-red-50 rounded-lg px-3 py-2">
+                    <span class="text-sm text-red-700">Discontinued</span>
+                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${discontinuedCount}</span>
+                  </div>
+                ` : ''}
+                ${(totalApplications - approvedCount - discontinuedCount) > 0 ? `
+                  <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                    <span class="text-sm text-gray-700">Other</span>
+                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${totalApplications - approvedCount - discontinuedCount}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div class="space-y-3">
+              <h4 class="font-medium text-gray-700 text-sm uppercase tracking-wide">Manufacturers</h4>
+              <div class="space-y-2 max-h-32 overflow-y-auto">
+                ${Array.from(manufacturers).slice(0, 5).map(mfg => `
+                  <div class="bg-blue-50 rounded-lg px-3 py-2">
+                    <span class="text-sm text-blue-800 font-medium">${mfg}</span>
+                  </div>
+                `).join('')}
+                ${manufacturers.size > 5 ? `
+                  <div class="text-xs text-gray-500 px-3">
+                    +${manufacturers.size - 5} more manufacturers
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div class="space-y-3">
+              <h4 class="font-medium text-gray-700 text-sm uppercase tracking-wide">Dosage Forms</h4>
+              <div class="space-y-2">
+                ${Array.from(dosageForms).slice(0, 5).map(form => `
+                  <div class="bg-purple-50 rounded-lg px-3 py-2">
+                    <span class="text-sm text-purple-800 font-medium">${form}</span>
+                  </div>
+                `).join('')}
+                ${dosageForms.size > 5 ? `
+                  <div class="text-xs text-gray-500 px-3">
+                    +${dosageForms.size - 5} more forms
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Recent Applications (if available)
+  if (allProducts.length > 0) {
+    const recentProducts = allProducts
+      .filter(p => p.submissionStatusDate || p.actionDate)
+      .sort((a, b) => {
+        const dateA = new Date(a.submissionStatusDate || a.actionDate || 0);
+        const dateB = new Date(b.submissionStatusDate || b.actionDate || 0);
+        return dateB - dateA;
+      })
+      .slice(0, 3);
+    
+    if (recentProducts.length > 0) {
+      summary += `
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-6 overflow-hidden">
+          <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+              <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Recent Activity
+            </h3>
+          </div>
+          <div class="p-6">
+            <div class="space-y-4">
+              ${recentProducts.map(product => {
+                const date = new Date(product.submissionStatusDate || product.actionDate);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                });
+                
+                return `
+                  <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-medium text-gray-900">
+                          ${product.brandName || 'Generic'} ${product.strength || ''}
+                        </h4>
+                        <span class="text-xs text-gray-500">${formattedDate}</span>
+                      </div>
+                      <p class="text-sm text-gray-600 mt-1">
+                        ${product.dosageForm || 'N/A'} • ${product.manufacturerName || product.sponsorName || 'Unknown Manufacturer'}
+                      </p>
+                      ${product.marketingStatus ? `
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${
+                          product.marketingStatus.toLowerCase().includes('approved') ? 'bg-green-100 text-green-800' :
+                          product.marketingStatus.toLowerCase().includes('discontinued') ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }">
+                          ${product.marketingStatus}
+                        </span>
+                      ` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+  
+  // Data Sources Summary
+  const dataSources = [];
+  if (fdaData) dataSources.push({ name: 'FDA Orange Book', status: 'available', icon: '📊' });
+  if (orangeBookData) dataSources.push({ name: 'Orange Book Extended', status: 'available', icon: '📋' });
+  if (dailyMedData) dataSources.push({ name: 'DailyMed Labels', status: 'available', icon: '🏷️' });
+  if (warningLettersData) dataSources.push({ name: 'Warning Letters', status: 'available', icon: '⚠️' });
+  
+  summary += `
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          Data Sources
+        </h3>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${dataSources.map(source => `
+            <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
+              <div class="text-lg">${source.icon}</div>
+              <div class="flex-1">
+                <div class="text-sm font-medium text-gray-900">${source.name}</div>
+                <div class="text-xs text-green-600">Data available</div>
+              </div>
+              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h4 class="text-sm font-medium text-blue-900">Summary Note</h4>
+              <p class="text-xs text-blue-700 mt-1">
+                This summary is automatically generated from available FDA regulatory data. 
+                For the most current information, please consult official FDA resources or contact regulatory professionals.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Close main container
+  summary += `
+      </div>
+    </div>
   `;
   
   return summary;
 }
 
+// Additional helper function to create enhanced footer buttons with better styling
+function createSummaryFooter(drugName) {
+  const footer = document.createElement('div');
+  footer.className = 'flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-gray-200';
+  
+  // Email button with enhanced styling
+  const emailButton = document.createElement('button');
+  emailButton.className = 'w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center font-medium';
+  emailButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+    </svg>
+    Email Summary
+  `;
+  emailButton.onclick = function() {
+    emailSummary(drugName, document.getElementById('fda-summary-container').innerHTML);
+  };
+  
+  // AI summary button with enhanced styling
+  const aiSummaryButton = document.createElement('button');
+  aiSummaryButton.className = 'w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center font-medium';
+  aiSummaryButton.innerHTML = `
+    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+    </svg>
+    Generate AI Summary
+  `;
+  
+  footer.appendChild(emailButton);
+  footer.appendChild(aiSummaryButton);
+  
+  return footer;
+}
 // Function to prepare data for the OpenAI API
 function prepareDataForOpenAI(allData) {
   const { fdaData, orangeBookData, dailyMedData, warningLettersData, drugName } = allData;
@@ -33596,9 +33960,117 @@ async function adisplayFdaData(drugName, condition) {
   }
 }
 
+// async function displayFdaData(drug) {
+//     try {
+//         updateSectionStatus('fda', 'loading', '-', 25);
+//         //  initFdaDataSection();
+//         const loadingTemplate = `
+//             <div class="flex items-center justify-center py-8">
+//                 <svg class="animate-spin h-8 w-8 text-blue-500 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//                 </svg>
+//                 <span class="text-gray-600">Loading FDA data...</span>
+//             </div>
+//         `;
+        
+//         // Show loading in FDA elements
+//         if (elements.fdaDocuments) elements.fdaDocuments.innerHTML = loadingTemplate;
+//         if (elements.orangeBookData) elements.orangeBookData.innerHTML = loadingTemplate;
+//         if (elements.dailyMedData) elements.dailyMedData.innerHTML = loadingTemplate;
+//         if (elements.warningLettersData) elements.warningLettersData.innerHTML = loadingTemplate;
+        
+//         try {
+//             const fdaResponse = await fetch(`/api/fda/drug/${encodeURIComponent(drug)}`);
+            
+//             if (!fdaResponse.ok) {
+//                 throw new Error(`FDA API returned ${fdaResponse.status}`);
+//             }
+            
+//             const contentType = fdaResponse.headers.get('content-type');
+//             if (!contentType?.includes('application/json')) {
+//                 throw new Error('FDA API returned non-JSON response');
+//             }
+            
+//             const fdaData = await fdaResponse.json();
+            
+//             if (fdaData.error) {
+//                 throw new Error(fdaData.error);
+//             }
+            
+//             // SUCCESS: Store FDA data in app state
+//             window.appState.fdaData = fdaData;
+            
+//             // Calculate FDA count from the actual data structure
+//             let fdaCount = 0;
+            
+//             // Count from endpoints data if available
+//             if (fdaData.raw?.endpoints) {
+//                 const endpoints = fdaData.raw.endpoints;
+//                 fdaCount = (endpoints.drugsFda?.count || 0) + 
+//                           (endpoints.label?.count || 0) + 
+//                           (endpoints.ndc?.count || 0) + 
+//                           (endpoints.enforcement?.count || 0) + 
+//                           (endpoints.event?.count || 0);
+//             }
+            
+//             // Fallback: count from categorized data
+//             if (fdaCount === 0 && fdaData.categorized) {
+//                 fdaCount = Object.values(fdaData.categorized).reduce((total, category) => {
+//                     return total + (Array.isArray(category) ? category.length : 0);
+//                 }, 0);
+//             }
+            
+//             // Fallback: count from raw results
+//             if (fdaCount === 0 && fdaData.raw?.combinedResults) {
+//                 fdaCount = fdaData.raw.combinedResults.length;
+//             }
+            
+//             // Update status with actual count
+//             updateSectionStatus('fda', 'success', fdaCount, 100);
+            
+//             // Display the FDA data using your existing function
+//             if (typeof displayComprehensiveFdaData === 'function') {
+//                 displayComprehensiveFdaData(fdaData, drug);
+//             } else if (typeof displayFdaSubmissions === 'function') {
+//                 displayFdaSubmissions(fdaData, drug);
+//             }
+            
+//             console.log(`FDA data loaded: ${fdaCount} items`);
+            
+//         } catch (fetchError) {
+//             console.warn('FDA API unavailable:', fetchError.message);
+            
+//             // Set count to 0 for unavailable API
+//             window.appState.fdaData = null;
+//             updateSectionStatus('fda', 'error', 0, 100);
+            
+//             // Show error message
+//             const errorTemplate = `
+//                 <div class="text-center p-8">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                     </svg>
+//                     <p class="text-gray-500">FDA data service unavailable</p>
+//                     <p class="text-sm text-gray-400 mt-2">Please try again later</p>
+//                 </div>
+//             `;
+            
+//             if (elements.fdaDocuments) elements.fdaDocuments.innerHTML = errorTemplate;
+//         }
+        
+//     } catch (error) {
+//         console.error("Error in displayFdaData:", error);
+//         updateSectionStatus('fda', 'error', 0, 100);
+//     }
+// }
+
 async function displayFdaData(drug) {
     try {
         updateSectionStatus('fda', 'loading', '-', 25);
+        
+        // Store current drug name globally for the summary feature
+        window.currentDrugName = drug;
         
         const loadingTemplate = `
             <div class="flex items-center justify-center py-8">
@@ -33636,6 +34108,7 @@ async function displayFdaData(drug) {
             
             // SUCCESS: Store FDA data in app state
             window.appState.fdaData = fdaData;
+            window.fdaData = fdaData;
             
             // Calculate FDA count from the actual data structure
             let fdaCount = 0;
@@ -33672,6 +34145,23 @@ async function displayFdaData(drug) {
                 displayFdaSubmissions(fdaData, drug);
             }
             
+            // Show the summary container with a loading indicator initially
+            const summaryContainer = document.getElementById('fda-summary-container');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = `
+                    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4 summary-card">
+                        <div class="flex items-center">
+                            <div class="mr-3">
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                            </div>
+                            <h3 class="text-lg font-medium text-blue-800">Generating Basic Regulatory Summary...</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drug}. This might take a moment.</p>
+                    </div>
+                `;
+                summaryContainer.classList.remove('hidden');
+            }
+            
             console.log(`FDA data loaded: ${fdaCount} items`);
             
         } catch (fetchError) {
@@ -33695,12 +34185,312 @@ async function displayFdaData(drug) {
             if (elements.fdaDocuments) elements.fdaDocuments.innerHTML = errorTemplate;
         }
         
+        // Continue with Orange Book fetch
+        try {
+            const orangeBookResponse = await fetch(`${API_BASE_URL}/fda/orangebook/search?q=${encodeURIComponent(drug)}`);
+            const orangeBookData = await orangeBookResponse.json();
+            const companies = orangeBookData.results?.companies || [];
+
+            if (orangeBookResponse.ok && !orangeBookData.error) {
+                // Store Orange Book data globally for the summary
+                window.orangeBookData = orangeBookData;
+                
+                displayOrangeBookData(orangeBookData);
+                
+                // Fetch warning letters for the companies
+                if (typeof fetchWarningLetters === 'function') {
+                    await fetchWarningLetters(companies);
+                } else if (typeof searchWarningLetters === 'function') {
+                    await searchWarningLetters(companies);
+                } else {
+                    elements.warningLettersData.innerHTML = `
+                        <div class="text-center p-4">
+                            <p class="text-sm text-gray-700">No Warning letters found for "${drug}"</p>
+                        </div>
+                    `;
+                }
+                
+            } else {
+                elements.orangeBookData.innerHTML = `
+                    <div class="text-center p-4">
+                        <p class="text-sm text-gray-700">No Orangebook data found for "${drug}"</p>
+                    </div>
+                `;
+                
+                console.log("Could not retrieve Orange Book data");
+            }
+        } catch (orangeBookError) {
+            console.error("Error fetching Orange Book data:", orangeBookError);
+            elements.orangeBookData.innerHTML = `
+                <div class="text-center p-4">
+                    <p class="text-sm text-gray-700">No Orangebook data found for "${drug}"</p>
+                </div>
+            `;
+        }
+        
+        // Continue with DailyMed fetch
+        try {
+            // Fetch data from the DailyMed API
+            const dailyMedResponse = await fetch(`${API_BASE_URL}/fda/dailymed?name=${encodeURIComponent(drug)}`);
+            const rawData = await dailyMedResponse.json();
+            console.log("dailymed data :", rawData);
+            
+            // Format the data to work with your display function
+            const dailyMedData = {
+                label_info: Array.isArray(rawData) ? rawData.map(drugItem => ({
+                    title: drugItem.productName || drugItem.title || "Unknown Drug",
+                    published: drugItem.effectiveTime || "N/A",
+                    setId: drugItem.splId || "",
+                    manufacturer: drugItem.packager || "Unknown",
+                    dosageForm: drugItem.dosageForms ? drugItem.dosageForms.join(', ') : "Not specified",
+                    activeIngredients: drugItem.activeIngredients || ["Unknown"],
+                    indications: drugItem.indications || "Not specified",
+                    warnings: drugItem.warnings || "Not specified",
+                    dosage: drugItem.dosage || "Not specified",
+                    contraindications: drugItem.contraindications || "Not specified",
+                    adverseReactions: drugItem.adverseReactions || "Not specified",
+                    drugInteractions: drugItem.drugInteractions || "Not specified",
+                    labelUrl: drugItem.labelUrl || `https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${drugItem.splId}`
+                })) : []
+            };
+            
+            if (dailyMedResponse.ok && !dailyMedData.error && dailyMedData.label_info.length > 0) {
+                // Store DailyMed data globally for the summary
+                window.dailyMedData = dailyMedData;
+                
+                displayDailyMedData(dailyMedData);
+            } else {
+                console.log("dailymed error");
+                elements.dailyMedData.innerHTML = `
+                    <div class="text-center p-4">
+                        <p class="text-sm text-gray-700">No DailyMed data found for "${drug}"</p>
+                    </div>
+                `;
+            }
+        } catch (dailyMedError) {
+            console.error("Error fetching DailyMed data:", dailyMedError);
+            elements.dailyMedData.innerHTML = `
+                <div class="text-center p-4">
+                    <p class="text-sm text-gray-700">No drug application data found for "${drug}"</p>
+                </div>
+            `;
+        }
+        
+        // Generate and display the basic summary after all data is loaded
+        setTimeout(async () => {
+            try {
+                const summaryContainer = document.getElementById('fda-summary-container');
+                if (summaryContainer && window.fdaData) {
+                    // Collect all FDA data including Orange Book
+                    const allData = typeof collectAllFdaData === 'function' ? collectAllFdaData(drug) : {};
+                    
+                    // Display the basic summary
+                    const basicSummary = typeof generateLocalSummary === 'function' ? 
+                        generateLocalSummary(allData) : 
+                        `<div class="p-4 bg-gray-50 border border-gray-200 rounded-lg mb-4">
+                            <h3 class="text-lg font-medium text-gray-800 mb-2">Basic Summary for ${drug}</h3>
+                            <p class="text-gray-600">Summary generation functions not available.</p>
+                        </div>`;
+                    
+                    // Create a footer div for the basic summary with the AI summary button
+                    const summaryFooter = document.createElement('div');
+                    summaryFooter.className = 'flex items-center justify-between mt-4';
+                    
+                    // Email button for basic summary
+                    const emailButton = document.createElement('button');
+                    emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+                    emailButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        Email Me This Summary
+                    `;
+                    emailButton.onclick = function() {
+                        if (typeof emailSummary === 'function') {
+                            emailSummary(drug, summaryContainer.innerHTML);
+                        }
+                    };
+                    
+                    // AI summary button
+                    const aiSummaryButton = document.createElement('button');
+                    aiSummaryButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
+                    aiSummaryButton.innerHTML = `
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        Generate AI-Enhanced Summary
+                    `;
+                    
+                    // Event handler for the AI summary button
+                    aiSummaryButton.onclick = async function() {
+                        // Show loading state when generating AI summary
+                        summaryContainer.innerHTML = `
+                            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4 summary-card">
+                                <div class="flex items-center">
+                                    <div class="mr-3">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-blue-800">Generating AI-Enhanced Summary...</h3>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2">Analyzing FDA data for ${drug} with AI. This might take a moment.</p>
+                            </div>
+                        `;
+                        
+                        try {
+                            // Generate the AI summary
+                            const aiSummary = typeof generateGrokAISummary === 'function' ? 
+                                await generateGrokAISummary(allData) : null;
+                            
+                            if (aiSummary) {
+                                // Sanitize the AI summary to remove any code formatting artifacts
+                                let cleanedSummary = aiSummary;
+                                
+                                // Remove markdown code blocks
+                                cleanedSummary = cleanedSummary.replace(/```(html|javascript|js|css)?([\s\S]*?)```/g, '$2');
+                                cleanedSummary = cleanedSummary.replace(/``(html|javascript|js|css)?([\s\S]*?)``/g, '$2');
+                                cleanedSummary = cleanedSummary.replace(/`(html|javascript|js|css)?([\s\S]*?)`/g, '$2');
+                                
+                                // Remove any leftover single backticks
+                                cleanedSummary = cleanedSummary.replace(/`([^`]*)`/g, '$1');
+                                
+                                // Remove explanatory text commonly found at the end of AI-generated summaries
+                                cleanedSummary = cleanedSummary.replace(/This HTML summary provides?[\s\S]*?(with AI assistance\.?|for healthcare providers\.?|for readability\.?)$/g, '');
+                                cleanedSummary = cleanedSummary.replace(/Summary based on FDA data[\s\S]*?Generated with AI assistance\.?$/g, '');
+                                
+                                // Remove any trailing explanatory paragraphs
+                                cleanedSummary = cleanedSummary.replace(/<p>This (summary|regulatory|report|overview)[\s\S]*?<\/p>$/g, '');
+                                
+                                // Display the cleaned AI summary
+                                summaryContainer.innerHTML = cleanedSummary;
+                                
+                                // Add an updated footer for the AI summary
+                                const aiSummaryFooter = document.createElement('div');
+                                aiSummaryFooter.className = 'flex items-center justify-between mt-4';
+                                
+                                // Email button for AI summary
+                                const aiEmailButton = document.createElement('button');
+                                aiEmailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+                                aiEmailButton.innerHTML = emailButton.innerHTML;
+                                aiEmailButton.onclick = function() {
+                                    if (typeof emailSummary === 'function') {
+                                        emailSummary(drug, cleanedSummary);
+                                    }
+                                };
+                                
+                                // Back to basic summary button
+                                const backToBasicButton = document.createElement('button');
+                                backToBasicButton.className = 'px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors flex items-center';
+                                backToBasicButton.innerHTML = `
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                    Back to Basic Summary
+                                `;
+                                backToBasicButton.onclick = function() {
+                                    // Restore the basic summary
+                                    summaryContainer.innerHTML = basicSummary;
+                                    
+                                    // Restore the original footer with AI summary button
+                                    const basicFooter = document.createElement('div');
+                                    basicFooter.className = 'flex items-center justify-between mt-4';
+                                    basicFooter.appendChild(emailButton.cloneNode(true));
+                                    basicFooter.appendChild(aiSummaryButton.cloneNode(true));
+                                    
+                                    // Re-attach event handlers
+                                    basicFooter.children[0].onclick = function() {
+                                        if (typeof emailSummary === 'function') {
+                                            emailSummary(drug, basicSummary);
+                                        }
+                                    };
+                                    basicFooter.children[1].onclick = aiSummaryButton.onclick;
+                                    
+                                    summaryContainer.appendChild(basicFooter);
+                                };
+                                
+                                // AI badge
+                                const aiBadge = document.createElement('div');
+                                aiBadge.className = 'text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center';
+                                aiBadge.innerHTML = `
+                                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                                    </svg>
+                                    Powered by AI
+                                `;
+                                
+                                // Add containers to footer
+                                const buttonContainer = document.createElement('div');
+                                buttonContainer.className = 'flex space-x-2';
+                                buttonContainer.appendChild(aiEmailButton);
+                                buttonContainer.appendChild(backToBasicButton);
+                                
+                                aiSummaryFooter.appendChild(buttonContainer);
+                                aiSummaryFooter.appendChild(aiBadge);
+                                
+                                // Add footer to the summary container
+                                summaryContainer.appendChild(aiSummaryFooter);
+                            } else {
+                                // If AI summary generation fails, go back to the basic summary
+                                summaryContainer.innerHTML = basicSummary;
+                                summaryContainer.appendChild(summaryFooter);
+                            }
+                        } catch (aiError) {
+                            console.error("Error generating AI summary:", aiError);
+                            // Show an error message and revert to basic summary
+                            summaryContainer.innerHTML = basicSummary;
+                            
+                            // Add error notification
+                            const errorNotice = document.createElement('div');
+                            errorNotice.className = 'p-3 bg-red-50 text-red-700 border border-red-200 rounded mt-2 mb-2';
+                            errorNotice.innerHTML = `
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>AI summary generation failed. Using basic summary instead.</span>
+                                </div>
+                            `;
+                            summaryContainer.insertBefore(errorNotice, summaryContainer.firstChild);
+                            summaryContainer.appendChild(summaryFooter);
+                        }
+                    };
+                    
+                    // Add button containers to the footer
+                    summaryFooter.appendChild(emailButton);
+                    summaryFooter.appendChild(aiSummaryButton);
+                    
+                    // Set the basic summary content
+                    summaryContainer.innerHTML = basicSummary;
+                    
+                    // Add the footer to the summary container
+                    summaryContainer.appendChild(summaryFooter);
+                }
+            } catch (summaryError) {
+                console.error("Error generating summary:", summaryError);
+                
+                // Display error message in the summary container
+                const summaryContainer = document.getElementById('fda-summary-container');
+                if (summaryContainer) {
+                    summaryContainer.innerHTML = `
+                        <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h3 class="text-lg font-medium text-red-800">Error Generating Summary</h3>
+                            </div>
+                            <p class="text-sm text-red-600 mt-2">There was a problem generating the regulatory summary. Please try again later.</p>
+                        </div>
+                    `;
+                }
+            }
+        }, 1000); // Small delay to ensure all data is loaded
+        
     } catch (error) {
         console.error("Error in displayFdaData:", error);
         updateSectionStatus('fda', 'error', 0, 100);
     }
 }
-
 
 // Helper function to ensure Orange Book data is included in the summary
 function collectAllFdaData(drugName) {
@@ -46415,6 +47205,216 @@ function setupPubMedEventListeners(section, suffix) {
 }
 
 // Render PubMed results in a section
+// function renderPubMedResults(data, section, suffix) {
+//   if (!section || !data) return;
+  
+//   // Hide loading
+//   document.getElementById('pubmedLoading' + suffix)?.classList.add('hidden');
+  
+//   // Get elements
+//   const articlesElement = document.getElementById('pubmedArticles' + suffix);
+//   const articlesListElement = document.getElementById('pubmedArticlesList' + suffix);
+//   const resultCountElement = document.getElementById('pubmedResultCount' + suffix);
+//   const emptyElement = document.getElementById('pubmedEmpty' + suffix);
+  
+//   // Check if we have articles
+//   if (data.articles && data.articles.length > 0) {
+//     // Show articles section
+//     if (articlesElement) articlesElement.classList.remove('hidden');
+    
+//     // Update result count
+//     if (resultCountElement) {
+//       resultCountElement.textContent = `${data.totalResults} articles found`;
+//     }
+    
+//     // Create selected articles section if it doesn't exist
+//     const selectedArticlesId = 'pubmedSelectedArticles' + suffix;
+//     let selectedArticlesElement = document.getElementById(selectedArticlesId);
+    
+//     if (!selectedArticlesElement) {
+//       selectedArticlesElement = document.createElement('div');
+//       selectedArticlesElement.id = selectedArticlesId;
+//       selectedArticlesElement.className = 'mb-4 hidden';
+//       selectedArticlesElement.innerHTML = `
+//         <div class="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100">
+//           <div class="flex justify-between items-center mb-2">
+//             <div class="flex items-center">
+//               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+//               </svg>
+//               <h3 class="text-blue-800 font-medium"><span id="pubmedSelectedCount${suffix}">0 articles selected</span></h3>
+//             </div>
+//             <div class="flex gap-2">
+//               <button id="pubmedSelectAllBtn${suffix}" class="text-sm text-blue-700 hover:text-blue-800">
+//                 Select All on Page
+//               </button>
+//               <button id="pubmedDeselectAllBtn${suffix}" class="text-sm text-blue-700 hover:text-blue-800">
+//                 Deselect All
+//               </button>
+//             </div>
+//           </div>
+//           <button id="pubmedSummaryButton${suffix}" class="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed flex items-center justify-center">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//             </svg>
+//             Generate AI Summary
+//           </button>
+//         </div>
+//       `;
+      
+//       // Add to the section, before the articles list
+//       if (articlesElement) {
+//         articlesElement.insertBefore(selectedArticlesElement, articlesElement.firstChild);
+//       } else {
+//         section.appendChild(selectedArticlesElement);
+//       }
+//     }
+    
+//     // Create AI summary section if it doesn't exist
+//     const aiSummarySectionId = 'pubmedAISummarySection' + suffix;
+//     let aiSummarySection = document.getElementById(aiSummarySectionId);
+    
+//     if (!aiSummarySection) {
+//       aiSummarySection = document.createElement('div');
+//       aiSummarySection.id = aiSummarySectionId;
+//       aiSummarySection.className = 'mb-8 hidden';
+//       aiSummarySection.innerHTML = `
+//         <h2 class="text-xl font-bold text-gray-800 mb-4">AI Summary</h2>
+        
+//         <div id="pubmedAISummaryLoading${suffix}" class="flex justify-center items-center py-6 hidden">
+//           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+//         </div>
+        
+//         <div id="pubmedAISummaryContent${suffix}" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden">
+//           <!-- Summary content will be populated by JS -->
+//         </div>
+//       `;
+      
+//       // Add to the section
+//       section.appendChild(aiSummarySection);
+//     }
+    
+//     // Create a Set to track selected articles
+//     const selectedArticles = new Set();
+    
+//     // Render articles
+//     if (articlesListElement) {
+//       articlesListElement.innerHTML = '';
+      
+//       data.articles.forEach(article => {
+//         const articleElement = document.createElement('div');
+//         articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
+//         articleElement.dataset.pmid = article.pmid;
+        
+//         // Generate a simple abstract summary
+//         const abstractSummary = generateAbstractSummary(article);
+        
+//         // Format date
+//         const formattedDate = article.pubDate ? 
+//           new Date(article.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 
+//           'N/A';
+        
+//         // Create article HTML
+//         articleElement.innerHTML = `
+//           <div class="flex items-start">
+//             <label class="flex items-center mr-3 mt-1">
+//               <input type="checkbox" class="article-select-checkbox h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+//             </label>
+//             <div class="flex-grow">
+//               <div class="flex justify-between">
+//                 <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
+//               </div>
+//               <div class="text-sm text-gray-600 mb-2">
+//                 ${article.authors ? article.authors.slice(0, 3).join(', ') + (article.authors.length > 3 ? ', et al.' : '') : 'Unknown authors'}
+//               </div>
+//               <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
+//                 <span class="font-medium">${article.journal || 'Journal not specified'}</span>
+//                 <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+//                 <span>${formattedDate}</span>
+//                 <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
+//                 <span>PMID: ${article.pmid}</span>
+//               </div>
+              
+//               <!-- Abstract Summary -->
+//               <div class="abstract-summary bg-gray-50 p-3 rounded-lg text-sm text-gray-700 mb-3">
+//                 ${abstractSummary}
+//               </div>
+              
+//               <!-- Abstract toggle -->
+//               <div class="flex justify-between items-center mb-3">
+//                 <button class="toggle-abstract-btn text-primary hover:text-primary-dark text-sm flex items-center">
+//                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+//                   </svg>
+//                   Show Full Abstract
+//                 </button>
+//               </div>
+              
+//               <!-- Abstract (initially hidden) -->
+//               <div class="abstract-container hidden">
+//                 <div class="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm mb-3">
+//                   <p>${article.abstract || 'No abstract available'}</p>
+//                 </div>
+//               </div>
+              
+//               <div class="flex flex-wrap gap-2 mt-3">
+//                 <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
+//                    class="text-primary hover:text-primary-dark text-sm flex items-center">
+//                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+//                   </svg>
+//                   View on PubMed
+//                 </a>
+//                 ${article.doi ? 
+//                   `<a href="https://doi.org/${article.doi}" target="_blank" 
+//                       class="text-primary hover:text-primary-dark text-sm flex items-center">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+//                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
+//                     </svg>
+//                     DOI
+//                   </a>` : ''
+//                 }
+//                 ${article.fullTextUrl ? 
+//                   `<a href="${article.fullTextUrl}" target="_blank" 
+//                       class="text-primary hover:text-primary-dark text-sm flex items-center">
+//                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//                     </svg>
+//                     Full Text
+//                   </a>` : ''
+//                 }
+//               </div>
+//             </div>
+//           </div>
+//         `;
+        
+//         articlesListElement.appendChild(articleElement);
+        
+//         // Add event listeners for this article
+//         addArticleEventListeners(articleElement, selectedArticles, suffix);
+//       });
+      
+//       // Setup selection buttons
+//       setupSelectionButtons(selectedArticles, suffix);
+//     }
+//   } else {
+//     // Show empty state
+//     if (emptyElement) {
+//       emptyElement.classList.remove('hidden');
+//       emptyElement.innerHTML = `
+//         <div class="text-center py-8">
+//           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//           </svg>
+//           <h3 class="text-lg font-medium text-gray-700 mb-2">No articles found</h3>
+//           <p class="text-gray-500">Try adjusting your search terms or filters.</p>
+//         </div>
+//       `;
+//     }
+//   }
+// }
+
 function renderPubMedResults(data, section, suffix) {
   if (!section || !data) return;
   
@@ -46437,77 +47437,27 @@ function renderPubMedResults(data, section, suffix) {
       resultCountElement.textContent = `${data.totalResults} articles found`;
     }
     
-    // Create selected articles section if it doesn't exist
-    const selectedArticlesId = 'pubmedSelectedArticles' + suffix;
-    let selectedArticlesElement = document.getElementById(selectedArticlesId);
+    // FIRST: Create and insert Collection Overview at the top
+    const collectionOverviewId = 'pubmedCollectionOverview' + suffix;
+    let collectionOverviewElement = document.getElementById(collectionOverviewId);
     
-    if (!selectedArticlesElement) {
-      selectedArticlesElement = document.createElement('div');
-      selectedArticlesElement.id = selectedArticlesId;
-      selectedArticlesElement.className = 'mb-4 hidden';
-      selectedArticlesElement.innerHTML = `
-        <div class="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-100">
-          <div class="flex justify-between items-center mb-2">
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <h3 class="text-blue-800 font-medium"><span id="pubmedSelectedCount${suffix}">0 articles selected</span></h3>
-            </div>
-            <div class="flex gap-2">
-              <button id="pubmedSelectAllBtn${suffix}" class="text-sm text-blue-700 hover:text-blue-800">
-                Select All on Page
-              </button>
-              <button id="pubmedDeselectAllBtn${suffix}" class="text-sm text-blue-700 hover:text-blue-800">
-                Deselect All
-              </button>
-            </div>
-          </div>
-          <button id="pubmedSummaryButton${suffix}" class="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Generate AI Summary
-          </button>
-        </div>
-      `;
+    if (!collectionOverviewElement) {
+      collectionOverviewElement = document.createElement('div');
+      collectionOverviewElement.id = collectionOverviewId;
+      collectionOverviewElement.className = 'mb-6';
       
-      // Add to the section, before the articles list
-      if (articlesElement) {
-        articlesElement.insertBefore(selectedArticlesElement, articlesElement.firstChild);
-      } else {
-        section.appendChild(selectedArticlesElement);
+      // Insert BEFORE the articles list (at the very top of results)
+      if (articlesListElement && articlesListElement.parentNode) {
+        articlesListElement.parentNode.insertBefore(collectionOverviewElement, articlesListElement);
       }
     }
     
-    // Create AI summary section if it doesn't exist
-    const aiSummarySectionId = 'pubmedAISummarySection' + suffix;
-    let aiSummarySection = document.getElementById(aiSummarySectionId);
+    // Generate and display collection summary
+    // if (data.articles && data.articles.length > 0) {
+    //   generateAndDisplayCollectionSummary(data.articles, collectionOverviewElement);
+    // }
     
-    if (!aiSummarySection) {
-      aiSummarySection = document.createElement('div');
-      aiSummarySection.id = aiSummarySectionId;
-      aiSummarySection.className = 'mb-8 hidden';
-      aiSummarySection.innerHTML = `
-        <h2 class="text-xl font-bold text-gray-800 mb-4">AI Summary</h2>
-        
-        <div id="pubmedAISummaryLoading${suffix}" class="flex justify-center items-center py-6 hidden">
-          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
-        
-        <div id="pubmedAISummaryContent${suffix}" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden">
-          <!-- Summary content will be populated by JS -->
-        </div>
-      `;
-      
-      // Add to the section
-      section.appendChild(aiSummarySection);
-    }
-    
-    // Create a Set to track selected articles
-    const selectedArticles = new Set();
-    
-    // Render articles
+    // THEN: Render the articles list below the collection overview
     if (articlesListElement) {
       articlesListElement.innerHTML = '';
       
@@ -46516,115 +47466,141 @@ function renderPubMedResults(data, section, suffix) {
         articleElement.className = 'bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 border border-gray-100';
         articleElement.dataset.pmid = article.pmid;
         
-        // Generate a simple abstract summary
-        const abstractSummary = generateAbstractSummary(article);
-        
         // Format date
         const formattedDate = article.pubDate ? 
-          new Date(article.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 
-          'N/A';
+          new Date(article.pubDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          }) : 'Date not available';
         
         // Create article HTML
         articleElement.innerHTML = `
-          <div class="flex items-start">
-            <label class="flex items-center mr-3 mt-1">
-              <input type="checkbox" class="article-select-checkbox h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-            </label>
-            <div class="flex-grow">
-              <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">${article.title}</h3>
-              </div>
-              <div class="text-sm text-gray-600 mb-2">
-                ${article.authors ? article.authors.slice(0, 3).join(', ') + (article.authors.length > 3 ? ', et al.' : '') : 'Unknown authors'}
-              </div>
-              <div class="text-sm text-gray-500 mb-3 flex flex-wrap items-center gap-2">
-                <span class="font-medium">${article.journal || 'Journal not specified'}</span>
-                <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
-                <span>${formattedDate}</span>
-                <span class="inline-block w-1 h-1 rounded-full bg-gray-300"></span>
-                <span>PMID: ${article.pmid}</span>
-              </div>
-              
-              <!-- Abstract Summary -->
-              <div class="abstract-summary bg-gray-50 p-3 rounded-lg text-sm text-gray-700 mb-3">
-                ${abstractSummary}
-              </div>
-              
-              <!-- Abstract toggle -->
-              <div class="flex justify-between items-center mb-3">
-                <button class="toggle-abstract-btn text-primary hover:text-primary-dark text-sm flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                  Show Full Abstract
-                </button>
-              </div>
-              
-              <!-- Abstract (initially hidden) -->
-              <div class="abstract-container hidden">
-                <div class="bg-gray-50 p-3 rounded-lg text-gray-700 text-sm mb-3">
-                  <p>${article.abstract || 'No abstract available'}</p>
-                </div>
-              </div>
-              
-              <div class="flex flex-wrap gap-2 mt-3">
+          <div class="flex items-start justify-between">
+            <div class="flex-grow pr-4">
+              <h3 class="text-lg font-medium text-gray-900 mb-2 leading-tight">
                 <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
-                   class="text-primary hover:text-primary-dark text-sm flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+                   class="hover:text-blue-600 transition-colors">
+                  ${article.title}
+                </a>
+              </h3>
+              
+              <div class="text-sm text-gray-600 mb-2">
+                <span class="font-medium">${article.authors ? article.authors.slice(0, 3).join(', ') : 'Authors not available'}</span>
+                ${article.authors && article.authors.length > 3 ? `, et al.` : ''}
+              </div>
+              
+              <div class="text-sm text-gray-500 mb-3">
+                <span class="font-medium">${article.journal || 'Journal not available'}</span>
+                ${article.pubDate ? ` • ${formattedDate}` : ''}
+                ${article.pmid ? ` • PMID: ${article.pmid}` : ''}
+              </div>
+              
+              ${article.abstract ? `
+                <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+                  <p class="leading-relaxed">${article.abstract.length > 300 ? article.abstract.substring(0, 300) + '...' : article.abstract}</p>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="flex flex-col items-end space-y-2">
+              <div class="flex space-x-2">
+                <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" 
+                   class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs hover:bg-blue-200 transition-colors">
                   View on PubMed
                 </a>
-                ${article.doi ? 
-                  `<a href="https://doi.org/${article.doi}" target="_blank" 
-                      class="text-primary hover:text-primary-dark text-sm flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" />
-                    </svg>
-                    DOI
-                  </a>` : ''
-                }
-                ${article.fullTextUrl ? 
-                  `<a href="${article.fullTextUrl}" target="_blank" 
-                      class="text-primary hover:text-primary-dark text-sm flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                ${article.fullTextUrl ? `
+                  <a href="${article.fullTextUrl}" target="_blank" 
+                     class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs hover:bg-green-200 transition-colors">
                     Full Text
-                  </a>` : ''
-                }
+                  </a>
+                ` : ''}
               </div>
             </div>
           </div>
         `;
         
         articlesListElement.appendChild(articleElement);
-        
-        // Add event listeners for this article
-        addArticleEventListeners(articleElement, selectedArticles, suffix);
       });
-      
-      // Setup selection buttons
-      setupSelectionButtons(selectedArticles, suffix);
     }
+    
+    // Hide empty state
+    if (emptyElement) emptyElement.classList.add('hidden');
+    
   } else {
     // Show empty state
-    if (emptyElement) {
-      emptyElement.classList.remove('hidden');
-      emptyElement.innerHTML = `
-        <div class="text-center py-8">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 class="text-lg font-medium text-gray-700 mb-2">No articles found</h3>
-          <p class="text-gray-500">Try adjusting your search terms or filters.</p>
-        </div>
-      `;
-    }
+    if (emptyElement) emptyElement.classList.remove('hidden');
+    if (articlesElement) articlesElement.classList.add('hidden');
   }
 }
 
+// Helper function to generate and display collection summary
+async function generateAndDisplayCollectionSummary(articles, containerElement) {
+  if (!articles || articles.length === 0 || !containerElement) return;
+  
+  try {
+    // Generate collection summary
+    const summary = await generateCollectionSummary(articles);
+    
+    if (summary) {
+      // Create summary element
+      const summaryElement = createCollectionSummaryElement(summary);
+      
+      if (summaryElement) {
+        // Clear container and add summary
+        containerElement.innerHTML = '';
+        containerElement.appendChild(summaryElement);
+        
+        // Add collapse/expand functionality
+        const collapseBtn = summaryElement.querySelector('#pubmedCollapseCollectionBtn');
+        if (collapseBtn) {
+          collapseBtn.addEventListener('click', function() {
+            const content = summaryElement.querySelector('#pubmedCollectionContent');
+            const icon = this.querySelector('svg path');
+            
+            if (content.style.display === 'none') {
+              content.style.display = 'block';
+              icon.setAttribute('d', 'M5 15l7-7 7 7');
+            } else {
+              content.style.display = 'none';
+              icon.setAttribute('d', 'M19 9l-7 7-7-7');
+            }
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error generating collection summary:', error);
+  }
+}
+
+// Alternative approach: If the above doesn't work, try this CSS-based solution
+// Add this CSS to ensure Collection Overview appears above results
+const collectionOverviewCSS = `
+  .pubmed-collection-overview {
+    order: -1; /* This will make it appear first in flexbox containers */
+    margin-bottom: 1.5rem;
+  }
+  
+  .pubmed-articles-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .pubmed-results-section {
+    order: 1; /* This will make results appear after overview */
+  }
+`;
+
+// Inject the CSS
+function injectCollectionOverviewCSS() {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = collectionOverviewCSS;
+  document.head.appendChild(styleElement);
+}
+
+// Call this function when initializing PubMed
+injectCollectionOverviewCSS();
 
 
 // Generate a simple abstract summary
@@ -52644,6 +53620,708 @@ const EmaDataModule = (function() {
     }
   }
 
+
+  // Enhanced EMA Summary Generator with AI Industry Insights
+function generateEmaLocalSummary(allData) {
+  console.log('Generating EMA local summary with data:', allData);
+  
+  try {
+    const { medicines, orphans, safety, psusa, shortages, referrals, drugName } = allData;
+    
+    // Handle empty data case
+    if (!medicines?.length && !orphans?.length && !safety?.length && 
+        !psusa?.length && !shortages?.length && !referrals?.length) {
+      return `
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-8 text-center border border-gray-200">
+          <div class="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">No EMA Data Available</h3>
+          <p class="text-gray-500">No European regulatory data found for "${drugName}"</p>
+        </div>
+      `;
+    }
+    
+    // Calculate comprehensive metrics
+    const totalMedicines = medicines?.length || 0;
+    const totalOrphans = orphans?.length || 0;
+    const totalSafety = (safety?.length || 0) + (psusa?.length || 0);
+    const totalShortages = shortages?.length || 0;
+    const totalReferrals = referrals?.length || 0;
+    const totalRegulatory = totalMedicines + totalOrphans + totalSafety + totalShortages + totalReferrals;
+    
+    console.log('EMA Summary metrics:', {
+      totalMedicines, totalOrphans, totalSafety, totalShortages, totalReferrals, totalRegulatory
+    });
+    
+    // Generate the summary HTML
+    const summaryHtml = `
+      <div class="bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-xl p-6 mb-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-2xl font-bold mb-2">EMA Regulatory Summary</h3>
+            <p class="text-purple-100 text-sm">${drugName}</p>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-bold">${totalRegulatory}</div>
+            <div class="text-sm text-purple-100">Total Records</div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">${totalMedicines}</div>
+            <div class="text-sm text-purple-100">Medicines</div>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">${totalOrphans}</div>
+            <div class="text-sm text-purple-100">Orphan Drugs</div>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">${totalSafety}</div>
+            <div class="text-sm text-purple-100">Safety Issues</div>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">${totalShortages}</div>
+            <div class="text-sm text-purple-100">Shortages</div>
+          </div>
+          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold">${totalReferrals}</div>
+            <div class="text-sm text-purple-100">Referrals</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <h4 class="text-lg font-semibold mb-3 text-gray-800">Key Findings</h4>
+        <div class="space-y-3 text-sm text-gray-600">
+          ${totalMedicines > 0 ? `<p>• ${totalMedicines} authorized medicine(s) found in EMA database</p>` : ''}
+          ${totalOrphans > 0 ? `<p>• ${totalOrphans} orphan drug designation(s) identified</p>` : ''}
+          ${totalSafety > 0 ? `<p>• ${totalSafety} safety communication(s) or PSUSA report(s) available</p>` : ''}
+          ${totalShortages > 0 ? `<p>• ${totalShortages} shortage notification(s) recorded</p>` : ''}
+          ${totalReferrals > 0 ? `<p>• ${totalReferrals} regulatory referral(s) documented</p>` : ''}
+          ${totalRegulatory === 0 ? '<p>• No specific regulatory data found for this drug in EMA records</p>' : ''}
+        </div>
+        
+        <div class="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
+          Summary generated on ${new Date().toLocaleDateString()} • Data sourced from European Medicines Agency
+        </div>
+      </div>
+    `;
+    
+    return summaryHtml;
+    
+  } catch (error) {
+    console.error('Error in generateEmaLocalSummary:', error);
+    
+    return `
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-red-800">Summary Generation Error</h3>
+          <p class="mt-1 text-sm text-red-700">Unable to generate EMA summary: ${error.message}</p>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Helper funct
+// Helper Functions for Analysis
+
+function analyzeAuthorizationPatterns(medicines) {
+  if (!medicines || medicines.length === 0) return { approved: 0, pending: 0, refused: 0, withdrawn: 0 };
+  
+  const patterns = { approved: 0, pending: 0, refused: 0, withdrawn: 0 };
+  
+  medicines.forEach(medicine => {
+    const status = findField(medicine, ['status', '_3', 'Medicine status'])?.toLowerCase() || '';
+    if (status.includes('authorised') || status.includes('authorized')) patterns.approved++;
+    else if (status.includes('pending') || status.includes('ongoing')) patterns.pending++;
+    else if (status.includes('refused') || status.includes('rejected')) patterns.refused++;
+    else if (status.includes('withdrawn') || status.includes('suspended')) patterns.withdrawn++;
+  });
+  
+  return patterns;
+}
+function analyzeOrphanDesignations(orphans) {
+  if (!orphans || orphans.length === 0) return { positive: 0, negative: 0, withdrawn: 0 };
+  
+  const analysis = { positive: 0, negative: 0, withdrawn: 0 };
+  
+  orphans.forEach(orphan => {
+    const status = findField(orphan, ['status', '_4', '_5', 'Status'])?.toLowerCase() || '';
+    if (status.includes('positive')) analysis.positive++;
+    else if (status.includes('negative')) analysis.negative++;
+    else if (status.includes('withdrawn')) analysis.withdrawn++;
+  });
+  
+  return analysis;
+}
+
+function analyzeSafetySignals(safety, psusa) {
+  const totalSafety = (safety?.length || 0) + (psusa?.length || 0);
+  const riskLevel = totalSafety === 0 ? 'Low' : totalSafety < 3 ? 'Moderate' : 'High';
+  
+  return {
+    totalSignals: totalSafety,
+    riskLevel,
+    recentCommunications: safety?.slice(0, 3) || [],
+    recentPsusa: psusa?.slice(0, 3) || []
+  };
+}
+
+function analyzeMarketDynamics(medicines, orphans, shortages) {
+  const totalAuth = medicines?.length || 0;
+  const totalOrph = orphans?.length || 0;
+  const totalShort = shortages?.length || 0;
+  
+  return {
+    marketPresence: totalAuth > 0 ? 'Established' : 'Limited',
+    orphanAdvantage: totalOrph > 0,
+    supplyRisk: totalShort > 0 ? 'Present' : 'Low',
+    competitivePosition: calculateCompetitivePosition(totalAuth, totalOrph)
+  };
+}
+
+function calculateMarketAccess(authAnalysis) {
+  const total = authAnalysis.approved + authAnalysis.pending + authAnalysis.refused + authAnalysis.withdrawn;
+  if (total === 0) return 'N/A';
+  
+  const score = ((authAnalysis.approved * 100) + (authAnalysis.pending * 50) - (authAnalysis.refused * 25)) / total;
+  return Math.max(0, Math.min(100, Math.round(score))) + '%';
+}
+
+function calculateCompetitivePosition(authorizations, orphans) {
+  if (authorizations === 0 && orphans === 0) return 'New Entrant';
+  if (orphans > 0) return 'Niche Player';
+  if (authorizations > 3) return 'Market Leader';
+  return 'Emerging Player';
+}
+
+function generateAuthorizationInsights(analysis, medicines) {
+  const total = analysis.approved + analysis.pending + analysis.refused + analysis.withdrawn;
+  if (total === 0) return '<p class="text-sm text-gray-600">No authorization data available</p>';
+  
+  const successRate = ((analysis.approved / total) * 100).toFixed(1);
+  
+  return `
+    <div class="space-y-3">
+      <div class="bg-white rounded-lg p-3 border border-gray-200">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-medium text-gray-700">Authorization Success Rate</span>
+          <span class="text-lg font-bold text-green-600">${successRate}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-green-600 h-2 rounded-full" style="width: ${successRate}%"></div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 gap-2">
+        <div class="bg-green-50 rounded-lg p-2 text-center">
+          <div class="text-lg font-bold text-green-800">${analysis.approved}</div>
+          <div class="text-xs text-green-600">Approved</div>
+        </div>
+        <div class="bg-blue-50 rounded-lg p-2 text-center">
+          <div class="text-lg font-bold text-blue-800">${analysis.pending}</div>
+          <div class="text-xs text-blue-600">Pending</div>
+        </div>
+      </div>
+      
+      <div class="text-xs text-gray-500">
+        Based on ${total} regulatory submissions
+      </div>
+    </div>
+  `;
+}
+
+// Continuation of Enhanced EMA Summary Function - Helper Functions & Integration
+
+function generateMarketAccessInsights(analysis) {
+  return `
+    <div class="space-y-3">
+      <div class="bg-white rounded-lg p-3 border border-gray-200">
+        <div class="text-sm font-medium text-gray-700 mb-2">Market Position</div>
+        <div class="text-lg font-bold text-purple-600">${analysis.competitivePosition}</div>
+        <div class="text-xs text-gray-500 mt-1">Competitive assessment</div>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex items-center justify-between p-2 bg-white rounded border">
+          <span class="text-sm text-gray-600">Market Presence</span>
+          <span class="text-sm font-medium ${analysis.marketPresence === 'Established' ? 'text-green-600' : 'text-orange-600'}">${analysis.marketPresence}</span>
+        </div>
+        
+        <div class="flex items-center justify-between p-2 bg-white rounded border">
+          <span class="text-sm text-gray-600">Orphan Advantage</span>
+          <span class="text-sm font-medium ${analysis.orphanAdvantage ? 'text-green-600' : 'text-gray-500'}">
+            ${analysis.orphanAdvantage ? 'Present' : 'None'}
+          </span>
+        </div>
+        
+        <div class="flex items-center justify-between p-2 bg-white rounded border">
+          <span class="text-sm text-gray-600">Supply Risk</span>
+          <span class="text-sm font-medium ${analysis.supplyRisk === 'Low' ? 'text-green-600' : 'text-red-600'}">${analysis.supplyRisk}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateSafetyIntelligence(safetyAnalysis, totalSafety, totalShortages) {
+  const riskScore = calculateRiskScore(totalSafety, totalShortages);
+  
+  return `
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-800 flex items-center">
+          <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+          Safety Profile Assessment
+        </h4>
+        
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-gray-700">Risk Level</span>
+            <span class="px-3 py-1 rounded-full text-sm font-medium ${getRiskLevelClass(safetyAnalysis.riskLevel)}">
+              ${safetyAnalysis.riskLevel}
+            </span>
+          </div>
+          
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Safety Communications</span>
+              <span class="font-medium">${totalSafety}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Supply Issues</span>
+              <span class="font-medium">${totalShortages}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Overall Risk Score</span>
+              <span class="font-medium text-orange-600">${riskScore}/100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-800 flex items-center">
+          <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+          Risk Mitigation Recommendations
+        </h4>
+        
+        <div class="space-y-2">
+          ${generateRiskRecommendations(safetyAnalysis.riskLevel, totalSafety, totalShortages)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateCompetitiveIntelligence(medicines, orphans, drugName) {
+  const insights = analyzeCompetitiveLandscape(medicines, orphans);
+  
+  return `
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-800 flex items-center">
+          <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+          Market Intelligence
+        </h4>
+        
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Therapeutic Area Presence</span>
+              <span class="text-sm font-medium">${insights.therapeuticAreas}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Market Entry Strategy</span>
+              <span class="text-sm font-medium text-blue-600">${insights.entryStrategy}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Regulatory Pathway</span>
+              <span class="text-sm font-medium text-green-600">${insights.regulatoryPathway}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="space-y-4">
+        <h4 class="font-semibold text-gray-800 flex items-center">
+          <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+          Strategic Recommendations
+        </h4>
+        
+        <div class="space-y-2">
+          ${generateStrategicRecommendations(insights, drugName)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function extractRecentActivity(medicines, orphans, safety, psusa, shortages, referrals) {
+  const activities = [];
+  
+  // Extract from medicines
+  if (medicines) {
+    medicines.slice(0, 2).forEach(medicine => {
+      const date = findField(medicine, ['authorisation_date', '_enhancedAuthDate', '_29', '_31', '_36']);
+      if (date) {
+        activities.push({
+          type: 'Medicine Authorization',
+          title: findField(medicine, ['name', '_1']) || 'Medicine Authorization',
+          description: `${findField(medicine, ['active_substance', '_6', '_7']) || 'Active substance'} - ${findField(medicine, ['status', '_3']) || 'Status update'}`,
+          date: date,
+          status: findField(medicine, ['status', '_3'])
+        });
+      }
+    });
+  }
+  
+  // Extract from orphans
+  if (orphans) {
+    orphans.slice(0, 2).forEach(orphan => {
+      const date = findField(orphan, ['decision_date', '_enhancedDesignationDate', '_6', '_7']);
+      if (date) {
+        activities.push({
+          type: 'Orphan Designation',
+          title: findField(orphan, ['name', '_1']) || 'Orphan Designation',
+          description: `${findField(orphan, ['intended_use', '_2', '_3']) || 'Orphan indication'}`,
+          date: date,
+          status: findField(orphan, ['status', '_4', '_5'])
+        });
+      }
+    });
+  }
+  
+  // Extract from safety communications
+  if (safety) {
+    safety.slice(0, 2).forEach(comm => {
+      const date = findField(comm, ['date', '_1', '_2']);
+      if (date) {
+        activities.push({
+          type: 'Safety Communication',
+          title: 'Safety Communication',
+          description: findField(comm, ['title', '_0', '_1']) || 'Safety update',
+          date: date,
+          status: 'Published'
+        });
+      }
+    });
+  }
+  
+  // Sort by date (most recent first)
+  return activities
+    .filter(activity => activity.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
+}
+
+// Helper utility functions
+
+function findField(item, possibleKeys) {
+  if (!item) return null;
+  
+  for (const key of possibleKeys) {
+    if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
+      return item[key];
+    }
+  }
+  return null;
+}
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  } catch (e) {
+    return dateString;
+  }
+}
+function getActivityColor(type) {
+  const colors = {
+    'Medicine Authorization': 'bg-green-500',
+    'Orphan Designation': 'bg-purple-500',
+    'Safety Communication': 'bg-orange-500',
+    'PSUSA Report': 'bg-red-500',
+    'Supply Shortage': 'bg-yellow-500',
+    'Regulatory Referral': 'bg-blue-500'
+  };
+  return colors[type] || 'bg-gray-500';
+}
+
+function getActivityBadgeClass(type) {
+  const classes = {
+    'Medicine Authorization': 'bg-green-100 text-green-800',
+    'Orphan Designation': 'bg-purple-100 text-purple-800',
+    'Safety Communication': 'bg-orange-100 text-orange-800',
+    'PSUSA Report': 'bg-red-100 text-red-800',
+    'Supply Shortage': 'bg-yellow-100 text-yellow-800',
+    'Regulatory Referral': 'bg-blue-100 text-blue-800'
+  };
+  return classes[type] || 'bg-gray-100 text-gray-800';
+}
+
+function getStatusBadgeClass(status) {
+  if (!status) return 'bg-gray-100 text-gray-800';
+  
+  const statusLower = status.toLowerCase();
+  if (statusLower.includes('approved') || statusLower.includes('authorised') || statusLower.includes('positive')) {
+    return 'bg-green-100 text-green-800';
+  } else if (statusLower.includes('pending') || statusLower.includes('ongoing')) {
+    return 'bg-blue-100 text-blue-800';
+  } else if (statusLower.includes('refused') || statusLower.includes('negative')) {
+    return 'bg-red-100 text-red-800';
+  }
+  return 'bg-gray-100 text-gray-800';
+}
+
+function getRiskLevelClass(riskLevel) {
+  const classes = {
+    'Low': 'bg-green-100 text-green-800',
+    'Moderate': 'bg-yellow-100 text-yellow-800',
+    'High': 'bg-red-100 text-red-800'
+  };
+  return classes[riskLevel] || 'bg-gray-100 text-gray-800';
+}
+
+function calculateRiskScore(safetySignals, shortages) {
+  const baseScore = (safetySignals * 15) + (shortages * 10);
+  return Math.min(100, baseScore);
+}
+
+function generateRiskRecommendations(riskLevel, safetySignals, shortages) {
+  const recommendations = [];
+  
+  if (riskLevel === 'High') {
+    recommendations.push(`
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+        <div class="text-sm font-medium text-red-800">High Priority: Enhanced Pharmacovigilance</div>
+        <div class="text-xs text-red-600 mt-1">Implement comprehensive safety monitoring and risk management plans</div>
+      </div>
+    `);
+  }
+  
+  if (safetySignals > 0) {
+    recommendations.push(`
+      <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+        <div class="text-sm font-medium text-orange-800">Safety Signal Management</div>
+        <div class="text-xs text-orange-600 mt-1">Review and address ${safetySignals} safety communication(s)</div>
+      </div>
+    `);
+  }
+  
+  if (shortages > 0) {
+    recommendations.push(`
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+        <div class="text-sm font-medium text-yellow-800">Supply Chain Resilience</div>
+        <div class="text-xs text-yellow-600 mt-1">Address ${shortages} supply shortage(s) and strengthen distribution</div>
+      </div>
+    `);
+  }
+  
+  if (recommendations.length === 0) {
+    recommendations.push(`
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+        <div class="text-sm font-medium text-green-800">Maintain Current Standards</div>
+        <div class="text-xs text-green-600 mt-1">Continue standard pharmacovigilance and quality monitoring</div>
+      </div>
+    `);
+  }
+  
+  return recommendations.join('');
+}
+
+function analyzeCompetitiveLandscape(medicines, orphans) {
+  const hasOrphan = orphans && orphans.length > 0;
+  const hasMedicines = medicines && medicines.length > 0;
+  
+  return {
+    therapeuticAreas: hasMedicines ? 'Multiple' : 'Limited',
+    entryStrategy: hasOrphan ? 'Orphan-first approach' : 'Standard pathway',
+    regulatoryPathway: hasOrphan ? 'Accelerated (Orphan)' : 'Standard centralized',
+    competitiveAdvantage: hasOrphan ? 'Market exclusivity potential' : 'Competitive market'
+  };
+}
+
+function generateStrategicRecommendations(insights, drugName) {
+  const recommendations = [];
+  
+  if (insights.entryStrategy === 'Orphan-first approach') {
+    recommendations.push(`
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+        <div class="text-sm font-medium text-purple-800">Leverage Orphan Status</div>
+        <div class="text-xs text-purple-600 mt-1">Maximize market exclusivity and incentives for ${drugName}</div>
+      </div>
+    `);
+  }
+  
+  recommendations.push(`
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div class="text-sm font-medium text-blue-800">Market Access Strategy</div>
+      <div class="text-xs text-blue-600 mt-1">Focus on ${insights.regulatoryPathway.toLowerCase()} to optimize time-to-market</div>
+    </div>
+  `);
+  
+  recommendations.push(`
+    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+      <div class="text-sm font-medium text-indigo-800">Competitive Intelligence</div>
+      <div class="text-xs text-indigo-600 mt-1">Monitor regulatory landscape for strategic positioning opportunities</div>
+    </div>
+  `);
+  
+  return recommendations.join('');
+}
+
+// Main Integration Function - This adds the EMA summary to your existing EMA section
+function initializeEmaEnhancedSummary() {
+  // Wait for EMA data to be loaded
+  const checkForEmaData = setInterval(() => {
+    if (window.currentSearchData && window.currentSearchData.results) {
+      clearInterval(checkForEmaData);
+      
+      // Create and inject the EMA summary container
+      const emaSection = document.querySelector('.emaDataSection') || document.getElementById('emaDataSection');
+      if (emaSection) {
+        // Find or create summary container
+        let summaryContainer = document.getElementById('ema-summary-container');
+        if (!summaryContainer) {
+          summaryContainer = document.createElement('div');
+          summaryContainer.id = 'ema-summary-container';
+          summaryContainer.className = 'mb-6 hidden';
+          
+          // Insert after the header but before the data tabs
+          const header = emaSection.querySelector('h2') || emaSection.querySelector('.text-2xl');
+          if (header) {
+            header.parentNode.insertBefore(summaryContainer, header.nextSibling);
+          } else {
+            emaSection.insertBefore(summaryContainer, emaSection.firstChild);
+          }
+        }
+        
+        // Generate and display the enhanced summary
+        generateAndDisplayEmaSummary();
+      }
+    }
+  }, 1000);
+  
+  // Clear the interval after 30 seconds to prevent infinite checking
+  setTimeout(() => clearInterval(checkForEmaData), 30000);
+}
+
+function generateAndDisplayEmaSummary() {
+  const summaryContainer = document.getElementById('ema-summary-container');
+  if (!summaryContainer || !window.currentSearchData) return;
+  
+  // Collect all EMA data
+  const allData = {
+    medicines: window.currentSearchData.results.medicines || [],
+    orphans: window.currentSearchData.results.orphans || [],
+    safety: window.currentSearchData.results.dhpc || [],
+    psusa: window.currentSearchData.results.psusa || [],
+    shortages: window.currentSearchData.results.shortages || [],
+    referrals: window.currentSearchData.results.referrals || [],
+    drugName: window.currentDrugName || 'this drug'
+  };
+  
+  // Generate the enhanced summary
+  const summaryHtml = generateEmaLocalSummary(allData);
+  
+  // Create footer with action buttons
+  const footer = createEmaEnhancedFooter(allData.drugName);
+  
+  // Display the summary
+  summaryContainer.innerHTML = summaryHtml;
+  summaryContainer.appendChild(footer);
+  summaryContainer.classList.remove('hidden');
+  
+  // Smooth scroll to summary
+  summaryContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function createEmaEnhancedFooter(drugName) {
+  const footer = document.createElement('div');
+  footer.className = 'flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-gray-200';
+  
+  // Email button
+  const emailButton = document.createElement('button');
+  emailButton.className = 'w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg flex items-center justify-center font-medium';
+  emailButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+    </svg>
+    Email EMA Intelligence
+  `;
+  emailButton.onclick = function() {
+    alert('Email functionality would be implemented here for: ' + drugName);
+  };
+  
+  // AI button
+  const aiButton = document.createElement('button');
+  aiButton.className = 'w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg flex items-center justify-center font-medium';
+  aiButton.innerHTML = `
+    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+    </svg>
+    Generate Deep AI Analysis
+  `;
+  aiButton.onclick = function() {
+    alert('AI analysis functionality would be implemented here for: ' + drugName);
+  };
+  
+  footer.appendChild(emailButton);
+  footer.appendChild(aiButton);
+  
+  return footer;
+}
+async function generateEmaEnhancedSummary(drugName) {
+  // This function would integrate with your AI service
+  // For now, show a placeholder
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl p-6 max-w-2xl mx-4">
+      <h3 class="text-xl font-semibold mb-4">AI-Enhanced EMA Analysis</h3>
+      <div class="flex items-center justify-center py-8">
+        <svg class="animate-spin h-8 w-8 text-purple-500 mr-3" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Generating deep regulatory insights for ${drugName}...</span>
+      </div>
+      <p class="text-sm text-gray-600 text-center">This feature will provide advanced AI analysis of regulatory patterns, competitive intelligence, and strategic recommendations.</p>
+      <div class="mt-6 flex justify-center">
+        <button onclick="document.body.removeChild(this.closest('.fixed'))" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Auto-close after 3 seconds
+  setTimeout(() => {
+    if (document.body.contains(modal)) {
+      document.body.removeChild(modal);
+    }
+  }, 3000);
+}
   // Toggle summary buttons visibility
   function toggleSummaryButtons(show = false) {
     if (elements.summaryBtn) {
@@ -52992,8 +54670,6 @@ async function generateAiSummary() {
     document.getElementById('tryStandardSummaryBtn').addEventListener('click', generateSummary);
   }
 }
-
-
   
   // Email summary
   async function emailSummary(summaryContent, isAiSummary = false) {
@@ -53104,6 +54780,88 @@ async function generateAiSummary() {
     }
   }
 
+// Main function to show enhanced EMA summary - THIS IS WHAT YOUR CODE IS CALLING
+function createEmaEnhancedFooter(drugName) {
+  const footer = document.createElement('div');
+  footer.className = 'mt-4 pt-3 border-t border-gray-200 text-center';
+  footer.innerHTML = `
+    <div class="text-xs text-gray-500 mb-2">
+      For complete regulatory information, visit the 
+      <a href="https://www.ema.europa.eu/" target="_blank" class="text-blue-600 hover:underline">
+        European Medicines Agency website
+      </a>
+    </div>
+    <div class="flex justify-center space-x-2">
+      <button onclick="window.print()" class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200">
+        Print Summary
+      </button>
+      <button onclick="exportEmaSummary('${drugName}')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200">
+        Export Data
+      </button>
+    </div>
+  `;
+  
+  return footer;
+}
+
+// Helper function to create the summary container
+function createEmaSummaryContainer() {
+  // Try multiple selectors to find the EMA section
+const emaSection = document.getElementById('emaDataSection');
+  
+  if (!emaSection) {
+    console.error('EMA section not found - creating fallback container');
+    
+    // Create a fallback container if no EMA section exists
+    const fallbackContainer = document.createElement('div');
+    fallbackContainer.id = 'ema-fallback-section';
+    fallbackContainer.className = 'bg-white rounded-lg shadow-md p-6 mb-6';
+    
+    // Try to insert it after the main search or at the top of content
+    const insertAfter = document.querySelector('.search-container') ||
+                       document.querySelector('main') ||
+                       document.body;
+    
+    if (insertAfter) {
+      insertAfter.appendChild(fallbackContainer);
+      return createSummaryContainerInSection(fallbackContainer);
+    }
+    
+    return null;
+  }
+  
+  return createSummaryContainerInSection(emaSection);
+}
+
+
+function createSummaryContainerInSection(emaSection) {
+  // Check if summary container already exists
+  let summaryContainer = emaSection.querySelector('#ema-summary-container');
+  
+  if (summaryContainer) {
+    return summaryContainer;
+  }
+  
+  // Create new summary container
+  summaryContainer = document.createElement('div');
+  summaryContainer.id = 'ema-summary-container';
+  summaryContainer.className = 'mb-6 ema-summary-section';
+  
+  // Try to insert after stats/counters or at the beginning
+  const insertAfter = emaSection.querySelector('.grid') || 
+                     emaSection.querySelector('.mb-6') ||
+                     emaSection.querySelector('h2') ||
+                     emaSection.querySelector('.stats-section');
+  
+  if (insertAfter && insertAfter.parentNode === emaSection) {
+    insertAfter.parentNode.insertBefore(summaryContainer, insertAfter.nextSibling);
+  } else {
+    // Fallback: insert at beginning of EMA section
+    emaSection.insertBefore(summaryContainer, emaSection.firstChild);
+  }
+  
+  return summaryContainer;
+}
   // Display EMA data in the UI
   function displayEmaData(data) {
     const { results, total } = data;
@@ -53157,7 +54915,47 @@ async function generateAiSummary() {
     } else {
       showEmptyState(elements.shortagesData, 'No shortage data found for this drug.');
     }
+    showEmaEnhancedSummary(results, window.currentDrugName || 'Unknown Drug');
   }
+
+  function showEmaEnhancedSummary(emaResults, drugName) {
+  try {
+    // Prepare data in the expected format
+    const allData = {
+      medicines: emaResults.medicines || [],
+      orphans: emaResults.orphans || [],
+      safety: emaResults.dhpc || [],
+      psusa: emaResults.psusa || [],
+      shortages: emaResults.shortages || [],
+      referrals: emaResults.referrals || [],
+      drugName: drugName || 'Unknown Drug'
+    };
+    
+    // Find or create the summary container
+    let summaryContainer = document.getElementById('ema-summary-container');
+    if (!summaryContainer) {
+      summaryContainer = createEmaSummaryContainer();
+    }
+    
+    if (!summaryContainer) {
+      console.error('Could not create EMA summary container');
+      return;
+    }
+    
+    // Generate and display the summary
+    const summaryHtml = generateEmaLocalSummary(allData);
+    const footer = createEmaEnhancedFooter(drugName);
+    
+    summaryContainer.innerHTML = summaryHtml;
+    summaryContainer.appendChild(footer);
+    summaryContainer.classList.remove('hidden');
+    
+    console.log('EMA Enhanced Summary generated successfully');
+    
+  } catch (error) {
+    console.error('Error generating EMA enhanced summary:', error);
+  }
+}
 
   // Display approval data
   function displayApprovalData(data) {
@@ -54734,88 +56532,119 @@ function displayReferralsData(data) {
   }
 
   // Show toast message
-  function showToast(message, type = 'info') {
-    // Check if toast container exists, if not create it
-    let toastContainer = document.getElementById('toast-container');
-    
-    if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.id = 'toast-container';
-      toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col space-y-2';
-      document.body.appendChild(toastContainer);
-    }
-    
-    // Create toast element
-    const toast = document.createElement('div');
-    
-    let bgColor = 'bg-blue-500';
-    let icon = `
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    `;
-    
-    if (type === 'success') {
-      bgColor = 'bg-green-500';
-      icon = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-      `;
-    } else if (type === 'error') {
-      bgColor = 'bg-red-500';
-      icon = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      `;
-    } else if (type === 'warning') {
-      bgColor = 'bg-yellow-500';
-      icon = `
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      `;
-    }
-    
-    toast.className = `flex items-center p-3 rounded-lg text-white ${bgColor} shadow-lg transition-opacity duration-500`;
-    toast.innerHTML = `
-      ${icon}
-      <span>${message}</span>
-      <button class="ml-4 text-white focus:outline-none hover:text-gray-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    `;
-    
-    // Add click event to close button
-    const closeButton = toast.querySelector('button');
-    closeButton.addEventListener('click', () => {
-      toast.style.opacity = '0';
-      setTimeout(() => {
-        if (toast.parentNode === toastContainer) {
-          toastContainer.removeChild(toast);
-        }
-      }, 500);
-    });
-    
-    // Add toast to container
-    toastContainer.appendChild(toast);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-      if (toast.parentNode === toastContainer) {
-        toast.style.opacity = '0';
-        setTimeout(() => {
-          if (toast.parentNode === toastContainer) {
-            toastContainer.removeChild(toast);
-          }
-        }, 500);
-      }
-    }, 5000);
+function showToast(message, type = 'info') {
+  // Create toast container if it doesn't exist
+  let toastContainer = document.getElementById('toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+    document.body.appendChild(toastContainer);
   }
+  
+  // Create toast element
+  const toast = document.createElement('div');
+  const toastId = 'toast-' + Date.now();
+  toast.id = toastId;
+  
+  // Set toast styling based on type
+  let bgColor, textColor, icon;
+  switch (type) {
+    case 'error':
+      bgColor = 'bg-red-500';
+      textColor = 'text-white';
+      icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              </svg>`;
+      break;
+    case 'success':
+      bgColor = 'bg-green-500';
+      textColor = 'text-white';
+      icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>`;
+      break;
+    case 'warning':
+      bgColor = 'bg-yellow-500';
+      textColor = 'text-white';
+      icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>`;
+      break;
+    default:
+      bgColor = 'bg-blue-500';
+      textColor = 'text-white';
+      icon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>`;
+  }
+  
+  toast.className = `${bgColor} ${textColor} p-4 rounded-lg shadow-lg max-w-sm flex items-center space-x-3 transform transition-all duration-300 translate-x-full`;
+  toast.innerHTML = `
+    <div class="flex-shrink-0">
+      ${icon}
+    </div>
+    <div class="flex-1">
+      <p class="text-sm font-medium">${message}</p>
+    </div>
+    <button onclick="removeToast('${toastId}')" class="flex-shrink-0 ml-2 text-white hover:text-gray-200">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  `;
+  
+  toastContainer.appendChild(toast);
+  
+  // Animate in
+  setTimeout(() => {
+    toast.classList.remove('translate-x-full');
+  }, 100);
+  
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    removeToast(toastId);
+  }, 5000);
+}
 
+function removeToast(toastId) {
+  const toast = document.getElementById(toastId);
+  if (toast) {
+    toast.classList.add('translate-x-full');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  }
+}
+
+function exportEmaSummary(drugName) {
+  try {
+    const summaryContainer = document.getElementById('ema-summary-container');
+    if (!summaryContainer) {
+      showToast('No EMA summary to export', 'warning');
+      return;
+    }
+    
+    const summaryContent = summaryContainer.innerText || summaryContainer.textContent;
+    const blob = new Blob([summaryContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `EMA_Summary_${drugName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('EMA summary exported successfully', 'success');
+  } catch (error) {
+    console.error('Error exporting EMA summary:', error);
+    showToast('Error exporting EMA summary', 'error');
+  }
+}
   // Set user role (admin or regular user)
   function setUserRole(role) {
     const isAdmin = role === 'admin';
@@ -61974,100 +63803,1245 @@ const PubMedModule = (function() {
     }
   
     // Function to generate collection summary
-    async function generateCollectionSummary(articles) {
-      // If we already have a collection summary and articles haven't changed, return it
-      if (state.collectionSummary && state.collectionSummary.articleCount === articles.length) {
-        return state.collectionSummary;
-      }
+// Enhanced Collection Summary for FDA Regulatory Intelligence
+// This provides actionable insights for drug approval professionals
+
+// Enhanced function to generate collection summary with regulatory intelligence
+async function generateCollectionSummary(articles) {
+  if (state.collectionSummary && state.collectionSummary.articleCount === articles.length) {
+    return state.collectionSummary;
+  }
+  
+  try {
+    // 1. REGULATORY PATHWAY ANALYSIS
+    const regulatoryData = analyzeRegulatoryEvidence(articles);
+    
+    // 2. CLINICAL EVIDENCE QUALITY ASSESSMENT
+    const evidenceQuality = assessEvidenceQuality(articles);
+    
+    // 3. TRIAL DESIGN PATTERNS
+    const trialDesignInsights = analyzeTrialDesigns(articles);
+    
+    // 4. SAFETY & EFFICACY SIGNALS
+    const safetyEfficacyData = extractSafetyEfficacySignals(articles);
+    
+    // 5. COMPETITIVE LANDSCAPE
+    const competitiveAnalysis = analyzeCompetitiveLandscape(articles);
+    
+    // 6. APPROVAL TIMELINE PREDICTIONS
+    const timelineInsights = predictApprovalTimelines(articles, regulatoryData);
+    
+    // Create comprehensive summary with default values
+    const summary = {
+      // Basic metrics
+      articleCount: articles.length,
+      dateRange: getDateRange(articles),
+      fullTextAvailable: articles.filter(a => a.fullTextUrl).length,
       
-      try {
-        // Extract publication years
-        const years = articles.map(article => {
-          const pubDate = article.pubDate;
-          if (!pubDate) return null;
-          
-          if (typeof pubDate === 'string') {
-            const yearMatch = pubDate.match(/\b\d{4}\b/);
-            return yearMatch ? parseInt(yearMatch[0]) : null;
-          }
-          
-          return null;
-        }).filter(year => year !== null);
+      // Regulatory Intelligence
+      regulatoryPathway: regulatoryData || {},
+      evidenceQuality: evidenceQuality || {},
+      trialDesigns: trialDesignInsights || {},
+      safetyEfficacy: safetyEfficacyData || {},
+      competitive: competitiveAnalysis || {},
+      timeline: timelineInsights || {},
+      
+      // Actionable insights with defaults
+      recommendations: generateRegulatoryRecommendations(regulatoryData, evidenceQuality, trialDesignInsights) || [],
+      riskFlags: identifyRegulatoryRisks(articles, safetyEfficacyData) || [],
+      
+      // Meta information
+      lastUpdated: new Date().toISOString(),
+      confidence: calculateConfidenceScore(articles, evidenceQuality)
+    };
+    
+    state.collectionSummary = summary;
+    return summary;
+    
+  } catch (error) {
+    console.error('Error generating enhanced collection summary:', error);
+    
+    // Return basic summary if enhanced analysis fails
+    return {
+      articleCount: articles.length,
+      dateRange: getDateRange(articles),
+      fullTextAvailable: articles.filter(a => a.fullTextUrl).length,
+      regulatoryPathway: getDefaultRegulatoryPathway(),
+      evidenceQuality: getDefaultEvidenceQuality(),
+      trialDesigns: getDefaultTrialDesigns(),
+      safetyEfficacy: getDefaultSafetyEfficacy(),
+      competitive: getDefaultCompetitive(),
+      timeline: getDefaultTimeline(),
+      recommendations: [],
+      riskFlags: [],
+      lastUpdated: new Date().toISOString(),
+      confidence: 50
+    };
+  }
+}
+
+// Default object generators to prevent undefined errors
+function getDefaultRegulatoryPathway() {
+  return {
+    '505b1': { count: 0, evidence: [], likelihood: 0 },
+    '505b2': { count: 0, evidence: [], likelihood: 0 },
+    'biologics': { count: 0, evidence: [], likelihood: 0 },
+    'accelerated': { count: 0, evidence: [], likelihood: 0 },
+    'breakthrough': { count: 0, evidence: [], likelihood: 0 },
+    'fastTrack': { count: 0, evidence: [], likelihood: 0 },
+    'priority': { count: 0, evidence: [], likelihood: 0 },
+    'orphan': { count: 0, evidence: [], likelihood: 0 }
+  };
+}
+
+function getDefaultEvidenceQuality() {
+  return {
+    studyTypes: {
+      rct: 0,
+      observational: 0,
+      caseControl: 0,
+      cohort: 0,
+      metaAnalysis: 0,
+      systematicReview: 0
+    },
+    sampleSizes: {
+      small: 0,
+      medium: 0,
+      large: 0,
+      unknown: 0
+    },
+    evidenceLevel: {
+      level1: 0,
+      level2: 0,
+      level3: 0,
+      level4: 0,
+      level5: 0
+    },
+    regulatoryGrade: 'Unknown'
+  };
+}
+
+function getDefaultTrialDesigns() {
+  return {
+    endpoints: {
+      primary: new Set(),
+      secondary: new Set(),
+      biomarkers: new Set(),
+      surrogate: new Set()
+    },
+    populations: {
+      pediatric: 0,
+      geriatric: 0,
+      pregnant: 0,
+      renalImpairment: 0,
+      hepaticImpairment: 0,
+      specialPopulations: 0
+    },
+    phases: {
+      phase1: 0,
+      phase2: 0,
+      phase3: 0,
+      phase4: 0
+    },
+    designFeatures: {
+      adaptive: 0,
+      seamless: 0,
+      masterProtocol: 0,
+      basketTrial: 0,
+      umbrellaTrialL: 0,
+      platformTrial: 0
+    }
+  };
+}
+
+function getDefaultSafetyEfficacy() {
+  return {
+    safety: {
+      adverseEvents: new Set(),
+      seriousAEs: new Set(),
+      doseModifications: 0,
+      discontinuations: 0,
+      deathsReported: 0,
+      blackBoxWarnings: 0
+    },
+    efficacy: {
+      primaryEndpointMet: 0,
+      clinicallyMeaningful: 0,
+      statisticallySignificant: 0,
+      doseResponse: 0,
+      durabilityOfResponse: 0
+    },
+    riskBenefitProfile: 'Unknown'
+  };
+}
+
+function getDefaultCompetitive() {
+  return {
+    competingDrugs: new Set(),
+    mechanismsOfAction: new Set(),
+    targetedPathways: new Set(),
+    comparativeStudies: 0,
+    marketPosition: 'Unknown'
+  };
+}
+
+function getDefaultTimeline() {
+  return {
+    estimatedSubmissionWindow: 'Unknown',
+    approvalProbability: 0,
+    keyMilestones: [],
+    criticalGaps: [],
+    nextSteps: []
+  };
+}
+
+
+function analyzeRegulatoryEvidence(articles) {
+  try {
+    const pathways = getDefaultRegulatoryPathway();
+    
+    const regulatoryKeywords = {
+      '505b1': ['phase 3', 'phase iii', 'pivotal trial', 'registration trial', 'confirmatory'],
+      '505b2': ['505(b)(2)', 'bridge study', 'bioequivalence', 'reference drug', 'comparative'],
+      'biologics': ['biologics', 'monoclonal', 'biosimilar', 'protein', 'antibody', 'vaccine'],
+      'accelerated': ['accelerated approval', 'surrogate endpoint', 'intermediate endpoint'],
+      'breakthrough': ['breakthrough therapy', 'unmet medical need', 'substantial improvement'],
+      'fastTrack': ['fast track', 'serious condition', 'address unmet medical need'],
+      'priority': ['priority review', 'significant improvement', 'treatment advancement'],
+      'orphan': ['orphan drug', 'rare disease', 'prevalence less than', 'orphan designation']
+    };
+    
+    articles.forEach(article => {
+      const text = `${article.title || ''} ${article.abstract || ''}`.toLowerCase();
+      
+      Object.keys(regulatoryKeywords).forEach(pathway => {
+        const keywords = regulatoryKeywords[pathway];
+        const matches = keywords.filter(keyword => text.includes(keyword));
         
-        // Get years range
-        let yearRange = 'Unknown time period';
-        if (years.length > 0) {
-          const minYear = Math.min(...years);
-          const maxYear = Math.max(...years);
+        if (matches.length > 0) {
+          pathways[pathway].count++;
+          pathways[pathway].evidence.push({
+            pmid: article.pmid,
+            title: article.title,
+            matches: matches,
+            year: extractYear(article.pubDate)
+          });
+        }
+      });
+    });
+    
+    // Calculate likelihood scores
+    Object.keys(pathways).forEach(pathway => {
+      const totalArticles = articles.length || 1;
+      pathways[pathway].likelihood = Math.round((pathways[pathway].count / totalArticles) * 100);
+    });
+    
+    return pathways;
+  } catch (error) {
+    console.error('Error analyzing regulatory evidence:', error);
+    return getDefaultRegulatoryPathway();
+  }
+}
+
+function assessEvidenceQuality(articles) {
+  try {
+    const qualityMetrics = getDefaultEvidenceQuality();
+    
+    const studyTypeKeywords = {
+      rct: ['randomized controlled trial', 'randomised controlled trial', 'rct', 'double-blind', 'placebo-controlled'],
+      observational: ['observational study', 'real-world evidence', 'registry study'],
+      caseControl: ['case-control', 'case control'],
+      cohort: ['cohort study', 'longitudinal study', 'prospective study'],
+      metaAnalysis: ['meta-analysis', 'meta analysis', 'pooled analysis'],
+      systematicReview: ['systematic review', 'cochrane review']
+    };
+    
+    articles.forEach(article => {
+      const text = `${article.title || ''} ${article.abstract || ''}`.toLowerCase();
+      
+      // Identify study types
+      Object.keys(studyTypeKeywords).forEach(type => {
+        if (studyTypeKeywords[type].some(keyword => text.includes(keyword))) {
+          qualityMetrics.studyTypes[type]++;
           
-          if (minYear === maxYear) {
-            yearRange = `Published in ${minYear}`;
+          // Assign evidence levels
+          if (type === 'metaAnalysis' || type === 'systematicReview') {
+            qualityMetrics.evidenceLevel.level1++;
+          } else if (type === 'rct') {
+            qualityMetrics.evidenceLevel.level2++;
+          } else if (type === 'cohort') {
+            qualityMetrics.evidenceLevel.level3++;
+          } else if (type === 'caseControl') {
+            qualityMetrics.evidenceLevel.level4++;
           } else {
-            yearRange = `Published between ${minYear} and ${maxYear}`;
+            qualityMetrics.evidenceLevel.level5++;
           }
         }
-        
-        // Count journals
-        const journalCounts = {};
-        articles.forEach(article => {
-          if (article.journal) {
-            journalCounts[article.journal] = (journalCounts[article.journal] || 0) + 1;
-          }
-        });
-        
-        // Get top journals
-        const topJournals = Object.entries(journalCounts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
-          .map(([journal, count]) => ({ journal, count }));
-        
-        // Count full text availability
-        const fullTextCount = articles.filter(article => 
-          article.fullTextUrl && article.fullTextUrl.trim() !== ''
-        ).length;
-        
-        // Extract all conditions, drugs, and study types
-        const allConditions = new Set();
-        const allDrugs = new Set();
-        const allStudyTypes = new Set();
-        
-        articles.forEach(article => {
-          extractConditions(article).forEach(condition => allConditions.add(condition));
-          extractDrugs(article).forEach(drug => allDrugs.add(drug));
-          extractStudyTypes(article).forEach(studyType => allStudyTypes.add(studyType));
-        });
-        
-        // Create collection summary
-        const summary = {
-          articleCount: articles.length,
-          yearRange,
-          topJournals,
-          fullTextAvailable: fullTextCount,
-          fullTextPercentage: Math.round((fullTextCount / articles.length) * 100),
-          topConditions: Array.from(allConditions).slice(0, 5),
-          topDrugs: Array.from(allDrugs).slice(0, 5),
-          studyTypes: Array.from(allStudyTypes),
-          hasRCTs: Array.from(allStudyTypes).some(type => 
-            type.toLowerCase().includes('rct') || 
-            type.toLowerCase().includes('randomized') || 
-            type.toLowerCase().includes('randomised')
-          ),
-          hasMetaAnalyses: Array.from(allStudyTypes).some(type => 
-            type.toLowerCase().includes('meta-analysis') || 
-            type.toLowerCase().includes('systematic review')
-          )
-        };
-        
-        // Store the summary in state
-        state.collectionSummary = summary;
-        
-        return summary;
-      } catch (error) {
-        console.error('Error generating collection summary:', error);
-        return null;
+      });
+      
+      // Extract sample sizes
+      const sampleSizeMatch = text.match(/(?:n\s*=\s*|sample\s+size\s*[:\s]*|patients?\s*[:\s]*)(\d+)/i);
+      if (sampleSizeMatch) {
+        const size = parseInt(sampleSizeMatch[1]);
+        if (size < 100) qualityMetrics.sampleSizes.small++;
+        else if (size <= 1000) qualityMetrics.sampleSizes.medium++;
+        else qualityMetrics.sampleSizes.large++;
+      } else {
+        qualityMetrics.sampleSizes.unknown++;
       }
+    });
+    
+    // Calculate overall regulatory grade
+    const totalStudies = articles.length || 1;
+    const highQualityRatio = (qualityMetrics.evidenceLevel.level1 + qualityMetrics.evidenceLevel.level2) / totalStudies;
+    
+    if (highQualityRatio >= 0.7) qualityMetrics.regulatoryGrade = 'High';
+    else if (highQualityRatio >= 0.4) qualityMetrics.regulatoryGrade = 'Moderate';
+    else qualityMetrics.regulatoryGrade = 'Limited';
+    
+    return qualityMetrics;
+  } catch (error) {
+    console.error('Error assessing evidence quality:', error);
+    return getDefaultEvidenceQuality();
+  }
+}
+
+function analyzeTrialDesigns(articles) {
+  try {
+    const designs = getDefaultTrialDesigns();
+    
+    articles.forEach(article => {
+      const text = `${article.title || ''} ${article.abstract || ''}`.toLowerCase();
+      
+      // Identify special populations
+      const populationKeywords = {
+        pediatric: ['pediatric', 'paediatric', 'children', 'adolescent'],
+        geriatric: ['elderly', 'geriatric', 'age >65', 'older adults'],
+        pregnant: ['pregnancy', 'pregnant', 'maternal'],
+        renalImpairment: ['renal impairment', 'kidney disease', 'dialysis'],
+        hepaticImpairment: ['hepatic impairment', 'liver disease', 'cirrhosis'],
+        specialPopulations: ['special population', 'vulnerable population']
+      };
+      
+      Object.keys(populationKeywords).forEach(pop => {
+        if (populationKeywords[pop].some(keyword => text.includes(keyword))) {
+          designs.populations[pop]++;
+        }
+      });
+      
+      // Identify trial phases
+      const phasePatterns = {
+        phase1: ['phase 1', 'phase i', 'first-in-human', 'dose escalation'],
+        phase2: ['phase 2', 'phase ii', 'proof of concept', 'dose finding'],
+        phase3: ['phase 3', 'phase iii', 'pivotal', 'registration', 'confirmatory'],
+        phase4: ['phase 4', 'phase iv', 'post-marketing', 'surveillance']
+      };
+      
+      Object.keys(phasePatterns).forEach(phase => {
+        if (phasePatterns[phase].some(pattern => text.includes(pattern))) {
+          designs.phases[phase]++;
+        }
+      });
+    });
+    
+    return designs;
+  } catch (error) {
+    console.error('Error analyzing trial designs:', error);
+    return getDefaultTrialDesigns();
+  }
+}
+
+function extractSafetyEfficacySignals(articles) {
+  try {
+    const signals = getDefaultSafetyEfficacy();
+    
+    articles.forEach(article => {
+      const text = `${article.title || ''} ${article.abstract || ''}`.toLowerCase();
+      
+      // Safety signals
+      const safetyKeywords = {
+        adverseEvents: ['adverse event', 'side effect', 'toxicity', 'safety'],
+        seriousAEs: ['serious adverse event', 'grade 3', 'grade 4', 'hospitalization'],
+        doseModifications: ['dose reduction', 'dose modification', 'dose adjustment'],
+        discontinuations: ['discontinuation', 'withdrawal', 'dropout'],
+        deaths: ['death', 'mortality', 'fatal'],
+        blackBox: ['black box', 'boxed warning', 'contraindication']
+      };
+      
+      Object.keys(safetyKeywords).forEach(type => {
+        if (safetyKeywords[type].some(keyword => text.includes(keyword))) {
+          if (type === 'adverseEvents' || type === 'seriousAEs') {
+            signals.safety[type].add(article.pmid);
+          } else if (type === 'deaths') {
+            signals.safety.deathsReported++;
+          } else if (type === 'blackBox') {
+            signals.safety.blackBoxWarnings++;
+          } else {
+            signals.safety[type]++;
+          }
+        }
+      });
+      
+      // Efficacy signals
+      const efficacyKeywords = {
+        primaryEndpointMet: ['primary endpoint met', 'statistically significant', 'p<0.05'],
+        clinicallyMeaningful: ['clinically meaningful', 'clinical benefit', 'meaningful improvement'],
+        statisticallySignificant: ['statistically significant', 'significant difference', 'p-value'],
+        doseResponse: ['dose-response', 'dose dependent', 'dose relationship'],
+        durability: ['durable response', 'sustained response', 'long-term efficacy']
+      };
+      
+      Object.keys(efficacyKeywords).forEach(type => {
+        if (efficacyKeywords[type].some(keyword => text.includes(keyword))) {
+          if (type === 'durability') {
+            signals.efficacy.durabilityOfResponse++;
+          } else {
+            signals.efficacy[type]++;
+          }
+        }
+      });
+    });
+    
+    // Calculate risk-benefit profile
+    const totalArticles = articles.length || 1;
+    const safetyScore = (signals.safety.adverseEvents.size + signals.safety.seriousAEs.size) / totalArticles;
+    const efficacyScore = signals.efficacy.primaryEndpointMet / totalArticles;
+    
+    if (efficacyScore > 0.6 && safetyScore < 0.3) {
+      signals.riskBenefitProfile = 'Favorable';
+    } else if (efficacyScore > 0.4 && safetyScore < 0.5) {
+      signals.riskBenefitProfile = 'Acceptable';
+    } else if (safetyScore > 0.7) {
+      signals.riskBenefitProfile = 'Concerning';
+    } else {
+      signals.riskBenefitProfile = 'Uncertain';
     }
+    
+    return signals;
+  } catch (error) {
+    console.error('Error extracting safety/efficacy signals:', error);
+    return getDefaultSafetyEfficacy();
+  }
+}
+
+function analyzeCompetitiveLandscape(articles) {
+  try {
+    const landscape = getDefaultCompetitive();
+    
+    articles.forEach(article => {
+      const text = `${article.title || ''} ${article.abstract || ''}`.toLowerCase();
+      
+      // Extract drug names and mechanisms
+      const drugNamePattern = /(\w+mab|\w+zumab|\w+tinib|\w+nib|\w+ximab)/gi;
+      const mechanisms = ['kinase inhibitor', 'monoclonal antibody', 'checkpoint inhibitor', 'car-t', 'gene therapy'];
+      const pathways = ['egfr', 'her2', 'pd-1', 'pd-l1', 'ctla-4', 'vegf', 'mtor', 'jak'];
+      
+      const drugMatches = text.match(drugNamePattern);
+      if (drugMatches) {
+        drugMatches.forEach(drug => landscape.competingDrugs.add(drug));
+      }
+      
+      mechanisms.forEach(mech => {
+        if (text.includes(mech)) {
+          landscape.mechanismsOfAction.add(mech);
+        }
+      });
+      
+      pathways.forEach(pathway => {
+        if (text.includes(pathway)) {
+          landscape.targetedPathways.add(pathway);
+        }
+      });
+      
+      if (text.includes('comparative') || text.includes('versus') || text.includes('compared to')) {
+        landscape.comparativeStudies++;
+      }
+    });
+    
+    return landscape;
+  } catch (error) {
+    console.error('Error analyzing competitive landscape:', error);
+    return getDefaultCompetitive();
+  }
+}
+
+function predictApprovalTimelines(articles, regulatoryData) {
+  try {
+    const timeline = getDefaultTimeline();
+    
+    const phase3Count = regulatoryData?.['505b1']?.count || 0;
+    const breakthroughCount = regulatoryData?.breakthrough?.count || 0;
+    const acceleratedCount = regulatoryData?.accelerated?.count || 0;
+    
+    // Estimate timeline based on trial data
+    if (phase3Count > 0) {
+      timeline.estimatedSubmissionWindow = '1-2 years';
+      timeline.approvalProbability = 70;
+    } else if (regulatoryData?.['505b2']?.count > 0) {
+      timeline.estimatedSubmissionWindow = '6-12 months';
+      timeline.approvalProbability = 60;
+    } else {
+      timeline.estimatedSubmissionWindow = '2-5 years';
+      timeline.approvalProbability = 30;
+    }
+    
+    // Adjust for special designations
+    if (breakthroughCount > 0) {
+      timeline.approvalProbability += 20;
+      timeline.nextSteps.push('Leverage breakthrough therapy designation');
+    }
+    
+    if (acceleratedCount > 0) {
+      timeline.estimatedSubmissionWindow = '6-12 months';
+      timeline.nextSteps.push('Consider accelerated approval pathway');
+    }
+    
+    return timeline;
+  } catch (error) {
+    console.error('Error predicting approval timelines:', error);
+    return getDefaultTimeline();
+  }
+}
+
+function generateRegulatoryRecommendations(regulatoryData, evidenceQuality, trialDesigns) {
+  try {
+    const recommendations = [];
+    
+    // Evidence quality recommendations
+    if (evidenceQuality?.regulatoryGrade === 'Limited') {
+      recommendations.push({
+        type: 'Evidence Gap',
+        priority: 'High',
+        description: 'Conduct additional high-quality RCTs to strengthen regulatory package',
+        timeline: '12-24 months'
+      });
+    }
+    
+    // Pathway recommendations
+    if (regulatoryData?.['505b2']?.count > regulatoryData?.['505b1']?.count) {
+      recommendations.push({
+        type: 'Regulatory Strategy',
+        priority: 'Medium',
+        description: 'Consider 505(b)(2) pathway to leverage existing data',
+        timeline: '6-12 months'
+      });
+    }
+    
+    // Special population recommendations
+    if (trialDesigns?.populations?.pediatric === 0) {
+      recommendations.push({
+        type: 'Market Access',
+        priority: 'Medium',
+        description: 'Plan pediatric development strategy (PREA compliance)',
+        timeline: '18-36 months'
+      });
+    }
+    
+    return recommendations;
+  } catch (error) {
+    console.error('Error generating regulatory recommendations:', error);
+    return [];
+  }
+}
+
+function identifyRegulatoryRisks(articles, safetyEfficacyData) {
+  try {
+    const risks = [];
+    
+    if (safetyEfficacyData?.riskBenefitProfile === 'Concerning') {
+      risks.push({
+        type: 'Safety Risk',
+        severity: 'High',
+        description: 'Safety profile may require additional risk mitigation',
+        mitigation: 'Implement REMS or additional safety studies'
+      });
+    }
+    
+    if (safetyEfficacyData?.efficacy?.primaryEndpointMet < 2) {
+      risks.push({
+        type: 'Efficacy Risk',
+        severity: 'Medium',
+        description: 'Limited evidence of primary endpoint achievement',
+        mitigation: 'Conduct additional efficacy studies or consider alternative endpoints'
+      });
+    }
+    
+    return risks;
+  } catch (error) {
+    console.error('Error identifying regulatory risks:', error);
+    return [];
+  }
+}
+
+
+// Helper functions
+function getDateRange(articles) {
+  try {
+    const years = articles.map(article => extractYear(article.pubDate)).filter(year => year);
+    if (years.length === 0) return 'Unknown';
+    
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+    
+    return minYear === maxYear ? `${minYear}` : `${minYear}-${maxYear}`;
+  } catch (error) {
+    console.error('Error getting date range:', error);
+    return 'Unknown';
+  }
+}
+
+function extractYear(pubDate) {
+  try {
+    if (!pubDate) return null;
+    const match = pubDate.toString().match(/\b\d{4}\b/);
+    return match ? parseInt(match[0]) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function calculateConfidenceScore(articles, evidenceQuality) {
+  try {
+    let score = 50; // Base score
+    
+    // Adjust based on number of articles
+    if (articles.length >= 50) score += 20;
+    else if (articles.length >= 20) score += 15;
+    else if (articles.length >= 10) score += 10;
+    else if (articles.length < 5) score -= 20;
+    
+    // Adjust based on evidence quality
+    if (evidenceQuality?.regulatoryGrade === 'High') score += 25;
+    else if (evidenceQuality?.regulatoryGrade === 'Moderate') score += 10;
+    else score -= 15;
+    
+    // Adjust based on RCT presence
+    if (evidenceQuality?.studyTypes?.rct >= 5) score += 15;
+    else if (evidenceQuality?.studyTypes?.rct >= 2) score += 10;
+    
+    // Adjust based on recent publications
+    const recentArticles = articles.filter(article => {
+      const year = extractYear(article.pubDate);
+      return year && year >= 2020;
+    });
+    
+    if (recentArticles.length >= articles.length * 0.5) score += 10;
+    
+    return Math.min(Math.max(score, 0), 100);
+  } catch (error) {
+    console.error('Error calculating confidence score:', error);
+    return 50;
+  }
+}
+
+// Export and utility functions
+function exportRegulatoryReport() {
+  console.log('Exporting regulatory intelligence report...');
+  alert('Report export functionality will be implemented based on your requirements');
+}
+
+function scheduleReview() {
+  console.log('Scheduling regulatory review...');
+  alert('Review scheduling functionality will be implemented based on your requirements');
+}
+// Enhanced FDA Collection Summary - Part 2 (Continuation)
+
+// Continuing the createCollectionSummaryElement function...
+
+// Fixed Collection Summary with proper error handling and default values
+
+// Enhanced function to generate collection summary with regulatory intelligence
+async function generateCollectionSummary(articles) {
+  if (state.collectionSummary && state.collectionSummary.articleCount === articles.length) {
+    return state.collectionSummary;
+  }
   
+  try {
+    // 1. REGULATORY PATHWAY ANALYSIS
+    const regulatoryData = analyzeRegulatoryEvidence(articles);
+    
+    // 2. CLINICAL EVIDENCE QUALITY ASSESSMENT
+    const evidenceQuality = assessEvidenceQuality(articles);
+    
+    // 3. TRIAL DESIGN PATTERNS
+    const trialDesignInsights = analyzeTrialDesigns(articles);
+    
+    // 4. SAFETY & EFFICACY SIGNALS
+    const safetyEfficacyData = extractSafetyEfficacySignals(articles);
+    
+    // 5. COMPETITIVE LANDSCAPE
+    const competitiveAnalysis = analyzeCompetitiveLandscape(articles);
+    
+    // 6. APPROVAL TIMELINE PREDICTIONS
+    const timelineInsights = predictApprovalTimelines(articles, regulatoryData);
+    
+    // Create comprehensive summary with default values
+    const summary = {
+      // Basic metrics
+      articleCount: articles.length,
+      dateRange: getDateRange(articles),
+      fullTextAvailable: articles.filter(a => a.fullTextUrl).length,
+      
+      // Regulatory Intelligence
+      regulatoryPathway: regulatoryData || {},
+      evidenceQuality: evidenceQuality || {},
+      trialDesigns: trialDesignInsights || {},
+      safetyEfficacy: safetyEfficacyData || {},
+      competitive: competitiveAnalysis || {},
+      timeline: timelineInsights || {},
+      
+      // Actionable insights with defaults
+      recommendations: generateRegulatoryRecommendations(regulatoryData, evidenceQuality, trialDesignInsights) || [],
+      riskFlags: identifyRegulatoryRisks(articles, safetyEfficacyData) || [],
+      
+      // Meta information
+      lastUpdated: new Date().toISOString(),
+      confidence: calculateConfidenceScore(articles, evidenceQuality)
+    };
+    
+    state.collectionSummary = summary;
+    return summary;
+    
+  } catch (error) {
+    console.error('Error generating enhanced collection summary:', error);
+    
+    // Return basic summary if enhanced analysis fails
+    return {
+      articleCount: articles.length,
+      dateRange: getDateRange(articles),
+      fullTextAvailable: articles.filter(a => a.fullTextUrl).length,
+      regulatoryPathway: getDefaultRegulatoryPathway(),
+      evidenceQuality: getDefaultEvidenceQuality(),
+      trialDesigns: getDefaultTrialDesigns(),
+      safetyEfficacy: getDefaultSafetyEfficacy(),
+      competitive: getDefaultCompetitive(),
+      timeline: getDefaultTimeline(),
+      recommendations: [],
+      riskFlags: [],
+      lastUpdated: new Date().toISOString(),
+      confidence: 50
+    };
+  }
+}
+
+// Default object generators to prevent undefined errors
+function getDefaultRegulatoryPathway() {
+  return {
+    '505b1': { count: 0, evidence: [], likelihood: 0 },
+    '505b2': { count: 0, evidence: [], likelihood: 0 },
+    'biologics': { count: 0, evidence: [], likelihood: 0 },
+    'accelerated': { count: 0, evidence: [], likelihood: 0 },
+    'breakthrough': { count: 0, evidence: [], likelihood: 0 },
+    'fastTrack': { count: 0, evidence: [], likelihood: 0 },
+    'priority': { count: 0, evidence: [], likelihood: 0 },
+    'orphan': { count: 0, evidence: [], likelihood: 0 }
+  };
+}
+
+function getDefaultEvidenceQuality() {
+  return {
+    studyTypes: {
+      rct: 0,
+      observational: 0,
+      caseControl: 0,
+      cohort: 0,
+      metaAnalysis: 0,
+      systematicReview: 0
+    },
+    sampleSizes: {
+      small: 0,
+      medium: 0,
+      large: 0,
+      unknown: 0
+    },
+    evidenceLevel: {
+      level1: 0,
+      level2: 0,
+      level3: 0,
+      level4: 0,
+      level5: 0
+    },
+    regulatoryGrade: 'Unknown'
+  };
+}
+
+function getDefaultTrialDesigns() {
+  return {
+    endpoints: {
+      primary: new Set(),
+      secondary: new Set(),
+      biomarkers: new Set(),
+      surrogate: new Set()
+    },
+    populations: {
+      pediatric: 0,
+      geriatric: 0,
+      pregnant: 0,
+      renalImpairment: 0,
+      hepaticImpairment: 0,
+      specialPopulations: 0
+    },
+    phases: {
+      phase1: 0,
+      phase2: 0,
+      phase3: 0,
+      phase4: 0
+    },
+    designFeatures: {
+      adaptive: 0,
+      seamless: 0,
+      masterProtocol: 0,
+      basketTrial: 0,
+      umbrellaTrialL: 0,
+      platformTrial: 0
+    }
+  };
+}
+
+function getDefaultSafetyEfficacy() {
+  return {
+    safety: {
+      adverseEvents: new Set(),
+      seriousAEs: new Set(),
+      doseModifications: 0,
+      discontinuations: 0,
+      deathsReported: 0,
+      blackBoxWarnings: 0
+    },
+    efficacy: {
+      primaryEndpointMet: 0,
+      clinicallyMeaningful: 0,
+      statisticallySignificant: 0,
+      doseResponse: 0,
+      durabilityOfResponse: 0
+    },
+    riskBenefitProfile: 'Unknown'
+  };
+}
+
+function getDefaultCompetitive() {
+  return {
+    competingDrugs: new Set(),
+    mechanismsOfAction: new Set(),
+    targetedPathways: new Set(),
+    comparativeStudies: 0,
+    marketPosition: 'Unknown'
+  };
+}
+
+function getDefaultTimeline() {
+  return {
+    estimatedSubmissionWindow: 'Unknown',
+    approvalProbability: 0,
+    keyMilestones: [],
+    criticalGaps: [],
+    nextSteps: []
+  };
+}
+
+
+// Fixed createCollectionSummaryElement with comprehensive null checks
+function createCollectionSummaryElement(summary) {
+  if (!summary) {
+    console.warn('Summary is null or undefined');
+    return null;
+  }
+  
+  // Ensure all required properties exist with safe defaults
+  const safeSummary = {
+    articleCount: summary.articleCount || 0,
+    topJournals: summary.topJournals || [], // Fix for the specific error
+    topConditions: summary.topConditions || [],
+    topDrugs: summary.topDrugs || [],
+    topAuthors: summary.topAuthors || [],
+    yearDistribution: summary.yearDistribution || [],
+    publicationTrends: summary.publicationTrends || [],
+    studyTypes: summary.studyTypes || [],
+    collections: summary.collections || [],
+    confidence: summary.confidence || 50,
+    recommendations: summary.recommendations || [],
+    riskFlags: summary.riskFlags || [],
+    regulatoryPathway: summary.regulatoryPathway || getDefaultRegulatoryPathway(),
+    evidenceQuality: summary.evidenceQuality || getDefaultEvidenceQuality(),
+    trialDesigns: summary.trialDesigns || getDefaultTrialDesigns(),
+    safetyEfficacy: summary.safetyEfficacy || getDefaultSafetyEfficacy(),
+    competitive: summary.competitive || getDefaultCompetitive(),
+    timeline: summary.timeline || getDefaultTimeline(),
+    ...summary // Spread the original summary to preserve any other properties
+  };
+  const summaryElement = document.createElement('div');
+  summaryElement.className = 'bg-white rounded-lg shadow-lg border border-gray-200 mb-6';
+  
+  try {
+    summaryElement.innerHTML = `
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 rounded-t-lg">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-bold">FDA Regulatory Intelligence Summary</h3>
+            <p class="text-blue-100 text-sm mt-1">Analysis of ${safeSummary.articleCount} publications for drug approval assessment</p>
+          </div>
+          <button id="pubmedCollapseCollectionBtn" class="text-white hover:text-blue-200 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div id="pubmedCollectionContent" class="p-6">
+        <!-- Regulatory Pathway Assessment -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Regulatory Pathway Assessment
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-blue-800">${safeSummary.regulatoryPathway['505b1']?.likelihood || 0}%</div>
+              <div class="text-sm text-blue-700">505(b)(1) Traditional</div>
+              <div class="text-xs text-blue-600 mt-1">${safeSummary.regulatoryPathway['505b1']?.count || 0} evidence points</div>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-green-800">${safeSummary.regulatoryPathway['505b2']?.likelihood || 0}%</div>
+              <div class="text-sm text-green-700">505(b)(2) Pathway</div>
+              <div class="text-xs text-green-600 mt-1">${safeSummary.regulatoryPathway['505b2']?.count || 0} evidence points</div>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-purple-800">${safeSummary.regulatoryPathway.breakthrough?.likelihood || 0}%</div>
+              <div class="text-sm text-purple-700">Breakthrough Eligible</div>
+              <div class="text-xs text-purple-600 mt-1">${safeSummary.regulatoryPathway.breakthrough?.count || 0} indicators</div>
+            </div>
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-orange-800">${safeSummary.regulatoryPathway.accelerated?.likelihood || 0}%</div>
+              <div class="text-sm text-orange-700">Accelerated Approval</div>
+              <div class="text-xs text-orange-600 mt-1">${safeSummary.regulatoryPathway.accelerated?.count || 0} signals</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidence Quality & Timeline -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h5 class="font-semibold text-gray-800 mb-3">Evidence Quality Grade</h5>
+            <div class="flex items-center mb-3">
+              <span class="text-3xl font-bold mr-3 ${
+                safeSummary.evidenceQuality.regulatoryGrade === 'High' ? 'text-green-600' :
+                safeSummary.evidenceQuality.regulatoryGrade === 'Moderate' ? 'text-yellow-600' : 'text-red-600'
+              }">${safeSummary.evidenceQuality.regulatoryGrade}</span>
+              <div class="text-sm text-gray-600">
+                <div>Level 1-2 Evidence: ${(safeSummary.evidenceQuality.evidenceLevel?.level1 || 0) + (safeSummary.evidenceQuality.evidenceLevel?.level2 || 0)} studies</div>
+                <div>RCTs: ${safeSummary.evidenceQuality.studyTypes?.rct || 0} studies</div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">
+              Confidence Score: ${safeSummary.confidence}%
+            </div>
+          </div>
+          
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h5 class="font-semibold text-gray-800 mb-3">Approval Timeline Prediction</h5>
+            <div class="text-2xl font-bold text-blue-800 mb-2">${safeSummary.timeline.estimatedSubmissionWindow}</div>
+            <div class="text-sm text-blue-700 mb-2">Estimated submission window</div>
+            <div class="flex items-center">
+              <div class="text-lg font-medium text-blue-800">${safeSummary.timeline.approvalProbability}%</div>
+              <div class="text-sm text-blue-600 ml-2">approval probability</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk-Benefit Assessment -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
+            </svg>
+            Risk-Benefit Assessment
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+              <div class="text-lg font-medium text-gray-800 mb-2">Safety Profile</div>
+              <div class="text-sm text-gray-600">
+                <div>Adverse Events: ${safeSummary.safetyEfficacy.safety?.adverseEvents?.size || 0} studies</div>
+                <div>Serious AEs: ${safeSummary.safetyEfficacy.safety?.seriousAEs?.size || 0} studies</div>
+                <div>Discontinuations: ${safeSummary.safetyEfficacy.safety?.discontinuations || 0}</div>
+              </div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+              <div class="text-lg font-medium text-gray-800 mb-2">Efficacy Signals</div>
+              <div class="text-sm text-gray-600">
+                <div>Primary Endpoints Met: ${safeSummary.safetyEfficacy.efficacy?.primaryEndpointMet || 0}</div>
+                <div>Clinically Meaningful: ${safeSummary.safetyEfficacy.efficacy?.clinicallyMeaningful || 0}</div>
+                <div>Durable Response: ${safeSummary.safetyEfficacy.efficacy?.durabilityOfResponse || 0}</div>
+              </div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+              <div class="text-lg font-medium text-gray-800 mb-2">Overall Assessment</div>
+              <div class="text-xl font-bold mb-2 ${
+                safeSummary.safetyEfficacy.riskBenefitProfile === 'Favorable' ? 'text-green-600' :
+                safeSummary.safetyEfficacy.riskBenefitProfile === 'Acceptable' ? 'text-yellow-600' :
+                safeSummary.safetyEfficacy.riskBenefitProfile === 'Concerning' ? 'text-red-600' : 'text-gray-600'
+              }">${safeSummary.safetyEfficacy.riskBenefitProfile}</div>
+              <div class="text-sm text-gray-600">Risk-Benefit Profile</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trial Design Intelligence -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+            Trial Design Intelligence
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <h5 class="font-semibold text-gray-800 mb-3">Phase Distribution</h5>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Phase I:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase1 || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Phase II:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase2 || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Phase III:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase3 || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Phase IV:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase4 || 0} studies</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h5 class="font-semibold text-gray-800 mb-3">Special Populations</h5>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Pediatric:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.populations?.pediatric || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Geriatric:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.populations?.geriatric || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Renal Impairment:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.populations?.renalImpairment || 0} studies</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Hepatic Impairment:</span>
+                  <span class="font-medium">${safeSummary.trialDesigns.populations?.hepaticImpairment || 0} studies</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitive Intelligence -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+              <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+            </svg>
+            Competitive Landscape
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-indigo-800">${safeSummary.competitive.competingDrugs?.size || 0}</div>
+              <div class="text-sm text-indigo-700">Competing Drugs Identified</div>
+              <div class="text-xs text-indigo-600 mt-1">Based on literature analysis</div>
+            </div>
+            <div class="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-cyan-800">${safeSummary.competitive.mechanismsOfAction?.size || 0}</div>
+              <div class="text-sm text-cyan-700">Mechanisms of Action</div>
+              <div class="text-xs text-cyan-600 mt-1">Distinct therapeutic approaches</div>
+            </div>
+            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+              <div class="text-2xl font-bold text-teal-800">${safeSummary.competitive.comparativeStudies || 0}</div>
+              <div class="text-sm text-teal-700">Comparative Studies</div>
+              <div class="text-xs text-teal-600 mt-1">Head-to-head comparisons</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategic Recommendations -->
+        ${safeSummary.recommendations && safeSummary.recommendations.length > 0 ? `
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+            </svg>
+            Strategic Recommendations
+          </h4>
+          <div class="space-y-4">
+            ${safeSummary.recommendations.map(rec => `
+              <div class="bg-white border-l-4 ${
+                rec.priority === 'High' ? 'border-red-500 bg-red-50' :
+                rec.priority === 'Medium' ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'
+              } p-4 rounded-r-lg">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      rec.priority === 'High' ? 'bg-red-100 text-red-800' :
+                      rec.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                    }">
+                      ${rec.priority} Priority
+                    </span>
+                  </div>
+                  <div class="ml-3 flex-1">
+                    <h5 class="text-sm font-medium text-gray-900">${rec.type || 'Recommendation'}</h5>
+                    <p class="text-sm text-gray-600 mt-1">${rec.description || 'No description available'}</p>
+                    <p class="text-xs text-gray-500 mt-2">Timeline: ${rec.timeline || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Risk Flags -->
+        ${safeSummary.riskFlags && safeSummary.riskFlags.length > 0 ? `
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/>
+            </svg>
+            Regulatory Risk Flags
+          </h4>
+          <div class="space-y-3">
+            ${safeSummary.riskFlags.map(risk => `
+              <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      risk.severity === 'High' ? 'bg-red-100 text-red-800' :
+                      risk.severity === 'Medium' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'
+                    }">
+                      ${risk.severity} Risk
+                    </span>
+                  </div>
+                  <div class="ml-3 flex-1">
+                    <h5 class="text-sm font-medium text-gray-900">${risk.type || 'Risk'}</h5>
+                    <p class="text-sm text-gray-600 mt-1">${risk.description || 'No description available'}</p>
+                    <p class="text-xs text-gray-700 mt-2"><strong>Mitigation:</strong> ${risk.mitigation || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Action Items Dashboard -->
+        <div class="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg p-6">
+          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <svg class="h-5 w-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+            </svg>
+            Next Steps & Action Items
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 class="font-medium text-gray-800 mb-2">Immediate Actions (0-3 months)</h5>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2">•</span>
+                  Review existing clinical data quality
+                </li>
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2">•</span>
+                  Identify regulatory pathway optimization opportunities
+                </li>
+                <li class="flex items-start">
+                  <span class="text-blue-500 mr-2">•</span>
+                  Assess competitive positioning
+                </li>
+              </ul>
+            </div>
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
+              <h5 class="font-medium text-gray-800 mb-2">Strategic Planning (3-12 months)</h5>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2">•</span>
+                  Develop comprehensive regulatory strategy
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2">•</span>
+                  Plan additional clinical studies if needed
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-500 mr-2">•</span>
+                  Engage with FDA for pre-submission meetings
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Actions -->
+        <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-200">
+          <div class="text-xs text-gray-500">
+            Last updated: ${new Date().toLocaleDateString()} | 
+            Confidence: ${safeSummary.confidence}% | 
+            Based on ${safeSummary.articleCount} publications
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="exportRegulatoryReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center">
+              <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+              </svg>
+              Export Report
+            </button>
+            <button onclick="scheduleReview()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center">
+              <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+              </svg>
+              Schedule Review
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    return summaryElement;
+    
+  } catch (error) {
+    console.error('Error creating collection summary element:', error);
+    
+    // Return a simple fallback summary if the main one fails
+    summaryElement.innerHTML = `
+      <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+        <h3 class="text-xl font-bold">Collection Overview</h3>
+        <p class="text-blue-100 text-sm mt-1">Analysis of ${safeSummary.articleCount} publications</p>
+      </div>
+      <div class="p-6">
+        <div class="text-center py-8">
+          <p class="text-gray-600">Summary analysis is being processed...</p>
+          <div class="mt-4">
+            <div class="text-3xl font-bold text-blue-600">${safeSummary.articleCount}</div>
+            <div class="text-sm text-gray-500">Articles analyzed</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    return summaryElement;
+  }
+}
+// Helper functions for the enhanced summary
+
+
+// Usage: Call this enhanced function in your PubMed results rendering
+// The summary will now provide comprehensive regulatory intelligence suitable for FDA professionals
+
     // Function to perform thematic analysis
     async function performThematicAnalysis(articles) {
       // If we already have a thematic analysis and articles haven't changed, return it
@@ -62471,121 +65445,121 @@ const PubMedModule = (function() {
   }
 
   // Create collection summary element
-  function createCollectionSummaryElement(summary) {
-    if (!summary) return null;
+  // function createCollectionSummaryElement(summary) {
+  //   if (!summary) return null;
     
-    const summaryElement = document.createElement('div');
-    summaryElement.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6';
+  //   const summaryElement = document.createElement('div');
+  //   summaryElement.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6';
     
-    summaryElement.innerHTML = `
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-800">Collection Overview</h3>
-        <button id="pubmedCollapseCollectionBtn" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-      </div>
+  //   summaryElement.innerHTML = `
+  //     <div class="flex justify-between items-center mb-4">
+  //       <h3 class="text-lg font-medium text-gray-800">Collection Overview</h3>
+  //       <button id="pubmedCollapseCollectionBtn" class="text-gray-500 hover:text-gray-700">
+  //         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+  //         </svg>
+  //       </button>
+  //     </div>
       
-      <div id="pubmedCollectionContent">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div class="bg-blue-50 p-3 rounded-lg">
-            <div class="text-2xl font-bold text-blue-800">${summary.articleCount}</div>
-            <div class="text-sm text-blue-700">Articles</div>
-          </div>
+  //     <div id="pubmedCollectionContent">
+  //       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+  //         <div class="bg-blue-50 p-3 rounded-lg">
+  //           <div class="text-2xl font-bold text-blue-800">${summary.articleCount}</div>
+  //           <div class="text-sm text-blue-700">Articles</div>
+  //         </div>
           
-          <div class="bg-green-50 p-3 rounded-lg">
-            <div class="text-lg font-medium text-green-800">${summary.yearRange}</div>
-            <div class="text-sm text-green-700">Publication Period</div>
-          </div>
+  //         <div class="bg-green-50 p-3 rounded-lg">
+  //           <div class="text-lg font-medium text-green-800">${summary.yearRange}</div>
+  //           <div class="text-sm text-green-700">Publication Period</div>
+  //         </div>
           
-          <div class="bg-purple-50 p-3 rounded-lg">
-            <div class="text-2xl font-bold text-purple-800">${summary.fullTextAvailable}</div>
-            <div class="text-sm text-purple-700">Full Text Available (${summary.fullTextPercentage}%)</div>
-          </div>
+  //         <div class="bg-purple-50 p-3 rounded-lg">
+  //           <div class="text-2xl font-bold text-purple-800">${summary.fullTextAvailable}</div>
+  //           <div class="text-sm text-purple-700">Full Text Available (${summary.fullTextPercentage}%)</div>
+  //         </div>
           
-          <div class="bg-yellow-50 p-3 rounded-lg">
-            <div class="flex items-center">
-              ${summary.hasRCTs ? 
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>` : 
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>`
-              }
-              <span class="text-yellow-800 font-medium">RCTs</span>
-            </div>
-            <div class="flex items-center mt-1">
-              ${summary.hasMetaAnalyses ? 
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>` : 
-                `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>`
-              }
-              <span class="text-yellow-800 font-medium">Meta-Analyses</span>
-            </div>
-          </div>
-        </div>
+  //         <div class="bg-yellow-50 p-3 rounded-lg">
+  //           <div class="flex items-center">
+  //             ${summary.hasRCTs ? 
+  //               `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  //               </svg>` : 
+  //               `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+  //               </svg>`
+  //             }
+  //             <span class="text-yellow-800 font-medium">RCTs</span>
+  //           </div>
+  //           <div class="flex items-center mt-1">
+  //             ${summary.hasMetaAnalyses ? 
+  //               `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  //               </svg>` : 
+  //               `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+  //               </svg>`
+  //             }
+  //             <span class="text-yellow-800 font-medium">Meta-Analyses</span>
+  //           </div>
+  //         </div>
+  //       </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">Top Journals</h4>
-            <ul class="text-sm text-gray-600">
-              ${summary.topJournals.map(({ journal, count }) => 
-                `<li class="flex justify-between mb-1">
-                  <span class="truncate">${journal}</span>
-                  <span class="font-medium">${count}</span>
-                </li>`
-              ).join('')}
-            </ul>
-          </div>
+  //       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  //         <div class="bg-gray-50 p-3 rounded-lg">
+  //           <h4 class="text-sm font-medium text-gray-700 mb-2">Top Journals</h4>
+  //           <ul class="text-sm text-gray-600">
+  //             ${summary.topJournals.map(({ journal, count }) => 
+  //               `<li class="flex justify-between mb-1">
+  //                 <span class="truncate">${journal}</span>
+  //                 <span class="font-medium">${count}</span>
+  //               </li>`
+  //             ).join('')}
+  //           </ul>
+  //         </div>
           
-          <div class="bg-gray-50 p-3 rounded-lg">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">Key Topics</h4>
-            <div class="flex flex-wrap gap-1">
-              ${summary.topConditions.map(condition => 
-                `<span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
-              ).join('')}
-              ${summary.topDrugs.map(drug => 
-                `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
-              ).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+  //         <div class="bg-gray-50 p-3 rounded-lg">
+  //           <h4 class="text-sm font-medium text-gray-700 mb-2">Key Topics</h4>
+  //           <div class="flex flex-wrap gap-1">
+  //             ${summary.topConditions.map(condition => 
+  //               `<span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">${condition}</span>`
+  //             ).join('')}
+  //             ${summary.topDrugs.map(drug => 
+  //               `<span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">${drug}</span>`
+  //             ).join('')}
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   `;
     
-    // Add event listener to collapse button
-    const collapseBtn = summaryElement.querySelector('#pubmedCollapseCollectionBtn');
-    const contentDiv = summaryElement.querySelector('#pubmedCollectionContent');
+  //   // Add event listener to collapse button
+  //   const collapseBtn = summaryElement.querySelector('#pubmedCollapseCollectionBtn');
+  //   const contentDiv = summaryElement.querySelector('#pubmedCollectionContent');
     
-    if (collapseBtn && contentDiv) {
-      collapseBtn.addEventListener('click', () => {
-        const isCollapsed = contentDiv.classList.contains('hidden');
+  //   if (collapseBtn && contentDiv) {
+  //     collapseBtn.addEventListener('click', () => {
+  //       const isCollapsed = contentDiv.classList.contains('hidden');
         
-        if (isCollapsed) {
-          contentDiv.classList.remove('hidden');
-          collapseBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-            </svg>
-          `;
-        } else {
-          contentDiv.classList.add('hidden');
-          collapseBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          `;
-        }
-      });
-    }
+  //       if (isCollapsed) {
+  //         contentDiv.classList.remove('hidden');
+  //         collapseBtn.innerHTML = `
+  //           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+  //           </svg>
+  //         `;
+  //       } else {
+  //         contentDiv.classList.add('hidden');
+  //         collapseBtn.innerHTML = `
+  //           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+  //           </svg>
+  //         `;
+  //       }
+  //     });
+  //   }
     
-    return summaryElement;
-  }
+  //   return summaryElement;
+  // }
 
   // Create thematic analysis element
   function createThematicAnalysisElement(analysis) {
@@ -72959,6 +75933,9 @@ window.fetchStudies = async function(drug = "", condition = "", hasResults = fal
     throw error;
   }
 };
+
+
+
 
 // Add the EMA data module to window for debugging
 window.EmaDataModule = EmaDataModule;
