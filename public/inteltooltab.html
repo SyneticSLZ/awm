@@ -2023,7 +2023,7 @@
                 <span class="ml-3 text-lg font-medium">Loading studies...</span>
             </div>
         </div>
-        
+
         <!-- PubMed Section (Initially Hidden) -->
 <!-- Enhanced PubMed Section -->
  <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
@@ -3389,14 +3389,21 @@
   height: 0;
 }
             </style>
+                <div class="flex border-b border-gray-200 mb-4">
+      <button class="fda-tab-button px-4 py-2 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:border-blue-500 focus:outline-none" data-tab="documents" onclick="openfdaregtab()">FDA Documents</button>
+      <button class="fda-tab-button px-4 py-2 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:border-blue-500 focus:outline-none" data-tab="regulation" onclick="openfdadoctab()">Regulation</button>
+    </div>
+            <div id="fda-reg-tab">
             <div class="bg-white rounded-lg shadow-md p-6">
               <h2 class="text-xl font-semibold mb-4">FDA Regulatory Information</h2>
+
+              
               <button style="display: none;" id="generate-summary-btn" class="mt-2 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors" type="button" onclick="showFdaSummary()">
                 Generate Summary <span class="text-xs bg-white text-blue-800 ml-1 px-1.5 py-0.5 rounded-full">AI</span>
               </button>
            
             
-            <!-- Summary Container - Will be populated by JS -->
+           
             <div id="fda-summary-container" class="mb-6 hidden"></div>
 
 
@@ -3446,39 +3453,39 @@
                 </div>
                 <div id="dailyMedPagination" class="mt-4"></div>
               </div>
-<!--               
-              <div class="mb-3">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-lg font-medium">FDA Warning Letters</h3>
-                  <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount" style="display: none;">0 letters</span>
-                </div>
-                <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="warningLettersData">
-                  <div class="flex justify-center items-center py-8 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <span>Warning letters will be available here</span>
-                  </div>
-                </div>
-              </div> -->
-
-              <!-- <div class="fda-data-section"> -->
-                <!-- Warning Letters Section -->
-                <!-- <div class="mb-6">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-medium">FDA Warning Letters</h3>
-                    <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount" style="display: none;">0 letters</span>
-                  </div>
-                  <div class="mt-3 p-4 bg-gray-50 rounded-lg" id="warningLettersData">
-                    <div class="flex justify-center items-center py-8 text-gray-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      <span>Warning letters will be available here</span>
+                <!-- <div class="mb-6" id="wl">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="text-xl font-semibold text-gray-800">FDA Warning Letters</h3>
+                      <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount" style="display: none;">0 letters</span>
                     </div>
-                  </div>
-                </div> -->
-                <div class="mb-6" id="wl">
+                    <div class="p-4 bg-white rounded-lg shadow-md" id="warningLettersData">
+                      <div class="flex justify-center items-center py-8 text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>Warning letters will be displayed here after search</span>
+                      </div>
+                    </div>
+                  </div> -->
+                
+
+              </div>
+            <!-- </div>
+          </div> -->
+              
+              <div class="text-center mt-6">
+                <p class="text-sm text-gray-500">
+                  Data sourced from FDA.gov, DailyMed, and FDA Orange Book. Last updated: March 2025
+                </p>
+              </div>
+            </div>
+
+        <div id="wl-reg-section" class="hidden">
+
+           <div id="company-summary-section"></div>
+
+           
+                  <div class="mb-6" id="wl">
                     <div class="flex items-center justify-between mb-3">
                       <h3 class="text-xl font-semibold text-gray-800">FDA Warning Letters</h3>
                       <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full" id="warningLettersCount" style="display: none;">0 letters</span>
@@ -3492,22 +3499,9 @@
                       </div>
                     </div>
                   </div>
-                
-                <!-- Inspection Data Section (will be populated dynamically) -->
-                <!-- <div id="inspection-data"></div> -->
-              </div>
-            </div>
-          </div>
-              
-              <div class="text-center mt-6">
-                <p class="text-sm text-gray-500">
-                  Data sourced from FDA.gov, DailyMed, and FDA Orange Book. Last updated: March 2025
-                </p>
-              </div>
-            </div>
-          <!-- </section> -->
-          <div id="company-summary-section"></div>
-        <!-- Inspection Data Section -->
+
+         
+       
         <div id="inspection-data" class="p-4 bg-white rounded-lg shadow-md mb-8">
             <div class="flex justify-center items-center py-8 text-gray-500">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3516,6 +3510,7 @@
               <span>Inspection data will be displayed here after search</span>
             </div>
           </div>
+        </div>
         </section>
         
         <!-- No Results Message -->
@@ -5250,8 +5245,8 @@ elements.orangeBookCount = document.getElementById('orangeBookCount');
 elements.dailyMedCount = document.getElementById('dailyMedCount');
 elements.warningLettersCount = document.getElementById('warningLettersCount');
 elements.phasePerformanceChart = document.getElementById('phasePerformanceChart');
-
-
+elements.fdaregtab = document.getElementById('fda-reg-tab');
+elements.wlregsection = document.getElementById('wl-reg-section');
 
  elements.mainSearch =  document.getElementById("mainSearch");
 elements.pubmedAI = document.getElementById("pubmedAI");
@@ -5268,6 +5263,18 @@ window.appState = {
   currentCondition: null,
   lastSearchType: null
 };
+
+
+
+function openfdadoctab(){
+ document.getElementById('fda-reg-tab').classList.toggle('hidden', true);
+document.getElementById('wl-reg-section').classList.toggle('hidden', false);
+}
+
+function openfdaregtab(){
+ document.getElementById('fda-reg-tab').classList.toggle('hidden', false);
+document.getElementById('wl-reg-section').classList.toggle('hidden', true);
+}
 
 
 // Make sure we have a main container for backwards compatibility
@@ -24566,6 +24573,244 @@ function updateForm483CountsFromDisplayedTable() {
 //   });
 // }
 // Modified function to create company summary with toggle for empty results
+// function createCompanySummaryFromTrackedData(companies, warningLetters, inspections) {
+//   console.log("Creating company summary from tracked data for:", companies);
+//   console.log("Current Form 483 counts before creating summary:", window.regulatoryData.form483Counts);
+  
+//   // Create container if it doesn't exist
+//   if (!elements.companySummarySection) {
+//     elements.companySummarySection = document.createElement('div');
+//     elements.companySummarySection.id = 'company-summary-section';
+//     elements.companySummarySection.className = 'mb-6';
+    
+//     // Insert before inspection data section
+//     const inspectionDataSection = document.getElementById('inspection-data');
+//     if (inspectionDataSection && inspectionDataSection.parentNode) {
+//       inspectionDataSection.parentNode.insertBefore(elements.companySummarySection, inspectionDataSection);
+//     } else {
+//       // If inspection data section doesn't exist, append to FDA data section
+//     //   const fdaDataSection = document.querySelector('.fda-data-section');
+//       if (elements.fdaDataSection) {
+//         elements.fdaDataSection.appendChild(elements.companySummarySection);
+//       }
+//     }
+//   }
+  
+//   // Get stats for each company from the global tracking object
+//   const companyStats = companies.map(company => {
+//     return window.regulatoryData.getCompanyStats(company);
+//   });
+  
+//   // Separate companies with findings from those without
+//   const companiesWithFindings = companyStats.filter(stat => 
+//     stat.form483Count > 0 || stat.wlCount > 0 || stat.totalInspections > 0
+//   );
+  
+//   const companiesWithoutFindings = companyStats.filter(stat => 
+//     stat.form483Count === 0 && stat.wlCount === 0 && stat.totalInspections === 0
+//   );
+  
+//   // Track the visibility state of companies without findings
+//   window.showEmptyCompanies = window.showEmptyCompanies || false;
+  
+//   // Log the final stats
+//   console.log("Companies with findings:", companiesWithFindings);
+//   console.log("Companies without findings:", companiesWithoutFindings);
+  
+//   // Create company row HTML function
+//   const createCompanyRow = (stat) => `
+//     <tr class="border-b hover:bg-gray-50" data-has-findings="${stat.form483Count > 0 || stat.wlCount > 0 || stat.totalInspections > 0}">
+//       <td class="px-4 py-3 font-medium">${stat.company}</td>
+//       <td class="px-4 py-3 text-center" data-form483-count="${stat.form483Count}">
+//         ${stat.form483Count > 0 
+//           ? `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">${stat.form483Count}</span>` 
+//           : '<span class="text-gray-400">0</span>'}
+//       </td>
+//       <td class="px-4 py-3 text-center" data-wl-count="${stat.wlCount}">
+//         ${stat.wlCount > 0 
+//           ? `<span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">${stat.wlCount}</span>` 
+//           : '<span class="text-gray-400">0</span>'}
+//       </td>
+//       <td class="px-4 py-3 text-center" data-total-count="${stat.totalInspections}">
+//         ${stat.totalInspections > 0 
+//           ? `<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">${stat.totalInspections}</span>` 
+//           : '<span class="text-gray-400">0</span>'}
+//       </td>
+//       <td class="px-4 py-3 text-right">
+//         <div class="flex justify-end space-x-2">
+//           <button class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded transition-colors view-company-details" 
+//                   data-company="${stat.company}">
+//             View Details
+//           </button>
+//           <label class="inline-flex items-center cursor-pointer">
+//             <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 company-select-checkbox" 
+//                    value="${stat.company}">
+//           </label>
+//         </div>
+//       </td>
+//     </tr>
+//   `;
+  
+//   // Create summary HTML
+//   let html = `
+//     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h3 class="text-lg font-medium">Company Regulatory Summary</h3>
+        
+//         <div class="flex space-x-2">
+//           <button id="generate-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+//             </svg>
+//             Generate AI Summary
+//           </button>
+          
+//           <button id="email-summary-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+//             </svg>
+//             Email Summary
+//           </button>
+//         </div>
+//       </div>
+      
+//       <div class="overflow-x-auto">
+//         <table class="min-w-full text-sm">
+//           <thead>
+//             <tr class="bg-gray-100">
+//               <th class="px-4 py-2 text-left">Company</th>
+//               <th class="px-4 py-2 text-center">Form 483s</th>
+//               <th class="px-4 py-2 text-center">Warning Letters</th>
+//               <th class="px-4 py-2 text-center">Total Inspections</th>
+//               <th class="px-4 py-2 text-right">Actions</th>
+//             </tr>
+//           </thead>
+//           <tbody id="company-summary-table-body">
+//             ${companiesWithFindings.map(createCompanyRow).join('')}
+//             ${companiesWithoutFindings.map(stat => `
+//               <tr class="border-b hover:bg-gray-50 empty-company-row ${window.showEmptyCompanies ? '' : 'hidden'}" data-has-findings="false">
+//                 ${createCompanyRow(stat).substring(createCompanyRow(stat).indexOf('>')+1)}
+//               </tr>
+//             `).join('')}
+//           </tbody>
+//         </table>
+//       </div>
+      
+//       <div class="mt-4 flex justify-between items-center">
+//         <div class="flex space-x-3">
+//           <button id="analyze-selected-companies" class="hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-3 rounded-md flex items-center transition-colors" disabled>
+//             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+//             </svg>
+//             Analyze Selected Companies
+//           </button>
+          
+//           <div class="flex items-center">
+//             <label class="inline-flex items-center cursor-pointer">
+//               <input type="checkbox" id="toggle-empty-companies" class="form-checkbox h-4 w-4 text-blue-600" ${window.showEmptyCompanies ? 'checked' : ''}>
+//               <span class="ml-2 text-xs text-gray-600">Show companies with no findings (${companiesWithoutFindings.length})</span>
+//             </label>
+//           </div>
+//         </div>
+        
+//         <div class="text-xs text-gray-500">
+//           Showing ${companiesWithFindings.length} companies with findings${window.showEmptyCompanies ? ` and ${companiesWithoutFindings.length} without` : ''}
+//         </div>
+//       </div>
+      
+//       <!-- AI Analysis Results Section -->
+//       <div id="ai-analysis-results" class="mt-6 hidden">
+//         <div class="border-t pt-4">
+//           <h4 class="text-base font-medium mb-3">AI Analysis Results</h4>
+//           <div id="ai-analysis-content" class="bg-gray-50 p-4 rounded-lg">
+//             <!-- AI content will be placed here -->
+//           </div>
+//         </div>
+//       </div>
+      
+//       <!-- Company Details Section -->
+//       <div id="company-detail-view" class="mt-6 hidden">
+//         <div class="border-t pt-4">
+//           <h4 class="text-base font-medium mb-3">Company Details: <span id="company-detail-name"></span></h4>
+//           <div id="company-detail-content" class="bg-gray-50 p-4 rounded-lg">
+//             <!-- Company detail content will be placed here -->
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   // Update the section
+//   elements.companySummarySection.innerHTML = html;
+  
+//   // Add event listeners
+//   document.querySelectorAll('.company-select-checkbox').forEach(checkbox => {
+//     checkbox.addEventListener('change', updateSelectedCompaniesState);
+//     checkbox.classList.add('hidden')
+//   });
+  
+//   document.getElementById('analyze-selected-companies').addEventListener('click', () => {
+//     analyzeSelectedCompanies(warningLetters, inspections);
+//   });
+  
+//   document.getElementById('generate-ai-summary').addEventListener('click', WLgenerateAISummary);
+
+//   document.getElementById('generate-ai-summary').addEventListener('click', () => {
+//   // Retrieve drug name from input field
+// //   const drugName = document.getElementById('drug-name-input').value.trim();
+  
+//   // Optional: Use a stored variable if input might be cleared
+//   const drugName = window.currentDrugName || '';
+
+//   // Validate drug name
+//   if (!drugName) {
+//     alert('Please enter a drug name and search Orange Book first');
+//     return;
+//   }
+
+//   // Validate companies
+//   const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
+//     row.querySelector('td:first-child').textContent.trim()
+//   );
+//   if (companies.length === 0) {
+//     alert('No companies found. Please search Orange Book first.');
+//     return;
+//   }
+
+//   // Call WLgenerateAISummary with drugName
+//   WLgenerateAISummary(drugName);
+// });
+
+
+//   document.getElementById('email-summary-btn').addEventListener('click', WLemailSummary);
+  
+//   document.querySelectorAll('.view-company-details').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const company = this.getAttribute('data-company');
+//       WLshowCompanyDetails(company, warningLetters, inspections);
+//     });
+//   });
+  
+//   // Add toggle functionality for empty companies
+//   document.getElementById('toggle-empty-companies').addEventListener('change', function() {
+//     window.showEmptyCompanies = this.checked;
+//     document.querySelectorAll('.empty-company-row').forEach(row => {
+//       if (window.showEmptyCompanies) {
+//         row.classList.remove('hidden');
+//       } else {
+//         row.classList.add('hidden');
+//       }
+//     });
+    
+//     // Update the counter text
+//     const countText = document.querySelector('.text-xs.text-gray-500');
+//     if (countText) {
+//       countText.textContent = `Showing ${companiesWithFindings.length} companies with findings${window.showEmptyCompanies ? ` and ${companiesWithoutFindings.length} without` : ''}`;
+//     }
+//   });
+// }
+  
+
 function createCompanySummaryFromTrackedData(companies, warningLetters, inspections) {
   console.log("Creating company summary from tracked data for:", companies);
   console.log("Current Form 483 counts before creating summary:", window.regulatoryData.form483Counts);
@@ -24582,7 +24827,6 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       inspectionDataSection.parentNode.insertBefore(elements.companySummarySection, inspectionDataSection);
     } else {
       // If inspection data section doesn't exist, append to FDA data section
-    //   const fdaDataSection = document.querySelector('.fda-data-section');
       if (elements.fdaDataSection) {
         elements.fdaDataSection.appendChild(elements.companySummarySection);
       }
@@ -24593,6 +24837,9 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
   const companyStats = companies.map(company => {
     return window.regulatoryData.getCompanyStats(company);
   });
+  
+  // Calculate aggregate statistics
+  const aggregateStats = calculateAggregateStats(companyStats, warningLetters, inspections);
   
   // Separate companies with findings from those without
   const companiesWithFindings = companyStats.filter(stat => 
@@ -24609,6 +24856,7 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
   // Log the final stats
   console.log("Companies with findings:", companiesWithFindings);
   console.log("Companies without findings:", companiesWithoutFindings);
+  console.log("Aggregate stats:", aggregateStats);
   
   // Create company row HTML function
   const createCompanyRow = (stat) => `
@@ -24644,20 +24892,149 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
     </tr>
   `;
   
-  // Create summary HTML
+  // Create comprehensive summary HTML
   let html = `
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <!-- Data Summary Section -->
+      <div class="mb-8 border-b pb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-gray-900">Regulatory Intelligence Summary</h3>
+          <div class="flex items-center space-x-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Last updated: ${new Date().toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Key Metrics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h3M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8h1m-1-4h1m4 4h1m-1-4h1"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-blue-900">Total Companies</p>
+                <p class="text-2xl font-bold text-blue-900">${companies.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg border border-yellow-200">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-yellow-900">Form 483s</p>
+                <p class="text-2xl font-bold text-yellow-900">${aggregateStats.totalForm483s}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-red-900">Warning Letters</p>
+                <p class="text-2xl font-bold text-red-900">${aggregateStats.totalWarningLetters}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium text-purple-900">Total Inspections</p>
+                <p class="text-2xl font-bold text-purple-900">${aggregateStats.totalInspections}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Executive Summary -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+          <h4 class="text-lg font-semibold text-gray-900 mb-3">Executive Summary</h4>
+          <div class="space-y-3 text-sm text-gray-700">
+            <p>
+              <strong>Market Overview:</strong> Analysis of ${companies.length} companies reveals 
+              ${companiesWithFindings.length} (${Math.round((companiesWithFindings.length / companies.length) * 100)}%) 
+              with regulatory findings and ${companiesWithoutFindings.length} with clean records.
+            </p>
+            <p>
+              <strong>Risk Assessment:</strong> ${aggregateStats.escalationRate > 0 
+                ? `${aggregateStats.escalationRate}% escalation rate from Form 483s to Warning Letters indicates ${aggregateStats.escalationRate > 50 ? 'high' : 'moderate'} regulatory risk in this market.`
+                : 'No escalation patterns identified from available data.'}
+            </p>
+            <p>
+              <strong>Regulatory Activity:</strong> 
+              ${aggregateStats.totalInspections > 0 
+                ? `${aggregateStats.totalInspections} total inspections recorded with ${aggregateStats.avgInspectionsPerCompany.toFixed(1)} average inspections per company.`
+                : 'Limited inspection activity recorded for these companies.'}
+            </p>
+          </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div class="bg-white border border-gray-200 rounded-lg p-3">
+            <div class="text-2xl font-bold text-green-600">${companiesWithoutFindings.length}</div>
+            <div class="text-xs text-gray-600">Clean Records</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-lg p-3">
+            <div class="text-2xl font-bold text-orange-600">${companiesWithFindings.length}</div>
+            <div class="text-xs text-gray-600">With Findings</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-lg p-3">
+            <div class="text-2xl font-bold text-blue-600">${aggregateStats.avgInspectionsPerCompany.toFixed(1)}</div>
+            <div class="text-xs text-gray-600">Avg Inspections</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-lg p-3">
+            <div class="text-2xl font-bold text-purple-600">${aggregateStats.escalationRate}%</div>
+            <div class="text-xs text-gray-600">Escalation Rate</div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex justify-center mt-6">
+          <button id="generate-ai-summary" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg flex items-center transition-all duration-200 shadow-lg hover:shadow-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Generate AI Intelligence Report
+          </button>
+        </div>
+      </div>
+      
+      <!-- Company Table Section -->
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-medium">Company Regulatory Summary</h3>
         
         <div class="flex space-x-2">
-          <button id="generate-ai-summary" class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Generate AI Summary
-          </button>
-          
           <button id="email-summary-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md flex items-center transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -24714,7 +25091,7 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
       <!-- AI Analysis Results Section -->
       <div id="ai-analysis-results" class="mt-6 hidden">
         <div class="border-t pt-4">
-          <h4 class="text-base font-medium mb-3">AI Analysis Results</h4>
+          <h4 class="text-base font-medium mb-3">AI Intelligence Report</h4>
           <div id="ai-analysis-content" class="bg-gray-50 p-4 rounded-lg">
             <!-- AI content will be placed here -->
           </div>
@@ -24746,34 +25123,28 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
     analyzeSelectedCompanies(warningLetters, inspections);
   });
   
-  document.getElementById('generate-ai-summary').addEventListener('click', WLgenerateAISummary);
-
   document.getElementById('generate-ai-summary').addEventListener('click', () => {
-  // Retrieve drug name from input field
-//   const drugName = document.getElementById('drug-name-input').value.trim();
-  
-  // Optional: Use a stored variable if input might be cleared
-  const drugName = window.currentDrugName || '';
+    // Retrieve drug name from input field
+    const drugName = window.currentDrugName || '';
 
-  // Validate drug name
-  if (!drugName) {
-    alert('Please enter a drug name and search Orange Book first');
-    return;
-  }
+    // Validate drug name
+    if (!drugName) {
+      alert('Please enter a drug name and search Orange Book first');
+      return;
+    }
 
-  // Validate companies
-  const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
-    row.querySelector('td:first-child').textContent.trim()
-  );
-  if (companies.length === 0) {
-    alert('No companies found. Please search Orange Book first.');
-    return;
-  }
+    // Validate companies
+    const companies = Array.from(document.querySelectorAll('#company-summary-section tbody tr')).map(row => 
+      row.querySelector('td:first-child').textContent.trim()
+    );
+    if (companies.length === 0) {
+      alert('No companies found. Please search Orange Book first.');
+      return;
+    }
 
-  // Call WLgenerateAISummary with drugName
-  WLgenerateAISummary(drugName);
-});
-
+    // Call WLgenerateAISummary with drugName
+    WLgenerateAISummary(drugName);
+  });
 
   document.getElementById('email-summary-btn').addEventListener('click', WLemailSummary);
   
@@ -24802,7 +25173,31 @@ function createCompanySummaryFromTrackedData(companies, warningLetters, inspecti
     }
   });
 }
+
+// Helper function to calculate aggregate statistics
+function calculateAggregateStats(companyStats, warningLetters, inspections) {
+  const totalForm483s = companyStats.reduce((sum, stat) => sum + stat.form483Count, 0);
+  const totalWarningLetters = companyStats.reduce((sum, stat) => sum + stat.wlCount, 0);
+  const totalInspections = companyStats.reduce((sum, stat) => sum + stat.totalInspections, 0);
   
+  // Calculate escalation rate (Warning Letters / Form 483s)
+  const escalationRate = totalForm483s > 0 
+    ? Math.round((totalWarningLetters / totalForm483s) * 100) 
+    : 0;
+  
+  // Average inspections per company
+  const avgInspectionsPerCompany = companyStats.length > 0 
+    ? totalInspections / companyStats.length 
+    : 0;
+  
+  return {
+    totalForm483s,
+    totalWarningLetters,
+    totalInspections,
+    escalationRate,
+    avgInspectionsPerCompany
+  };
+}
   // Function to display warning letters with pagination
   function displayWarningLetters(data, companies, filters = {}) {
     const letters = data.results || [];
@@ -53731,6 +54126,8 @@ function generateEmaLocalSummary(allData) {
   }
 }
 
+
+
 // Helper funct
 // Helper Functions for Analysis
 
@@ -54289,6 +54686,8 @@ function createEmaEnhancedFooter(drugName) {
   
   return footer;
 }
+
+
 async function generateEmaEnhancedSummary(drugName) {
   // This function would integrate with your AI service
   // For now, show a placeholder
@@ -75934,7 +76333,7 @@ window.fetchStudies = async function(drug = "", condition = "", hasResults = fal
   }
 };
 
-
+  
 
 
 // Add the EMA data module to window for debugging
