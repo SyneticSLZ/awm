@@ -131,7 +131,11 @@ app.use(
     credentials: true, // If your app uses cookies or authentication
   })
 );
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: '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'
 
+});
 
 // app.use((req, res, next) => {
 //   // Security headers
@@ -234,6 +238,9 @@ function verifyPassword(password, hash, salt) {
   const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
   return hash === verifyHash;
 }
+
+
+
 
 
 
@@ -3516,6 +3523,86 @@ app.post('/api/generate-warning-letter-summary', async (req, res) => {
   }
 });
 
+
+
+
+
+app.post('/api/openai-generate-warning-letter-summary', async (req, res) => {
+  const { companies, warningLetters, form483s, maxTokens = 3000, temperature = 0.3 } = req.body;
+
+  if (!companies || !warningLetters || !form483s) {
+    return res.status(400).json({ success: false, error: 'Missing required data' });
+  }
+
+  try {
+    // Combine all inputs into a structured prompt
+    const formattedPrompt = `
+You are a regulatory AI designed to analyze FDA 483s, Warning Letters, and inspection reports. Based on the following:
+
+**Companies:** ${companies.join(', ')}
+
+**Warning Letters:**
+${JSON.stringify(warningLetters, null, 2)}
+
+**Form 483s (Inspections):**
+${JSON.stringify(form483s, null, 2)}
+
+Cross-reference these with known compliance risks. Return:
+✅ Tailwind-compatible HTML summary  
+✅ Cards for critical findings  
+✅ Tables for violations by company  
+✅ Trends, key risks, and clear, concise summaries ready to inject into the UI.
+
+Respond only with Tailwind-formatted HTML. Do not include additional explanation.
+    `.trim();
+
+    // Step 1: Create a thread
+    const thread = await openai.beta.threads.create();
+
+    // Step 2: Send message to thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: 'user',
+      content: formattedPrompt
+    });
+
+    // Step 3: Run the assistant
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: ASSISTANT_ID,
+      instructions: 'Provide only Tailwind-formatted HTML summary ready for frontend display.'
+    });
+
+    // Step 4: Poll for completion
+    let runStatus = run.status;
+    let result;
+    while (runStatus !== 'completed' && runStatus !== 'failed' && runStatus !== 'cancelled') {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const statusCheck = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      runStatus = statusCheck.status;
+    }
+
+    if (runStatus !== 'completed') {
+      throw new Error('AI processing failed or was cancelled.');
+    }
+
+    // Step 5: Retrieve AI response
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    const aiMessage = messages.data.find(msg => msg.role === 'assistant');
+    
+    if (!aiMessage || !aiMessage.content || !aiMessage.content[0]?.text?.value) {
+      throw new Error('No valid AI response received');
+    }
+
+    res.json({
+      success: true,
+      summary: aiMessage.content[0].text.value
+    });
+
+  } catch (err) {
+    console.error('AI Summary Generation Error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 async function searchDrugsForConditionfromdrug(condition) {
   try {
     // Step 1: Normalize condition name for search
@@ -4924,14 +5011,10 @@ For a complete analysis, please try again later or consult the original document
 }
 
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: 'sk-proj-nxfaxu6gapHui2EF3q2uT3BlbkFJrU6892giVohI6KUpvig4'
 
-});
 
-// Your OpenAI Assistant ID
-const ASSISTANT_ID = 'asst_4NqstKJU6mibzFI4oCFZ8CUt';
+// Replace with your Assistant ID
+const ASSISTANT_ID = 'asst_abpUoLCXqB62X8rDNOJxe50M';
 
 // API route to generate visualization
 app.post('/api/generate-visualization', async (req, res) => {
