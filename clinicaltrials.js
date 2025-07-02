@@ -133,7 +133,8 @@ app.use(
 );
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: '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'
+
+  apiKey: process.env.OPENAI_API_KEY
 
 });
 
